@@ -7,7 +7,7 @@ import { View, Text, FlatList, TouchableOpacity, StyleSheet } from "react-native
 export default class Main extends Component {
 
 	static navigationOptions = {
-		title: "JsHunt"
+		title: "Médico Consultor"
 	};
 
 	state = {
@@ -58,7 +58,7 @@ export default class Main extends Component {
 			<TouchableOpacity 
 			style={styles.productButton} 
 			onPress={() => {
-				this.props.navigation.navigate("Product", { product: item });
+				this.props.navigation.navigate("Hospital", { hospital: item });
 			}}
 			>
 			<Text style={styles.productButtonText}>Acessar</Text>
