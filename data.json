@@ -4,6 +4,7 @@
 		"last_update_app": "Hoje às 10:50:20"
 	},
 	"hospitals": [{
+		"_id": "1b6b31eb31762700049b33df",
 		"title": "Barra D'Or",
 		"description": "Hospital Barra D'Or",
 		"image": "http://www.copador.com.br/images/logo/copaDor_logo.png",
@@ -11,6 +12,7 @@
 		"amount_patients": "10",
 		"visited_patients": "5"
 	}, {
+		"_id": "2b6b31eb31762700049b33df",
 		"title": "Caxias D'Or",
 		"description": "Hospital Caxias D'Or",
 		"image": "http://www.copador.com.br/images/logo/copaDor_logo.png",
@@ -18,6 +20,7 @@
 		"amount_patients": "10",
 		"visited_patients": "5"
 	}, {
+		"_id": "3b6b31eb31762700049b33df",
 		"title": "Copa D'Or",
 		"description": "Hospital Copa D'Or",
 		"image": "http://www.copador.com.br/images/logo/copaDor_logo.png",
@@ -25,6 +28,7 @@
 		"amount_patients": "10",
 		"visited_patients": "5"
 	}, {
+		"_id": "4b6b31eb31762700049b33df",
 		"title": "Norte D'Or",
 		"description": "Hospital Norte D'Or",
 		"image": "http://www.copador.com.br/images/logo/copaDor_logo.png",
@@ -32,6 +36,7 @@
 		"amount_patients": "10",
 		"visited_patients": "5"
 	}, {
+		"_id": "5b6b31eb31762700049b33df",
 		"title": "Niterói D'Or",
 		"description": "Hospital Niterói D'Or",
 		"image": "http://www.copador.com.br/images/logo/copaDor_logo.png",
