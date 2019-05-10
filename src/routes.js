@@ -1,19 +1,60 @@
-import { createStackNavigator, createAppContainer } from "react-navigation";
+import { createAppContainer, createDrawerNavigator, createApp } from "react-navigation";
+import { Dimensions } from 'react-native';
 
-import Main from "./pages/main";
-import Hospital from "./pages/hospital";
+import Sidebar from "./sidebar"
 
-const AppNavigator = createStackNavigator({
-	Main,
-	Hospital
-}, {
-	navigationOptions:{
-		headerStyle:{
-			backgroundColor: "#DA552F"
+import HospitalsScreen from "./pages/hospitals";
+import SignInScreen from './pages/signIn';
+import SettingsScreen from "./pages/settings"
+import CommentsScreen from "./pages/comments"
+
+import PatientsScreen from "./pages/patients";
+import PatientScreen from './pages/patients/patient';
+
+const MyDrawerNavigator = createDrawerNavigator({
+	
+	SignIn: {
+		screen: SignInScreen,
+		navigationOptions: {
+			drawerLabel: 'SignIn',
 		},
-		headerTintColor: "#FFF"
-	}
+	},
+	Patient: {
+		screen: PatientScreen,
+		navigationOptions: {
+			drawerLabel: 'Paciente',
+		},
+	},
+	Hospitals: {
+		screen: HospitalsScreen,
+		navigationOptions: {
+			drawerLabel: 'Hospitals',
+		},
+	},
+	Patients: {
+		screen: PatientsScreen,
+		navigationOptions: {
+			drawerLabel: 'Patients',
+		},
+	},
+	Comments: {
+		screen: CommentsScreen,
+		navigationOptions: {
+			drawerLabel: 'Comments',
+		},
+	},
+	Settings: {
+		screen: SettingsScreen,
+		navigationOptions: {
+			headerLayoutPreset: 'center',
+			drawerLabel: 'Configurações',
+		},
+	},
+},
+{
+  contentComponent: Sidebar,
+  headerLayoutPreset: 'center',
+  drawerWidth: Dimensions.get('window').width - 130,
 });
 
-export default createAppContainer(AppNavigator);
-
+export default createAppContainer(MyDrawerNavigator);

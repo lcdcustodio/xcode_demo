@@ -1,5 +1,5 @@
 import axios from "axios";
 
-axios.defaults.baseURL = 'https://rocketseat-node.herokuapp.com/api';
+axios.defaults.baseURL = 'http://localhost:8081/data.json';
 
 export default axios;
