@@ -15,7 +15,6 @@ export default class Comments extends Component {
 	};
 	
 	componentDidMount() {
-        console.log('oook');
 		this.loadProduts();
 	}
 
@@ -44,44 +43,40 @@ export default class Comments extends Component {
 	}
 
 	renderItem = ({ item }) => (
-		
+		<TouchableOpacity
+			onPress={() => {
+				console.log(item);
+				console.log(this.props);
+				console.log(this.props.navigation);
+			}}
+			>
+			<View style={styles.productContainer}>
+				<Text style={styles.productTitle}>{item.username} </Text>
+				<Text style={styles.productDescription}>{item.created_at} </Text>
+				<Text style={styles.productDescription}>{item.comment}</Text>
+			</View>
+		</TouchableOpacity>
+	);
+
+	render(){
+		return (
 			<Container>
 				<Header>
 					<Left style={styles.header}>
 						<Icon onPress={() => this.props.navigation.openDrawer()} name="md-menu" style={styles.icon} />
 					</Left>
 				</Header>
-				<Content>
-				<TouchableOpacity
-					onPress={() => {
-						console.log(item);
-					}}
-					>
-						<View style={styles.productContainer}>
-						<Text style={styles.productTitle}>{item.username} </Text>
-                        <Text style={styles.productTitle}>{item.created_at} </Text>
-						<Text style={styles.productDescription}>{item.comment}</Text>
-					</View>
-
-				</TouchableOpacity>
-
-				</Content>
+				<View style={styles.container}>
+					<FlatList
+						contentContainerStyle={styles.list}
+						data={this.state.comments}
+						keyExtractor={item => item._id}
+						renderItem={this.renderItem}
+						onEndReached={this.loadMore}
+						onEndReachedThreshold={0.1}
+						/>
+				</View>
 			</Container>
-
-	);
-
-	render(){
-		return (
-			<View style={styles.container}>
-				<FlatList
-					contentContainerStyle={styles.list}
-					data={this.state.comments}
-					keyExtractor={item => item._id}
-					renderItem={this.renderItem}
-					onEndReached={this.loadMore}
-					onEndReachedThreshold={0.1}
-					/>
-			</View>
 		);
 	}
 }
@@ -90,11 +85,9 @@ const styles = StyleSheet.create({
 	
 	productContainer: {
 		backgroundColor: "#FFF",
-		borderWidth: 1,
-		borderColor: "#DDD",
-		borderRadius: 5,
-		padding: 20,
-		marginBottom: 20
+		borderBottomWidth: 1,
+		borderBottomColor: "#DDD",
+		padding: 20
 	},
 
 	productTitle: {

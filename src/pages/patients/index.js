@@ -15,7 +15,6 @@ export default class Patients extends Component {
 	};
 	
 	componentDidMount() {
-        console.log('oook');
 		this.loadProduts();
 	}
 
@@ -44,7 +43,28 @@ export default class Patients extends Component {
 	}
 
 	renderItem = ({ item }) => (
-		
+		<TouchableOpacity
+			onPress={() => {
+				//this.props.navigation.navigate({ routeName: 'Hospitals' });
+
+				global.currentScreenIndex = 3; 
+				console.log(3); 
+				this.props.navigation.navigate('Hospitals');
+
+				console.log('ooook');
+			}}>
+				<View style={styles.productContainer}>
+					<Text style={styles.productTitle}> {item.name} </Text>
+					<Text style={styles.productDescription}> INTERNADO: {item.internship} | SETOR: {item.sector} | LEITO: {item.room} </Text>  
+					<Text style={styles.productDescription}> Última visita: {item.last_visited} </Text>
+				</View>
+
+		</TouchableOpacity>
+	);
+
+	render(){
+		return (
+
 			<Container>
 				<Header>
 					<Left style={styles.header}>
@@ -52,25 +72,6 @@ export default class Patients extends Component {
 					</Left>
 				</Header>
 				<Content>
-				<TouchableOpacity
-					onPress={() => {
-						console.log(item);
-					}}
-					>
-						<View style={styles.productContainer}>
-						<Text style={styles.productTitle}>INTERNADO: {item.name} | <Text style={styles.productDescription}>SETOR: {item.internship}</Text> | <Text style={styles.productDescription}> SETOR: {item.sector}</Text> | <Text style={styles.productDescription}> LEITO: {item.sector}</Text>  </Text>
-						<Text style={styles.productDescription}>Última visita: {item.last_visited}</Text>
-					</View>
-
-				</TouchableOpacity>
-
-				</Content>
-			</Container>
-
-	);
-
-	render(){
-		return (
 			<View style={styles.container}>
 				<FlatList
 					contentContainerStyle={styles.list}
@@ -81,6 +82,8 @@ export default class Patients extends Component {
 					onEndReachedThreshold={0.1}
 					/>
 			</View>
+			</Content>
+			</Container>
 		);
 	}
 }
@@ -89,11 +92,9 @@ const styles = StyleSheet.create({
 	
 	productContainer: {
 		backgroundColor: "#FFF",
-		borderWidth: 1,
-		borderColor: "#DDD",
-		borderRadius: 5,
-		padding: 20,
-		marginBottom: 20
+		borderBottomWidth: 1,
+		borderBottomColor: "#DDD",
+		padding: 20
 	},
 
 	productTitle: {
@@ -103,7 +104,7 @@ const styles = StyleSheet.create({
 	},
 	
 	productDescription: {
-		fontSize: 16,
+		fontSize: 14,
 		color: "#999",
 		marginTop: 5,
 		lineHeight: 24

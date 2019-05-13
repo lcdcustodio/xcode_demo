@@ -32,12 +32,13 @@ export default class SettingsScreen extends Component {
 }
 
 const styles = StyleSheet.create({
+	
 	container: {
-		flex: 1,
-		justifyContent: 'center',
-		alignItems: 'center',
-		backgroundColor: '#ffffff'
+		backgroundColor: "#FFF",
+		padding: 20,
+		lineHeight: 2
 	},
+
 	msgVersao: {
 		marginTop: 30,
 		fontSize: 16,
@@ -50,6 +51,7 @@ const styles = StyleSheet.create({
 		textAlign: 'center',
 		margin: 10,
 	},
+
 	productButton: {
 		height: 41,
 		width: 318,

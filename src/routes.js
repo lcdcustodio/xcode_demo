@@ -1,7 +1,7 @@
 import { createAppContainer, createDrawerNavigator, createApp } from "react-navigation";
 import { Dimensions } from 'react-native';
 
-import Sidebar from "./sidebar"
+import Sidebar from "./pages/sidebar"
 
 import HospitalsScreen from "./pages/hospitals";
 import SignInScreen from './pages/signIn';

@@ -21,8 +21,6 @@ export default class Hospitals extends Component {
 
 		const response = await api.get();
 
-		console.log(response);
-
 		const { hospitals, ... infos } = response.data;
 
 		this.setState({ 
@@ -45,14 +43,13 @@ export default class Hospitals extends Component {
 
 	renderItem = ({ item }) => (
 		
-				<TouchableOpacity
-		onPress={() => {
-			console.log(item);
-			console.log(this.props.navigation);
-			console.log(this.props);
-		}}
-		>
-		
+		<TouchableOpacity
+			onPress={() => {
+				console.log(item);
+				console.log(this.props);
+				console.log(this.props.navigation);
+			}}
+			>
 			<View style={styles.productContainer}>
 				<Text style={styles.productTitle}>{item.title} <Text style={styles.productDescription}>{item.date}</Text></Text>
 				<Text style={styles.productDescription}>Visitas {item.visited_patients}</Text>
@@ -60,11 +57,7 @@ export default class Hospitals extends Component {
 				<Image source={{uri: item.image}} style={styles.sideMenuLogoIcon} />
 			
 			</View>
-
 		</TouchableOpacity>
-			
-
-		
 	);
 
 	render(){
@@ -75,16 +68,16 @@ export default class Hospitals extends Component {
 						<Icon onPress={() => this.props.navigation.openDrawer()} name="md-menu" style={styles.icon} />
 					</Left>
 				</Header>
-			<View style={styles.container}>
-				<FlatList
-					contentContainerStyle={styles.list}
-					data={this.state.hospitals}
-					keyExtractor={item => item._id}
-					renderItem={this.renderItem}
-					onEndReached={this.loadMore}
-					onEndReachedThreshold={0.1}
-					/>
-			</View>
+				<View style={styles.container}>
+					<FlatList
+						contentContainerStyle={styles.list}
+						data={this.state.hospitals}
+						keyExtractor={item => item._id}
+						renderItem={this.renderItem}
+						onEndReached={this.loadMore}
+						onEndReachedThreshold={0.1}
+						/>
+				</View>
 			</Container>
 		);
 	}
@@ -92,22 +85,11 @@ export default class Hospitals extends Component {
 
 const styles = StyleSheet.create({
 	
-	container: {
-		flex: 1,
-		backgroundColor: "#fafafa"
-	},
-
-	list: {
-		padding: 20
-	},
-
 	productContainer: {
 		backgroundColor: "#FFF",
-		borderWidth: 1,
-		borderColor: "#DDD",
-		borderRadius: 5,
-		padding: 20,
-		marginBottom: 20
+		borderBottomWidth: 1,
+		borderBottomColor: "#DDD",
+		padding: 20
 	},
 
 	productTitle: {
