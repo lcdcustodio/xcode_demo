@@ -1,11 +1,12 @@
 import React, { Component } from "react";
 
 import api from '../services/api';
-import { Button, Container, Header, Body, Title, Left, Icon, H1, Content } from 'native-base';
 
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, Image } from "react-native";
+import { Container, Content, Header, Left, Icon, Text } from 'native-base';
 
-export default class Hospitals extends Component {
+import { View, FlatList, TouchableOpacity, StyleSheet, Image } from "react-native";
+
+export default class Main extends Component {
 
 	state = {
 		infos: {},
@@ -42,20 +43,15 @@ export default class Hospitals extends Component {
 	}
 
 	renderItem = ({ item }) => (
-		
 		<TouchableOpacity
 			onPress={() => {
-				console.log(item);
-				console.log(this.props);
-				console.log(this.props.navigation);
-			}}
-			>
-			<View style={styles.productContainer}>
-				<Text style={styles.productTitle}>{item.title} <Text style={styles.productDescription}>{item.date}</Text></Text>
-				<Text style={styles.productDescription}>Visitas {item.visited_patients}</Text>
-				<Text style={styles.productDescription}>Pacientes {item.amount_patients}</Text>
+				this.prop.navigation.navigate("Patients", { hospital: item });
+			}}>
+			<View style={styles.hospitalContainer}>
+				<Text style={styles.hospitalTitle}>{item.title} <Text style={styles.hospitalDescription}>{item.date}</Text></Text>
+				<Text style={styles.hospitalDescription}>Visitas {item.visited_patients}</Text>
+				<Text style={styles.hospitalDescription}>Pacientes {item.amount_patients}</Text>
 				<Image source={{uri: item.image}} style={styles.sideMenuLogoIcon} />
-			
 			</View>
 		</TouchableOpacity>
 	);
@@ -68,16 +64,18 @@ export default class Hospitals extends Component {
 						<Icon onPress={() => this.props.navigation.openDrawer()} name="md-menu" style={styles.icon} />
 					</Left>
 				</Header>
-				<View style={styles.container}>
-					<FlatList
-						contentContainerStyle={styles.list}
-						data={this.state.hospitals}
-						keyExtractor={item => item._id}
-						renderItem={this.renderItem}
-						onEndReached={this.loadMore}
-						onEndReachedThreshold={0.1}
-						/>
-				</View>
+				<Content>
+					<View style={styles.container}>
+						<FlatList
+							contentContainerStyle={styles.list}
+							data={this.state.hospitals}
+							keyExtractor={item => item._id}
+							renderItem={this.renderItem}
+							onEndReached={this.loadMore}
+							onEndReachedThreshold={0.1}
+							/>
+					</View>
+				</Content>
 			</Container>
 		);
 	}
@@ -85,17 +83,24 @@ export default class Hospitals extends Component {
 
 const styles = StyleSheet.create({
 	
-	productContainer: {
+	hospitalContainer: {
 		backgroundColor: "#FFF",
 		borderBottomWidth: 1,
 		borderBottomColor: "#DDD",
 		padding: 20
 	},
 
-	productTitle: {
+	hospitalTitle: {
 		fontSize: 18,
 		fontWeight: "bold",
 		color: "#333"
+	},
+
+	hospitalDescription: {
+		fontSize: 16,
+		color: "#999",
+		marginTop: 5,
+		lineHeight: 24
 	},
 
 	sideMenuLogoIcon: {
@@ -103,30 +108,7 @@ const styles = StyleSheet.create({
 		width: 175,
 		height: 86,
 	},
-
-	productDescription: {
-		fontSize: 16,
-		color: "#999",
-		marginTop: 5,
-		lineHeight: 24
-	},
-
-	productButton: {
-		height: 42,
-		borderRadius: 5,
-		borderWidth: 2,
-		borderColor: "#DA552F",
-		backgroundColor: "transparent",
-		justifyContent: "center",
-		alignItems: "center",
-		marginTop: 10
-	},
-
-	productButtonText: {
-		fontSize: 16,
-		color: "#DA552F",
-		fontWeight: "bold"
-	}
+	
 });
 
 

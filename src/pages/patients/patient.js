@@ -13,6 +13,10 @@ export default class Patient extends Component {
 		this.state = { selectedTab: 'profile' }
 	}
 
+	navigationOptions = ({ navigation }) => ({
+		title: navigation.state.params.hospital.title
+	});
+
 	renderSelectedTab() {
 		switch (this.state.selectedTab) {
 			case 'profile':

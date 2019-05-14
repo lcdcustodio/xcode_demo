@@ -11,7 +11,7 @@ import CommentsScreen from "./pages/comments"
 import PatientsScreen from "./pages/patients";
 import PatientScreen from './pages/patients/patient';
 
-const MyDrawerNavigator = createDrawerNavigator({
+const DrawerNavigatorMC = createDrawerNavigator({
 	
 	SignIn: {
 		screen: SignInScreen,
@@ -57,4 +57,4 @@ const MyDrawerNavigator = createDrawerNavigator({
   drawerWidth: Dimensions.get('window').width - 130,
 });
 
-export default createAppContainer(MyDrawerNavigator);
+export default createAppContainer(DrawerNavigatorMC);

@@ -2,12 +2,20 @@ import React, { Component } from "react";
 
 import api from '../../services/api';
 
-import { Container, Content, Header, Left, Button, Icon, Body, Title, Footer, FooterTab, Text } from 'native-base';
+import { Container, Content, Header, Left, Icon, Text } from 'native-base';
 
-import { View, FlatList, TouchableOpacity, StyleSheet, Image } from "react-native";
+import { View, FlatList, TouchableOpacity, StyleSheet } from "react-native";
 
 export default class Patients extends Component {
-    
+	
+	navigateToScreen = (route) => () => {
+		const navigateAction = NavigationActions.navigate({
+		  routeName: route
+		});
+		this.props.navigation.dispatch(navigateAction);
+		this.props.navigation.dispatch(DrawerActions.closeDrawer())
+	}
+
 	state = {
 		infos: {},
 		patients: [],
@@ -45,26 +53,18 @@ export default class Patients extends Component {
 	renderItem = ({ item }) => (
 		<TouchableOpacity
 			onPress={() => {
-				//this.props.navigation.navigate({ routeName: 'Hospitals' });
-
-				global.currentScreenIndex = 3; 
-				console.log(3); 
-				this.props.navigation.navigate('Hospitals');
-
-				console.log('ooook');
+				this.prop.navigation.navigate("Patient", { patient: item });
 			}}>
-				<View style={styles.productContainer}>
-					<Text style={styles.productTitle}> {item.name} </Text>
-					<Text style={styles.productDescription}> INTERNADO: {item.internship} | SETOR: {item.sector} | LEITO: {item.room} </Text>  
-					<Text style={styles.productDescription}> Última visita: {item.last_visited} </Text>
-				</View>
-
+			<View style={styles.productContainer}>
+				<Text style={styles.productTitle}> {item.name} </Text>
+				<Text style={styles.productDescription}> INTERNADO: {item.internship} | SETOR: {item.sector} | LEITO: {item.room} </Text>  
+				<Text style={styles.productDescription}> Última visita: {item.last_visited} </Text>
+			</View>
 		</TouchableOpacity>
 	);
 
 	render(){
 		return (
-
 			<Container>
 				<Header>
 					<Left style={styles.header}>
@@ -72,17 +72,17 @@ export default class Patients extends Component {
 					</Left>
 				</Header>
 				<Content>
-			<View style={styles.container}>
-				<FlatList
-					contentContainerStyle={styles.list}
-					data={this.state.patients}
-					keyExtractor={item => item._id}
-					renderItem={this.renderItem}
-					onEndReached={this.loadMore}
-					onEndReachedThreshold={0.1}
-					/>
-			</View>
-			</Content>
+					<View style={styles.container}>
+						<FlatList
+							contentContainerStyle={styles.list}
+							data={this.state.patients}
+							keyExtractor={item => item._id}
+							renderItem={this.renderItem}
+							onEndReached={this.loadMore}
+							onEndReachedThreshold={0.1}
+						/>
+					</View>
+				</Content>
 			</Container>
 		);
 	}
