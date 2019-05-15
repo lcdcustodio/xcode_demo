@@ -1,5 +1,6 @@
-import { createAppContainer, createDrawerNavigator, createApp } from "react-navigation";
-import { Dimensions } from 'react-native';
+import React, { Component } from "react";
+
+import { createAppContainer, createDrawerNavigator } from "react-navigation";
 
 import Sidebar from "./pages/sidebar"
 
@@ -11,50 +12,40 @@ import CommentsScreen from "./pages/comments"
 import PatientsScreen from "./pages/patients";
 import PatientScreen from './pages/patients/patient';
 
-const DrawerNavigatorMC = createDrawerNavigator({
+import PatientDetailScreen from './pages/patients/patientDetail';
+
+const AppNavigator = createDrawerNavigator({
 	
 	SignIn: {
-		screen: SignInScreen,
-		navigationOptions: {
-			drawerLabel: 'SignIn',
-		},
+		screen: SignInScreen
 	},
 	Patient: {
-		screen: PatientScreen,
-		navigationOptions: {
-			drawerLabel: 'Paciente',
-		},
+		screen: PatientScreen
+	},
+	PatientDetail: {
+		screen: PatientDetailScreen
 	},
 	Hospitals: {
-		screen: HospitalsScreen,
-		navigationOptions: {
-			drawerLabel: 'Hospitals',
-		},
+		screen: HospitalsScreen
 	},
 	Patients: {
-		screen: PatientsScreen,
-		navigationOptions: {
-			drawerLabel: 'Patients',
-		},
+		screen: PatientsScreen
 	},
 	Comments: {
-		screen: CommentsScreen,
-		navigationOptions: {
-			drawerLabel: 'Comments',
-		},
+		screen: CommentsScreen
 	},
 	Settings: {
-		screen: SettingsScreen,
-		navigationOptions: {
-			headerLayoutPreset: 'center',
-			drawerLabel: 'Configurações',
-		},
+		screen: SettingsScreen
 	},
 },
 {
-  contentComponent: Sidebar,
-  headerLayoutPreset: 'center',
-  drawerWidth: Dimensions.get('window').width - 130,
+  contentComponent: Sidebar
 });
 
-export default createAppContainer(DrawerNavigatorMC);
+const AppContainer = createAppContainer(AppNavigator);
+
+export default class App extends Component{
+    render(){
+        return  <AppContainer ref={nav =>  this.navigator = nav } />
+    }
+}

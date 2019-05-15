@@ -6,7 +6,6 @@ export default class Sidebar extends Component {
 	
 	constructor() {
 		super();
-		this.logoImage = '';
 		this.items = [
 			{
 				navOptionThumb: 'home',
@@ -17,16 +16,6 @@ export default class Sidebar extends Component {
 				navOptionThumb: 'md-person',
 				navOptionName: 'OBSERVAÇÕES',
 				screenToNavigate: 'Comments',
-			},
-			{
-				navOptionThumb: 'md-person',
-				navOptionName: 'PACIENTE',
-				screenToNavigate: 'Patient',
-			},
-			{
-				navOptionThumb: 'md-person',
-				navOptionName: 'PACIENTES',
-				screenToNavigate: 'Patients',
 			},
 			{
 				navOptionThumb: 'settings',

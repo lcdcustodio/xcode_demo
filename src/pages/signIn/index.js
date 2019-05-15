@@ -2,6 +2,10 @@ import React, { Component } from 'react';
 
 import { StatusBar } from 'react-native';
 
+import api from '../../services/api';
+
+import qs from "qs";
+
 import {
 	Container,
 	Logo,
@@ -14,8 +18,8 @@ import {
 export default class SignIn extends Component {
 	
 	state = {
-		email: 'marcos.fonseca',
-		password: '123456',
+		email: '',
+		password: '',
 		error: ''
 	};
 
@@ -28,10 +32,38 @@ export default class SignIn extends Component {
 	};
 
 	handleSignInPress = async () => {
+		
 		if (this.state.email.length === 0 || this.state.password.length === 0) {
-			this.setState({ error: 'Preencha usuário e senha para continuar!' }, () => false);
+			this.setState({ error: 'Por favor, preencha todos os campos' }, () => false);
 		} else {
-			this.props.navigation.navigate({ routeName: 'Hospitals' });
+			
+			const params = {
+				username: this.state.email,
+				password: this.state.password
+			};
+
+			api.post('/api/login', 
+				qs.stringify(params)
+			)
+			.then(response => { 
+				
+				if(response.data.success)
+				{
+					this.props.navigation.navigate({ routeName: 'Hospitals' });
+				}
+			})
+			.catch(error => {
+
+				if(error.response.status == 401)
+				{
+					this.setState({ error: 'Usuário e senha não coincidem' }, () => false);
+				}
+				else if(error.response.status == 500)
+				{
+					this.setState({ error: 'Falha na comunicação com o servidor de aplicação' }, () => false);
+				}
+				
+			});
 		}
 	};
 

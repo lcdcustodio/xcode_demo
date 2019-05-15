@@ -8,14 +8,6 @@ import { View, FlatList, TouchableOpacity, StyleSheet } from "react-native";
 
 export default class Patients extends Component {
 	
-	navigateToScreen = (route) => () => {
-		const navigateAction = NavigationActions.navigate({
-		  routeName: route
-		});
-		this.props.navigation.dispatch(navigateAction);
-		this.props.navigation.dispatch(DrawerActions.closeDrawer())
-	}
-
 	state = {
 		infos: {},
 		patients: [],
@@ -53,7 +45,8 @@ export default class Patients extends Component {
 	renderItem = ({ item }) => (
 		<TouchableOpacity
 			onPress={() => {
-				this.prop.navigation.navigate("Patient", { patient: item });
+				console.log(item);
+				this.props.navigation.navigate("PatientDetail", { patient: item });
 			}}>
 			<View style={styles.productContainer}>
 				<Text style={styles.productTitle}> {item.name} </Text>

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { Container, Content, Header, Left, Button, Icon, Body, Title } from 'native-base';
 
-export default class SettingsScreen extends Component {
+export default class Settings extends Component {
 
 	render() {
 		return (

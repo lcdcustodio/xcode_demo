@@ -6,7 +6,7 @@ import { Container, Content, Header, Left, Icon, Text } from 'native-base';
 
 import { View, FlatList, TouchableOpacity, StyleSheet, Image } from "react-native";
 
-export default class Main extends Component {
+export default class Hospital extends Component {
 
 	state = {
 		infos: {},
@@ -45,7 +45,8 @@ export default class Main extends Component {
 	renderItem = ({ item }) => (
 		<TouchableOpacity
 			onPress={() => {
-				this.prop.navigation.navigate("Patients", { hospital: item });
+				console.log(item);
+				this.props.navigation.navigate("Patients", { hospital: item });
 			}}>
 			<View style={styles.hospitalContainer}>
 				<Text style={styles.hospitalTitle}>{item.title} <Text style={styles.hospitalDescription}>{item.date}</Text></Text>
