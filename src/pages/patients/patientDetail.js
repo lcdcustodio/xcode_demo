@@ -1,14 +1,14 @@
 import React, { Component } from "react";
+import { Container, Content, Header, Left, Right, Button, Body, Icon, Title, Footer, FooterTab, Text } from 'native-base';
+import { View, FlatList, TouchableOpacity, StyleSheet, Image } from "react-native";
 
+//Apis
 import api from '../../services/api';
 
+//Pages
 import Profile from "./profile"
 import Exams from "./exams"
 import Visits from "./visits"
-
-import { Container, Content, Header, Left, Button, Icon, Body, Title, Footer, FooterTab, Text } from 'native-base';
-
-import { View, FlatList, TouchableOpacity, StyleSheet, Image } from "react-native";
 
 export default class PatientDetail extends Component {
     
@@ -18,14 +18,12 @@ export default class PatientDetail extends Component {
             infos: {},
             comments: [],
             page: 1,
-            selectedTab: 'profile'
+			selectedTab: 'profile',
+			selectedTabTitle: 'Perfil'
         }
     }
     
     renderSelectedTab() {
-
-        console.log(this.state.selectedTab);
-
 		switch (this.state.selectedTab) {
 			case 'profile':
 				return (<Profile />);
@@ -40,12 +38,12 @@ export default class PatientDetail extends Component {
 		}
 	}
 
-	switchScreen(screen) {
-
-        console.log(screen);
-        
-        this.state.selectedTab = screen;
-        
+	switchScreen(screen, title) {        
+		this.state.selectedTab = screen;
+		this.setState({
+			selectedTab: screen,
+			selectedTabTitle: title,
+		})
         this.renderSelectedTab();
     }
 	
@@ -97,9 +95,13 @@ export default class PatientDetail extends Component {
 		return (
 			<Container>
 				<Header>
-					<Left style={styles.header}>
-						<Icon onPress={() => this.props.navigation.openDrawer()} name="md-menu" style={styles.icon} />
+					<Left style={{flex:1}} >
+						<Icon type="AntDesign" name="left" style={{ color: 'white' }} onPress={() => this.props.navigation.openDrawer()} />
 					</Left>
+					<Body style={{flex: 1, alignItems: 'center',alignSelf: 'center'}}>
+						<Title> {this.state.selectedTabTitle } </Title>
+					</Body>
+					<Right style={{flex: 1}} />
 				</Header>
                 <Content>
                     <View style={styles.container}>
@@ -115,15 +117,15 @@ export default class PatientDetail extends Component {
                 </Content>
                 <Footer>
                     <FooterTab>
-                        <Button vertical active={this.state.selectedTab === 'profile'} onPress={() => this.switchScreen('profile')}>
+                        <Button vertical active={this.state.selectedTab === 'profile'} onPress={() => this.switchScreen('profile', 'Perfil')}>
                             <Icon name="person" />
                             <Text>Perfil</Text>
                         </Button>
-                        <Button vertical active={this.state.selectedTab === 'exams'} onPress={() => this.switchScreen('exams')}>
+                        <Button vertical active={this.state.selectedTab === 'exams'} onPress={() => this.switchScreen('exams', 'Timeline')}>
                             <Icon name="apps" />
                             <Text>Timeline</Text>
                         </Button>
-                        <Button vertical active={this.state.selectedTab === 'visits'} onPress={() => this.switchScreen('visits')}>
+                        <Button vertical active={this.state.selectedTab === 'visits'} onPress={() => this.switchScreen('visits', 'Visitas')}>
                             <Icon active name="camera" />
                             <Text>Visitas</Text>
                         </Button>
@@ -136,14 +138,12 @@ export default class PatientDetail extends Component {
 }
 
 const styles = StyleSheet.create({
-	
 	productContainer: {
 		backgroundColor: "#FFF",
 		borderBottomWidth: 1,
 		borderBottomColor: "#DDD",
 		padding: 20
 	},
-
 	productTitle: {
 		fontSize: 18,
 		fontWeight: "bold",
