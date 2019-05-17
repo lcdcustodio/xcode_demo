@@ -4,11 +4,11 @@
   "private": true,
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
+    "android": "react-native run-android",
     "test": "jest"
   },
   "dependencies": {
     "axios": "^0.18.0",
-    "fsevents": "^2.0.6",
     "joi": "^14.3.1",
     "native-base": "^2.12.1",
     "prop-types": "^15.7.2",
@@ -31,5 +31,10 @@
   },
   "jest": {
     "preset": "react-native"
+  },
+  "rnpm": {
+    "assets": [
+      "./assets/fonts/"
+    ]
   }
 }
