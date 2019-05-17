@@ -62,6 +62,8 @@
 		017B32F1AB124AD9BEB915B1 /* libRNScreens.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 24D1888B42734E2492F87F33 /* libRNScreens.a */; };
 		0FBB6D80E0C94DAA88E15277 /* libRNVectorIcons.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 08A9CD75BA45444E81465D6B /* libRNVectorIcons.a */; };
 		87A403AEDA554EBBA5779136 /* libRNVectorIcons-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B509DFFF4DA94E7E81F83DEB /* libRNVectorIcons-tvOS.a */; };
+		D555DF8AE4CB45289AAD6E8A /* Gotham Rounded Book.otf in Resources */ = {isa = PBXBuildFile; fileRef = 73A1B0A55ABD48DB80E31CC3 /* Gotham Rounded Book.otf */; };
+		CAACB4B86271468BACA0E529 /* Gotham Rounded Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = D8329A8F1AAF4E3B8C46A888 /* Gotham Rounded Medium.otf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -395,6 +397,8 @@
 		AD5EC5AC1B97426F908540C0 /* RNVectorIcons.xcodeproj */ = {isa = PBXFileReference; name = "RNVectorIcons.xcodeproj"; path = "../node_modules/react-native-vector-icons/RNVectorIcons.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
 		08A9CD75BA45444E81465D6B /* libRNVectorIcons.a */ = {isa = PBXFileReference; name = "libRNVectorIcons.a"; path = "libRNVectorIcons.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 		B509DFFF4DA94E7E81F83DEB /* libRNVectorIcons-tvOS.a */ = {isa = PBXFileReference; name = "libRNVectorIcons-tvOS.a"; path = "libRNVectorIcons-tvOS.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
+		73A1B0A55ABD48DB80E31CC3 /* Gotham Rounded Book.otf */ = {isa = PBXFileReference; name = "Gotham Rounded Book.otf"; path = "../assets/fonts/Gotham Rounded Book.otf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		D8329A8F1AAF4E3B8C46A888 /* Gotham Rounded Medium.otf */ = {isa = PBXFileReference; name = "Gotham Rounded Medium.otf"; path = "../assets/fonts/Gotham Rounded Medium.otf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -689,6 +693,8 @@
 				71465D8C4A98479890A98CE2 /* rubicon-icon-font.ttf */,
 				5AA3E9CE8286473386274440 /* SimpleLineIcons.ttf */,
 				5BB6B79748714F0788FEA345 /* Zocial.ttf */,
+				73A1B0A55ABD48DB80E31CC3 /* Gotham Rounded Book.otf */,
+				D8329A8F1AAF4E3B8C46A888 /* Gotham Rounded Medium.otf */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -1158,6 +1164,8 @@
 				9A0B1066ECF041B5A083A41B /* rubicon-icon-font.ttf in Resources */,
 				5B17AD9560004C49BA9D22A0 /* SimpleLineIcons.ttf in Resources */,
 				0BF2BAEB18B64BCE834E1E8E /* Zocial.ttf in Resources */,
+				D555DF8AE4CB45289AAD6E8A /* Gotham Rounded Book.otf in Resources */,
+				CAACB4B86271468BACA0E529 /* Gotham Rounded Medium.otf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
