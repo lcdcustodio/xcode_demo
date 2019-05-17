@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { StatusBar } from 'react-native';
+import { StatusBar, Text, StyleSheet, ImageBackground, Image } from 'react-native';
 
 import api from '../../services/api';
 
@@ -70,28 +70,52 @@ export default class SignIn extends Component {
 	render() {
 		return (
 			<Container>
-				<StatusBar hidden />
-				<Logo source={require('../../images/copa-dor.png')} resizeMode="contain" />
-				<Input
-					placeholder="Endereço de e-mail"
-					value={this.state.email}
-					onChangeText={this.handleEmailChange}
-					autoCapitalize="none"
-					autoCorrect={false}
-				/>
-				<Input
-					placeholder="Senha"
-					value={this.state.password}
-					onChangeText={this.handlePasswordChange}
-					autoCapitalize="none"
-					autoCorrect={false}
-					secureTextEntry
-				/>
-				{this.state.error.length !== 0 && <ErrorMessage>{this.state.error}</ErrorMessage>}
-				<Button onPress={this.handleSignInPress}>
-					<ButtonText>Entrar</ButtonText>
-				</Button>
+
+				 <StatusBar hidden />
+
+					 <Logo source={require('../../images/logo-medico-consultor-branca.png')} resizeMode="contain" /> 
+
+					<Text style={styles.titulo1}>ACESSAR MÉDICO CONSULTOR</Text>
+
+					<Input
+						placeholder="Endereço de E-mail"
+						value={this.state.email}
+						onChangeText={this.handleEmailChange}
+						autoCapitalize="none"
+						autoCorrect={false}
+                        placeholderTextColor="#FFFFFF"
+                        textAlign="auto"
+					/>
+					<Input
+						placeholder="Senha"
+						value={this.state.password}
+						onChangeText={this.handlePasswordChange}
+						autoCapitalize="none"
+						autoCorrect={false}
+						secureTextEntry
+						placeholderTextColor="#FFFFFF"
+						textAlign="auto"
+					/>
+					{this.state.error.length !== 0 && <ErrorMessage>{this.state.error}</ErrorMessage>}
+					<Button onPress={this.handleSignInPress}>
+						<ButtonText>ENTRAR</ButtonText>
+					</Button>
 			</Container>
 		)
 	}
 }
+
+const styles = StyleSheet.create({
+
+	    titulo1: {
+		color: "#FFF",
+		fontSize: 18,
+		fontStyle: "normal",
+		lineHeight: 20,
+		letterSpacing: 1.44,
+		textAlign: "center",
+		width: 300,
+		height: 20,
+	}
+	
+	});
