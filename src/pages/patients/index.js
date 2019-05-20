@@ -2,7 +2,7 @@ import React, { Component } from "react";
 
 import api from '../../services/api';
 
-import { Container, Content, Header, Left, Icon, Text } from 'native-base';
+import { Container, Content, Header, Left, Right, Body, Icon, Title, Text } from 'native-base';
 
 import { View, FlatList, TouchableOpacity, StyleSheet } from "react-native";
 
@@ -60,9 +60,13 @@ export default class Patients extends Component {
 		return (
 			<Container>
 				<Header>
-					<Left style={styles.header}>
-						<Icon onPress={() => this.props.navigation.openDrawer()} name="md-menu" style={styles.icon} />
+					<Left style={{flex:1}} >
+						<Icon name="md-menu" style={{ color: 'white' }} onPress={() => this.props.navigation.openDrawer() } />
 					</Left>
+					<Body style={{flex: 1, alignItems: 'center',alignSelf: 'center'}}>
+						<Title> Pacientes </Title>
+					</Body>
+					<Right style={{flex: 1}} />
 				</Header>
 				<Content>
 					<View style={styles.container}>
