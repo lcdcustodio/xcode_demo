@@ -45,7 +45,7 @@ export default class Patient extends Component {
 					</Left>
 				</Header>
 				<Content>
-					{this.renderSelectedTab()}
+					
 				</Content>
 				<Footer>
 					<FooterTab>
