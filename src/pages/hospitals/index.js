@@ -43,29 +43,38 @@ export default class Hospital extends Component {
 				this.props.navigation.navigate("Patients", { hospital: item });
 			}}>
 			
-			<View style={[styles.container]}>
-			<View style={{flexGrow: 1, alignSelf : 'flex-start'}}>
-				<Thumbnail source={{uri: item.image}} style={styles.circleIcon} />
-			</View>
-				<View style={{flexGrow: 2, alignSelf : 'center'}}>
+			<View style={[styles.container, {alignItems: 'center' }]}>
+				<View>
+					<Thumbnail source={{uri: item.image}} style={styles.circleIcon} />
+				</View>
+				<View >
 					<Text style={[styles.title, styles.niceBlue]}> 
 						{item.title} | 
 						<Text style={[styles.description, styles.niceBlue]}> {item.date}</Text>
 					</Text>
-					<Text style={[styles.description]}>Visitas: {item.visited_patients}</Text>
-					<Text style={[styles.description]}>Pacientes: {item.amount_patients}</Text>
+
+					<View style={{flexDirection: "row", alignItems: 'center'}}>
+						<Icon type="AntDesign" name="calendar" style={{ color: '#005cd1', fontSize: 20, marginLeft: 10}} />
+						<Text style={[styles.description]}>Visitas: {item.visited_patients}</Text>
+					</View>
+					
+					<View style={{flexDirection: "row", alignItems: 'center'}}>
+						<Icon type="AntDesign" name="user" style={{ color: '#005cd1', fontSize: 20, marginLeft: 10}}/>
+						<Text style={[styles.description]}>Pacientes: {item.amount_patients}</Text>
+					</View>
 				</View>
-				<View style={[styles.sideButtonRight, {flexGrow: 3}]}>
-					<Icon type="AntDesign" name="right" />
+				<View style={[styles.sideButtonRight]}>
+					<Icon type="AntDesign" name="right" style={{ color: 'white', fontSize: 15}} />
 				</View>
 			</View>
+			
 		</TouchableOpacity>
 	);
 
 	render(){
 		return (
 			<Container>
-			<Header>
+				<Header style={{backgroundColor: "#005cd1"}}>
 					<Left style={{flex:1}} >
 						<Icon type="AntDesign" name="left" style={{ color: 'white' }} />
 					</Left>
