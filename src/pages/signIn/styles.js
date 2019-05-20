@@ -19,12 +19,14 @@ const Input = styled.TextInput`
   borderRadius: 5px;
   backgroundColor: "rgba(255, 255, 255, 0.3)";
   fontSize: 16px;
+  fontWeight: bold;
   borderColor: #ffffff;
   borderWidth: 1px;
   borderStyle: solid;
   marginTop: 15px;
   marginBottom: 15px;
-  color: #000000;
+  color: #ffffff;
+  paddingLeft: 20px;
   }
 `;
 
