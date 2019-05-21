@@ -1,6 +1,6 @@
 import axios from "axios";
 
-axios.defaults.baseURL = 'http://10.25.35.84:8080/medico-consultor';
+axios.defaults.baseURL = 'https://appmedconsultor.rededor.com.br';
 
 axios.defaults.mockService = "http://10.15.24.90:8081/data.json";
 

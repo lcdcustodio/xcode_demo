@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { View, StyleSheet, Image, Text } from 'react-native';
 import { Icon } from 'native-base';
 
+import LinearGradient from 'react-native-linear-gradient';
+
 export default class Sidebar extends Component {
 	
 	constructor() {
@@ -13,39 +15,48 @@ export default class Sidebar extends Component {
 				screenToNavigate: 'Hospitals',
 			},
 			{
-				navOptionThumb: 'md-person',
-				navOptionName: 'OBSERVAÇÕES',
-				screenToNavigate: 'Comments',
-			},
-			{
-				navOptionThumb: 'settings',
-				navOptionName: 'CONFIGURAÇÕES',
-				screenToNavigate: 'Settings',
-			},
+				navOptionThumb: 'home',
+				navOptionName: 'SAIR',
+				screenToNavigate: 'SignIn',
+			}
 		];
 	}
 
 	render() {
+
 		return (
-			<View style={styles.sideMenuContainer}>
+			
+			<LinearGradient colors={['#005cd1', '#35d8a6']} style={styles.linearGradient}>
+			
+				<View style={styles.sideMenuContainer}>
 
-				<Image source={require('../images/rede-dor-sao-luiz.png')} style={styles.sideMenuLogoIcon} />
+					<Image source={require('../images/logo-medico-consultor-branca.png')} style={styles.sideMenuLogoIcon} />
 
-				<View style={styles.divider} />
+					<View style={styles.divider} />
 
-				<View style={styles.containerMenu}>
-					{this.items.map((item, key) => (
-						<View key={key} style={{ flexDirection: 'row', alignItems: 'center', paddingTop: 10, paddingBottom: 10, backgroundColor: global.currentScreenIndex === key ? '#e0dbdb' : '#ffffff' }} >
-							<View style={styles.itemIcon}>
-								<Icon name={item.navOptionThumb} />
+					<View style={styles.containerMenu}>
+						{this.items.map((item, key) => (
+							<View key={key} style={{ flexDirection: 'row', alignItems: 'center', paddingTop: 2, paddingBottom: 2, backgroundColor:'transparent', borderBottomColor: '#fff', borderBottomWidth: 1}} >
+								<View style={styles.itemIcon}>
+									<View style={styles.sideButtonRight}>
+										<Icon type="AntDesign" name="right" style={{ color: 'white', fontSize: 15}} />
+									</View>
+								</View>
+								<Text style={{ fontSize: 15, color: '#FFF', fontWeight: "bold" }} onPress={() => { global.currentScreenIndex = key; console.log(key); this.props.navigation.navigate(item.screenToNavigate); }} >
+									{item.navOptionName}
+								</Text>
 							</View>
-							<Text style={{ fontSize: 15, color: global.currentScreenIndex === key ? 'red' : 'black' }} onPress={() => { global.currentScreenIndex = key; console.log(key); this.props.navigation.navigate(item.screenToNavigate); }} >
-								{item.navOptionName}
-							</Text>
-						</View>
-					))}
+						))}
+					</View>
+
+					<View style={styles.boxButton}>
+						<Image source={require('../images/logo-rededor.png')} style={styles.sideMenuLogoIcon} />
+						<Text style={{ fontSize: 15, bottom: 20, textAlign: 'right', color: '#FFF', fontWeight: "bold"}}> Versão 1.3.5 </Text>
+					</View>
+
 				</View>
-			</View>
+
+			</LinearGradient>
 		);
 	}
 }
@@ -55,9 +66,11 @@ const styles = StyleSheet.create({
 	sideMenuContainer: {
 		width: '100%',
 		height: '100%',
-		backgroundColor: '#fff',
 		alignItems: 'center',
 		paddingTop: 20,
+	},
+	linearGradient: {
+	    flex: 1
 	},
 	sideMenuLogoIcon: {
 		resizeMode: 'center',
@@ -77,6 +90,16 @@ const styles = StyleSheet.create({
 	},
 	itemIcon: {
 		marginRight: 10,
-		marginLeft: 20
+	},
+	sideButtonRight : {
+	    height: 50,
+	    width:5,
+	    backgroundColor: "#fff", 
+	    fontWeight: "bold"
+	},
+	boxButton: {
+	  position: 'absolute',
+	  alignItems: 'center',
+	  bottom:0
 	},
 });

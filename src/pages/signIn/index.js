@@ -24,15 +24,17 @@ export default class SignIn extends Component {
 	};
 
 	handleEmailChange = (email) => {
+		this.setState({ error: '' }, () => false);
 		this.setState({ email });
 	};
 
 	handlePasswordChange = (password) => {
+		this.setState({ error: '' }, () => false);
 		this.setState({ password });
 	};
 
 	handleSignInPress = async () => {
-				
+
 		if (this.state.email.length === 0 || this.state.password.length === 0) {
 			this.setState({ error: 'Por favor, preencha todos os campos' }, () => false);
 		} else {
@@ -44,7 +46,7 @@ export default class SignIn extends Component {
 
 			const data = qs.stringify(params, { encode: false });
 
-			api.post('/api/login', 
+			api.post('/api/login',
 				data
 			)
 			.then(response => { 
@@ -77,7 +79,7 @@ export default class SignIn extends Component {
 
 					 <Logo source={require('../../images/logo-medico-consultor-branca.png')} resizeMode="contain" /> 
 
-					<Text style={styles.titulo1}>ACESSAR MÉDICO CONSULTOR</Text>
+					<Text style={styles.titulo}>ACESSAR MÉDICO CONSULTOR</Text>
 
 					<Input
 						placeholder="Endereço de E-mail"
@@ -109,7 +111,7 @@ export default class SignIn extends Component {
 
 const styles = StyleSheet.create({
 
-	    titulo1: {
+	titulo: {
 		color: "#FFF",
 		fontSize: 18,
 		fontStyle: "normal",
@@ -120,4 +122,4 @@ const styles = StyleSheet.create({
 		height: 20,
 	}
 	
-	});
+});
