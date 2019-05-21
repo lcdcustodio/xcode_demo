@@ -4,7 +4,6 @@ const Container = styled.View`
   flex: 1;
   alignItems: center;
   justifyContent: center;
-  backgroundColor: #005cd1;
 `;
 
 const Logo = styled.Image`

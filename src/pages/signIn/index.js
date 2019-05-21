@@ -73,11 +73,14 @@ export default class SignIn extends Component {
 
 	render() {
 		return (
+
+			<ImageBackground source={require('../../images/doctor-background.png')} style={ styles.imgBackground }>
+
 			<Container>
 
 				 <StatusBar hidden />
 
-					 <Logo source={require('../../images/logo-medico-consultor-branca.png')} resizeMode="contain" /> 
+					<Logo source={require('../../images/logo-medico-consultor-branca.png')} resizeMode="contain" /> 
 
 					<Text style={styles.titulo}>ACESSAR MÉDICO CONSULTOR</Text>
 
@@ -105,6 +108,8 @@ export default class SignIn extends Component {
 						<ButtonText>ENTRAR</ButtonText>
 					</Button>
 			</Container>
+
+			</ImageBackground>
 		)
 	}
 }
@@ -120,6 +125,11 @@ const styles = StyleSheet.create({
 		textAlign: "center",
 		width: 300,
 		height: 20,
-	}
+	},
+	imgBackground: {
+        width: '100%',
+        height: '100%',
+        flex: 1 
+	},
 	
 });
