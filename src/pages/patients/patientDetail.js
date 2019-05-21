@@ -100,7 +100,7 @@ export default class PatientDetail extends Component {
 					</Body>
 					<Right style={{flex: 1}} />
 				</Header>
-				<Content>
+				<Content padder>
 					{ this.renderSelectedTab() }
 				</Content>
 				<Footer>
