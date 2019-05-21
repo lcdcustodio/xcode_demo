@@ -48,26 +48,28 @@ export default class Hospital extends Component {
 			
 			<View style={[styles.container, {alignItems: 'center' }]}>
 				<View>
-					<Thumbnail source={{uri: item.image}} style={styles.circleIcon} />
+					<Thumbnail square large source={{uri: item.image}} style={styles.hospitalIcon} />
 				</View>
-				<View >
-					<Text style={[styles.title, styles.niceBlue]}> 
-						{item.title} | 
-						<Text style={[styles.description, styles.niceBlue]}> {item.date}</Text>
-					</Text>
+				<View style={{width: 20, marginRight: 100, marginBottom: 10}}>
+					<View style={{wordWrap: 'break-word'}}>
+						<Text style={[styles.title, styles.niceBlue, {width: 300}]}> 
+							{item.title} | 
+							<Text style={[styles.description, styles.niceBlue]}> {item.date}</Text>
+						</Text>
+					</View>
 
 					<View style={{flexDirection: "row", alignItems: 'center'}}>
-						<Icon type="AntDesign" name="calendar" style={{ color: '#005cd1', fontSize: 20, marginLeft: 10}} />
-						<Text style={[styles.description]}>Visitas: {item.visited_patients}</Text>
+						<Icon type="AntDesign" name="calendar" style={styles.calendarIcon} />
+						<Text style={[styles.description]}>Total de internados: {item.visited_patients}</Text>
 					</View>
 					
 					<View style={{flexDirection: "row", alignItems: 'center'}}>
-						<Icon type="AntDesign" name="user" style={{ color: '#005cd1', fontSize: 20, marginLeft: 10}}/>
-						<Text style={[styles.description]}>Pacientes: {item.amount_patients}</Text>
+						<Icon type="AntDesign" name="user" style={styles.userIcon}/>
+						<Text style={[styles.description]}>Total de pendentes: {item.amount_patients}</Text>
 					</View>
 				</View>
 				<View style={[styles.sideButtonRight]}>
-					<Icon type="AntDesign" name="right" style={{ color: 'white', fontSize: 15}} />
+					<Icon type="AntDesign" name="right" style={{ color: 'white', fontSize: 20}} />
 				</View>
 			</View>
 			
@@ -77,15 +79,16 @@ export default class Hospital extends Component {
 	render(){
 		return (
 			<Container>
-				<Header style={{backgroundColor: "#005cd1"}}>
+				<Header style={styles.headerMenu}>
 					<Left style={{flex:1}} >
-						<Icon type="AntDesign" name="left" style={{ color: 'white' }} />
+						<Icon name="md-menu" style={{ color: 'white' }} onPress={() => this.props.navigation.openDrawer() } />
 					</Left>
-					<Body style={{flex: 1, alignItems: 'center', alignSelf: 'center'}}>
+					<Body style={{flex: 1, alignItems: 'center',alignSelf: 'center'}}>
 						<Title> Hospitais </Title>
 					</Body>
 					<Right style={{flex: 1}} />
-				</Header> 
+				</Header>
+
 				<Content>
 					<View style={styles.container}>
 						<FlatList
