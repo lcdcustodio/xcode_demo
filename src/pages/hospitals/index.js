@@ -20,8 +20,11 @@ export default class Hospital extends Component {
 	}
 
 	loadProduts = async (page = 1) => {
-		const response = await api.get();
+
+		const response = await api.get(api.defaults.mockService);
+
 		const { hospitals, ... infos } = response.data;
+		
 		this.setState({
 			hospitals: [ ... this.state.hospitals, ... hospitals], 
 			infos,

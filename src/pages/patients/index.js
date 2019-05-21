@@ -20,7 +20,7 @@ export default class Patients extends Component {
 
 	loadProduts = async (page = 1) => {
 
-		const response = await api.get();
+		const response = await api.get(api.defaults.mockService);
 
 		const { patients, ... infos } = response.data;
 

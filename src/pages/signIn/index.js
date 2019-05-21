@@ -32,8 +32,8 @@ export default class SignIn extends Component {
 	};
 
 	handleSignInPress = async () => {
-		this.props.navigation.navigate({ routeName: 'Hospitals' });
-		/* if (this.state.email.length === 0 || this.state.password.length === 0) {
+				
+		if (this.state.email.length === 0 || this.state.password.length === 0) {
 			this.setState({ error: 'Por favor, preencha todos os campos' }, () => false);
 		} else {
 			
@@ -42,8 +42,10 @@ export default class SignIn extends Component {
 				password: this.state.password
 			};
 
+			const data = qs.stringify(params, { encode: false });
+
 			api.post('/api/login', 
-				qs.stringify(params)
+				data
 			)
 			.then(response => { 
 				
@@ -64,7 +66,7 @@ export default class SignIn extends Component {
 				}
 				
 			});
-		} */
+		}
 	};
 
 	render() {
