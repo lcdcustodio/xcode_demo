@@ -39,7 +39,6 @@ export default class Hospital extends Component {
 	renderItem = ({ item }) => (
 		<TouchableOpacity
 			onPress={() => {
-				console.log(item);
 				this.props.navigation.navigate("Patients", { hospital: item });
 			}}>
 			
@@ -48,8 +47,8 @@ export default class Hospital extends Component {
 					<Thumbnail square large source={{uri: item.image}} style={styles.hospitalIcon} />
 				</View>
 				<View style={{width: 20, marginRight: 100, marginBottom: 10}}>
-					<View style={{wordWrap: 'break-word'}}>
-						<Text style={[styles.title, styles.niceBlue, {width: 300}]}> 
+					<View>
+						<Text style={[styles.title, styles.niceBlue]}> 
 							{item.title} | 
 							<Text style={[styles.description, styles.niceBlue]}> {item.date}</Text>
 						</Text>
