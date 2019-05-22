@@ -2,18 +2,20 @@ import React, { Component } from "react";
 
 import api from '../../services/api';
 
+import styles from './style'
+
 import { Container, Content, Header, Left, Right, Body, Icon, Title, Text } from 'native-base';
 
-import { View, FlatList, TouchableOpacity, StyleSheet } from "react-native";
+import { View, FlatList, TouchableOpacity, Image } from "react-native";
 
 export default class Patients extends Component {
-	
+
 	state = {
 		infos: {},
 		patients: [],
-		page: 1,
+		page: 1
 	};
-	
+
 	componentDidMount() {
 		this.loadProduts();
 	}
@@ -45,13 +47,18 @@ export default class Patients extends Component {
 	renderItem = ({ item }) => (
 		<TouchableOpacity
 			onPress={() => {
-				console.log(item);
+				console.log("Pacientes: ",item);
 				this.props.navigation.navigate("PatientDetail", { patient: item });
 			}}>
-			<View style={styles.productContainer}>
-				<Text style={styles.productTitle}> {item.name} </Text>
-				<Text style={styles.productDescription}> INTERNADO: {item.internship} | SETOR: {item.sector} | LEITO: {item.room} </Text>  
-				<Text style={styles.productDescription}> Última visita: {item.last_visited} </Text>
+			<View style={[styles.productContainer]}>
+				<View>
+					<Text style={[styles.patientTitle, styles.niceBlue]}> {item.name} </Text>
+					<Text style={styles.hospitalizationDescription}> INTERNADO: {item.internship} | SETOR: {item.sector} | LEITO: {item.room} </Text>  
+					<Text style={styles.lastVisit}> Última visita: {item.last_visited} </Text>
+				</View>
+				<View >
+					<Image source={require('../../images/ic_home_blue.png')} style={{width: 25, height: 25}} />
+				</View>
 			</View>
 		</TouchableOpacity>
 	);
@@ -59,15 +66,15 @@ export default class Patients extends Component {
 	render(){
 		return (
 			<Container>
-				<Header>
+				<Header style={styles.headerMenu}>
 					<Left style={{flex:1}} >
-						<Icon name="md-menu" style={{ color: 'white' }} onPress={() => this.props.navigation.openDrawer() } />
+						<Icon type="AntDesign" name="left" style={{ color: 'white' }} onPress={() => this.props.navigation.navigate({ routeName: 'Hospitals' }) }/>
 					</Left>
-					<Body style={{flex: 1, alignItems: 'center',alignSelf: 'center'}}>
-						<Title> Pacientes </Title>
+					<Body style={{flex: 1, alignItems: 'center', alignSelf: 'center'}}>
+						<Title>{this.props.navigation.getParam('hospital', null).title}</Title>
 					</Body>
 					<Right style={{flex: 1}} />
-				</Header>
+				</Header> 
 				<Content>
 					<View style={styles.container}>
 						<FlatList
@@ -84,28 +91,3 @@ export default class Patients extends Component {
 		);
 	}
 }
-
-const styles = StyleSheet.create({
-	
-	productContainer: {
-		backgroundColor: "#FFF",
-		borderBottomWidth: 1,
-		borderBottomColor: "#DDD",
-		padding: 20
-	},
-
-	productTitle: {
-		fontSize: 18,
-		fontWeight: "bold",
-		color: "#333"
-	},
-	
-	productDescription: {
-		fontSize: 14,
-		color: "#999",
-		marginTop: 5,
-		lineHeight: 24
-	},
-});
-
-
