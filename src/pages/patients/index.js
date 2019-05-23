@@ -53,7 +53,7 @@ export default class Patients extends Component {
 		<TouchableOpacity
 			onPress={() => {
 				console.log("Pacientes: ",item);
-				this.props.navigation.navigate("PatientDetail", { patient: item });
+				this.props.navigation.navigate("PatientDetail", { hospital: this.props.navigation.getParam('hospital', null) });
 			}}>
 			<View style={[styles.productContainer]}>
 				<View>
