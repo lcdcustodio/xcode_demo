@@ -74,7 +74,7 @@ export default class Hospital extends Component {
 				<View>
 					<Thumbnail square large source={{uri: item.image}} style={styles.hospitalIcon} />
 				</View>
-				<View style={{width: 20, marginRight: 100, marginBottom: 10}}>
+				<View style={{flexDirection: "column", width: '53%'}}>
 					<View>
 						<Text style={[styles.title, styles.niceBlue]}> 
 							{item.title} | 
@@ -84,12 +84,12 @@ export default class Hospital extends Component {
 
 					<View style={{flexDirection: "row", alignItems: 'center'}}>
 						<Icon type="AntDesign" name="calendar" style={styles.calendarIcon} />
-						<Text style={[styles.description]}>Total de internados: {item.visited_patients}</Text>
+						<Text style={[styles.description]}>Internados: {item.visited_patients}</Text>
 					</View>
 					
 					<View style={{flexDirection: "row", alignItems: 'center'}}>
 						<Icon type="AntDesign" name="user" style={styles.userIcon}/>
-						<Text style={[styles.description]}>Total de pendentes: {item.amount_patients}</Text>
+						<Text style={[styles.description]}>Pendentes: {item.amount_patients}</Text>
 					</View>
 				</View>
 				<View style={[styles.sideButtonRight]}>
