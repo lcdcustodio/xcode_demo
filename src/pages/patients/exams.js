@@ -1,23 +1,31 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import { Icon } from 'native-base';
 import Timeline from 'react-native-timeline-listview'
+import LinearGradient from 'react-native-linear-gradient';
+
+const screenHeight = Math.round(Dimensions.get('window').height - 130 );
 
 export default class Exams extends React.Component {
 	
 	constructor() {
 		super();
-		this.data = [
-      {time: '01/05/2019', title: 'Exame Raio-X', lineColor: '#cf175c', circleColor: '#cf175c', description: 'Alto Custo' },
-      {time: '30/04/2019', title: 'Exame Raio-X', lineColor: '#bfcc4d', circleColor: '#bfcc4d', description: 'Baixo Custo' },
-      {time: '15/04/2019', title: 'Exame Raio-X', lineColor: '#cf175c', circleColor: '#cf175c', description: 'Alto Custo' },
-      {time: '13/04/2019', title: 'Exame Raio-X', lineColor: '#bfcc4d', circleColor: '#bfcc4d', description: 'Baixo Custo' },
-      {time: '27/08/2017', title: 'Exame Raio-X', lineColor: '#cf175c', circleColor: '#cf175c', description: 'Alto Custo' }
-    ]
+		this.state = {
+			timeline: [
+				{time: '01/05/2019', title: 'Exame Raio-X', lineColor: '#cf175c', circleColor: '#cf175c', description: 'Alto Custo' },
+				{time: '13/04/2019', title: 'Exame Raio-X', lineColor: '#bfcc4d', circleColor: '#bfcc4d', description: 'Baixo Custo' },
+				{time: '15/04/2019', title: 'Exame Raio-X', lineColor: '#cf175c', circleColor: '#cf175c', description: 'Alto Custo' },
+				{time: '13/04/2019', title: 'Exame Raio-X', lineColor: '#bfcc4d', circleColor: '#bfcc4d', description: 'Baixo Custo' },
+				{time: '15/04/2019', title: 'Exame Raio-X', lineColor: '#cf175c', circleColor: '#cf175c', description: 'Alto Custo' },
+				{time: '13/04/2019', title: 'Exame Raio-X', lineColor: '#bfcc4d', circleColor: '#bfcc4d', description: 'Baixo Custo' },
+				{time: '15/04/2019', title: 'Exame Raio-X', lineColor: '#cf175c', circleColor: '#cf175c', description: 'Alto Custo' },
+				{time: '13/04/2019', title: 'Exame Raio-X', lineColor: '#bfcc4d', circleColor: '#bfcc4d', description: 'Baixo Custo' },
+			]
+		}
 	}
 	
 	appoint() {
-		alert('Apontar')
+		alert('Botão Pressionado')
 	}
 
 	renderDetail(rowData, sectionID, rowID) {
@@ -33,15 +41,9 @@ export default class Exams extends React.Component {
 		}
 
     return (
-			<View style={{flexDirection: "row", alignItems: 'center', justifyContent: "space-between", marginTop: '-5%'}}>
-				<Text style={{alignSelf: 'flex-start', fontFamily:'Segoe UI', fontWeight:'400', fontSize:18, fontStyle:'normal', color:'#000000'}}> 
-					{rowData.title}
-					{'\n'}
-				</Text>
-
-				<Text style={{alignSelf: 'flex-end', fontFamily:'Segoe UI-Semibold', fontWeight:'400', fontSize:13, fontStyle:'normal', lineHeight:13, color: color, backgroundColor: backgroundColor, padding: '2%', width:'32%', height:'60%' }}>
-					{ rowData.description }
-				</Text>
+			<View style={styles.timelineRowDescription}>
+				<Text style={styles.timelineTitle}> {rowData.title} </Text>
+				<Text style={[ styles.timelineHighlight, {color: color, backgroundColor: backgroundColor }]}> { rowData.description } </Text>
 			</View>
     )
   }
@@ -49,29 +51,27 @@ export default class Exams extends React.Component {
 	render() {
 		
     return (
-			<View style={ styles.container }>
-				<Timeline 
-					data={this.data}
-					renderEvent={this.renderDetail}
-					lineColor={'#b1b1b1'} 
-					circleColor={'#005cd1'} 
-					innerCircle={'dot'} 
-					circleSize={20}
-					renderFullLine={true} 
-					lineWidth={4}
-					timeStyle={ styles.timeline }
-					renderDetail={this.renderDetail}
-					/>
+			<View style={ styles.container}>
+				
+					<Timeline 
+						data={this.state.timeline}
+						renderEvent={this.renderDetail}
+						lineColor={'#b1b1b1'} 
+						circleColor={'#005cd1'} 
+						innerCircle={'dot'} 
+						circleSize={20}
+						renderFullLine={true} 
+						lineWidth={4}
+						timeStyle={ styles.timelineDate }
+						renderDetail={this.renderDetail} />
+				
 
-				<TouchableOpacity onPress={this.appoint} style={ styles.containerButtonTouch }>
-					<View style={ styles.containerButton }>
-						<View style={styles.buttonCircle}>
-							<Icon type="Entypo" name="sound-mix" style={ styles.buttonIconCircle } />
-							<Text style={ styles.buttonTextCircle } > {'\n'} APONTAR </Text>
-						</View>
-					</View>
-				</TouchableOpacity>
-
+				<View style={ styles.rowButtonCircle }>
+					<LinearGradient colors={['#035fcc', '#023066']} style={ [styles.circle, styles.borderCircle ]} >
+						<Icon type="Entypo" name="sound-mix" style={ styles.iconCircle } onPress={this.appoint} />
+						<Text style={ styles.textCircle } > APONTAR </Text>
+					</LinearGradient>
+				</View>
 			</View>
     );
 	}
@@ -79,46 +79,66 @@ export default class Exams extends React.Component {
 
 const styles = StyleSheet.create({
 	container: {
-		marginTop:'10%', 
-		marginLeft:'2%', 
-		borderWidth: 0.0, 
-		borderColor: '#d6d7da',
+		height: screenHeight,
 	},
-	timeline: {
+	timelineDate: {
 		fontFamily:'Segoe UI', 
 		fontWeight:'400', 
 		fontStyle:'normal', 
-		color:'#9d9d9d'
+		color:'#9d9d9d',
 	},
-	containerButtonTouch: {
-		marginTop:'35%', 
-		marginLeft:'35%', 
-		width:'30%', 
+	timelineRowDescription: {
+		flexDirection: 'row',
+		flexWrap: 'wrap',
+		justifyContent: 'space-between',
+		alignItems: 'center',
 	},
-	containerButton: {
-		marginTop: '10%',
-		alignItems: 'center', 
-		borderWidth: 0, 
-		borderColor: '#d6d7da'
+	timelineTitle: {
+		fontFamily:'Segoe UI', 
+		fontSize:18, 
+		fontWeight:'300', 
+		fontStyle:'normal', 
+		lineHeight:19, 
+		letterSpacing:0, 
+		color:'#000000',
 	},
-	buttonCircle: {
-		padding: '5%',
-		width: 100,
-		height: 100,
-		borderRadius: 100/2,
-		backgroundColor: '#035FCC',
-		color: '#FFFFFF',
+	timelineHighlight: {
+		width: '35%',
+		height: '140%',
+		padding: '3%',
+		paddingLeft: '5%',
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'center',
+		fontFamily:'Segoe UI-Semibold', 
+		fontWeight:'400', 
+		fontSize:13, 
+		fontStyle:'normal', 
+		lineHeight:13,
+	},
+	rowButtonCircle: {
+		marginTop: '5%',
+		width: '100%',
+		flexDirection: 'row',
+		justifyContent: 'center',
+	},
+	circle: {
+		paddingTop: '4%',
+		width: 80,
+		height: 80,
+		borderRadius: 80/2,
+		flexDirection: 'column',
+		alignItems: 'center'
+	},
+	borderCircle: {
 		borderColor: "#707070",
 		borderStyle: "solid",
   	borderWidth: 1,
 	},
-	buttonIconCircle: {
-		marginTop:'20%',
-		marginLeft:'33%',
+	iconCircle: {
 		color: 'white'
 	},
-	buttonTextCircle: {
-		marginLeft:'15%',
+	textCircle: {
 		fontFamily: 'Gotham Rounded', 
 		fontSize:12, 
 		fontWeight: "normal", 
