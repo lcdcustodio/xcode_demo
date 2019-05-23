@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import { Icon } from 'native-base';
-import Timeline from 'react-native-timeline-listview'
+import Timeline from '../../components/Timeline'
 import LinearGradient from 'react-native-linear-gradient';
 
 const screenHeight = Math.round(Dimensions.get('window').height - 130 );
