@@ -10,12 +10,12 @@ import AsyncStorage from '@react-native-community/async-storage';
 
 import styles from './style'
 
+import moment from 'moment';
+
 export default class Hospital extends Component {
 
 	constructor(props) {
-		
 		super(props);
-		
 		this.state = {
 			infos: {},
 			hospitals: [],
@@ -24,17 +24,12 @@ export default class Hospital extends Component {
 	}
 
 	displayData = async () => {
-        
         try{
-            
             let userData = await AsyncStorage.getItem('userData');
-
-            console.log(userData);
-
+			const data = JSON.parse(userData);
+            console.log("userData Hospitals: ", data.hospitals);
         } catch(error) {
-
             console.log(error);
-        
         }                   
     }
 	
@@ -42,19 +37,62 @@ export default class Hospital extends Component {
 		this.loadHospitals();
 	}
 
+	calculateTotalPatientsInterned = () => {
+		const today = moment().format('YYYY-MM-DD')
+
+		let totalPatientsInterned = this.state.hospitals.map((hospital) => {
+			hospital.hospitalizationList.map((patient) => {
+				
+				patient.trackingList.map((visit) => { 
+					let visitDate = moment(visit.startDate).format('YYYY-MM-DD')
+					
+					console.log("visitDate", visitDate, " + " , visit)
+
+
+					console.log("today === visitDate", today === visitDate)
+
+					if(today === visitDate) {
+						console.log("MATCH")
+					}
+					//visit.startDate
+					//se tiver visita com data de hoje
+						//adiciona uma visita ao total de visitas do dia
+				})
+			})
+		})
+	}
+	
 	loadHospitals = async (page = 1) => {
+		try{
+            let userData = JSON.parse(await AsyncStorage.getItem('userData'));
+			let data = {"hospitalizationList":[]}
 
-		console.log(this.displayData());
-
-		const response = await api.get(api.defaults.mockService);
-
-		const { hospitals, ... infos } = response.data;
-		
-		this.setState({
-			hospitals: [ ... this.state.hospitals, ... hospitals], 
-			infos,
-			page
-		});
+			api.post('/api/v2.0/sync', data, {
+				headers: {
+					"Content-Type": "application/json",
+				  	"Accept": "application/json",
+				  	"Token": userData.token,
+				}
+			}).then(response => {
+				console.log("response=> ", response)
+				if(response.status === 200) {
+					this.setState({
+						hospitals: [ ...this.state.hospitals, ...response.data.content.hospitalList], 
+					});
+					console.log(this.state)
+					this.calculateTotalPatientsInterned()
+					//chamar metodo que seta total de pacientes internados
+					//chamar metodo que seta total de pacientes sem visitas
+					//chamar metodo que seta data da ultima visita
+				} else {
+					alert("Status != 200")
+				}
+			}).catch(error => {
+				console.log("error=> ", error)
+			});
+        } catch(error) {
+            console.log(error);
+        }        		
 	};
 
 	loadMore = () => {
@@ -77,14 +115,14 @@ export default class Hospital extends Component {
 				<View style={{flexDirection: "column", width: '53%'}}>
 					<View>
 						<Text style={[styles.title, styles.niceBlue]}> 
-							{item.title} | 
+							{item.name} | 
 							<Text style={[styles.description, styles.niceBlue]}> {item.date}</Text>
 						</Text>
 					</View>
 
 					<View style={{flexDirection: "row", alignItems: 'center'}}>
 						<Icon type="AntDesign" name="calendar" style={styles.calendarIcon} />
-						<Text style={[styles.description]}>Internados: {item.visited_patients}</Text>
+						<Text style={[styles.description]}>Internados: {item.hospitalizationList.length}</Text>
 					</View>
 					
 					<View style={{flexDirection: "row", alignItems: 'center'}}>
@@ -118,7 +156,7 @@ export default class Hospital extends Component {
 						<FlatList
 							contentContainerStyle={styles.list}
 							data={this.state.hospitals}
-							keyExtractor={item => item._id}
+							keyExtractor={item => item.id + '_'}
 							renderItem={this.renderItem}
 							onEndReached={this.loadMore}
 							onEndReachedThreshold={0.1} />
