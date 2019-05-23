@@ -2,6 +2,10 @@ import React, { Component } from 'react';
 
 import { StatusBar, Text, StyleSheet, ImageBackground, Image } from 'react-native';
 
+import AsyncStorage from '@react-native-community/async-storage';
+
+import Spinner from 'react-native-loading-spinner-overlay';
+
 import api from '../../services/api';
 
 import qs from "qs";
@@ -17,11 +21,19 @@ import {
 
 export default class SignIn extends Component {
 	
-	state = {
-		email: '',
-		password: '',
-		error: ''
-	};
+	constructor(props) {
+		
+		super(props);
+		
+		this.state = { 
+			lastDateSync: '2010-01-10T18:46:19-0700',
+			email: 'consult.radix',
+			password: '*ru8u!uBus2A',
+			error: '',
+			textContent: '',
+			loading: false
+		}
+	}
 
 	handleEmailChange = (email) => {
 		this.setState({ error: '' }, () => false);
@@ -34,7 +46,7 @@ export default class SignIn extends Component {
 	};
 
 	handleSignInPress = async () => {
-
+		
 		if (this.state.email.length === 0 || this.state.password.length === 0) {
 			this.setState({ error: 'Por favor, preencha todos os campos' }, () => false);
 		} else {
@@ -46,17 +58,55 @@ export default class SignIn extends Component {
 
 			const data = qs.stringify(params, { encode: false });
 
+			this.setState({loading: true});
+
 			api.post('/api/login',
 				data
 			)
-			.then(response => { 
+			.then(response => {
+
+				//console.log(response.data.content);
+
+				AsyncStorage.setItem('userData', JSON.stringify(response.data.content));
 				
 				if(response.data.success)
 				{
-					this.props.navigation.navigate({ routeName: 'Hospitals' });
+					this.setState({ textContent: '' });
+
+					//api.get('/api/basedata/baseDataSync?lastDateSync=' + this.state.lastDateSync).then(res => {
+
+						this.setState({loading: false });
+
+						//console.log(res.data.content.data.cid);
+						//console.log(res.data.content.data.exam);
+						//console.log(res.data.content.data.hospital);
+						//console.log(res.data.content.data.hospitalWing);
+						//console.log(res.data.content.data.medicines);
+						//console.log(res.data.content.data.specialty);
+						//console.log(res.data.content.data.tuss);
+
+						//AsyncStorage.setItem('baseDataSync_cid', JSON.stringify(res.data.content.data.cid));
+						//AsyncStorage.setItem('baseDataSync_exam', JSON.stringify(res.data.content.data.exam));
+						//AsyncStorage.setItem('baseDataSync_hospital', JSON.stringify(res.data.content.data.hospital));
+						//AsyncStorage.setItem('baseDataSync_hospitalWing', JSON.stringify(res.data.content.data.hospitalWing));
+						//AsyncStorage.setItem('baseDataSync_medicines', JSON.stringify(res.data.content.data.medicines));
+						//AsyncStorage.setItem('baseDataSync_specialty', JSON.stringify(res.data.content.data.specialty));
+						//AsyncStorage.setItem('baseDataSync_tuss', JSON.stringify(res.data.content.data.tuss));
+
+						this.props.navigation.navigate({ routeName: 'Hospitals' });
+
+					/*})
+					.catch(err => {
+
+						console.log(err);
+
+						this.setState({ error: 'Erro ao realizar setup do aplicativo.' }, () => false);
+						
+					});*/
+			
 				}
-			})
-			.catch(error => {
+			
+			}).catch(error => {
 
 				if(error.response.status == 401)
 				{
@@ -78,7 +128,12 @@ export default class SignIn extends Component {
 
 			<Container>
 
-				 <StatusBar hidden />
+					<Spinner
+			            visible={this.state.loading}
+			            textContent={this.state.textContent}
+			            textStyle={styles.spinnerTextStyle} />
+
+				 	<StatusBar hidden />
 
 					<Logo source={require('../../images/logo-medico-consultor-branca.png')} resizeMode="contain" /> 
 
@@ -131,5 +186,7 @@ const styles = StyleSheet.create({
         height: '100%',
         flex: 1 
 	},
-	
+	spinnerTextStyle: {
+	    color: '#FFF'
+	},
 });
