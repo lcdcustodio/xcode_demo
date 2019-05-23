@@ -9,18 +9,23 @@ import { Container, Content, Header, Left, Right, Body, Icon, Title, Text } from
 import { View, FlatList, TouchableOpacity, Image } from "react-native";
 
 export default class Patients extends Component {
-
-	state = {
-		infos: {},
-		patients: [],
-		page: 1
-	};
-
-	componentDidMount() {
-		this.loadProduts();
+	
+	constructor(props) {
+		
+		super(props);
+		
+		this.state = {
+			infos: {},
+			patients: [],
+			page: 1,
+		}
 	}
 
-	loadProduts = async (page = 1) => {
+	componentDidMount() {
+		this.loadPatients();
+	}
+
+	loadPatients = async (page = 1) => {
 
 		const response = await api.get(api.defaults.mockService);
 
@@ -41,7 +46,7 @@ export default class Patients extends Component {
 
 		const pageNumber = page + 1;
 
-		this.loadProduts(pageNumber);
+		this.loadPatients(pageNumber);
 	}
 
 	renderItem = ({ item }) => (

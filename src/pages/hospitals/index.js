@@ -1,25 +1,65 @@
 import React, { Component } from "react";
+
 import api from '../../services/api';
 
 import { Container, Content, Header, Left, Right, Body, Icon, Title, Text, Thumbnail } from 'native-base';
 
 import { View, FlatList, TouchableOpacity } from "react-native";
 
+import AsyncStorage from '@react-native-community/async-storage';
+
 import styles from './style'
 
 export default class Hospital extends Component {
 
-	state = {
-		infos: {},
-		hospitals: [],
-		page: 1,
-	};
-	
-	componentDidMount() {
-		this.loadProduts();
+	constructor(props) {
+		
+		super(props);
+		
+		this.state = {
+			infos: {},
+			hospitals: [],
+			page: 1,
+		}
 	}
 
-	loadProduts = async (page = 1) => {
+	displayData = async () => {
+        
+        try{
+            
+            let userData = await AsyncStorage.getItem('userData');
+
+            //let baseDataSync_cid = await AsyncStorage.getItem('baseDataSync_cid');
+            //let baseDataSync_exam = await AsyncStorage.getItem('baseDataSync_exam');
+            //let baseDataSync_hospital = await AsyncStorage.getItem('baseDataSync_hospital');
+            //let baseDataSync_hospitalWing = await AsyncStorage.getItem('baseDataSync_hospitalWing');
+            //let baseDataSync_medicines = await AsyncStorage.getItem('baseDataSync_medicines');
+            //let baseDataSync_specialty = await AsyncStorage.getItem('baseDataSync_specialty');
+            //let baseDataSync_tuss = await AsyncStorage.getItem('baseDataSync_tuss');
+
+            console.log(userData);
+            //console.log(baseDataSync_cid);
+            //console.log(baseDataSync_exam);
+            //console.log(baseDataSync_hospital);
+            //console.log(baseDataSync_hospitalWing);
+            //console.log(baseDataSync_medicines);
+            //console.log(baseDataSync_specialty);
+            //console.log(baseDataSync_tuss);
+
+        } catch(error) {
+
+            console.log(error);
+        
+        }                   
+    }
+	
+	componentDidMount() {
+		this.loadHospitals();
+	}
+
+	loadHospitals = async (page = 1) => {
+
+		console.log(this.displayData());
 
 		const response = await api.get(api.defaults.mockService);
 
@@ -36,7 +76,7 @@ export default class Hospital extends Component {
 		const { page, infos } = this.state;
 		if (page === 1) return;
 		const pageNumber = page + 1;
-		this.loadProduts(pageNumber);
+		this.loadHospitals(pageNumber);
 	}
 
 	renderItem = ({ item }) => (
