@@ -1,25 +1,50 @@
 import React, { Component } from "react";
+
 import api from '../../services/api';
 
 import { Container, Content, Header, Left, Right, Body, Icon, Title, Text, Thumbnail } from 'native-base';
 
 import { View, FlatList, TouchableOpacity } from "react-native";
 
+import AsyncStorage from '@react-native-community/async-storage';
+
 import styles from './style'
 
 export default class Hospital extends Component {
 
-	state = {
-		infos: {},
-		hospitals: [],
-		page: 1,
-	};
-	
-	componentDidMount() {
-		this.loadProduts();
+	constructor(props) {
+		
+		super(props);
+		
+		this.state = {
+			infos: {},
+			hospitals: [],
+			page: 1,
+		}
 	}
 
-	loadProduts = async (page = 1) => {
+	displayData = async () => {
+        
+        try{
+            
+            let userData = await AsyncStorage.getItem('userData');
+
+            console.log(userData);
+
+        } catch(error) {
+
+            console.log(error);
+        
+        }                   
+    }
+	
+	componentDidMount() {
+		this.loadHospitals();
+	}
+
+	loadHospitals = async (page = 1) => {
+
+		console.log(this.displayData());
 
 		const response = await api.get(api.defaults.mockService);
 
@@ -36,7 +61,7 @@ export default class Hospital extends Component {
 		const { page, infos } = this.state;
 		if (page === 1) return;
 		const pageNumber = page + 1;
-		this.loadProduts(pageNumber);
+		this.loadHospitals(pageNumber);
 	}
 
 	renderItem = ({ item }) => (

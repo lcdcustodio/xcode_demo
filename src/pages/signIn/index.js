@@ -2,6 +2,10 @@ import React, { Component } from 'react';
 
 import { StatusBar, Text, StyleSheet, ImageBackground, Image } from 'react-native';
 
+import AsyncStorage from '@react-native-community/async-storage';
+
+import Spinner from 'react-native-loading-spinner-overlay';
+
 import api from '../../services/api';
 
 import qs from "qs";
@@ -17,11 +21,19 @@ import {
 
 export default class SignIn extends Component {
 	
-	state = {
-		email: '',
-		password: '',
-		error: ''
-	};
+	constructor(props) {
+		
+		super(props);
+		
+		this.state = { 
+			lastDateSync: '2010-01-10T18:46:19-0700',
+			email: 'consult.radix',
+			password: '*ru8u!uBus2A',
+			error: '',
+			textContent: '',
+			loading: false
+		}
+	}
 
 	handleEmailChange = (email) => {
 		this.setState({ error: '' }, () => false);
@@ -34,8 +46,8 @@ export default class SignIn extends Component {
 	};
 
 	handleSignInPress = async () => {
-		this.props.navigation.navigate({ routeName: 'PatientDetail' });
-		/* if (this.state.email.length === 0 || this.state.password.length === 0) {
+		
+		if (this.state.email.length === 0 || this.state.password.length === 0) {
 			this.setState({ error: 'Por favor, preencha todos os campos' }, () => false);
 		} else {
 			
@@ -46,17 +58,26 @@ export default class SignIn extends Component {
 
 			const data = qs.stringify(params, { encode: false });
 
+			this.setState({loading: true});
+
 			api.post('/api/login',
 				data
 			)
-			.then(response => { 
+			.then(response => {
+
+				AsyncStorage.setItem('userData', JSON.stringify(response.data.content));
 				
 				if(response.data.success)
 				{
+					this.setState({ textContent: '' });
+
+					this.setState({loading: false });
+
 					this.props.navigation.navigate({ routeName: 'Hospitals' });
+			
 				}
-			})
-			.catch(error => {
+			
+			}).catch(error => {
 
 				if(error.response.status == 401)
 				{
@@ -68,7 +89,8 @@ export default class SignIn extends Component {
 				}
 				
 			});
-		} */
+			
+		}
 	};
 
 	render() {
@@ -78,7 +100,12 @@ export default class SignIn extends Component {
 
 			<Container>
 
-				 <StatusBar hidden />
+					<Spinner
+			            visible={this.state.loading}
+			            textContent={this.state.textContent}
+			            textStyle={styles.spinnerTextStyle} />
+
+				 	<StatusBar hidden />
 
 					<Logo source={require('../../images/logo-medico-consultor-branca.png')} resizeMode="contain" /> 
 
@@ -131,5 +158,7 @@ const styles = StyleSheet.create({
         height: '100%',
         flex: 1 
 	},
-	
+	spinnerTextStyle: {
+	    color: '#FFF'
+	},
 });

@@ -27,6 +27,8 @@ export default class Sidebar extends Component {
 		return (
 			
 			<LinearGradient colors={['#005cd1', '#35d8a6']} style={styles.linearGradient}>
+
+				<Text style={{ color: 'white', fontSize: 20, position: 'absolute', left: 20, top: 10}} onPress={() => { this.props.navigation.closeDrawer(); }}>X</Text>
 			
 				<View style={styles.sideMenuContainer}>
 
@@ -42,7 +44,7 @@ export default class Sidebar extends Component {
 										<Icon type="AntDesign" name="right" style={{ color: 'white', fontSize: 15}} />
 									</View>
 								</View>
-								<Text style={{ fontSize: 15, color: '#FFF', fontWeight: "bold" }} onPress={() => { global.currentScreenIndex = key; console.log(key); this.props.navigation.navigate(item.screenToNavigate); }} >
+								<Text style={{ fontSize: 15, color: '#FFF', fontWeight: "bold" }} onPress={() => { global.currentScreenIndex = key; this.props.navigation.closeDrawer(); this.props.navigation.navigate(item.screenToNavigate); }} >
 									{item.navOptionName}
 								</Text>
 							</View>
