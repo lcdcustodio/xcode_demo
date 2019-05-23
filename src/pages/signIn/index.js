@@ -34,8 +34,8 @@ export default class SignIn extends Component {
 	};
 
 	handleSignInPress = async () => {
-
-		if (this.state.email.length === 0 || this.state.password.length === 0) {
+		this.props.navigation.navigate({ routeName: 'PatientDetail' });
+		/* if (this.state.email.length === 0 || this.state.password.length === 0) {
 			this.setState({ error: 'Por favor, preencha todos os campos' }, () => false);
 		} else {
 			
@@ -68,7 +68,7 @@ export default class SignIn extends Component {
 				}
 				
 			});
-		}
+		} */
 	};
 
 	render() {

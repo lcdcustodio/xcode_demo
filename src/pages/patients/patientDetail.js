@@ -1,102 +1,73 @@
 import React, { Component } from "react";
 import { Container, Content, Header, Left, Right, Button, Body, Icon, Title, Footer, FooterTab, Text } from 'native-base';
-import { View, FlatList, TouchableOpacity, StyleSheet } from "react-native";
-
-//Apis
-import api from '../../services/api';
+import { StyleSheet } from "react-native";
 
 //Pages
 import Profile from "./profile"
 import Exams from "./exams"
 import Visits from "./visits"
 
-//Components 
-import TextLabel from '../../components/TextLabel'
-import TextValue from '../../components/TextValue'
-import Line from '../../components/Line'
-import TitleScreen from '../../components/Title'
-
 export default class PatientDetail extends Component {
     
 	constructor(props) {
 		super(props)
 		this.state = {
-			infos: {},
-			comments: [],
-			page: 1,
 			selectedTab: 'profile',
-			selectedTabTitle: 'Perfil'
+			selectedTabTitle: 'Perfil',
+			patient: {
+				name: 'Francielle da Silva',
+				dateOfBirth: '09/10/1992',
+				height: 1.82,
+				weight: 86.0,
+				medicalRecords: {
+					number: '005474211',
+					medicalAgreement: 'Bradesco',
+					healthPlan: 'Saúde Rio',
+				},
+				attendance: {
+					name: 'Emergencial',
+					type: 'Cirúrgico',
+					dateOfHospitalization: '13/05/2019 - D3 de internação',
+					startDateOfMonitoring: '13/05/2019',
+					mainProcedure: '30804132 - Toracostomia com drenagem pleural fechada',
+					primaryCid: 'J930 - Pneumotórax de tensão, espontâneo',
+					secondaryCid: ''
+				},
+				previousInformation: 'J930 - Pneumotórax de tensão, espontâneo',
+			}
 		}
 	}
     
 	renderSelectedTab() {
 		switch (this.state.selectedTab) {
 			case 'profile':
-				return (<Profile title={this.state.selectedTabTitle} />);
+				return (<Profile data={this.state}/>);
 				break;
 			case 'exams':
-				return (<Exams title={this.state.selectedTabTitle} />);
+				return (<Exams />);
 				break;
 			case 'visits':
-				return (<Visits title={this.state.selectedTabTitle} />);
+				return (<Visits />);
 				break;
 			default:
 		}
 	}
 
-	switchScreen(screen, title) {        
+	switchScreen(screen) {        
 		this.setState({
-			selectedTab: screen,
-			selectedTabTitle: title,
+			selectedTab: screen
 		})
 	}
-	
-	componentDidMount() {
-		this.loadProduts();
-	}
-
-	loadProduts = async (page = 1) => {
-		const response = await api.get();
-		const { comments, ... infos } = response.data;
-		this.setState({
-			comments: [ ... this.state.comments, ... comments], 
-			infos,
-			page
-		});
-	};
-
-	loadMore = () => {		
-		const { page, infos } = this.state;
-		if (page === 1) return;
-		const pageNumber = page + 1;
-		this.loadProduts(pageNumber);
-	}
-
-	renderItem = ({ item }) => (
-		<TouchableOpacity
-			onPress={() => {
-				console.log(item);
-				console.log(this.props);
-				console.log(this.props.navigation);
-			}}
-			>
-			<View style={styles.productContainer}>
-				<Text style={styles.productTitle}>{item.username} </Text>
-				<Text style={styles.productDescription}>{item.created_at} </Text>
-				<Text style={styles.productDescription}>{item.comment}</Text>
-			</View>
-		</TouchableOpacity>
-	);
 
 	render(){
 		return (
 			<Container>
-				<Header>
+				<Header style={ styles.header }>
 					<Left style={{flex:1}} >
 						<Icon type="AntDesign" name="left" style={{ color: 'white' }} onPress={() => this.props.navigation.navigate({ routeName: 'Patients' }) } />
 					</Left>
 					<Body style={{flex: 1, alignItems: 'center',alignSelf: 'center'}}>
-						<Title> {this.state.selectedTabTitle } </Title>
+						<Title> {this.state.patient.name } </Title>
 					</Body>
 					<Right style={{flex: 1}} />
 				</Header>
@@ -105,15 +76,15 @@ export default class PatientDetail extends Component {
 				</Content>
 				<Footer>
 					<FooterTab>
-						<Button vertical active={this.state.selectedTab === 'profile'} onPress={() => this.switchScreen('profile', 'Perfil')}>
+						<Button backgroundColor={'#005cd1'} vertical active={this.state.selectedTab === 'profile'} onPress={() => this.switchScreen('profile', 'Perfil')}>
 							<Icon name="person" />
 							<Text>Perfil</Text>
 						</Button>
-						<Button vertical active={this.state.selectedTab === 'exams'} onPress={() => this.switchScreen('exams', 'Timeline')}>
+						<Button backgroundColor={'#005cd1'} vertical active={this.state.selectedTab === 'exams'} onPress={() => this.switchScreen('exams', 'Timeline')}>
 							<Icon name="apps" />
 							<Text>Timeline</Text>
 						</Button>
-						<Button vertical active={this.state.selectedTab === 'visits'} onPress={() => this.switchScreen('visits', 'Visitas')}>
+						<Button backgroundColor={'#005cd1'} vertical active={this.state.selectedTab === 'visits'} onPress={() => this.switchScreen('visits', 'Visitas')}>
 							<Icon active name="camera" />
 							<Text>Visitas</Text>
 						</Button>
@@ -125,6 +96,12 @@ export default class PatientDetail extends Component {
 }
 
 const styles = StyleSheet.create({
+	header: {
+		backgroundColor: "#005cd1"
+	},
+	footer: {
+		backgroundColor: "#005cd1"
+	},
 	productContainer: {
 		backgroundColor: "#FFF",
 		borderBottomWidth: 1,
