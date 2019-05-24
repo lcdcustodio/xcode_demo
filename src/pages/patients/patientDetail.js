@@ -12,6 +12,7 @@ export default class PatientDetail extends Component {
 	constructor(props) {
 		super(props)
 		this.state = {
+			detail: {},
 			selectedTab: 'profile',
 			selectedTabTitle: 'Perfil',
 			patient: {
@@ -39,18 +40,51 @@ export default class PatientDetail extends Component {
 	}
     
 	renderSelectedTab() {
-		switch (this.state.selectedTab) {
-			case 'profile':
-				return (<Profile data={this.state}/>);
-				break;
-			case 'exams':
-				return (<Exams />);
-				break;
-			case 'visits':
-				return (<Visits />);
-				break;
-			default:
-		}
+
+		let userData = await AsyncStorage.getItem('userData').then((res) => {
+			
+			const user = JSON.parse(res);
+			
+			api.post('/api/v2.0/sync', 
+				{
+					'hospitalizationList' : []
+				},
+				{
+					headers: {
+						'Token': user.token,
+						'Accept': 'application/json',
+						'Content-Type': 'application/json'
+					}
+				}
+			)
+			.then(response => {
+				
+				this.state.detail = response.data.content.hospitalList[3].hospitalizationList[0];
+
+				console.log(this.state.detail);
+
+				//console.log(response.data.content.hospitalList[3].hospitalizationList[0]);
+
+				switch (this.state.selectedTab) {
+					case 'profile':
+						return (<Profile data={this.state}/>);
+						break;
+					case 'exams':
+						return (<Exams />);
+						break;
+					case 'visits':
+						return (<Visits />);
+						break;
+					default:
+				}
+			})
+			.catch(error => {
+			    console.log(error)
+			});
+			
+			console.log('-------------------------------------------------------');
+		});
+
 	}
 
 	switchScreen(screen) {        

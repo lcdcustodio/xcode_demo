@@ -69,12 +69,35 @@ export default class SignIn extends Component {
 				
 				if(response.data.success)
 				{
-					this.setState({ textContent: '' });
+					api.get('/api/basedata/baseDataSync?lastDateSync=' + this.state.lastDateSync).then(res => {
 
-					this.setState({loading: false });
+						this.setState({ textContent: '' });
 
-					this.props.navigation.navigate({ routeName: 'Hospitals' });
-			
+						this.setState({loading: false });
+
+						console.log(res);
+
+						this.props.navigation.navigate({ routeName: 'Hospitals' });
+
+						//console.log(res.data.content.data.cid);
+						//console.log(res.data.content.data.exam);
+						//console.log(res.data.content.data.hospital);
+						//console.log(res.data.content.data.hospitalWing);
+						//console.log(res.data.content.data.medicines);
+						//console.log(res.data.content.data.specialty);
+						//console.log(res.data.content.data.tuss);
+
+						//AsyncStorage.setItem('baseDataSync_cid', JSON.stringify(res.data.content.data.cid));
+						//AsyncStorage.setItem('baseDataSync_exam', JSON.stringify(res.data.content.data.exam));
+						//AsyncStorage.setItem('baseDataSync_hospital', JSON.stringify(res.data.content.data.hospital));
+						//AsyncStorage.setItem('baseDataSync_hospitalWing', JSON.stringify(res.data.content.data.hospitalWing));
+						//AsyncStorage.setItem('baseDataSync_medicines', JSON.stringify(res.data.content.data.medicines));
+						//AsyncStorage.setItem('baseDataSync_specialty', JSON.stringify(res.data.content.data.specialty));
+						//AsyncStorage.setItem('baseDataSync_tuss', JSON.stringify(res.data.content.data.tuss));
+
+					}).catch(err => {
+					     console.log(err);
+					});
 				}
 			
 			}).catch(error => {
