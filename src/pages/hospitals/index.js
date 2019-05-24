@@ -37,6 +37,46 @@ export default class Hospital extends Component {
 		this.loadHospitals();
 	}
 
+	getTotalPatientsVisited() {
+    this.state.hospitals.forEach(function(hospital) {
+			console.log(hospital.name)
+        //return countTotalPatientsVisited(hospital.patients)
+    });
+	}
+
+	getLogomarca(hospitals) {
+    hospitals.forEach(function(hospital) {
+        if(hospital.name.includes("copa dor")) {
+            return 'https://rededor.wpengine.com/wp-content/uploads/sites/15/2018/12/Logo-CopaDOr.svg'
+        } else if(hospital.name.includes("barra dor")) {
+            return 'https://rededor.wpengine.com/wp-content/uploads/sites/13/2018/12/Logo-BarraDOr.svg'
+        } else if(hospital.name.includes("niteroi")) {
+            return 'https://rededor.wpengine.com/wp-content/uploads/sites/24/2018/12/Logo-Niteroi.svg'
+        }
+        //Continua para os próximos hospitais
+    });
+	}
+
+	countTotalPatientsVisited(patients) {
+    let totalPatientsVisited = patients.reduce((patientsVisited, patient) => {
+        let attendanceToday = hasAttendanceToday(patient)
+        if(attendanceToday) {
+            return patientsVisited + 1
+        } else {
+            return patientsVisited
+        }
+    }, 0);
+    return totalPatientsVisited;
+	}	
+
+	hasAttendanceToday(patient) {
+    const today = moment().format('YYYY-MM-DD');
+    let hasAttendance = patient.listaAttendance.find(visit => 
+        visit.startDate === today
+    );
+    return hasAttendance 
+	}
+
 	calculateTotalPatientsInterned = () => {
 		const today = moment().format('YYYY-MM-DD')
 
@@ -80,7 +120,8 @@ export default class Hospital extends Component {
 						hospitals: [ ...this.state.hospitals, ...response.data.content.hospitalList], 
 					});
 					console.log(this.state)
-					this.calculateTotalPatientsInterned()
+					this.getTotalPatientsVisited()
+					//this.calculateTotalPatientsInterned()
 					//chamar metodo que seta total de pacientes internados
 					//chamar metodo que seta total de pacientes sem visitas
 					//chamar metodo que seta data da ultima visita
