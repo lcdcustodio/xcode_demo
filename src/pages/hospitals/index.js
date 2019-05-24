@@ -103,7 +103,6 @@ export default class Hospital extends Component {
 	}
 	
 	loadHospitals = async (page = 1) => {
-		alert('hospital')
 		try{
             let userData = JSON.parse(await AsyncStorage.getItem('userData'));
 			let data = {"hospitalizationList":[]}
