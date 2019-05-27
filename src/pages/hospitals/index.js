@@ -4,18 +4,18 @@ import api from '../../services/api';
 
 import { Container, Content, Header, Left, Right, Body, Icon, Title, Text, Thumbnail } from 'native-base';
 
-import { View, FlatList, TouchableOpacity } from "react-native";
+import { View, FlatList, TouchableOpacity, Image } from "react-native";
 
 import AsyncStorage from '@react-native-community/async-storage';
 
 import styles from './style'
 
+import moment from 'moment';
+
 export default class Hospital extends Component {
 
 	constructor(props) {
-		
 		super(props);
-		
 		this.state = {
 			infos: {},
 			baseDataSync: {},
@@ -27,17 +27,12 @@ export default class Hospital extends Component {
 	}
 
 	displayData = async () => {
-        
         try{
-            
             let userData = await AsyncStorage.getItem('userData');
-
-            console.log(userData);
-
+			const data = JSON.parse(userData);
+            console.log("userData Hospitals: ", data.hospitals);
         } catch(error) {
-
             console.log(error);
-        
         }                   
     }
 	
@@ -45,19 +40,113 @@ export default class Hospital extends Component {
 		this.loadHospitals();
 	}
 
-	loadHospitals = async (page = 1) => {
+	getTotalPatientsVisited() {
+		let userData = await AsyncStorage.getItem('userData');
 
-		console.log(this.displayData());
+		console.log('userData', userData);
+		console.log('this.state.hospitals', this.state.hospitals);
 
-		const response = await api.get(api.defaults.mockService);
+    	this.state.hospitals.forEach( hospital => {
 
-		const { hospitals, ... infos } = response.data;
-		
-		this.setState({
-			hospitals: [ ... this.state.hospitals, ... hospitals], 
-			infos,
-			page
+			//para cada hospital devo verificar se este hospital contain na lista do user 		
+
+			hospital.totalPatientsVisitedToday = this.countTotalPatientsVisited(hospital.hospitalizationList)
+			hospital.totalPatients = this.countTotalPatients(hospital.hospitalizationList)
+			hospital.logomarca = this.getLogomarca(hospital)
 		});
+		
+		console.log("hospitals: ", this.state.hospitals)
+	}
+
+	getLogomarca(hospital) {
+
+		if(hospital.id === 4) {
+			return require('../../images/logo_hospital/copaDor.png');
+		} else if(hospital.id === 5) {
+			return require('../../images/logo_hospital/niteroiDor.png');
+        }  else if(hospital.id === 7) {
+			return require('../../images/logo_hospital/oesteDor.png');
+        }  else if(hospital.id === 2) {
+			return require('../../images/logo_hospital/barraDor.png');
+        }  else if(hospital.id === 9) {
+			return require('../../images/logo_hospital/riosDor.png');
+        }  else if(hospital.id === 101) {
+			return require('../../images/logo_hospital/badim.png');
+        }  else if(hospital.id === 6) {
+			return require('../../images/logo_hospital/norteDor.png');
+        }  else if(hospital.id === 3) {
+			return require('../../images/logo_hospital/caxiasDor.png');
+        }  else if(hospital.id === 8) {
+			return require('../../images/logo_hospital/quintaDor.png');
+		} 
+		
+		return require('../../images/logo_hospital/barraDor.png');
+	}
+
+	countTotalPatientsVisited = patients => {
+		let totalPatientsVisited = patients.reduce((patientsVisited, patient) => {
+			
+			if(patient.exitDate === null) {
+				let attendanceToday = this.hasAttendanceToday(patient)
+				if(attendanceToday) {
+					return patientsVisited + 1
+				} else {
+					return patientsVisited
+				}
+			} else {
+				return patientsVisited;
+			}
+		}, 0);
+		return totalPatientsVisited;
+	}	
+
+	countTotalPatients = patients => {
+		let totalPatients = patients.reduce((totalPatients, patient) => {
+			
+			if(patient.exitDate === null) {
+				return totalPatients + 1;
+			} else {
+				return totalPatients;
+			}
+		}, 0);
+		return totalPatients;
+	}
+
+	hasAttendanceToday(patient) {
+		const today = moment().format('YYYY-MM-DD');
+		let hasAttendance = patient.trackingList.find(visit => {
+			let visitDate = moment(visit.startDate).format('YYYY-MM-DD')
+			return visitDate === today
+		});
+		return hasAttendance 
+	}
+	
+	loadHospitals = async (page = 1) => {
+		try{
+            let userData = JSON.parse(await AsyncStorage.getItem('userData'));
+			let data = {"hospitalizationList":[]}
+
+			api.post('/api/v2.0/sync', data, {
+				headers: {
+					"Content-Type": "application/json",
+				  	"Accept": "application/json",
+				  	"Token": userData.token,
+				}
+			}).then(response => {
+				if(response.status === 200) {
+					this.setState({
+						hospitals: [ ...this.state.hospitals, ...response.data.content.hospitalList], 
+					});
+					this.getTotalPatientsVisited()
+				} else {
+					console.log("Status [ " +response.status+"] ocorreu um problema ao listar hospitais.")
+				}
+			}).catch(error => {
+				console.log("error=> ", error)
+			});
+        } catch(error) {
+            console.log(error);
+        }        		
 	};
 
 	loadMore = () => {
@@ -68,6 +157,7 @@ export default class Hospital extends Component {
 	}
 
 	renderItem = ({ item }) => (
+		
 		<TouchableOpacity
 			onPress={() => {
 				this.props.navigation.navigate("Patients", { hospital: item });
@@ -75,29 +165,30 @@ export default class Hospital extends Component {
 			
 			<View style={[styles.container, {alignItems: 'center' }]}>
 				<View>
-					<Thumbnail square large source={{uri: item.image}} style={styles.hospitalIcon} />
+					<Image source={item.logomarca} style={styles.hospitalIcon}  />
 				</View>
 				<View style={{flexDirection: "column", width: '53%'}}>
 					<View>
 						<Text style={[styles.title, styles.niceBlue]}> 
-							{item.title} | 
+							{item.name} | 
 							<Text style={[styles.description, styles.niceBlue]}> {item.date}</Text>
 						</Text>
 					</View>
 
 					<View style={{flexDirection: "row", alignItems: 'center'}}>
 						<Icon type="AntDesign" name="calendar" style={styles.calendarIcon} />
-						<Text style={[styles.description]}>Internados: {item.visited_patients}</Text>
+						<Text style={[styles.description]}>Internados: {item.totalPatients}</Text>
 					</View>
 					
 					<View style={{flexDirection: "row", alignItems: 'center'}}>
 						<Icon type="AntDesign" name="user" style={styles.userIcon}/>
-						<Text style={[styles.description]}>Pendentes: {item.amount_patients}</Text>
+						<Text style={[styles.description]}>Pendentes: {item.totalPatientsVisitedToday}</Text>
 					</View>
 				</View>
 				<View style={[styles.sideButtonRight]}>
 					<Icon type="AntDesign" name="right" style={{ color: 'white', fontSize: 20}} />
-				</View>
+				</View> 
+				
 			</View>
 			
 		</TouchableOpacity>
@@ -121,7 +212,7 @@ export default class Hospital extends Component {
 						<FlatList
 							contentContainerStyle={styles.list}
 							data={this.state.hospitals}
-							keyExtractor={item => item._id}
+							keyExtractor={item => item.id + '_'}
 							renderItem={this.renderItem}
 							onEndReached={this.loadMore}
 							onEndReachedThreshold={0.1} />
