@@ -70,20 +70,25 @@ export default class Hospital extends Component {
 				this.props.navigation.navigate("Patients", { hospital: item });
 			}}>
 			
-			<View style={[styles.container, {alignItems: 'center' }]}>
+			<View style={[styles.container, {alignItems: 'center'}]}>
 				<View>
 					<Thumbnail square large source={{uri: item.image}} style={styles.hospitalIcon} />
 				</View>
 				<View style={{flexDirection: "column", width: '53%'}}>
 					<View>
 						<Text style={[styles.title, styles.niceBlue]}> 
-							{item.title} | 
-							<Text style={[styles.description, styles.niceBlue]}> {item.date}</Text>
+							{item.title}
+							<Text style={[styles.description, styles.niceBlue]}></Text>
 						</Text>
 					</View>
 
 					<View style={{flexDirection: "row", alignItems: 'center'}}>
 						<Icon type="AntDesign" name="calendar" style={styles.calendarIcon} />
+						<Text style={[styles.description]}>Última Visita: {item.date}</Text>
+					</View>
+
+					<View style={{flexDirection: "row", alignItems: 'center'}}>
+						<Icon type="AntDesign" name="book" style={styles.calendarIcon} />
 						<Text style={[styles.description]}>Internados: {item.visited_patients}</Text>
 					</View>
 					

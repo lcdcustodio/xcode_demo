@@ -60,7 +60,8 @@ export default StyleSheet.create({
         lineHeight: 12,
         letterSpacing: 0,
         textAlign: "left",
-        color: "#51565f"
+        color: "#51565f",
+        marginTop: 10, 
     },
 
     niceBlue: {color:  "#19769F"}, 
