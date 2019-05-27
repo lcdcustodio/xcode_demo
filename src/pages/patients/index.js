@@ -2,6 +2,10 @@ import React, { Component } from "react";
 
 import api from '../../services/api';
 
+import AsyncStorage from '@react-native-community/async-storage';
+
+import Spinner from 'react-native-loading-spinner-overlay';
+
 import styles from './style'
 
 import { Container, Content, Header, Left, Right, Body, Icon, Title, Text } from 'native-base';
@@ -52,8 +56,7 @@ export default class Patients extends Component {
 	renderItem = ({ item }) => (
 		<TouchableOpacity
 			onPress={() => {
-				console.log("Pacientes: ",item);
-				this.props.navigation.navigate("PatientDetail", { hospital: this.props.navigation.getParam('hospital', null) });
+				this.props.navigation.navigate("PatientDetail", { patient: this.state.patientMockServer });
 			}}>
 			<View style={[styles.productContainer]}>
 				<View>

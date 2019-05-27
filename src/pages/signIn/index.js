@@ -58,7 +58,7 @@ export default class SignIn extends Component {
 
 			const data = qs.stringify(params, { encode: false });
 
-			this.setState({loading: true});
+			//this.setState({loading: true});
 
 			api.post('/api/login',
 				data
@@ -66,7 +66,7 @@ export default class SignIn extends Component {
 			.then(response => {
 
 				AsyncStorage.setItem('userData', JSON.stringify(response.data.content));
-				
+
 				if(response.data.success)
 				{
 					api.get('/api/basedata/baseDataSync?lastDateSync=' + this.state.lastDateSync).then(res => {
@@ -75,32 +75,16 @@ export default class SignIn extends Component {
 
 						this.setState({loading: false });
 
-						console.log(res);
-
-						this.props.navigation.navigate({ routeName: 'Hospitals' });
-
-						//console.log(res.data.content.data.cid);
-						//console.log(res.data.content.data.exam);
-						//console.log(res.data.content.data.hospital);
-						//console.log(res.data.content.data.hospitalWing);
-						//console.log(res.data.content.data.medicines);
-						//console.log(res.data.content.data.specialty);
-						//console.log(res.data.content.data.tuss);
-
-						//AsyncStorage.setItem('baseDataSync_cid', JSON.stringify(res.data.content.data.cid));
-						//AsyncStorage.setItem('baseDataSync_exam', JSON.stringify(res.data.content.data.exam));
-						//AsyncStorage.setItem('baseDataSync_hospital', JSON.stringify(res.data.content.data.hospital));
-						//AsyncStorage.setItem('baseDataSync_hospitalWing', JSON.stringify(res.data.content.data.hospitalWing));
-						//AsyncStorage.setItem('baseDataSync_medicines', JSON.stringify(res.data.content.data.medicines));
-						//AsyncStorage.setItem('baseDataSync_specialty', JSON.stringify(res.data.content.data.specialty));
-						//AsyncStorage.setItem('baseDataSync_tuss', JSON.stringify(res.data.content.data.tuss));
+						this.props.navigation.navigate("Hospitals", { baseDataSync: res.data.content.data });
 
 					}).catch(err => {
-					     console.log(err);
+					    console.log(err);
 					});
 				}
 			
 			}).catch(error => {
+
+				console.log(error);
 
 				if(error.response.status == 401)
 				{
@@ -110,9 +94,7 @@ export default class SignIn extends Component {
 				{
 					this.setState({ error: 'Falha na comunicação com o servidor de aplicação' }, () => false);
 				}
-				
 			});
-			
 		}
 	};
 

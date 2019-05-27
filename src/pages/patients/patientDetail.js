@@ -10,81 +10,30 @@ import Visits from "./visits"
 export default class PatientDetail extends Component {
     
 	constructor(props) {
-		super(props)
+
+		super(props);
+		
 		this.state = {
 			detail: {},
-			selectedTab: 'profile',
-			selectedTabTitle: 'Perfil',
-			patient: {
-				name: 'Francielle da Silva',
-				dateOfBirth: '09/10/1992',
-				height: 1.82,
-				weight: 86.0,
-				medicalRecords: {
-					number: '005474211',
-					medicalAgreement: 'Bradesco',
-					healthPlan: 'Saúde Rio',
-				},
-				attendance: {
-					name: 'Emergencial',
-					type: 'Cirúrgico',
-					dateOfHospitalization: '13/05/2019 - D3 de internação',
-					startDateOfMonitoring: '13/05/2019',
-					mainProcedure: '30804132 - Toracostomia com drenagem pleural fechada',
-					primaryCid: 'J930 - Pneumotórax de tensão, espontâneo',
-					secondaryCid: ''
-				},
-				previousInformation: 'J930 - Pneumotórax de tensão, espontâneo',
-			}
+			selectedTab: 'profile'
 		}
+
+		this.state.detail = this.props.navigation.getParam('patient');
 	}
     
 	renderSelectedTab() {
-
-		let userData = await AsyncStorage.getItem('userData').then((res) => {
-			
-			const user = JSON.parse(res);
-			
-			api.post('/api/v2.0/sync', 
-				{
-					'hospitalizationList' : []
-				},
-				{
-					headers: {
-						'Token': user.token,
-						'Accept': 'application/json',
-						'Content-Type': 'application/json'
-					}
-				}
-			)
-			.then(response => {
-				
-				this.state.detail = response.data.content.hospitalList[3].hospitalizationList[0];
-
-				console.log(this.state.detail);
-
-				//console.log(response.data.content.hospitalList[3].hospitalizationList[0]);
-
-				switch (this.state.selectedTab) {
-					case 'profile':
-						return (<Profile data={this.state}/>);
-						break;
-					case 'exams':
-						return (<Exams />);
-						break;
-					case 'visits':
-						return (<Visits />);
-						break;
-					default:
-				}
-			})
-			.catch(error => {
-			    console.log(error)
-			});
-			
-			console.log('-------------------------------------------------------');
-		});
-
+		switch (this.state.selectedTab) {
+			case 'profile':
+				return (<Profile perfil={this.state.detail}/>);
+				break;
+			case 'exams':
+				return (<Exams exames={this.state.detail.examRequestList}/>);
+				break;
+			case 'visits':
+				return (<Visits visitas={this.state.detail.observationList}/>);
+				break;
+			default:
+		}
 	}
 
 	switchScreen(screen) {        
@@ -101,7 +50,7 @@ export default class PatientDetail extends Component {
 						<Icon type="AntDesign" name="left" style={{ color: 'white' }} onPress={() => this.props.navigation.navigate('Patients',  { hospital: this.props.navigation.getParam('hospital', null) } ) } />
 					</Left>
 					<Body style={{flex: 1, alignItems: 'center',alignSelf: 'center'}}>
-						<Title> {this.state.patient.name } </Title>
+						<Title> {this.state.detail.patientName } </Title>
 					</Body>
 					<Right style={{flex: 1}} />
 				</Header>

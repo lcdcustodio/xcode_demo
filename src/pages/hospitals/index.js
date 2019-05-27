@@ -18,9 +18,12 @@ export default class Hospital extends Component {
 		
 		this.state = {
 			infos: {},
+			baseDataSync: {},
 			hospitals: [],
 			page: 1,
 		}
+
+		this.state.baseDataSync = this.props.navigation.getParam('baseDataSync');
 	}
 
 	displayData = async () => {

@@ -7,16 +7,12 @@ const screenHeight = Math.round(Dimensions.get('window').height - 130 );
 
 export default class Visitas extends React.Component {
 	
-	constructor() {
-		super();
+	constructor(props) {
+
+		super(props);
+		
 		this.state = {
-			visits: [
-				{ id:'1', date: '01/05/2019', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,  quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.' },
-				{ id:'2', date: '13/04/2019', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,  quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.' },
-				{ id:'3', date: '15/04/2019', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,  quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.' },
-				{ id:'4', date: '15/04/2019', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,  quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.' },
-				{ id:'5', date: '15/04/2019', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,  quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.' },
-			]
+			visitas: this.props.visitas
 		}
 	}
 
@@ -27,11 +23,10 @@ export default class Visitas extends React.Component {
 	renderItem = ({ item, index }) => (
 		<View>
 			<Text style={[ styles.title, styles.niceBlue ]}> 
-				Visita {++index} | 
-				<Text style={[styles.description, styles.niceBlue]}> {item.date} </Text>
+				<Text style={[styles.description, styles.niceBlue]}>Visita {item.observationDate} </Text>
 			</Text>
 			<Text style={ styles.description}>
-				{item.description}
+				{item.observation}
 			</Text>
 		</View>
 	);
@@ -41,7 +36,7 @@ export default class Visitas extends React.Component {
 			<View style={ styles.container }>
 
 				<FlatList
-					data={this.state.visits}
+					data={this.state.visitas}
 					keyExtractor={item => item.id}
 					renderItem={this.renderItem} />
 
