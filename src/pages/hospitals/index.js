@@ -4,7 +4,7 @@ import api from '../../services/api';
 
 import { Container, Content, Header, Left, Right, Body, Icon, Title, Text, Thumbnail } from 'native-base';
 
-import { View, FlatList, TouchableOpacity } from "react-native";
+import { View, FlatList, TouchableOpacity, Image } from "react-native";
 
 import AsyncStorage from '@react-native-community/async-storage';
 
@@ -38,42 +38,46 @@ export default class Hospital extends Component {
 	}
 
 	getTotalPatientsVisited() {
+		let userData = await AsyncStorage.getItem('userData');
+
+		console.log('userData', userData);
+		console.log('this.state.hospitals', this.state.hospitals);
+
     	this.state.hospitals.forEach( hospital => {
+
+			//para cada hospital devo verificar se este hospital contain na lista do user 		
+
 			hospital.totalPatientsVisitedToday = this.countTotalPatientsVisited(hospital.hospitalizationList)
 			hospital.totalPatients = this.countTotalPatients(hospital.hospitalizationList)
 			hospital.logomarca = this.getLogomarca(hospital)
 		});
-		console.log(this.state.hospitals)
+		
+		console.log("hospitals: ", this.state.hospitals)
 	}
 
 	getLogomarca(hospital) {
-        if(hospital.id === 61) {
-            return 'https://rededor.wpengine.com/wp-content/uploads/sites/27/2018/12/Logo-Real.svg'
-        } else if(hospital.id === 41) {
-            return 'https://wallpaperplay.com/walls/full/1/6/3/329998.jpg'
-        } else if(hospital.id === 21) {
-            return 'https://wallpaperplay.com/walls/full/1/6/3/329998.jpg'
-        } else if(hospital.id === 4) {
-            return 'https://rededor.wpengine.com/wp-content/uploads/sites/15/2018/12/Logo-CopaDOr.svg'
-        }  else if(hospital.id === 5) {
-            return 'http://www.copador.com.br/images/logo/niteroiDor_logo.png'
-        }  else if(hospital.id === 1) {
-            return 'https://wallpaperplay.com/walls/full/1/6/3/329998.jpg'
+
+		if(hospital.id === 4) {
+			return require('../../images/logo_hospital/copaDor.png');
+		} else if(hospital.id === 5) {
+			return require('../../images/logo_hospital/niteroiDor.png');
         }  else if(hospital.id === 7) {
-            return 'http://www.copador.com.br/images/logo/oesteDor_logo.png'
+			return require('../../images/logo_hospital/oesteDor.png');
         }  else if(hospital.id === 2) {
-            return 'http://www.copador.com.br/images/logo/barraDor_logo.png'
+			return require('../../images/logo_hospital/barraDor.png');
         }  else if(hospital.id === 9) {
-            return 'http://www.copador.com.br/images/logo/riosDor_logo.png'
+			return require('../../images/logo_hospital/riosDor.png');
         }  else if(hospital.id === 101) {
-            return 'http://www.copador.com.br/images/logo/badim_logo.png'
+			return require('../../images/logo_hospital/badim.png');
         }  else if(hospital.id === 6) {
-            return 'http://www.copador.com.br/images/logo/norteDor_logo.png'
+			return require('../../images/logo_hospital/norteDor.png');
         }  else if(hospital.id === 3) {
-            return 'http://www.copador.com.br/images/logo/caxiasDor_logo.png'
+			return require('../../images/logo_hospital/caxiasDor.png');
         }  else if(hospital.id === 8) {
-            return 'http://www.copador.com.br/images/logo/quintaDor_logo.png'
-        } 
+			return require('../../images/logo_hospital/quintaDor.png');
+		} 
+		
+		return require('../../images/logo_hospital/barraDor.png');
 	}
 
 	countTotalPatientsVisited = patients => {
@@ -131,12 +135,8 @@ export default class Hospital extends Component {
 						hospitals: [ ...this.state.hospitals, ...response.data.content.hospitalList], 
 					});
 					this.getTotalPatientsVisited()
-					//this.calculateTotalPatientsInterned()
-					//chamar metodo que seta total de pacientes internados
-					//chamar metodo que seta total de pacientes sem visitas
-					//chamar metodo que seta data da ultima visita
 				} else {
-					alert("Status != 200")
+					console.log("Status [ " +response.status+"] ocorreu um problema ao listar hospitais.")
 				}
 			}).catch(error => {
 				console.log("error=> ", error)
@@ -154,6 +154,7 @@ export default class Hospital extends Component {
 	}
 
 	renderItem = ({ item }) => (
+		
 		<TouchableOpacity
 			onPress={() => {
 				this.props.navigation.navigate("Patients", { hospital: item });
@@ -161,7 +162,7 @@ export default class Hospital extends Component {
 			
 			<View style={[styles.container, {alignItems: 'center' }]}>
 				<View>
-					<Thumbnail square large source={{uri: item.logomarca}} style={styles.hospitalIcon} />
+					<Image source={item.logomarca} style={styles.hospitalIcon}  />
 				</View>
 				<View style={{flexDirection: "column", width: '53%'}}>
 					<View>
@@ -183,7 +184,8 @@ export default class Hospital extends Component {
 				</View>
 				<View style={[styles.sideButtonRight]}>
 					<Icon type="AntDesign" name="right" style={{ color: 'white', fontSize: 20}} />
-				</View>
+				</View> 
+				
 			</View>
 			
 		</TouchableOpacity>
