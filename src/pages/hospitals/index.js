@@ -29,26 +29,71 @@ export default class Hospital extends Component {
 
 		console.log(this.state.baseDataSync);
 	}
-
+	
 	componentDidMount() {
 		this.loadHospitals();
 	}
 
-	getTotalPatientsVisited() {
+	loadHospitals = async (page = 1) => {
+		try{
+			let userData = JSON.parse(await AsyncStorage.getItem('userData'));
+			
+			console.log("userData => ", userData)
+			let data = {"hospitalizationList":[]}
 
-		console.log('this.state.hospitals', this.state.hospitals);
+			api.post('/api/v2.0/sync', data, {
+				headers: {
+					"Content-Type": "application/json",
+				  	"Accept": "application/json",
+				  	"Token": userData.token, 
+				}
+			}).then(response => {
+				if(response.status === 200) {
+					let listHospital = []
+					console.log("INFO: ", response.data.content.hospitalList)
+					response.data.content.hospitalList.forEach( hospital => {
+						if(this.isTheSameHospital(hospital, userData)){
+							listHospital.push(hospital)
+						}
+					})
 
-    	this.state.hospitals.forEach( hospital => {
+					this.setState({
+						hospitals: [ ...listHospital], 
+					});
+
+					this.getInformationHospital()
+				} else {
+					console.log("Status [ " +response.status+"] ocorreu um problema ao listar hospitais.")
+				}
+			}).catch(error => {
+				console.log("error=> ", error)
+			});
+        } catch(error) {
+            console.log(error);
+        }        		
+	};
+
+	isTheSameHospital = (hospital, userData) =>  {
+		let hasHospitality = false
+		userData.hospitals.forEach(element => {
+			if(hospital.id === element.id) {
+				hasHospitality = true
+			}
+		})
+
+		return hasHospitality
+	}
+
+	getInformationHospital = () => {
+		this.state.hospitals.forEach( hospital => {	
+			hospital.logomarca = this.getLogomarca(hospital)
 			hospital.totalPatientsVisitedToday = this.countTotalPatientsVisited(hospital.hospitalizationList)
 			hospital.totalPatients = this.countTotalPatients(hospital.hospitalizationList)
-			hospital.logomarca = this.getLogomarca(hospital)
-		});
-		
-		console.log("hospitals: ", this.state.hospitals)
+			this.setLastVisit(hospital.hospitalizationList)
+		}); 
 	}
 
 	getLogomarca(hospital) {
-
 		if(hospital.id === 4) {
 			return require('../../images/logo_hospital/copaDor.png');
 		} else if(hospital.id === 5) {
@@ -69,7 +114,7 @@ export default class Hospital extends Component {
 			return require('../../images/logo_hospital/quintaDor.png');
 		} 
 		
-		return require('../../images/logo_hospital/barraDor.png');
+		return require('../../images/logo_hospital/redeDor.png');
 	}
 
 	countTotalPatientsVisited = patients => {
@@ -102,6 +147,28 @@ export default class Hospital extends Component {
 			}
 		}, 0);
 		return totalPatients;
+	}
+
+	setLastVisit = patients => {
+
+		patients.forEach(patient => {
+			let lastVisit;
+			patient.trackingList.forEach( item =>{
+				if(item.endDate != null) {
+					if(lastVisit == null) {
+						lastVisit = new Date(item.endDate)
+					} else {
+						let visit = new Date(item.endDate)
+						if(lastVisit < visit){
+							lastVisit = visit
+						}
+					}
+				}
+			})
+			patient.lastVisit = lastVisit
+			console.log("Ultima visita de ", patient.patientName, " foi em ", patient.lastVisit)
+		})
+	
 	}
 
 	hasAttendanceToday(patient) {
@@ -179,8 +246,8 @@ export default class Hospital extends Component {
 				<View style={{flexDirection: "column", width: '53%'}}>
 					<View>
 						<Text style={[styles.title, styles.niceBlue]}> 
-							{item.title}
-							<Text style={[styles.description, styles.niceBlue]}></Text>
+							{item.name} | 
+							<Text style={[styles.description, styles.niceBlue]}> {item.lastVisit}</Text>
 						</Text>
 					</View>
 
