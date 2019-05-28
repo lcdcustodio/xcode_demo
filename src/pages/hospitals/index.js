@@ -50,7 +50,6 @@ export default class Hospital extends Component {
 			}).then(response => {
 				if(response.status === 200) {
 					let listHospital = []
-					console.log("INFO: ", response.data.content.hospitalList)
 					response.data.content.hospitalList.forEach( hospital => {
 						if(this.isTheSameHospital(hospital, userData)){
 							listHospital.push(hospital)
@@ -89,7 +88,7 @@ export default class Hospital extends Component {
 			hospital.logomarca = this.getLogomarca(hospital)
 			hospital.totalPatientsVisitedToday = this.countTotalPatientsVisited(hospital.hospitalizationList)
 			hospital.totalPatients = this.countTotalPatients(hospital.hospitalizationList)
-			this.setLastVisit(hospital.hospitalizationList)
+			hospital.lastVisit = this.setLastVisit(hospital.hospitalizationList)
 		}); 
 	}
 
@@ -150,9 +149,8 @@ export default class Hospital extends Component {
 	}
 
 	setLastVisit = patients => {
-
+		let lastVisit = null;
 		patients.forEach(patient => {
-			let lastVisit;
 			patient.trackingList.forEach( item =>{
 				if(item.endDate != null) {
 					if(lastVisit == null) {
@@ -165,10 +163,9 @@ export default class Hospital extends Component {
 					}
 				}
 			})
-			patient.lastVisit = lastVisit
-			console.log("Ultima visita de ", patient.patientName, " foi em ", patient.lastVisit)
 		})
-	
+		
+		return lastVisit != null ? moment(lastVisit).format('DD/MM/YYYY') : 'Sem visita'
 	}
 
 	hasAttendanceToday(patient) {
@@ -210,7 +207,7 @@ export default class Hospital extends Component {
 							hospitals: [ ...this.state.hospitals, ...response.data.content.hospitalList], 
 						});
 
-						this.getTotalPatientsVisited()
+						this.getInformationHospital()
 					} 
 					else 
 					{
@@ -245,20 +242,17 @@ export default class Hospital extends Component {
 				</View>
 				<View style={{flexDirection: "column", width: '53%'}}>
 					<View>
-						<Text style={[styles.title, styles.niceBlue]}> 
-							{item.name} | 
-							<Text style={[styles.description, styles.niceBlue]}> {item.lastVisit}</Text>
-						</Text>
+						<Text style={[styles.title, styles.niceBlue]}> 	{item.name}  </Text>
 					</View>
 
 					<View style={{flexDirection: "row", alignItems: 'center'}}>
 						<Icon type="AntDesign" name="calendar" style={styles.calendarIcon} />
-						<Text style={[styles.description]}>Última Visita: {item.date}</Text>
+						<Text style={[styles.description]}>Última Visita: {item.lastVisit}</Text>
 					</View>
 
 					<View style={{flexDirection: "row", alignItems: 'center'}}>
 						<Icon type="AntDesign" name="book" style={styles.calendarIcon} />
-						<Text style={[styles.description]}>Internados: {item.visited_patients}</Text>
+						<Text style={[styles.description]}>Internados: {item.totalPatients}</Text>
 					</View>
 					
 					<View style={{flexDirection: "row", alignItems: 'center'}}>
