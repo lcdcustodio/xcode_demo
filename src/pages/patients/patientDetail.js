@@ -64,11 +64,11 @@ export default class PatientDetail extends Component {
 							<Text>Perfil</Text>
 						</Button>
 						<Button backgroundColor={'#005cd1'} vertical active={this.state.selectedTab === 'exams'} onPress={() => this.switchScreen('exams', 'Timeline')}>
-							<Icon name="apps" />
+							<Icon name="book" />
 							<Text>Timeline</Text>
 						</Button>
 						<Button backgroundColor={'#005cd1'} vertical active={this.state.selectedTab === 'visits'} onPress={() => this.switchScreen('visits', 'Visitas')}>
-							<Icon active name="camera" />
+							<Icon active name="calendar" />
 							<Text>Visitas</Text>
 						</Button>
 					</FooterTab>

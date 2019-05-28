@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
 		height: screenHeight
 	},
 	title: {
-		fontSize: 18,
+		fontSize: 14,
 		fontWeight: "bold",
     color: "#333", 
     padding: 5,
@@ -104,10 +104,11 @@ const styles = StyleSheet.create({
 	},
 	textCircle: {
 		fontFamily: 'Gotham Rounded', 
-		fontSize:12, 
+		fontSize:10, 
 		fontWeight: "normal", 
 		fontStyle: "normal", 
 		letterSpacing: 0, 
-		color: 'white' 
+		color: 'white',
+		marginTop: 5,
 	}
 });

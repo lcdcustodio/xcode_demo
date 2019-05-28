@@ -12,32 +12,35 @@ export default StyleSheet.create({
 	},
 
 	title: {
-		fontSize: 18,
+		fontSize: 16,
 		fontWeight: "bold",
-    color: "#333", 
-    padding: 5,
-    width: '100%',
+    color: "#333",
+    marginLeft: 10, 
+    paddingTop: 10,
+    paddingBottom: 10,
 	},
 	
 	hospitalIcon: {
-    width: 175,
-    height: 86, 
+    height: 60,
+    width: 140,
+    marginTop: 10,
+    marginLeft: 18,
+    marginRight: 18,
+    marginBottom: 10,
   },
    
-  niceBlue: {color:  "#19769F", paddingLeft: 2}, 
+  niceBlue: {color:  "#19769F"}, 
 
   description : {
-    height: '50%',
     fontFamily: "Gotham Rounded",
     fontSize: 14,
     fontWeight: "normal",
     fontStyle: "normal",
-    lineHeight: 14,
-    letterSpacing: 0,
     textAlign: "left",
     color: "#51565f" ,
-    marginTop: 10, 
-    marginLeft: 10, 
+    marginTop: 5, 
+    marginLeft: 3, 
+    marginBottom: 5, 
   }, 
 
   sideButtonRight : {
@@ -49,7 +52,7 @@ export default StyleSheet.create({
 
   headerMenu: {backgroundColor: "#005cd1"}, 
 
-  calendarIcon : { color: '#005cd1', fontSize: 20}, 
+  calendarIcon : { color: '#005cd1', fontSize: 18, marginTop: 3, marginBottom: 3, marginLeft: 10}, 
 
-  userIcon : { color: '#005cd1', fontSize: 20}
+  userIcon : { color: '#005cd1', fontSize: 18, marginTop: 3, marginBottom: 3, marginLeft: 10}
 });
