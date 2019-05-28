@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { StatusBar, Text, StyleSheet, ImageBackground, Image } from 'react-native';
+import { Alert, StatusBar, Text, StyleSheet, ImageBackground, Image } from 'react-native';
 
 import AsyncStorage from '@react-native-community/async-storage';
 
@@ -9,6 +9,8 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import api from '../../services/api';
 
 import qs from "qs";
+
+import moment from 'moment';
 
 import {
 	Container,
@@ -24,7 +26,7 @@ export default class SignIn extends Component {
 	constructor(props) {
 		
 		super(props);
-		
+
 		this.state = { 
 			lastDateSync: '2010-01-10T18:46:19-0700',
 			email: 'consult.radix',
@@ -46,19 +48,21 @@ export default class SignIn extends Component {
 	};
 
 	handleSignInPress = async () => {
-		
+
 		if (this.state.email.length === 0 || this.state.password.length === 0) {
 			this.setState({ error: 'Por favor, preencha todos os campos' }, () => false);
 		} else {
-			
+
+			this.setState({ textContent: 'Aguarde...' });
+
+			this.setState({loading: true});
+
 			const params = {
 				username: this.state.email,
 				password: this.state.password
 			};
 
 			const data = qs.stringify(params, { encode: false });
-
-			//this.setState({loading: true});
 
 			api.post('/api/login',
 				data
@@ -67,30 +71,35 @@ export default class SignIn extends Component {
 
 				AsyncStorage.setItem('userData', JSON.stringify(response.data.content), () => {
 		           
-		            console.log('Salvou userData');
-
 		            if(response.data.success)
 					{
-						console.log('Start /api/basedata');
+						this.setState({ textContent: 'Sincronizando...' });
 
 						api.get('/api/basedata/baseDataSync?lastDateSync=' + this.state.lastDateSync).then(res => {
 
-							console.log('End /api/basedata');
-
-							this.setState({ textContent: '' });
-
-							this.setState({ loading: false });
+							this.setState({loading: false});
 
 							this.props.navigation.navigate("Hospitals", { baseDataSync: res.data.content.data });
 
 						}).catch(err => {
+
+							this.setState({loading: false});
+
 						    console.log(err);
 						});
+					}
+					else
+					{
+						console.log(response);
+
+						this.setState({loading: false});
 					}
 
 		        });
 			
 			}).catch(error => {
+
+				this.setState({loading: false});
 
 				console.log(error);
 

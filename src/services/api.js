@@ -2,8 +2,6 @@ import axios from "axios";
 
 axios.defaults.baseURL = 'https://appmedconsultor.rededor.com.br';
 
-axios.defaults.mockService = "http://localhost:8081/data.json";
-
 axios.interceptors.request.use(request => {
     console.log('Starting Request', request)
     return request
