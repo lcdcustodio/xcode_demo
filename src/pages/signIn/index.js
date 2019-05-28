@@ -65,22 +65,30 @@ export default class SignIn extends Component {
 			)
 			.then(response => {
 
-				AsyncStorage.setItem('userData', JSON.stringify(response.data.content));
+				AsyncStorage.setItem('userData', JSON.stringify(response.data.content), () => {
+		           
+		            console.log('Salvou userData');
 
-				if(response.data.success)
-				{
-					api.get('/api/basedata/baseDataSync?lastDateSync=' + this.state.lastDateSync).then(res => {
+		            if(response.data.success)
+					{
+						console.log('Start /api/basedata');
 
-						this.setState({ textContent: '' });
+						api.get('/api/basedata/baseDataSync?lastDateSync=' + this.state.lastDateSync).then(res => {
 
-						this.setState({loading: false });
+							console.log('End /api/basedata');
 
-						this.props.navigation.navigate("Hospitals", { baseDataSync: res.data.content.data });
+							this.setState({ textContent: '' });
 
-					}).catch(err => {
-					    console.log(err);
-					});
-				}
+							this.setState({ loading: false });
+
+							this.props.navigation.navigate("Hospitals", { baseDataSync: res.data.content.data });
+
+						}).catch(err => {
+						    console.log(err);
+						});
+					}
+
+		        });
 			
 			}).catch(error => {
 

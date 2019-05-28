@@ -19,13 +19,26 @@ export default class Patients extends Component {
 		super(props);
 		
 		this.state = {
+			hospital: {},
+			baseDataSync: {},
 			infos: {},
 			patients: [],
 			page: 1,
 		}
+
+		console.log('ok');
 	}
 
 	componentDidMount() {
+
+		this.state.hospital = this.props.navigation.getParam('hospital');
+		
+		this.state.baseDataSync = this.props.navigation.getParam('baseDataSync');
+
+		console.log(this.state.hospital);
+		
+		console.log(this.state.baseDataSync);
+
 		this.loadPatients();
 	}
 
@@ -42,15 +55,8 @@ export default class Patients extends Component {
 		});
 	};
 
-	loadMore = () => {
-		
-		const { page, infos } = this.state;
-
-		if (page === 1) return;
-
-		const pageNumber = page + 1;
-
-		this.loadPatients(pageNumber);
+	sincronizar = () => {
+		console.log('ROTINA SINCRONIZAR');
 	}
 
 	renderItem = ({ item }) => (
@@ -90,7 +96,7 @@ export default class Patients extends Component {
 							data={this.state.patients}
 							keyExtractor={item => item._id}
 							renderItem={this.renderItem}
-							onEndReached={this.loadMore}
+							onEndReached={this.sincronizar}
 							onEndReachedThreshold={0.1}
 						/>
 					</View>
