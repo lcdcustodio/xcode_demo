@@ -22,41 +22,71 @@ export default class Hospital extends Component {
 			page: 1,
 		}
 	}
-
-	displayData = async () => {
-        try{
-            let userData = await AsyncStorage.getItem('userData');
-			const data = JSON.parse(userData);
-            console.log("userData Hospitals: ", data.hospitals);
-        } catch(error) {
-            console.log(error);
-        }                   
-    }
 	
 	componentDidMount() {
 		this.loadHospitals();
 	}
 
-	getTotalPatientsVisited() {
-		let userData = await AsyncStorage.getItem('userData');
+	loadHospitals = async (page = 1) => {
+		try{
+			let userData = JSON.parse(await AsyncStorage.getItem('userData'));
+			
+			console.log("userData => ", userData)
+			let data = {"hospitalizationList":[]}
 
-		console.log('userData', userData);
-		console.log('this.state.hospitals', this.state.hospitals);
+			api.post('/api/v2.0/sync', data, {
+				headers: {
+					"Content-Type": "application/json",
+				  	"Accept": "application/json",
+				  	"Token": userData.token, 
+				}
+			}).then(response => {
+				if(response.status === 200) {
+					let listHospital = []
+					console.log("INFO: ", response.data.content.hospitalList)
+					response.data.content.hospitalList.forEach( hospital => {
+						if(this.isTheSameHospital(hospital, userData)){
+							listHospital.push(hospital)
+						}
+					})
 
-    	this.state.hospitals.forEach( hospital => {
+					this.setState({
+						hospitals: [ ...listHospital], 
+					});
 
-			//para cada hospital devo verificar se este hospital contain na lista do user 		
+					this.getInformationHospital()
+				} else {
+					console.log("Status [ " +response.status+"] ocorreu um problema ao listar hospitais.")
+				}
+			}).catch(error => {
+				console.log("error=> ", error)
+			});
+        } catch(error) {
+            console.log(error);
+        }        		
+	};
 
+	isTheSameHospital = (hospital, userData) =>  {
+		let hasHospitality = false
+		userData.hospitals.forEach(element => {
+			if(hospital.id === element.id) {
+				hasHospitality = true
+			}
+		})
+
+		return hasHospitality
+	}
+
+	getInformationHospital = () => {
+		this.state.hospitals.forEach( hospital => {	
+			hospital.logomarca = this.getLogomarca(hospital)
 			hospital.totalPatientsVisitedToday = this.countTotalPatientsVisited(hospital.hospitalizationList)
 			hospital.totalPatients = this.countTotalPatients(hospital.hospitalizationList)
-			hospital.logomarca = this.getLogomarca(hospital)
-		});
-		
-		console.log("hospitals: ", this.state.hospitals)
+			this.setLastVisit(hospital.hospitalizationList)
+		}); 
 	}
 
 	getLogomarca(hospital) {
-
 		if(hospital.id === 4) {
 			return require('../../images/logo_hospital/copaDor.png');
 		} else if(hospital.id === 5) {
@@ -77,7 +107,7 @@ export default class Hospital extends Component {
 			return require('../../images/logo_hospital/quintaDor.png');
 		} 
 		
-		return require('../../images/logo_hospital/barraDor.png');
+		return require('../../images/logo_hospital/redeDor.png');
 	}
 
 	countTotalPatientsVisited = patients => {
@@ -109,6 +139,28 @@ export default class Hospital extends Component {
 		return totalPatients;
 	}
 
+	setLastVisit = patients => {
+
+		patients.forEach(patient => {
+			let lastVisit;
+			patient.trackingList.forEach( item =>{
+				if(item.endDate != null) {
+					if(lastVisit == null) {
+						lastVisit = new Date(item.endDate)
+					} else {
+						let visit = new Date(item.endDate)
+						if(lastVisit < visit){
+							lastVisit = visit
+						}
+					}
+				}
+			})
+			patient.lastVisit = lastVisit
+			console.log("Ultima visita de ", patient.patientName, " foi em ", patient.lastVisit)
+		})
+	
+	}
+
 	hasAttendanceToday(patient) {
 		const today = moment().format('YYYY-MM-DD');
 		let hasAttendance = patient.trackingList.find(visit => {
@@ -118,34 +170,6 @@ export default class Hospital extends Component {
 		return hasAttendance 
 	}
 	
-	loadHospitals = async (page = 1) => {
-		try{
-            let userData = JSON.parse(await AsyncStorage.getItem('userData'));
-			let data = {"hospitalizationList":[]}
-
-			api.post('/api/v2.0/sync', data, {
-				headers: {
-					"Content-Type": "application/json",
-				  	"Accept": "application/json",
-				  	"Token": userData.token,
-				}
-			}).then(response => {
-				if(response.status === 200) {
-					this.setState({
-						hospitals: [ ...this.state.hospitals, ...response.data.content.hospitalList], 
-					});
-					this.getTotalPatientsVisited()
-				} else {
-					console.log("Status [ " +response.status+"] ocorreu um problema ao listar hospitais.")
-				}
-			}).catch(error => {
-				console.log("error=> ", error)
-			});
-        } catch(error) {
-            console.log(error);
-        }        		
-	};
-
 	loadMore = () => {
 		const { page, infos } = this.state;
 		if (page === 1) return;
@@ -168,7 +192,7 @@ export default class Hospital extends Component {
 					<View>
 						<Text style={[styles.title, styles.niceBlue]}> 
 							{item.name} | 
-							<Text style={[styles.description, styles.niceBlue]}> {item.date}</Text>
+							<Text style={[styles.description, styles.niceBlue]}> {item.lastVisit}</Text>
 						</Text>
 					</View>
 
