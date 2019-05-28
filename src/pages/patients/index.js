@@ -62,7 +62,8 @@ export default class Patients extends Component {
 	renderItem = ({ item }) => (
 		<TouchableOpacity
 			onPress={() => {
-				this.props.navigation.navigate("PatientDetail", { patient: this.state.patientMockServer });
+				console.log(item);
+				this.props.navigation.navigate("PatientDetail", { patient: item });
 			}}>
 			<View style={[styles.productContainer]}>
 				<View>
