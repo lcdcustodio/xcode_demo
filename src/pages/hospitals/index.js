@@ -37,7 +37,7 @@ export default class Hospital extends Component {
 		this.loadHospitals();
 	}
 
-	getTotalPatientsVisited() {
+	getTotalPatientsVisited = async () => {
 		let userData = await AsyncStorage.getItem('userData');
 
 		console.log('userData', userData);

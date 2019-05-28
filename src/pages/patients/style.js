@@ -37,7 +37,7 @@ export default StyleSheet.create({
     },
     
     hospitalizationDescription : {
-        width: 277,
+        width: '100%',
         height: 12,
         fontFamily: "Gotham Rounded",
         fontSize: 13,
@@ -51,7 +51,8 @@ export default StyleSheet.create({
     }, 
 
     lastVisit : {
-        width: 88,
+        marginTop: '2%',
+        width: '100%',
         height: 11,
         fontFamily: "Gotham Rounded",
         fontSize: 12,
