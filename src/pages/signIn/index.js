@@ -58,26 +58,41 @@ export default class SignIn extends Component {
 
 			const data = qs.stringify(params, { encode: false });
 
-			this.setState({loading: true});
+			//this.setState({loading: true});
 
 			api.post('/api/login',
 				data
 			)
 			.then(response => {
 
-				AsyncStorage.setItem('userData', JSON.stringify(response.data.content));
-				
-				if(response.data.success)
-				{
-					this.setState({ textContent: '' });
+				AsyncStorage.setItem('userData', JSON.stringify(response.data.content), () => {
+		           
+		            console.log('Salvou userData');
 
-					this.setState({loading: false });
+		            if(response.data.success)
+					{
+						console.log('Start /api/basedata');
 
-					this.props.navigation.navigate({ routeName: 'Hospitals' });
-			
-				}
+						api.get('/api/basedata/baseDataSync?lastDateSync=' + this.state.lastDateSync).then(res => {
+
+							console.log('End /api/basedata');
+
+							this.setState({ textContent: '' });
+
+							this.setState({ loading: false });
+
+							this.props.navigation.navigate("Hospitals", { baseDataSync: res.data.content.data });
+
+						}).catch(err => {
+						    console.log(err);
+						});
+					}
+
+		        });
 			
 			}).catch(error => {
+
+				console.log(error);
 
 				if(error.response.status == 401)
 				{
@@ -87,9 +102,7 @@ export default class SignIn extends Component {
 				{
 					this.setState({ error: 'Falha na comunicação com o servidor de aplicação' }, () => false);
 				}
-				
 			});
-			
 		}
 	};
 

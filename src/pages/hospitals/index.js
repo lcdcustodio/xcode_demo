@@ -15,38 +15,30 @@ import moment from 'moment';
 export default class Hospital extends Component {
 
 	constructor(props) {
+		
 		super(props);
+
 		this.state = {
 			infos: {},
+			baseDataSync: {},
 			hospitals: [],
 			page: 1,
 		}
+
+		this.state.baseDataSync = this.props.navigation.getParam('baseDataSync');
+
+		console.log(this.state.baseDataSync);
 	}
 
-	displayData = async () => {
-        try{
-            let userData = await AsyncStorage.getItem('userData');
-			const data = JSON.parse(userData);
-            console.log("userData Hospitals: ", data.hospitals);
-        } catch(error) {
-            console.log(error);
-        }                   
-    }
-	
 	componentDidMount() {
 		this.loadHospitals();
 	}
 
 	getTotalPatientsVisited() {
-		let userData = await AsyncStorage.getItem('userData');
 
-		console.log('userData', userData);
 		console.log('this.state.hospitals', this.state.hospitals);
 
     	this.state.hospitals.forEach( hospital => {
-
-			//para cada hospital devo verificar se este hospital contain na lista do user 		
-
 			hospital.totalPatientsVisitedToday = this.countTotalPatientsVisited(hospital.hospitalizationList)
 			hospital.totalPatients = this.countTotalPatients(hospital.hospitalizationList)
 			hospital.logomarca = this.getLogomarca(hospital)
@@ -81,6 +73,7 @@ export default class Hospital extends Component {
 	}
 
 	countTotalPatientsVisited = patients => {
+
 		let totalPatientsVisited = patients.reduce((patientsVisited, patient) => {
 			
 			if(patient.exitDate === null) {
@@ -93,7 +86,9 @@ export default class Hospital extends Component {
 			} else {
 				return patientsVisited;
 			}
+
 		}, 0);
+
 		return totalPatientsVisited;
 	}	
 
@@ -119,45 +114,62 @@ export default class Hospital extends Component {
 	}
 	
 	loadHospitals = async (page = 1) => {
-		try{
-            let userData = JSON.parse(await AsyncStorage.getItem('userData'));
-			let data = {"hospitalizationList":[]}
+		
+		try {
 
-			api.post('/api/v2.0/sync', data, {
-				headers: {
-					"Content-Type": "application/json",
-				  	"Accept": "application/json",
-				  	"Token": userData.token,
-				}
-			}).then(response => {
-				if(response.status === 200) {
-					this.setState({
-						hospitals: [ ...this.state.hospitals, ...response.data.content.hospitalList], 
-					});
-					this.getTotalPatientsVisited()
-				} else {
-					console.log("Status [ " +response.status+"] ocorreu um problema ao listar hospitais.")
-				}
-			}).catch(error => {
-				console.log("error=> ", error)
-			});
+			AsyncStorage.getItem('userData', (err, res) => {
+				
+	            console.log(res);
+
+	            let parse = JSON.parse(res);
+
+	            let token = parse.token;
+			
+				let data = { "hospitalizationList": [] };
+
+				api.post('/api/v2.0/sync', data, 
+				{	
+					headers: {
+						"Content-Type": "application/json",
+					  	"Accept": "application/json",
+					  	"Token": token,
+					}
+
+				}).then(response => {
+
+					if(response.status === 200) 
+					{
+						this.setState({
+							hospitals: [ ...this.state.hospitals, ...response.data.content.hospitalList], 
+						});
+
+						this.getTotalPatientsVisited()
+					} 
+					else 
+					{
+						console.log("Status [ " +response.status+"] ocorreu um problema ao listar hospitais.")
+					}
+
+				}).catch(error => {
+					console.log("error=> ", error)
+				});
+
+	        });
+
         } catch(error) {
             console.log(error);
         }        		
 	};
 
-	loadMore = () => {
-		const { page, infos } = this.state;
-		if (page === 1) return;
-		const pageNumber = page + 1;
-		this.loadHospitals(pageNumber);
+	sincronizar = () => {
+		console.log('ROTINA SINCRONIZAR');
 	}
 
 	renderItem = ({ item }) => (
 		
 		<TouchableOpacity
 			onPress={() => {
-				this.props.navigation.navigate("Patients", { hospital: item });
+				this.props.navigation.navigate("Patients", { hospital: item, baseDataSync: this.state.baseDataSync });
 			}}>
 			
 			<View style={[styles.container, {alignItems: 'center'}]}>
@@ -216,7 +228,7 @@ export default class Hospital extends Component {
 							data={this.state.hospitals}
 							keyExtractor={item => item.id + '_'}
 							renderItem={this.renderItem}
-							onEndReached={this.loadMore}
+							onEndReached={this.sincronizar}
 							onEndReachedThreshold={0.1} />
 					</View>
 				</Content>
