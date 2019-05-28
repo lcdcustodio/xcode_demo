@@ -10,91 +10,114 @@ import TitleScreen from '../../components/Title'
 export default class Profile extends React.Component {
 
 	render() {
+
+		let trackingListStartDate = null;
+
+		if (this.props.perfil.trackingList.length > 0) {
+			trackingListStartDate = this.props.perfil.trackingList[0].startDate;
+		}
+
 		return (
 			<View style={ styles.container }>
-				<TitleScreen marginTop={5} marginLeft={5} title={this.props.data.patient.name} />
+				<TitleScreen marginTop={5} marginLeft={5} title={this.props.perfil.patientName} />
 				<Line marginTop={3} marginBottom={3} marginLeft={5} width={90} size={2} />
 				<TextLabel marginLeft="5" label='Prontuário' />
-				<TextValue marginLeft="5" value={this.props.data.patient.medicalRecords.number} />	
+				<TextValue marginLeft="5" value={this.props.perfil.medicalRecordsNumber} />	
 
 				<View style={ styles.row }>
 					<View style={ styles.column50 }>
 						<TextLabel marginLeft="10" label='Convênio' />
-						<TextValue marginLeft="10" value={this.props.data.patient.medicalRecords.medicalAgreement} />
+						<TextValue marginLeft="10" value={this.props.perfil.agreement} />
 					</View>
 					
 					<View style={ styles.column50 }>
 						<TextLabel marginLeft="0" label='Plano' />
-						<TextValue marginLeft="0" value={this.props.data.patient.medicalRecords.healthPlan} />
+						<TextValue marginLeft="0" value={this.props.perfil.plane} />
 					</View>
 				</View>
 
 				<View style={ styles.row }>
 					<View style={ styles.column50 }>
 						<TextLabel marginLeft="10" label='Nascimento' />
-						<TextValue marginLeft="10" value={this.props.data.patient.dateOfBirth} />
+						<TextValue marginLeft="10" value={this.props.perfil.patientBornDate} />
 					</View>
 					
 					<View style={ styles.column50 }>
 						<TextLabel marginLeft="0" label='Altura/Peso' />
-						<TextValue marginLeft="0" value={ `${this.props.data.patient.height}m / ${this.props.data.patient.weight}kg` } />
-						<TextValue marginLeft="0" size={13} value={'IMC ' + (this.props.data.patient.weight / Math.pow(this.props.data.patient.height, 2)).toFixed(2) }/>
+						<TextValue marginLeft="0" value={ `${this.props.perfil.patientHeight}m / ${this.props.perfil.patientWeight}kg` } />
+						<TextValue marginLeft="0" size={13} value={'IMC ' + (this.props.perfil.patientWeight / Math.pow(this.props.perfil.patientHeight, 2)).toFixed(2) }/>
 					</View>
 				</View>
 
 				<View style={ styles.row }>
 					<View style={ styles.column50 }>
 						<TextLabel marginLeft="10" label='Atendimento' />
-						<TextValue marginLeft="10" value={this.props.data.patient.attendance.name} />
+						<TextValue marginLeft="10" value={this.props.perfil.attendanceType} />
 					</View>
 					
 					<View style={ styles.column50 }>
 						<TextLabel marginLeft="0" label='Tipo' />
-						<TextValue marginLeft="0" value={this.props.data.patient.attendance.type} />
+						<TextValue marginLeft="0" value={this.props.perfil.hospitalizationType} />
 					</View>
 				</View>
 
 				<View style={ styles.row }>
 					<View style={ styles.column100 }>
 						<TextLabel marginLeft="5" label='Data de Internação' />
-						<TextValue marginLeft="5" value={this.props.data.patient.attendance.dateOfHospitalization} />
+						<TextValue marginLeft="5" value={this.props.perfil.admissionDate} />
 					</View>
 				</View>
 					
 				<View style={ styles.row }>
 					<View style={ styles.column100 }>
 						<TextLabel marginLeft="5" label='Data de Início do Monitoramento' />
-						<TextValue marginLeft="5" value={this.props.data.patient.attendance.startDateOfMonitoring} />
+						<TextValue marginLeft="5" value={trackingListStartDate} />
 					</View>
 				</View>
 
 				<View style={ styles.row }>
 					<View style={ styles.column100 }>
-						<TextLabel marginLeft="5" label='Procedimento Principal' />
-						<TextValue marginLeft="5" value={this.props.data.patient.attendance.mainProcedure} />
+						<TextLabel marginLeft="5" label='Data da Alta Médica' />
+						<TextValue marginLeft="5" value={this.props.perfil.medicalExitDate} />
+					</View>
+				</View>
+
+				<View style={ styles.row }>
+					<View style={ styles.column100 }>
+						<TextLabel marginLeft="5" label='Data da Alta Administrativa' />
+						<TextValue marginLeft="5" value={this.props.perfil.exitDate} />
+					</View>
+				</View>
+
+				<View style={ styles.row }>
+					<View style={ styles.column100 }>
+						<TextLabel marginLeft="5" label='Motivo da alta Administrativa' />
+						<TextValue marginLeft="5" value={this.props.perfil.exitDescription} />
 					</View>
 				</View>
 
 				<View style={ styles.row }>
 					<View style={ styles.column100 }>
 						<TextLabel marginLeft="5" label='CID Primário' />
-						<TextValue marginLeft="5" value={this.props.data.patient.attendance.primaryCid} />
+						{this.props.perfil.diagnosticHypothesisList.map((prop) => {
+							return (
+								<TextValue key={prop.cidId} marginLeft="5" value={prop.cidDisplayName} />
+							);
+						})}
 					</View>
 				</View>
 					
 				<View style={ styles.row }>
 					<View style={ styles.column100 }>
 						<TextLabel marginLeft="5" label='CIDs Secundários' />
-						<TextValue marginLeft="5" value={this.props.data.patient.attendance.secondaryCid} />
+						{this.props.perfil.secondaryCIDList.map((prop) => {
+							return (
+								<TextValue key={prop.cidId} marginLeft="5" value={prop.cidDisplayName} />
+							);
+						})}
 					</View>
 				</View>
 
-				<View style={ styles.row }>
-					<View style={ styles.column100 }>
-						<TextLabel marginLeft="5" label='Informações Anteriores' />
-						<TextValue marginLeft="5" value={this.props.data.patient.previousInformation} />
-					</View>
-				</View>
 				<Text> {'\n'} </Text>
 			</View>
 		);

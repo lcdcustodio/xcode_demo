@@ -134,7 +134,7 @@ export default class Timeline extends Component {
       <View style={timeWrapper}>
         <View style={[styles.timeContainer, this.props.timeContainerStyle]}>
           <Text style={[styles.time, this.props.timeStyle]}>
-            {rowData.time}
+            {rowData.performedAt}
           </Text>
         </View>
       </View>

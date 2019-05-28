@@ -8,19 +8,12 @@ const screenHeight = Math.round(Dimensions.get('window').height - 130 );
 
 export default class Exams extends React.Component {
 	
-	constructor() {
-		super();
+	constructor(props) {
+
+		super(props);
+		
 		this.state = {
-			timeline: [
-				{time: '01/05/2019', title: 'Exame Raio-X', lineColor: '#cf175c', circleColor: '#cf175c', description: 'Alto Custo' },
-				{time: '13/04/2019', title: 'Exame Raio-X', lineColor: '#bfcc4d', circleColor: '#bfcc4d', description: 'Baixo Custo' },
-				{time: '15/04/2019', title: 'Exame Raio-X', lineColor: '#cf175c', circleColor: '#cf175c', description: 'Alto Custo' },
-				{time: '13/04/2019', title: 'Exame Raio-X', lineColor: '#bfcc4d', circleColor: '#bfcc4d', description: 'Baixo Custo' },
-				{time: '15/04/2019', title: 'Exame Raio-X', lineColor: '#cf175c', circleColor: '#cf175c', description: 'Alto Custo' },
-				{time: '13/04/2019', title: 'Exame Raio-X', lineColor: '#bfcc4d', circleColor: '#bfcc4d', description: 'Baixo Custo' },
-				{time: '15/04/2019', title: 'Exame Raio-X', lineColor: '#cf175c', circleColor: '#cf175c', description: 'Alto Custo' },
-				{time: '13/04/2019', title: 'Exame Raio-X', lineColor: '#bfcc4d', circleColor: '#bfcc4d', description: 'Baixo Custo' },
-			]
+			exames: this.props.exames
 		}
 	}
 	
@@ -28,43 +21,30 @@ export default class Exams extends React.Component {
 		alert('Botão Pressionado')
 	}
 
-	renderDetail(rowData, sectionID, rowID) {
-		let backgroundColor = ''
-		let color = ''
-
-		if(rowData.description === 'Alto Custo') {
-			backgroundColor = '#cf175c'
-			color = '#ffffff'
-		} else {
-			backgroundColor = '#bfcc4d'
-			color = '#000000'
-		}
-
-    return (
-			<View style={styles.timelineRowDescription}>
-				<Text style={styles.timelineTitle}> {rowData.title} </Text>
-				<Text style={[ styles.timelineHighlight, {color: color, backgroundColor: backgroundColor }]}> { rowData.description } </Text>
+	renderDetail(row) {
+	    return (
+			<View style={styles.description}>
+				<Text style={styles.title}> {row.examDisplayName} </Text>
+				<Text style={[ styles.highlight, {color: (row.examHighCost ? '#bfcc4d' : '#000000'), backgroundColor: (row.examHighCost ? '#cf175c' : '#ffffff') }]}> {row.examHighCost ? 'Alto Custo' : '' } </Text>
 			</View>
-    )
-  }
+	    )
+	}
 
 	render() {
-		
-    return (
-			<View style={ styles.container}>
+	    return (
+			<View style={styles.container}>
 				
-					<Timeline 
-						data={this.state.timeline}
-						renderEvent={this.renderDetail}
-						lineColor={'#b1b1b1'} 
-						circleColor={'#005cd1'} 
-						innerCircle={'dot'} 
-						circleSize={20}
-						renderFullLine={true} 
-						lineWidth={4}
-						timeStyle={ styles.timelineDate }
-						renderDetail={this.renderDetail} />
-				
+				<Timeline 
+					data={this.state.exames}
+					renderEvent={this.renderDetail}
+					lineColor={'#b1b1b1'} 
+					circleColor={'#005cd1'} 
+					innerCircle={'dot'} 
+					circleSize={20}
+					renderFullLine={true} 
+					lineWidth={4}
+					timeStyle={styles.date}
+					renderDetail={this.renderDetail} />
 
 				<View style={ styles.rowButtonCircle }>
 					<LinearGradient colors={['#035fcc', '#023066']} style={ [styles.circle, styles.borderCircle ]} >
@@ -73,7 +53,7 @@ export default class Exams extends React.Component {
 					</LinearGradient>
 				</View>
 			</View>
-    );
+	    );
 	}
 }
 
@@ -81,19 +61,19 @@ const styles = StyleSheet.create({
 	container: {
 		height: screenHeight,
 	},
-	timelineDate: {
+	date: {
 		fontFamily:'Segoe UI', 
 		fontWeight:'400', 
 		fontStyle:'normal', 
 		color:'#9d9d9d',
 	},
-	timelineRowDescription: {
+	description: {
 		flexDirection: 'row',
 		flexWrap: 'wrap',
 		justifyContent: 'space-between',
 		alignItems: 'center',
 	},
-	timelineTitle: {
+	title: {
 		fontFamily:'Segoe UI', 
 		fontSize:18, 
 		fontWeight:'300', 
@@ -102,7 +82,7 @@ const styles = StyleSheet.create({
 		letterSpacing:0, 
 		color:'#000000',
 	},
-	timelineHighlight: {
+	highlight: {
 		width: '35%',
 		height: '140%',
 		padding: '3%',
