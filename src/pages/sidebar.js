@@ -1,43 +1,42 @@
 import React, { Component } from 'react';
 import { View, StyleSheet, Image, Text } from 'react-native';
 import { Icon } from 'native-base';
-
 import LinearGradient from 'react-native-linear-gradient';
+
+import Session from '../Session';
 
 export default class Sidebar extends Component {
 	
 	constructor(props) {
 		super(props);
-		this.items = [
-			{
-				navOptionThumb: 'home',
-				navOptionName: 'HOSPITAIS',
-				screenToNavigate: 'Hospitals',
-			},
-			{
-				navOptionThumb: 'home',
-				navOptionName: 'SAIR',
-				screenToNavigate: 'SignIn',
-			}
-		];
-
-		console.log(this.props);
+		this.items = [ {
+			navOptionThumb: 'home',
+			navOptionName: 'HOSPITAIS',
+			screenToNavigate: 'Hospitals',
+		}, {
+			navOptionThumb: 'home',
+			navOptionName: 'SAIR',
+			screenToNavigate: 'SignIn',
+		} ];
 	}
 
 	render() {
-
+		let user = Session.current.user;
+		if (!user) {
+			return null;
+		}
 		return (
-			
 			<LinearGradient colors={['#005cd1', '#35d8a6']} style={styles.linearGradient}>
-
 				<Text style={{ color: 'white', fontSize: 20, position: 'absolute', left: 20, top: 10}} onPress={() => { this.props.navigation.closeDrawer(); }}>X</Text>
-			
 				<View style={styles.sideMenuContainer}>
-
 					<Image source={require('../images/logo-medico-consultor-branca.png')} style={styles.sideMenuLogoIcon} />
-
+					<Text style={styles.userName}>
+						{user.name}
+					</Text>
+					<Text style={styles.userProfile}>
+						{user.profile}
+					</Text>
 					<View style={styles.divider} />
-
 					<View style={styles.containerMenu}>
 						{this.items.map((item, key) => (
 							<View key={key} style={{ flexDirection: 'row', alignItems: 'center', paddingTop: 2, paddingBottom: 2, backgroundColor:'transparent', borderBottomColor: '#fff', borderBottomWidth: 1}} >
@@ -52,21 +51,17 @@ export default class Sidebar extends Component {
 							</View>
 						))}
 					</View>
-
 					<View style={styles.boxButton}>
 						<Image source={require('../images/logo-rededor.png')} style={styles.sideMenuLogoIcon} />
 						<Text style={{ fontSize: 15, bottom: 20, textAlign: 'right', color: '#FFF', fontWeight: "bold"}}> Versão 1.3.5 </Text>
 					</View>
-
 				</View>
-
 			</LinearGradient>
 		);
 	}
 }
 
 const styles = StyleSheet.create({
-	
 	sideMenuContainer: {
 		width: '100%',
 		height: '100%',
@@ -74,14 +69,13 @@ const styles = StyleSheet.create({
 		paddingTop: 20,
 	},
 	linearGradient: {
-	    flex: 1
+		flex: 1
 	},
 	sideMenuLogoIcon: {
 		resizeMode: 'center',
 		width: 150,
 		height: 150,
 		marginTop: 20,
-
 	},
 	divider: {
 		width: '100%',
@@ -96,14 +90,20 @@ const styles = StyleSheet.create({
 		marginRight: 10,
 	},
 	sideButtonRight : {
-	    height: 50,
-	    width:5,
-	    backgroundColor: "#fff", 
-	    fontWeight: "bold"
+		height: 50,
+		width:5,
+		backgroundColor: "#fff", 
+		fontWeight: "bold"
 	},
 	boxButton: {
-	  position: 'absolute',
-	  alignItems: 'center',
-	  bottom:0
+		position: 'absolute',
+		alignItems: 'center',
+		bottom:0
+	},
+	userName: {
+		color: '#EFE'
+	},
+	userProfile: {
+		color: '#CFC'
 	},
 });
