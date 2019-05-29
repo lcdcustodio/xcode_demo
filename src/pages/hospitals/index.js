@@ -8,6 +8,8 @@ import { View, FlatList, TouchableOpacity, Image } from "react-native";
 
 import AsyncStorage from '@react-native-community/async-storage';
 
+import Spinner from 'react-native-loading-spinner-overlay';
+
 import styles from './style'
 
 import moment from 'moment';
@@ -23,56 +25,92 @@ export default class Hospital extends Component {
 			baseDataSync: {},
 			hospitals: [],
 			page: 1,
+			loading: false
 		}
 
 		this.state.baseDataSync = this.props.navigation.getParam('baseDataSync');
 
 		console.log(this.state.baseDataSync);
+
+		console.log(this.props.navigation);
 	}
 	
 	componentDidMount() {
+
+		this.setState({ textContent: 'Carregando informações...' });
+
+		this.setState({loading: true});
+
 		this.loadHospitals();
 	}
 
 	loadHospitals = async (page = 1) => {
-		try{
-			let userData = JSON.parse(await AsyncStorage.getItem('userData'));
+		
+		try {
+
+			AsyncStorage.getItem('userData', (err, res) => {
 			
-			console.log("userData => ", userData)
-			let data = {"hospitalizationList":[]}
+	            console.log(res);
 
-			api.post('/api/v2.0/sync', data, {
-				headers: {
-					"Content-Type": "application/json",
-				  	"Accept": "application/json",
-				  	"Token": userData.token, 
-				}
-			}).then(response => {
-				if(response.status === 200) {
-					let listHospital = []
-					response.data.content.hospitalList.forEach( hospital => {
-						if(this.isTheSameHospital(hospital, userData)){
-							listHospital.push(hospital)
-						}
-					})
+	            let parse = JSON.parse(res);
 
-					this.setState({
-						hospitals: [ ...listHospital], 
-					});
+	            let token = parse.token;
+			
+				let data = { "hospitalizationList": [] };
+				
+				api.post('/api/v2.0/sync', data, {
+					headers: {
+						"Content-Type": "application/json",
+					  	"Accept": "application/json",
+					  	"Token": token, 
+					}
+				}).then(response => {
 
-					this.getInformationHospital()
-				} else {
-					console.log("Status [ " +response.status+"] ocorreu um problema ao listar hospitais.")
-				}
-			}).catch(error => {
-				console.log("error=> ", error)
+					console.log(response);
+
+					this.setState({loading: false});
+
+					if(response.status === 200) {
+
+						let listHospital = []
+						
+						response.data.content.hospitalList.forEach( hospital => {
+
+							console.log(parse);
+
+							if(this.isTheSameHospital(hospital, parse)){
+								listHospital.push(hospital)
+							}
+						})
+
+						this.setState({
+							hospitals: [ ...listHospital], 
+						});
+
+						this.getInformationHospital()
+					} else {
+						console.log("Status [ " +response.status+"] ocorreu um problema ao listar hospitais.")
+					}
+				}).catch(error => {
+
+					this.setState({loading: false});
+
+					console.log("error=> ", error)
+				});
 			});
+
         } catch(error) {
+
+        	this.setState({loading: false});
+
             console.log(error);
         }        		
 	};
 
 	isTheSameHospital = (hospital, userData) =>  {
+
+		console.log(hospital, userData);
+
 		let hasHospitality = false
 		userData.hospitals.forEach(element => {
 			if(hospital.id === element.id) {
@@ -93,6 +131,7 @@ export default class Hospital extends Component {
 	}
 
 	getLogomarca(hospital) {
+
 		if(hospital.id === 4) {
 			return require('../../images/logo_hospital/copaDor.png');
 		} else if(hospital.id === 5) {
@@ -176,54 +215,6 @@ export default class Hospital extends Component {
 		});
 		return hasAttendance 
 	}
-	
-	loadHospitals = async (page = 1) => {
-		
-		try {
-
-			AsyncStorage.getItem('userData', (err, res) => {
-				
-	            console.log(res);
-
-	            let parse = JSON.parse(res);
-
-	            let token = parse.token;
-			
-				let data = { "hospitalizationList": [] };
-
-				api.post('/api/v2.0/sync', data, 
-				{	
-					headers: {
-						"Content-Type": "application/json",
-					  	"Accept": "application/json",
-					  	"Token": token,
-					}
-
-				}).then(response => {
-
-					if(response.status === 200) 
-					{
-						this.setState({
-							hospitals: [ ...this.state.hospitals, ...response.data.content.hospitalList], 
-						});
-
-						this.getInformationHospital()
-					} 
-					else 
-					{
-						console.log("Status [ " +response.status+"] ocorreu um problema ao listar hospitais.")
-					}
-
-				}).catch(error => {
-					console.log("error=> ", error)
-				});
-
-	        });
-
-        } catch(error) {
-            console.log(error);
-        }        		
-	};
 
 	sincronizar = () => {
 		console.log('ROTINA SINCRONIZAR');
@@ -233,6 +224,7 @@ export default class Hospital extends Component {
 		
 		<TouchableOpacity
 			onPress={() => {
+				console.log(item);
 				this.props.navigation.navigate("Patients", { hospital: item, baseDataSync: this.state.baseDataSync });
 			}}>
 			
@@ -272,6 +264,12 @@ export default class Hospital extends Component {
 	render(){
 		return (
 			<Container>
+
+				<Spinner
+		            visible={this.state.loading}
+		            textContent={this.state.textContent}
+		            textStyle={styles.spinnerTextStyle} />
+
 				<Header style={styles.headerMenu}>
 					<Left style={{flex:1}} >
 						<Icon name="md-menu" style={{ color: 'white' }} onPress={() => this.props.navigation.openDrawer() } />
