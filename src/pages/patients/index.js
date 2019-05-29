@@ -30,7 +30,6 @@ export default class Patients extends Component {
 					patients.push(patient)
 				}
 			});
-			console.log('Patients => ', patients )
 			this.setState({patients})
 		}
 	})
@@ -92,30 +91,28 @@ export default class Patients extends Component {
 		return today.diff(dateFormatted, 'days') + ' Dias'
 	}
 
-	exitDateIsEqualToLastVisit(patient) {
+	exitDateIsNotEqualToLastVisit(patient) {
 		const exitDate = moment(patient.exitDate)
 		let listOfOrderedPatientVisits = _.orderBy(patient.trackingList, ['endDate'], ['desc'])
 		let dateLastVisitFormatted = moment(moment(listOfOrderedPatientVisits[0].endDate).format('YYYY-MM-DD'))
 		let diffDays = exitDate.diff(dateLastVisitFormatted, 'days')
-		//return diffDays === 0 ? true : false
-		diffDays === 0 ? console.log("Data de alta e ultima visita sao iguais") : console.log("Data de alta e ultima visita NAO sao iguais")
-		return true
+		return diffDays !== 0 ? true : false
 	}
 
 	getStatusLogoVisit(patient) {
 		let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc'])
-		if(patient.lastVisit !== 'HOJE' && listOfOrderedPatientObservations.length > 0 && !listOfOrderedPatientObservations[0].alert) {
-			return require('../../images/ic_home_blue.png')
-		} else if(patient.lastVisit !== 'HOJE' && listOfOrderedPatientObservations.length > 0 && listOfOrderedPatientObservations[0].alert) {
-			return require('../../images/ic_home_red.png')
-		} else if(patient.lastVisit !== 'HOJE' && listOfOrderedPatientObservations.length > 0 && listOfOrderedPatientObservations[0].endTranking) {
-			return require('../../images/ic_home_orange.png')
-		} else if(patient.lastVisit === 'HOJE' && listOfOrderedPatientObservations.length > 0 && !listOfOrderedPatientObservations[0].endTranking) {
-			return require('../../images/ic_home_green.png')
-		} else if(patient.lastVisit === 'HOJE' && listOfOrderedPatientObservations.length > 0 && listOfOrderedPatientObservations[0].endTranking) {
-			return require('../../images/ic_home_black.png')
-		} else if( (patient.exitDate !== null || patient.death) && this.exitDateIsEqualToLastVisit(patient)) {
-			return require('../../images/ic_home_grey.png')
+		if(patient.exitDate === null && patient.lastVisit !== 'HOJE' && listOfOrderedPatientObservations.length > 0 && !listOfOrderedPatientObservations[0].alert && !listOfOrderedPatientObservations[0].endTracking) {
+			return require('../../images/ic_visibility_blue_24px.png')
+		} else if(patient.exitDate === null && patient.lastVisit !== 'HOJE' && listOfOrderedPatientObservations.length > 0 && listOfOrderedPatientObservations[0].alert && !listOfOrderedPatientObservations[0].endTracking) {
+			return require('../../images/ic_visibility_exclamation_24px.png')
+		} else if(patient.exitDate === null && patient.lastVisit !== 'HOJE' && listOfOrderedPatientObservations.length > 0 && listOfOrderedPatientObservations[0].endTracking) {
+			return require('../../images/ic_visibility_red_24px.png')
+		} else if(patient.exitDate === null && patient.lastVisit === 'HOJE' && listOfOrderedPatientObservations.length > 0 && !listOfOrderedPatientObservations[0].endTracking) {
+			return require('../../images/ic_visibility_green_24px.png')
+		} else if(patient.exitDate === null && patient.lastVisit === 'HOJE' && listOfOrderedPatientObservations.length > 0 && listOfOrderedPatientObservations[0].endTracking) {
+			return require('../../images/ic_visibility_grey_24px.png')
+		} else if( (patient.exitDate !== null || patient.death) && this.exitDateIsNotEqualToLastVisit(patient)) {
+			return require('../../images/ic_home_24px.png')
 		}
 	}
 
