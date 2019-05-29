@@ -6,8 +6,8 @@ import LinearGradient from 'react-native-linear-gradient';
 
 export default class Sidebar extends Component {
 	
-	constructor() {
-		super();
+	constructor(props) {
+		super(props);
 		this.items = [
 			{
 				navOptionThumb: 'home',
@@ -20,6 +20,8 @@ export default class Sidebar extends Component {
 				screenToNavigate: 'SignIn',
 			}
 		];
+
+		console.log(this.props);
 	}
 
 	render() {

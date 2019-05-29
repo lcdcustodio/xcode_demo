@@ -54,5 +54,8 @@ export default StyleSheet.create({
 
   calendarIcon : { color: '#005cd1', fontSize: 18, marginTop: 3, marginBottom: 3, marginLeft: 10}, 
 
-  userIcon : { color: '#005cd1', fontSize: 18, marginTop: 3, marginBottom: 3, marginLeft: 10}
+  userIcon : { color: '#005cd1', fontSize: 18, marginTop: 3, marginBottom: 3, marginLeft: 10},
+  spinnerTextStyle: {
+      color: '#FFF'
+  },
 });
