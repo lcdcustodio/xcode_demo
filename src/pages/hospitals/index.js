@@ -4,9 +4,11 @@ import api from '../../services/api';
 
 import { Container, Content, Header, Left, Right, Body, Icon, Title, Text, Thumbnail } from 'native-base';
 
-import { View, FlatList, TouchableOpacity, Image } from "react-native";
+import { Alert, View, FlatList, TouchableOpacity, Image } from "react-native";
 
 import AsyncStorage from '@react-native-community/async-storage';
+
+import NetInfo from "@react-native-community/netinfo";
 
 import Spinner from 'react-native-loading-spinner-overlay';
 
@@ -24,49 +26,54 @@ export default class Hospital extends Component {
 			infos: {},
 			baseDataSync: {},
 			hospitals: [],
+			isConnected: null,
 			page: 1,
 			loading: false
 		}
 
 		this.state.baseDataSync = this.props.navigation.getParam('baseDataSync');
-
-		console.log(this.state.baseDataSync);
-
-		console.log(this.props.navigation);
 	}
 	
 	componentDidMount() {
 
-		this.setState({ textContent: 'Carregando informações...' });
+		NetInfo.fetch().then(state => {
 
-		this.setState({loading: true});
+			this.setState({isConnected: state.isConnected});
 
-		this.loadHospitals();
+			this.sincronizar();
+
+			console.log("Connection type", state.type);
+			
+			console.log("Is connected?", state.isConnected);
+
+		});
 	}
 
-	loadHospitals = async (page = 1) => {
+	loadHospitals = async () => {
 		
 		try {
 
+			this.setState({ textContent: 'Carregando informações...' });
+
+			this.setState({loading: true});
+
 			AsyncStorage.getItem('userData', (err, res) => {
 			
-	            console.log(res);
-
 	            let parse = JSON.parse(res);
 
 	            let token = parse.token;
 			
 				let data = { "hospitalizationList": [] };
 				
-				api.post('/api/v2.0/sync', data, {
+				api.post('/api/v2.0/sync', data, 
+				{
 					headers: {
 						"Content-Type": "application/json",
 					  	"Accept": "application/json",
 					  	"Token": token, 
 					}
-				}).then(response => {
 
-					console.log(response);
+				}).then(response => {
 
 					this.setState({loading: false});
 
@@ -75,9 +82,6 @@ export default class Hospital extends Component {
 						let listHospital = []
 						
 						response.data.content.hospitalList.forEach( hospital => {
-
-							console.log(parse);
-
 							if(this.isTheSameHospital(hospital, parse)){
 								listHospital.push(hospital)
 							}
@@ -87,15 +91,51 @@ export default class Hospital extends Component {
 							hospitals: [ ...listHospital], 
 						});
 
-						this.getInformationHospital()
+						this.getInformationHospital().then(response => {
+							AsyncStorage.setItem('hospitalList', JSON.stringify(this.state.hospitals));						
+						});
+					
 					} else {
-						console.log("Status [ " +response.status+"] ocorreu um problema ao listar hospitais.")
+
+						Alert.alert(
+							'Erro ao carregar informações',
+							'Desculpe, recebemos um erro inesperado do servidor, por favor, faça login e tente novamente! ',
+							[
+								{
+									text: 'OK', onPress: () => {
+										this.props.navigation.navigate("SignIn");
+									}
+								},
+							],
+							{
+								cancelable: false
+							},
+						);
+
+						console.log(response);
 					}
+				
 				}).catch(error => {
 
 					this.setState({loading: false});
 
-					console.log("error=> ", error)
+					Alert.alert(
+						'Erro ao carregar informações',
+						'Desculpe, infelizmente não foi possível carregar a lista de hospitais, por favor, faça login e tente novamente!',
+						[
+							{
+								text: 'OK', onPress: () => {
+									this.props.navigation.navigate("SignIn");
+								}
+							},
+						],
+						{
+							cancelable: false
+						},
+					);
+
+					console.log(error);
+
 				});
 			});
 
@@ -108,9 +148,6 @@ export default class Hospital extends Component {
 	};
 
 	isTheSameHospital = (hospital, userData) =>  {
-
-		console.log(hospital, userData);
-
 		let hasHospitality = false
 		userData.hospitals.forEach(element => {
 			if(hospital.id === element.id) {
@@ -121,7 +158,7 @@ export default class Hospital extends Component {
 		return hasHospitality
 	}
 
-	getInformationHospital = () => {
+	getInformationHospital = async () => {
 		this.state.hospitals.forEach( hospital => {	
 			hospital.logomarca = this.getLogomarca(hospital)
 			hospital.totalPatientsVisitedToday = this.countTotalPatientsVisited(hospital.hospitalizationList)
@@ -216,8 +253,37 @@ export default class Hospital extends Component {
 		return hasAttendance 
 	}
 
-	sincronizar = () => {
-		console.log('ROTINA SINCRONIZAR');
+	sincronizar = async () => {
+
+		const { isConnected } = this.state;
+
+		console.log('ROTINA SINCRONIZAR', isConnected);
+
+		if (!isConnected) {
+
+			console.log('ONLINE');
+
+			this.loadHospitals();
+		}
+		else
+		{
+			console.log('OFFLINE');
+
+			AsyncStorage.getItem('hospitalList', (err, res) => {
+
+				let hospitalList = JSON.parse(res);
+
+				hospitalList.forEach( hospital => {
+					hospital.logomarca = this.getLogomarca(hospital)
+					hospital.totalPatientsVisitedToday = this.countTotalPatientsVisited(hospital.hospitalizationList)
+					hospital.totalPatients = this.countTotalPatients(hospital.hospitalizationList)
+					hospital.lastVisit = this.setLastVisit(hospital.hospitalizationList)
+				});
+
+				this.setState({hospitals: hospitalList});
+
+			});
+		}
 	}
 
 	renderItem = ({ item }) => (
@@ -274,21 +340,22 @@ export default class Hospital extends Component {
 					<Left style={{flex:1}} >
 						<Icon name="md-menu" style={{ color: 'white' }} onPress={() => this.props.navigation.openDrawer() } />
 					</Left>
-					<Body style={{flex: 1, alignItems: 'center',alignSelf: 'center'}}>
+					<Body style={{flex: 1, alignItems: 'center', alignSelf: 'center'}}>
 						<Title> Hospitais </Title>
 					</Body>
 					<Right style={{flex: 1}} />
 				</Header>
 
+				<Text> 10/10/2018 </Text>
+
 				<Content>
 					<View style={styles.container}>
+
 						<FlatList
 							contentContainerStyle={styles.list}
 							data={this.state.hospitals}
 							keyExtractor={item => item.id + '_'}
-							renderItem={this.renderItem}
-							onEndReached={this.sincronizar}
-							onEndReachedThreshold={0.1} />
+							renderItem={this.renderItem} />
 					</View>
 				</Content>
 			</Container>

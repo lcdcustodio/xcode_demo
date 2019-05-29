@@ -14,5 +14,36 @@ Alert.alert(
 			text: 'OK', onPress: () => console.log('OK Pressed')
 		},
 	],
-	{cancelable: false},
+	{
+		cancelable: false
+	},
 );
+
+if (!isConnected) {
+
+	Alert.alert(
+		'Sem conexão com internet',
+		'Desulpe, não identificamos uma conexão com internet. Gostaria de prosseguir em modo offline? Sincronizaremos os dados quando identificarmos uma conexão com a internet.',
+		[
+			{
+				text: 'NÃO',
+				onPress: () => {
+					console.log('não');
+				},
+				style: 'cancel',
+			},
+			{
+				text: 'SIM', onPress: () => {
+					console.log('sim');
+				}
+			},
+		],
+		{
+			cancelable: false
+		},
+	);
+}
+
+console.log(isConnected);
+
+return false;

@@ -35,6 +35,6 @@ const AppContainer = createAppContainer(AppNavigator);
 
 export default class App extends Component {
     render(){
-        return  <AppContainer data='teste' ref={nav =>  this.navigator = nav } />
+        return  <AppContainer ref={nav =>  this.navigator = nav } />	
     }
 }
