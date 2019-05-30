@@ -15,10 +15,13 @@ export default class PatientDetail extends Component {
 		
 		this.state = {
 			detail: {},
+			hospital: null,
 			selectedTab: 'profile'
 		}
 
 		this.state.detail = this.props.navigation.getParam('patient');
+
+		this.state.hospital = this.props.navigation.getParam('hospital');
 	}
     
 	renderSelectedTab() {
@@ -30,6 +33,7 @@ export default class PatientDetail extends Component {
 				return (<Exams exames={this.state.detail.examRequestList}/>);
 				break;
 			case 'visits':
+				console.log(this.state.detail.observationList);
 				return (<Visits visitas={this.state.detail.observationList}/>);
 				break;
 			default:
@@ -47,7 +51,7 @@ export default class PatientDetail extends Component {
 			<Container>
 				<Header style={ styles.header }>
 					<Left style={{flex:1}} >
-						<Icon type="AntDesign" name="left" style={{ color: 'white' }} onPress={() => this.props.navigation.navigate('Patients',  { hospital: this.props.navigation.getParam('hospital', null) } ) } />
+						<Icon type="AntDesign" name="left" style={{ color: 'white' }} onPress={() => this.props.navigation.navigate('Patients',  { hospital: this.state.hospital } ) } />
 					</Left>
 					<Body style={{flex: 1, alignItems: 'center',alignSelf: 'center'}}>
 						<Title> {this.state.detail.patientName } </Title>

@@ -1,11 +1,16 @@
 import React, { Component } from 'react';
+
 import { StyleSheet, Text, View } from 'react-native';
 
-//Components 
 import TextLabel from '../../components/TextLabel'
+
 import TextValue from '../../components/TextValue'
+
 import Line from '../../components/Line'
+
 import TitleScreen from '../../components/Title'
+
+import moment from 'moment';
 
 export default class Profile extends React.Component {
 
