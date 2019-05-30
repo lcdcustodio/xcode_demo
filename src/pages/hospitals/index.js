@@ -14,6 +14,10 @@ import Spinner from 'react-native-loading-spinner-overlay';
 
 import styles from './style'
 
+import Line from '../../components/Line'
+
+import Timer from '../../components/Timer'
+
 import moment from 'moment';
 
 export default class Hospital extends Component {
@@ -25,8 +29,9 @@ export default class Hospital extends Component {
 		this.state = {
 			infos: {},
 			baseDataSync: {},
-			hospitals: [],
+			hospitals: null,
 			isConnected: null,
+			dateSync: null,
 			page: 1,
 			loading: false
 		}
@@ -34,20 +39,31 @@ export default class Hospital extends Component {
 		this.state.baseDataSync = this.props.navigation.getParam('baseDataSync');
 	}
 	
-	componentDidMount() {
+	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
+
+		console.log('didFocus');
 
 		NetInfo.fetch().then(state => {
 
 			this.setState({isConnected: state.isConnected});
 
-			this.sincronizar();
+			if (this.state.hospitals == null) {
+				this.sincronizar();
+			}
 
 			console.log("Connection type", state.type);
 			
 			console.log("Is connected?", state.isConnected);
 
 		});
-	}
+
+		AsyncStorage.getItem('dateSync', (err, dateSync) => {
+
+            this.setState({dateSync: dateSync});
+
+            console.log(dateSync);
+        });
+	});
 
 	loadHospitals = async () => {
 		
@@ -87,11 +103,14 @@ export default class Hospital extends Component {
 							}
 						})
 
-						this.setState({
-							hospitals: [ ...listHospital], 
-						});
+						this.getInformationHospital(listHospital).then(response => {
 
-						this.getInformationHospital().then(response => {
+							const dateSync = moment().format('DD/MM/YYYY [às] HH:mm:ss');
+
+							this.setState({dateSync: dateSync});
+
+							AsyncStorage.setItem('dateSync', dateSync);
+
 							AsyncStorage.setItem('hospitalList', JSON.stringify(this.state.hospitals));						
 						});
 					
@@ -158,13 +177,20 @@ export default class Hospital extends Component {
 		return hasHospitality
 	}
 
-	getInformationHospital = async () => {
-		this.state.hospitals.forEach( hospital => {	
+	getInformationHospital = async (listHospital) => {
+
+		listHospital.forEach( hospital => {
 			hospital.logomarca = this.getLogomarca(hospital)
 			hospital.totalPatientsVisitedToday = this.countTotalPatientsVisited(hospital.hospitalizationList)
 			hospital.totalPatients = this.countTotalPatients(hospital.hospitalizationList)
 			hospital.lastVisit = this.setLastVisit(hospital.hospitalizationList)
 		}); 
+
+		this.setState({
+			hospitals: [ ...listHospital], 
+		});
+
+		console.log('getInformationHospital');
 	}
 
 	getLogomarca(hospital) {
@@ -257,31 +283,45 @@ export default class Hospital extends Component {
 
 		const { isConnected } = this.state;
 
-		console.log('ROTINA SINCRONIZAR', isConnected);
+		console.log('isConnected', isConnected);
 
-		if (!isConnected) {
-
-			console.log('ONLINE');
-
+		if (isConnected) {
 			this.loadHospitals();
 		}
 		else
 		{
-			console.log('OFFLINE');
-
 			AsyncStorage.getItem('hospitalList', (err, res) => {
 
-				let hospitalList = JSON.parse(res);
+				if (res == null) {
 
-				hospitalList.forEach( hospital => {
-					hospital.logomarca = this.getLogomarca(hospital)
-					hospital.totalPatientsVisitedToday = this.countTotalPatientsVisited(hospital.hospitalizationList)
-					hospital.totalPatients = this.countTotalPatients(hospital.hospitalizationList)
-					hospital.lastVisit = this.setLastVisit(hospital.hospitalizationList)
-				});
+					Alert.alert(
+						'Erro ao carregar informações',
+						'Desculpe, não foi possível prosseguir offline, é necessário uma primeira sincronização conectado a internet!',
+						[
+							{
+								text: 'OK', onPress: () => {
+									this.props.navigation.navigate("SignIn");
+								}
+							},
+						],
+						{
+							cancelable: false
+						},
+					);
+				} 
+				else 
+				{
+					let hospitalList = JSON.parse(res);
 
-				this.setState({hospitals: hospitalList});
+					hospitalList.forEach( hospital => {
+						hospital.logomarca = this.getLogomarca(hospital)
+						hospital.totalPatientsVisitedToday = this.countTotalPatientsVisited(hospital.hospitalizationList)
+						hospital.totalPatients = this.countTotalPatients(hospital.hospitalizationList)
+						hospital.lastVisit = this.setLastVisit(hospital.hospitalizationList)
+					});
 
+					this.setState({hospitals: hospitalList});	
+				}
 			});
 		}
 	}
@@ -290,8 +330,29 @@ export default class Hospital extends Component {
 		
 		<TouchableOpacity
 			onPress={() => {
+
 				console.log(item);
-				this.props.navigation.navigate("Patients", { hospital: item, baseDataSync: this.state.baseDataSync });
+
+				if(item.hospitalizationList.length === 0) {
+
+					Alert.alert(
+						item.name,
+						'Não há pacientes neste hospital',
+						[
+							{
+								text: 'OK', onPress: () => console.log('OK Pressed')
+							},
+						],
+						{
+							cancelable: false
+						},
+					);
+
+				}
+				else
+				{
+					this.props.navigation.navigate("Patients", { hospital: item, baseDataSync: this.state.baseDataSync });
+				}
 			}}>
 			
 			<View style={[styles.container, {alignItems: 'center'}]}>
@@ -346,7 +407,9 @@ export default class Hospital extends Component {
 					<Right style={{flex: 1}} />
 				</Header>
 
-				<Text> 10/10/2018 </Text>
+				<Timer dateSync={this.state.dateSync}/>
+
+				<Line size={1} />
 
 				<Content>
 					<View style={styles.container}>

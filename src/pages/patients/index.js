@@ -1,45 +1,51 @@
 import React, { Component } from "react"
+
 import styles from './style'
+
 import { Container, Content, Header, Left, Right, Body, Icon, Title, Text } from 'native-base'
-import { View, FlatList, TouchableOpacity, Image } from "react-native"
+
+import { Alert, View, FlatList, TouchableOpacity, Image } from "react-native"
+
 import moment from 'moment'
+
 import _ from 'lodash'
 
 export default class Patients extends Component {
 	
 	constructor(props) {
+
 		super(props);
+		
 		this.state = {
 			hospital: {},
-			baseDataSync: {},
-			infos: {},
-			patients: [],
 		}
-
-		console.log('ok');
 	}
 
-	willFocus = this.props.navigation.addListener('willFocus', (payload) => {
-		let patients = []
+	willFocus = this.props.navigation.addListener('willFocus', (res) => {
+		
+		const hospital = this.props.navigation.getParam('hospital');
 
-		if(payload.state.params.hospital.hospitalizationList.length === 0) {
-			alert("Desculpe, não foi possível exibir a lista de pacientes. Tente novamente mais tarde :|")
-			this.props.navigation.navigate({ routeName: 'Hospitals' })
-		} else {
-			payload.state.params.hospital.hospitalizationList.forEach( patient => {
-				if(!patient.externalPatient && (patient.exitDate === null || this.exitDateBelow24Hours(patient.exitDate)) ) {
-					patient.totalDaysOfHospitalization = this.calculateDaysOfHospitalization(patient)
-					patient.statusColorName = this.getStatusColorName(patient)
-					patient.lastVisit = this.getLastVisit(patient)
-					patient.logoStatusVisit = this.getStatusLogoVisit(patient)
-					patients.push(patient)
-				}
-			});
-			this.setState({patients})
-		}
-	})
+		let patients = [];
+
+		hospital.hospitalizationList.forEach( patient => {
+			
+			patient.statusColorName = 'black';
+
+			if(!patient.externalPatient && (patient.exitDate === null || this.exitDateBelow48Hours(patient.exitDate))) {
+				patient.totalDaysOfHospitalization = this.calculateDaysOfHospitalization(patient);
+				patient.statusColorName = this.getStatusColorName(patient);
+				patient.lastVisit = this.getLastVisit(patient);
+				patient.logoStatusVisit = this.getStatusLogoVisit(patient);
+				patients.push(patient);
+			}
+		});
+
+		hospital.hospitalizationList = patients;
+
+		this.setState({hospital: hospital});
+	});
 	
-	exitDateBelow24Hours(date) {
+	exitDateBelow48Hours(date) {
 		const today = moment()
 		let dateFormatted = moment(moment(date).format('YYYY-MM-DD'))
 		let total = today.diff(dateFormatted, 'days')
@@ -106,6 +112,7 @@ export default class Patients extends Component {
 
 	getStatusLogoVisit(patient) {
 		let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc'])
+		
 		if(patient.exitDate === null && patient.lastVisit !== 'HOJE' && listOfOrderedPatientObservations.length > 0 && !listOfOrderedPatientObservations[0].alert && !listOfOrderedPatientObservations[0].endTracking) {
 			return require('../../images/ic_visibility_blue_24px.png')
 		} else if(patient.exitDate === null && patient.lastVisit !== 'HOJE' && listOfOrderedPatientObservations.length > 0 && listOfOrderedPatientObservations[0].alert && !listOfOrderedPatientObservations[0].endTracking) {
@@ -124,7 +131,7 @@ export default class Patients extends Component {
 	renderItem = ({ item }) => (
 		<TouchableOpacity
 			onPress={() => {
-				this.props.navigation.navigate("PatientDetail", { patient: item });
+				this.props.navigation.navigate("PatientDetail", { patient: item, hospital: this.state.hospital });
 			}}>
 			<View style={[styles.productContainer]}>
 				<View>
@@ -147,7 +154,7 @@ export default class Patients extends Component {
 						<Icon name="md-menu" style={{ color: 'white' }} onPress={() => this.props.navigation.openDrawer() } />
 					</Left>
 					<Body style={{flex: 1, alignItems: 'center', alignSelf: 'center'}}>
-						<Title>{this.props.navigation.getParam('hospital', null).name}</Title>
+						<Title>{this.state.hospital.name}</Title>
 					</Body>
 					<Right style={{flex: 1}} />
 				</Header> 
@@ -155,7 +162,7 @@ export default class Patients extends Component {
 					<View style={styles.container}>
 						<FlatList
 							contentContainerStyle={styles.list}
-							data={this.state.patients}
+							data={this.state.hospital.hospitalizationList}
 							keyExtractor={item => `${item.id}`}
 							renderItem={this.renderItem}
 							onEndReached={this.sincronizar}
