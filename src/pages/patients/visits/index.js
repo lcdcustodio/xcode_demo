@@ -67,7 +67,7 @@ showModal = _ => {
 															<Text>Alerta</Text>
 															</View>
 															<View>
-																<Switch onValueChange = {this.toggleSwitch} value = {this.state.switchValue}/>
+																<Switch onValueChange={this.toggleSwitch} value={this.state.switchValue} style={{ transform: [{ scaleX: .8 }, { scaleY: .8 }] }}/>
 															</View>
 												</View>
 												<View style={{flexDirection: "row", width: '100%', flexWrap: 'wrap'}}>
