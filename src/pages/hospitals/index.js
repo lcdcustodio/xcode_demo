@@ -41,8 +41,6 @@ export default class Hospital extends Component {
 	
 	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
 
-		console.log('didFocus');
-
 		NetInfo.fetch().then(state => {
 
 			this.setState({isConnected: state.isConnected});
@@ -58,10 +56,7 @@ export default class Hospital extends Component {
 		});
 
 		AsyncStorage.getItem('dateSync', (err, dateSync) => {
-
             this.setState({dateSync: dateSync});
-
-            console.log(dateSync);
         });
 	});
 
