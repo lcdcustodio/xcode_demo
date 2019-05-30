@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Alert, StatusBar, Text, StyleSheet, ImageBackground, Image } from 'react-native';
+import { Alert, StatusBar, Text, StyleSheet, ImageBackground } from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
 import AsyncStorage from '@react-native-community/async-storage';
 import qs from "qs";

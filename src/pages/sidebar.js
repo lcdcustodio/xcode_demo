@@ -30,10 +30,10 @@ export default class Sidebar extends Component {
 				<Text style={{ color: 'white', fontSize: 20, position: 'absolute', left: 20, top: 10}} onPress={() => { this.props.navigation.closeDrawer(); }}>X</Text>
 				<View style={styles.sideMenuContainer}>
 					<Image source={require('../images/logo-medico-consultor-branca.png')} style={styles.sideMenuLogoIcon} />
-					<Text style={styles.userName}>
+					<Text style={{ fontSize: 14, color: '#FFF', fontWeight: "bold" }}>
 						{user.name}
 					</Text>
-					<Text style={styles.userProfile}>
+					<Text style={{ fontSize: 12, color: '#CFC', marginBottom: 20, }}>
 						{user.profile}
 					</Text>
 					<View style={styles.divider} />
@@ -81,13 +81,12 @@ const styles = StyleSheet.create({
 		width: '100%',
 		height: 1,
 		backgroundColor: '#e2e2e2',
-		marginTop: 15,
 	},
 	containerMenu: {
 		width: '100%',
 	},
 	itemIcon: {
-		marginRight: 10,
+		marginRight: 20,
 	},
 	sideButtonRight : {
 		height: 50,
