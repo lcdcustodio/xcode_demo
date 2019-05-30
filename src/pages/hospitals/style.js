@@ -46,8 +46,8 @@ export default StyleSheet.create({
   sideButtonRight : {
     height: '100%',
     backgroundColor: "#005cd1",
-    paddingTop: '10%', 
-    fontWeight: "bold",
+    paddingTop: '15%', 
+    fontWeight: "bold"
    }, 
 
   headerMenu: {backgroundColor: "#005cd1"}, 

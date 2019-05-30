@@ -14,23 +14,33 @@ export default class PatientDetail extends Component {
 		super(props);
 		
 		this.state = {
-			detail: {},
+			patient: null,
+			hospital: null,
+			baseDataSync: null,
 			selectedTab: 'profile'
 		}
-
-		this.state.detail = this.props.navigation.getParam('patient');
 	}
-    
+
+	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
+
+		this.state.patient = this.props.navigation.getParam('patient');
+		
+		this.state.hospital = this.props.navigation.getParam('hospital');
+
+		this.state.baseDataSync = this.props.navigation.getParam('baseDataSync');
+	});
+
 	renderSelectedTab() {
+
 		switch (this.state.selectedTab) {
 			case 'profile':
-				return (<Profile perfil={this.state.detail}/>);
+				return (<Profile perfil={this.props.navigation.state.params.patient}/>);
 				break;
 			case 'exams':
-				return (<Exams exames={this.state.detail.examRequestList}/>);
+				return (<Exams exames={this.props.navigation.state.params.patient.examRequestList}/>);
 				break;
 			case 'visits':
-				return (<Visits visitas={this.state.detail.observationList}/>);
+				return (<Visits visitas={this.props.navigation.state.params.patient.observationList}/>);
 				break;
 			default:
 		}
@@ -43,14 +53,15 @@ export default class PatientDetail extends Component {
 	}
 
 	render(){
+
 		return (
 			<Container>
 				<Header style={ styles.header }>
 					<Left style={{flex:1}} >
-						<Icon type="AntDesign" name="left" style={{ color: 'white' }} onPress={() => this.props.navigation.navigate('Patients',  { hospital: this.props.navigation.getParam('hospital', null) } ) } />
+						<Icon type="AntDesign" name="left" style={{ color: 'white' }} onPress={() => this.props.navigation.navigate('Patients',  { hospital: this.state.hospital } ) } />
 					</Left>
-					<Body style={{flex:8, alignItems: 'stretch'}}>
-						<Title> {this.state.detail.patientName } </Title>
+					<Body style={{flex: 1, alignItems: 'center',alignSelf: 'center'}}>
+						<Title> {this.props.navigation.state.params.patient.patientName } </Title>
 					</Body>
 				</Header>
 				<Content padder>
