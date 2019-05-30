@@ -18,19 +18,20 @@ export default class Patients extends Component {
 		
 		this.state = {
 			hospital: {},
+			baseDataSync: {},
 		}
 	}
 
-	willFocus = this.props.navigation.addListener('willFocus', (res) => {
+	didFocus = this.props.navigation.addListener('didFocus', (res) => {
 		
-		const hospital = this.props.navigation.getParam('hospital');
+		let hospital = this.props.navigation.getParam('hospital');
+
+		let baseDataSync = this.props.navigation.getParam('baseDataSync');
 
 		let patients = [];
 
 		hospital.hospitalizationList.forEach( patient => {
 			
-			patient.statusColorName = 'black';
-
 			if(!patient.externalPatient && (patient.exitDate === null || this.exitDateBelow48Hours(patient.exitDate))) {
 				patient.totalDaysOfHospitalization = this.calculateDaysOfHospitalization(patient);
 				patient.statusColorName = this.getStatusColorName(patient);
@@ -43,6 +44,8 @@ export default class Patients extends Component {
 		hospital.hospitalizationList = patients;
 
 		this.setState({hospital: hospital});
+
+		this.setState({baseDataSync: baseDataSync});
 	});
 	
 	exitDateBelow48Hours(date) {
@@ -131,7 +134,10 @@ export default class Patients extends Component {
 	renderItem = ({ item }) => (
 		<TouchableOpacity
 			onPress={() => {
-				this.props.navigation.navigate("PatientDetail", { patient: item, hospital: this.state.hospital });
+
+				console.log({ patient: item, hospital: this.state.hospital, baseDataSync: this.state.baseDataSync });
+				
+				this.props.navigation.navigate("PatientDetail", { patient: item, hospital: this.state.hospital, baseDataSync: this.state.baseDataSync });
 			}}>
 			<View style={[styles.productContainer]}>
 				<View>
