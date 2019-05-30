@@ -355,23 +355,23 @@ export default class Hospital extends Component {
 					<Image source={item.logomarca} style={styles.hospitalIcon}  />
 				</View>
 				<View style={{flexDirection: "column", width: '53%'}}>
-					<View>
-						<Text style={[styles.title, styles.niceBlue]}> 	{item.name}  </Text>
-					</View>
+					{/* <View>
+						<Text style={[styles.title, styles.niceBlue]}>{item.name}</Text>
+					</View>*/}
 
 					<View style={{flexDirection: "row", alignItems: 'center'}}>
 						<Icon type="AntDesign" name="calendar" style={styles.calendarIcon} />
-						<Text style={[styles.description]}>Última Visita: {item.lastVisit}</Text>
+						<Text style={[styles.description, styles.niceBlue]}>Última Visita: </Text><Text style={[styles.description]}>{item.lastVisit}</Text>
 					</View>
 
 					<View style={{flexDirection: "row", alignItems: 'center'}}>
 						<Icon type="AntDesign" name="book" style={styles.calendarIcon} />
-						<Text style={[styles.description]}>Internados: {item.totalPatients}</Text>
+						<Text style={[styles.description, styles.niceBlue]}>Internados: </Text><Text style={[styles.description]}>{item.totalPatients}</Text>
 					</View>
 					
 					<View style={{flexDirection: "row", alignItems: 'center'}}>
 						<Icon type="AntDesign" name="user" style={styles.userIcon}/>
-						<Text style={[styles.description]}>Pendentes: {item.totalPatientsVisitedToday}</Text>
+						<Text style={[styles.description, styles.niceBlue]}>Pendentes:</Text><Text style={[styles.description]}>{item.totalPatientsVisitedToday}</Text>
 					</View>
 				</View>
 				<View style={[styles.sideButtonRight]}>
@@ -396,8 +396,8 @@ export default class Hospital extends Component {
 					<Left style={{flex:1}} >
 						<Icon name="md-menu" style={{ color: 'white' }} onPress={() => this.props.navigation.openDrawer() } />
 					</Left>
-					<Body style={{flex: 1, alignItems: 'center', alignSelf: 'center'}}>
-						<Title> Hospitais </Title>
+					<Body style={{flex: 1, alignItems: 'center',alignSelf: 'center'}}>
+						<Title>HOSPITAIS</Title>
 					</Body>
 					<Right style={{flex: 1}} />
 				</Header>

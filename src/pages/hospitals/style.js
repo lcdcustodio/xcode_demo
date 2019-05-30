@@ -38,8 +38,8 @@ export default StyleSheet.create({
     fontStyle: "normal",
     textAlign: "left",
     color: "#51565f" ,
-    marginTop: 5, 
-    marginLeft: 3, 
+    marginTop: 7, 
+    marginLeft: 5, 
     marginBottom: 5, 
   }, 
 

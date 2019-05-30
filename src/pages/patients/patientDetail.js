@@ -63,7 +63,6 @@ export default class PatientDetail extends Component {
 					<Body style={{flex: 1, alignItems: 'center',alignSelf: 'center'}}>
 						<Title> {this.props.navigation.state.params.patient.patientName } </Title>
 					</Body>
-					<Right style={{flex: 1}} />
 				</Header>
 				<Content padder>
 					{ this.renderSelectedTab() }

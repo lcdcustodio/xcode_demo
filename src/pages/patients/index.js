@@ -162,7 +162,6 @@ export default class Patients extends Component {
 					<Body style={{flex: 1, alignItems: 'center', alignSelf: 'center'}}>
 						<Title>{this.state.hospital.name}</Title>
 					</Body>
-					<Right style={{flex: 1}} />
 				</Header> 
 				<Content>
 					<View style={styles.container}>
