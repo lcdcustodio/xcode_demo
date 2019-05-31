@@ -69,14 +69,10 @@ export default StyleSheet.create({
 		flexDirection: "row"
  },
  	textArea: {
-			height: '60%',
-			width: "100%",
-			height: "70%",
-			lineHeight: 23, 
-			borderColor: '#DDD',
-			borderWidth: 1			
-	},
-	modalContainer: {
-		height: screenHeight
+		width: "100%",
+		height: "70%",
+		borderColor: '#000',
+		borderWidth: 1, 
+		padding: 1
 	}
 });

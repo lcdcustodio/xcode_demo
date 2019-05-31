@@ -14,26 +14,35 @@ export default class PatientDetail extends Component {
 		super(props);
 		
 		this.state = {
-			detail: {},
-			selectedTab: 'profile'
+			patient: {},
+			selectedTab: 'profile' 
 		}
 
-		this.state.detail = this.props.navigation.getParam('patient');
+		this.state.patient = this.props.navigation.getParam('patient');
+
+
+		console.log("patient in patientDetail: ", this.state.patient)
+
 	}
     
 	renderSelectedTab() {
 		switch (this.state.selectedTab) {
 			case 'profile':
-				return (<Profile perfil={this.state.detail}/>);
+				return (<Profile perfil={this.state.patient}/>);
 				break;
 			case 'exams':
-				return (<Exams exames={this.state.detail.examRequestList}/>);
+				return (<Exams exames={this.state.patient.examRequestList}/>);
 				break;
 			case 'visits':
-				return (<Visits visitas={this.state.detail.observationList}/>);
+				return (<Visits patient={this.state.patient} updatePatient={this.updatePatient}/>);
 				break;
 			default:
 		}
+	}
+
+	updatePatient = patient =>{
+		this.setState({patient})
+		console.log("patient in datail", this.state.patient)
 	}
 
 	switchScreen(screen) {        
@@ -50,7 +59,7 @@ export default class PatientDetail extends Component {
 						<Icon type="AntDesign" name="left" style={{ color: 'white' }} onPress={() => this.props.navigation.navigate('Patients',  { hospital: this.props.navigation.getParam('hospital', null) } ) } />
 					</Left>
 					<Body style={{flex: 1, alignItems: 'center',alignSelf: 'center'}}>
-						<Title> {this.state.detail.patientName } </Title>
+						<Title> {this.state.patient.patientName } </Title>
 					</Body>
 					<Right style={{flex: 1}} />
 				</Header>
