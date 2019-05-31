@@ -10,21 +10,37 @@ import Visits from "./visits"
 export default class PatientDetail extends Component {
     
 	constructor(props) {
-
 		super(props);
-		
 		this.state = {
 			detail: {},
 			selectedTab: 'profile'
 		}
-
 		this.state.detail = this.props.navigation.getParam('patient');
 	}
-    
+	
+	handleAttendanceType = (attendanceType) => {
+		console.log(attendanceType)
+		this.setState({
+			detail: {
+				...this.state.detail,
+				attendanceType
+			}
+		})
+	}
+
+	handleHospitalizationType = (hospitalizationType) => {
+		this.setState({
+			detail: {
+				...this.state.detail,
+				hospitalizationType
+			}
+		})
+	}
+
 	renderSelectedTab() {
 		switch (this.state.selectedTab) {
 			case 'profile':
-				return (<Profile perfil={this.state.detail}/>);
+				return (<Profile perfil={this.state.detail} handleAttendanceType={this.handleAttendanceType} handleHospitalizationType={this.handleHospitalizationType} />);
 				break;
 			case 'exams':
 				return (<Exams exames={this.state.detail.examRequestList}/>);

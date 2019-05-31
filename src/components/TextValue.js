@@ -9,7 +9,7 @@ export default class TextValue extends Component {
 
   render(){
     return (
-      <Text style={[styles.value, {"fontSize": this.props.size, "marginLeft": `${this.props.marginLeft}%`} ]}> { this.props.value } </Text>
+      <Text style={[styles.value, {"fontSize": this.props.size, "marginLeft": `${this.props.marginLeft}%`} ]} onPress={ this.props.press}> { this.props.value } </Text>
     )
   }
 }
