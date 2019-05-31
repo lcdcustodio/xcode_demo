@@ -4,13 +4,19 @@ import api from '../../services/api';
 
 import { Container, Content, Header, Left, Right, Body, Icon, Title, Text, Thumbnail } from 'native-base';
 
-import { View, FlatList, TouchableOpacity, Image } from "react-native";
+import { Alert, View, FlatList, TouchableOpacity, Image } from "react-native";
 
 import AsyncStorage from '@react-native-community/async-storage';
+
+import NetInfo from "@react-native-community/netinfo";
 
 import Spinner from 'react-native-loading-spinner-overlay';
 
 import styles from './style'
+
+import Line from '../../components/Line'
+
+import Timer from '../../components/Timer'
 
 import moment from 'moment';
 
@@ -23,50 +29,62 @@ export default class Hospital extends Component {
 		this.state = {
 			infos: {},
 			baseDataSync: {},
-			hospitals: [],
+			hospitals: null,
+			isConnected: null,
+			dateSync: null,
 			page: 1,
 			loading: false
 		}
 
 		this.state.baseDataSync = this.props.navigation.getParam('baseDataSync');
-
-		console.log(this.state.baseDataSync);
-
-		console.log(this.props.navigation);
 	}
 	
-	componentDidMount() {
+	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
 
-		this.setState({ textContent: 'Carregando informações...' });
+		NetInfo.fetch().then(state => {
 
-		this.setState({loading: true});
+			this.setState({isConnected: state.isConnected});
 
-		this.loadHospitals();
-	}
+			if (this.state.hospitals == null) {
+				this.sincronizar();
+			}
 
-	loadHospitals = async (page = 1) => {
+			console.log("Connection type", state.type);
+			
+			console.log("Is connected?", state.isConnected);
+
+		});
+
+		AsyncStorage.getItem('dateSync', (err, dateSync) => {
+            this.setState({dateSync: dateSync});
+        });
+	});
+
+	loadHospitals = async () => {
 		
 		try {
 
+			this.setState({ textContent: 'Carregando informações...' });
+
+			this.setState({loading: true});
+
 			AsyncStorage.getItem('userData', (err, res) => {
 			
-	            console.log(res);
-
 	            let parse = JSON.parse(res);
 
 	            let token = parse.token;
 			
 				let data = { "hospitalizationList": [] };
 				
-				api.post('/api/v2.0/sync', data, {
+				api.post('/api/v2.0/sync', data, 
+				{
 					headers: {
 						"Content-Type": "application/json",
 					  	"Accept": "application/json",
 					  	"Token": token, 
 					}
-				}).then(response => {
 
-					console.log(response);
+				}).then(response => {
 
 					this.setState({loading: false});
 
@@ -75,27 +93,63 @@ export default class Hospital extends Component {
 						let listHospital = []
 						
 						response.data.content.hospitalList.forEach( hospital => {
-
-							console.log(parse);
-
 							if(this.isTheSameHospital(hospital, parse)){
 								listHospital.push(hospital)
 							}
 						})
 
-						this.setState({
-							hospitals: [ ...listHospital], 
-						});
+						this.getInformationHospital(listHospital).then(response => {
 
-						this.getInformationHospital()
+							const dateSync = moment().format('DD/MM/YYYY [às] HH:mm:ss');
+
+							this.setState({dateSync: dateSync});
+
+							AsyncStorage.setItem('dateSync', dateSync);
+
+							AsyncStorage.setItem('hospitalList', JSON.stringify(this.state.hospitals));						
+						});
+					
 					} else {
-						console.log("Status [ " +response.status+"] ocorreu um problema ao listar hospitais.")
+
+						Alert.alert(
+							'Erro ao carregar informações',
+							'Desculpe, recebemos um erro inesperado do servidor, por favor, faça login e tente novamente! ',
+							[
+								{
+									text: 'OK', onPress: () => {
+										this.props.navigation.navigate("SignIn");
+									}
+								},
+							],
+							{
+								cancelable: false
+							},
+						);
+
+						console.log(response);
 					}
+				
 				}).catch(error => {
 
 					this.setState({loading: false});
 
-					console.log("error=> ", error)
+					Alert.alert(
+						'Erro ao carregar informações',
+						'Desculpe, infelizmente não foi possível carregar a lista de hospitais, por favor, faça login e tente novamente!',
+						[
+							{
+								text: 'OK', onPress: () => {
+									this.props.navigation.navigate("SignIn");
+								}
+							},
+						],
+						{
+							cancelable: false
+						},
+					);
+
+					console.log(error);
+
 				});
 			});
 
@@ -108,9 +162,6 @@ export default class Hospital extends Component {
 	};
 
 	isTheSameHospital = (hospital, userData) =>  {
-
-		console.log(hospital, userData);
-
 		let hasHospitality = false
 		userData.hospitals.forEach(element => {
 			if(hospital.id === element.id) {
@@ -121,13 +172,20 @@ export default class Hospital extends Component {
 		return hasHospitality
 	}
 
-	getInformationHospital = () => {
-		this.state.hospitals.forEach( hospital => {	
+	getInformationHospital = async (listHospital) => {
+
+		listHospital.forEach( hospital => {
 			hospital.logomarca = this.getLogomarca(hospital)
 			hospital.totalPatientsVisitedToday = this.countTotalPatientsVisited(hospital.hospitalizationList)
 			hospital.totalPatients = this.countTotalPatients(hospital.hospitalizationList)
 			hospital.lastVisit = this.setLastVisit(hospital.hospitalizationList)
 		}); 
+
+		this.setState({
+			hospitals: [ ...listHospital], 
+		});
+
+		console.log('getInformationHospital');
 	}
 
 	getLogomarca(hospital) {
@@ -216,16 +274,80 @@ export default class Hospital extends Component {
 		return hasAttendance 
 	}
 
-	sincronizar = () => {
-		console.log('ROTINA SINCRONIZAR');
+	sincronizar = async () => {
+
+		const { isConnected } = this.state;
+
+		console.log('isConnected', isConnected);
+
+		if (isConnected) {
+			this.loadHospitals();
+		}
+		else
+		{
+			AsyncStorage.getItem('hospitalList', (err, res) => {
+
+				if (res == null) {
+
+					Alert.alert(
+						'Erro ao carregar informações',
+						'Desculpe, não foi possível prosseguir offline, é necessário uma primeira sincronização conectado a internet!',
+						[
+							{
+								text: 'OK', onPress: () => {
+									this.props.navigation.navigate("SignIn");
+								}
+							},
+						],
+						{
+							cancelable: false
+						},
+					);
+				} 
+				else 
+				{
+					let hospitalList = JSON.parse(res);
+
+					hospitalList.forEach( hospital => {
+						hospital.logomarca = this.getLogomarca(hospital)
+						hospital.totalPatientsVisitedToday = this.countTotalPatientsVisited(hospital.hospitalizationList)
+						hospital.totalPatients = this.countTotalPatients(hospital.hospitalizationList)
+						hospital.lastVisit = this.setLastVisit(hospital.hospitalizationList)
+					});
+
+					this.setState({hospitals: hospitalList});	
+				}
+			});
+		}
 	}
 
 	renderItem = ({ item }) => (
 		
 		<TouchableOpacity
 			onPress={() => {
+
 				console.log(item);
-				this.props.navigation.navigate("Patients", { hospital: item, baseDataSync: this.state.baseDataSync });
+
+				if(item.hospitalizationList.length === 0) {
+
+					Alert.alert(
+						item.name,
+						'Não há pacientes neste hospital',
+						[
+							{
+								text: 'OK', onPress: () => console.log('OK Pressed')
+							},
+						],
+						{
+							cancelable: false
+						},
+					);
+
+				}
+				else
+				{
+					this.props.navigation.navigate("Patients", { hospital: item, baseDataSync: this.state.baseDataSync });
+				}
 			}}>
 			
 			<View style={[styles.container, {alignItems: 'center'}]}>
@@ -233,23 +355,23 @@ export default class Hospital extends Component {
 					<Image source={item.logomarca} style={styles.hospitalIcon}  />
 				</View>
 				<View style={{flexDirection: "column", width: '53%'}}>
-					<View>
-						<Text style={[styles.title, styles.niceBlue]}> 	{item.name}  </Text>
-					</View>
+					{/* <View>
+						<Text style={[styles.title, styles.niceBlue]}>{item.name}</Text>
+					</View>*/}
 
 					<View style={{flexDirection: "row", alignItems: 'center'}}>
 						<Icon type="AntDesign" name="calendar" style={styles.calendarIcon} />
-						<Text style={[styles.description]}>Última Visita: {item.lastVisit}</Text>
+						<Text style={[styles.description, styles.niceBlue]}>Última Visita: </Text><Text style={[styles.description]}>{item.lastVisit}</Text>
 					</View>
 
 					<View style={{flexDirection: "row", alignItems: 'center'}}>
 						<Icon type="AntDesign" name="book" style={styles.calendarIcon} />
-						<Text style={[styles.description]}>Internados: {item.totalPatients}</Text>
+						<Text style={[styles.description, styles.niceBlue]}>Internados: </Text><Text style={[styles.description]}>{item.totalPatients}</Text>
 					</View>
 					
 					<View style={{flexDirection: "row", alignItems: 'center'}}>
 						<Icon type="AntDesign" name="user" style={styles.userIcon}/>
-						<Text style={[styles.description]}>Pendentes: {item.totalPatientsVisitedToday}</Text>
+						<Text style={[styles.description, styles.niceBlue]}>Pendentes:</Text><Text style={[styles.description]}>{item.totalPatientsVisitedToday}</Text>
 					</View>
 				</View>
 				<View style={[styles.sideButtonRight]}>
@@ -275,20 +397,23 @@ export default class Hospital extends Component {
 						<Icon name="md-menu" style={{ color: 'white' }} onPress={() => this.props.navigation.openDrawer() } />
 					</Left>
 					<Body style={{flex: 1, alignItems: 'center',alignSelf: 'center'}}>
-						<Title> Hospitais </Title>
+						<Title>HOSPITAIS</Title>
 					</Body>
 					<Right style={{flex: 1}} />
 				</Header>
 
+				<Timer dateSync={this.state.dateSync}/>
+
+				<Line size={1} />
+
 				<Content>
 					<View style={styles.container}>
+
 						<FlatList
 							contentContainerStyle={styles.list}
 							data={this.state.hospitals}
 							keyExtractor={item => item.id + '_'}
-							renderItem={this.renderItem}
-							onEndReached={this.sincronizar}
-							onEndReachedThreshold={0.1} />
+							renderItem={this.renderItem} />
 					</View>
 				</Content>
 			</Container>

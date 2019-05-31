@@ -14,27 +14,33 @@ export default class PatientDetail extends Component {
 		super(props);
 		
 		this.state = {
-			patient: {},
-			selectedTab: 'profile' 
+			patient: null,
+			hospital: null,
+			baseDataSync: null,
+			selectedTab: 'profile'
 		}
+	}
+
+	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
 
 		this.state.patient = this.props.navigation.getParam('patient');
+		
+		this.state.hospital = this.props.navigation.getParam('hospital');
 
+		this.state.baseDataSync = this.props.navigation.getParam('baseDataSync');
+	});
 
-		console.log("patient in patientDetail: ", this.state.patient)
-
-	}
-    
 	renderSelectedTab() {
+
 		switch (this.state.selectedTab) {
 			case 'profile':
-				return (<Profile perfil={this.state.patient}/>);
+				return (<Profile perfil={this.props.navigation.state.params.patient}/>);
 				break;
 			case 'exams':
-				return (<Exams exames={this.state.patient.examRequestList}/>);
+				return (<Exams exames={this.props.navigation.state.params.patient.examRequestList}/>);
 				break;
 			case 'visits':
-				return (<Visits patient={this.state.patient} updatePatient={this.updatePatient}/>);
+				return (<Visits visitas={this.props.navigation.state.params.patient} updatePatient={this.updatePatient} />);
 				break;
 			default:
 		}
@@ -52,16 +58,16 @@ export default class PatientDetail extends Component {
 	}
 
 	render(){
+
 		return (
 			<Container>
 				<Header style={ styles.header }>
 					<Left style={{flex:1}} >
-						<Icon type="AntDesign" name="left" style={{ color: 'white' }} onPress={() => this.props.navigation.navigate('Patients',  { hospital: this.props.navigation.getParam('hospital', null) } ) } />
+						<Icon type="AntDesign" name="left" style={{ color: 'white' }} onPress={() => this.props.navigation.navigate('Patients',  { hospital: this.state.hospital } ) } />
 					</Left>
 					<Body style={{flex: 1, alignItems: 'center',alignSelf: 'center'}}>
-						<Title> {this.state.patient.patientName } </Title>
+						<Title> {this.props.navigation.state.params.patient.patientName } </Title>
 					</Body>
-					<Right style={{flex: 1}} />
 				</Header>
 				<Content padder>
 					{ this.renderSelectedTab() }
