@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Modal, FlatList } from "react-native";
 import PropTypes from 'prop-types';
 
 export default class ModalList extends Component {
@@ -18,12 +18,9 @@ export default class ModalList extends Component {
 						<View style={styles.container}>
 							<FlatList
 								data={this.props.list}
-								renderItem={ (item) => { 
-                  <Text style={styles.item} onPress={ () => {this.setState({modalVisible: !this.props.visible}), this.props.action(item) } } >
-                    {item.label} 
-                  </Text>
-                }}
-								keyExtractor={item => `${item.key}`} />
+								renderItem={ element => <Text style={styles.text} onPress={ () => { this.props.action(element) }}> {element.item.label} </Text> } 
+                keyExtractor={element => `${element.key}`}
+                />
 						</View>
 
 					</View>
@@ -34,20 +31,15 @@ export default class ModalList extends Component {
 
 ModalList.propTypes = {
   visible: PropTypes.bool.isRequired,
-  list: PropTypes.array.isRequired.shape({
-    key: PropTypes.number,
-    value: PropTypes.string,
-    label: PropTypes.string
-  }),
+  list: PropTypes.arrayOf(
+    PropTypes.shape({
+      key: PropTypes.number.isRequired,
+      value: PropTypes.string.isRequired,
+      label: PropTypes.string.isRequired,
+    })
+  ).isRequired,
+  action: PropTypes.func.isRequired
 }
-/* 
-ModalList.defaultProps  = {
-  visible: true,
-  list: [
-    { key: 1, value: 'opt1', label: 'OPTION 1' },
-    { key: 2, value: 'opt2', label: 'OPTION 2' }
-  ]
-} */
 
 const styles = StyleSheet.create({
   overlay: {
@@ -68,7 +60,7 @@ const styles = StyleSheet.create({
     borderStyle:'solid', 
     borderWidth:1
   },
-  item: {
+  text: {
     padding: 10,
     fontSize: 18,
   },

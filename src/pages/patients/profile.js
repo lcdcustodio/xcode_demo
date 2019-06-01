@@ -17,15 +17,21 @@ export default class Profile extends React.Component {
 		super(props);	
 		this.state = {
 			modalVisible: false,
+			dataListAttendance: [
+				{key: 1, value: 'ELECTIVE', label: 'ELETIVO'},
+				{key: 2, value: 'EMERGENCY', label: 'EMERGÊNCIA'}
+			]
 		}
 	}
 
-	toggleModal = () => {
+	toggleModalAttendance = () => {
 		this.setState({modalVisible: !this.state.modalVisible})
 	}
 
-	teste = (item) => {
-		this.props.handleAttendanceType(item.value)
+	handleAttendanceType = (item) => {
+		console.log(item.item.value)
+		this.props.handleAttendanceType(item.item.value)
+		this.setState({modalVisible: !this.state.modalVisible})
 	}
 
 	render() {
@@ -62,7 +68,7 @@ export default class Profile extends React.Component {
 					</View>
 				</Modal> */}
 				
-				<ModalList />
+				<ModalList visible={this.state.modalVisible} list={this.state.dataListAttendance} action={this.handleAttendanceType} />
 
 				<TitleScreen marginTop={5} marginLeft={5} title={this.props.perfil.patientName} />
 				<Line marginTop={3} marginBottom={3} marginLeft={5} width={90} size={2} />
@@ -97,7 +103,7 @@ export default class Profile extends React.Component {
 				<View style={ styles.row }>
 					<View style={ styles.column50 }>
 						<TextLabel marginLeft="10" label='Atendimento' />
-						<TextValue marginLeft="10" value={this.props.perfil.attendanceType} press={ this.toggleModal } />
+						<TextValue marginLeft="10" value={this.props.perfil.attendanceType} press={ this.toggleModalAttendance } />
 					</View>
 					
 					<View style={ styles.column50 }>
