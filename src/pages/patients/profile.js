@@ -16,22 +16,35 @@ export default class Profile extends React.Component {
 	constructor(props) {
 		super(props);	
 		this.state = {
-			modalVisible: false,
-			dataListAttendance: [
+			modalAttendanceTypeVisible: false,
+			modalHospitalizationType: false,
+			listAttendanceType: [
 				{key: 1, value: 'ELECTIVE', label: 'ELETIVO'},
 				{key: 2, value: 'EMERGENCY', label: 'EMERGÊNCIA'}
+			],
+			listHospitalizationType: [
+				{key: 1, value: 'CLINICAL', label: 'CLÍNICO'},
+				{key: 2, value: 'SURGICAL', label: 'CIRÚRGICO'}
 			]
 		}
 	}
 
-	toggleModalAttendance = () => {
-		this.setState({modalVisible: !this.state.modalVisible})
+	toggleModalAttendanceType = () => {
+		this.setState({modalAttendanceTypeVisible: !this.state.modalAttendanceTypeVisible})
 	}
 
-	handleAttendanceType = (item) => {
-		console.log(item.item.value)
-		this.props.handleAttendanceType(item.item.value)
-		this.setState({modalVisible: !this.state.modalVisible})
+	handleAttendanceType = (attendanceType) => {
+		this.props.handleAttendanceType(attendanceType.item.value)
+		this.toggleModalAttendanceType()
+	}
+
+	toggleModalHospitalizationType = () => {
+		this.setState({modalHospitalizationType: !this.state.modalHospitalizationType})
+	}
+
+	handleHospitalizationType = (hospitalizationType) => {
+		this.props.handleHospitalizationType(hospitalizationType.item.value)
+		this.toggleModalHospitalizationType()
 	}
 
 	render() {
@@ -47,28 +60,9 @@ export default class Profile extends React.Component {
 
 		return (
 			<View style={ styles.container }>
-
-				{/* <Modal
-					animationType="fade"
-					transparent={true}
-					visible={this.state.modalVisible} >
-
-					<View style={[styles.overlay, {paddingTop:'70%', paddingLeft:'5%', paddingRight:'5%'} ]}>
-
-						<View style={{margin:'0%', width:'100%', height:'50%', backgroundColor: 'white', borderRadius: 4, borderColor:'#000000', borderStyle:'solid', borderWidth:1 }}>
-							<FlatList
-								data={[
-									{key: 1, value: 'ELECTIVE', label: 'ELETIVO'},
-									{key: 2, value: 'EMERGENCY', label: 'EMERGÊNCIA'},
-								]}
-								renderItem={ ({item}) => <Text style={styles.item} onPress={ () => {this.setState({modalVisible: !this.state.modalVisible}), this.teste(item) } } > {item.label} </Text>}
-								keyExtractor={item => `${item.key}`} />
-						</View>
-
-					</View>
-				</Modal> */}
 				
-				<ModalList visible={this.state.modalVisible} list={this.state.dataListAttendance} action={this.handleAttendanceType} />
+				<ModalList visible={this.state.modalAttendanceTypeVisible} list={this.state.listAttendanceType}      action={this.handleAttendanceType} />
+				<ModalList visible={this.state.modalHospitalizationType}   list={this.state.listHospitalizationType} action={this.handleHospitalizationType} />
 
 				<TitleScreen marginTop={5} marginLeft={5} title={this.props.perfil.patientName} />
 				<Line marginTop={3} marginBottom={3} marginLeft={5} width={90} size={2} />
@@ -103,15 +97,12 @@ export default class Profile extends React.Component {
 				<View style={ styles.row }>
 					<View style={ styles.column50 }>
 						<TextLabel marginLeft="10" label='Atendimento' />
-						<TextValue marginLeft="10" value={this.props.perfil.attendanceType} press={ this.toggleModalAttendance } />
+						<TextValue marginLeft="10" value={this.props.perfil.attendanceType} press={ this.toggleModalAttendanceType } />
 					</View>
 					
 					<View style={ styles.column50 }>
 						<TextLabel marginLeft="0" label='Tipo' />
-						<Picker style={{ marginLeft: '10%', width: '85%'}} mode={'dropdown'} selectedValue={this.props.perfil.hospitalizationType} onValueChange={(hospitalizationType) => this.props.handleHospitalizationType(hospitalizationType) }>
-							<Picker.Item label="CLÍNICO" value="CLINICAL" />
-							<Picker.Item label="CIRÚRGICO" value="SURGICAL" />
-						</Picker>
+						<TextValue marginLeft="10" value={this.props.perfil.hospitalizationType} press={ this.toggleModalHospitalizationType } />
 					</View>
 				</View>
 
