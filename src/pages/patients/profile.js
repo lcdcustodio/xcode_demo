@@ -10,6 +10,7 @@ import TitleScreen from '../../components/Title'
 
 import moment from 'moment';
 import ModalList from '../../components/ModalList'
+import ModalWheelPicker from '../../components/ModalWheelPicker'
 
 export default class Profile extends React.Component {
 
@@ -18,6 +19,7 @@ export default class Profile extends React.Component {
 		this.state = {
 			modalAttendanceTypeVisible: false,
 			modalHospitalizationType: false,
+			modalHeightAndWeight: false,
 			listAttendanceType: [
 				{key: 1, value: 'ELECTIVE', label: 'ELETIVO'},
 				{key: 2, value: 'EMERGENCY', label: 'EMERGÊNCIA'}
@@ -47,6 +49,15 @@ export default class Profile extends React.Component {
 		this.toggleModalHospitalizationType()
 	}
 
+	toggleModalHeightAndWeight = () => {
+		this.setState({modalHeightAndWeight: !this.state.modalHeightAndWeight})
+	}
+
+	handleHeightAndWeight = (patientHeight, patientWeight) => {
+		this.props.handleHeightAndWeight(patientHeight, patientWeight)
+		this.toggleModalHeightAndWeight()
+	}
+
 	render() {
 		let trackingListStartDate = null;
 		let patientBornDate = this.props.perfil.patientBornDate !== null ? moment(this.props.perfil.patientBornDate).format('DD/MM/YYYY') : this.props.perfil.patientBornDate
@@ -61,8 +72,18 @@ export default class Profile extends React.Component {
 		return (
 			<View style={ styles.container }>
 				
-				<ModalList visible={this.state.modalAttendanceTypeVisible} list={this.state.listAttendanceType}      action={this.handleAttendanceType} />
-				<ModalList visible={this.state.modalHospitalizationType}   list={this.state.listHospitalizationType} action={this.handleHospitalizationType} />
+				<ModalList visible={this.state.modalAttendanceTypeVisible} 
+					list={this.state.listAttendanceType} 
+					action={this.handleAttendanceType} />
+
+				<ModalList visible={this.state.modalHospitalizationType} 
+					list={this.state.listHospitalizationType} 
+					action={this.handleHospitalizationType} />
+
+				<ModalWheelPicker visible={this.state.modalHeightAndWeight} 
+					initValueHeight={this.props.perfil.patientHeight} 
+					initValueWeight={this.props.perfil.patientWeight} 
+					actionClose={ this.handleHeightAndWeight} />
 
 				<TitleScreen marginTop={5} marginLeft={5} title={this.props.perfil.patientName} />
 				<Line marginTop={3} marginBottom={3} marginLeft={5} width={90} size={2} />
@@ -89,7 +110,7 @@ export default class Profile extends React.Component {
 					
 					<View style={ styles.column50 }>
 						<TextLabel marginLeft="0" label='Altura/Peso' />
-						<TextValue marginLeft="0" value={ `${this.props.perfil.patientHeight}m / ${this.props.perfil.patientWeight}kg` } />
+						<TextValue marginLeft="0" value={ `${this.props.perfil.patientHeight}m / ${this.props.perfil.patientWeight}kg` } press={ this.toggleModalHeightAndWeight } />
 						<TextValue marginLeft="0" size={13} value={'IMC ' + (this.props.perfil.patientWeight / Math.pow(this.props.perfil.patientHeight, 2)).toFixed(2) }/>
 					</View>
 				</View>

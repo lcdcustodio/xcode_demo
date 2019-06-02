@@ -37,10 +37,20 @@ export default class PatientDetail extends Component {
 		})
 	}
 
+	handleHeightAndWeight = (patientHeight, patientWeight) => {
+		this.setState({
+			detail: {
+				...this.state.detail,
+				patientHeight,
+				patientWeight
+			}
+		})
+	}
+
 	renderSelectedTab() {
 		switch (this.state.selectedTab) {
 			case 'profile':
-				return (<Profile perfil={this.state.detail} handleAttendanceType={this.handleAttendanceType} handleHospitalizationType={this.handleHospitalizationType} />);
+				return (<Profile perfil={this.state.detail} handleAttendanceType={this.handleAttendanceType} handleHospitalizationType={this.handleHospitalizationType} handleHeightAndWeight={this.handleHeightAndWeight} />);
 				break;
 			case 'exams':
 				return (<Exams exames={this.state.detail.examRequestList}/>);
