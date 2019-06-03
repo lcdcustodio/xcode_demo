@@ -16,10 +16,10 @@ export default class PatientDetail extends Component {
 			selectedTab: 'profile'
 		}
 		this.state.detail = this.props.navigation.getParam('patient');
+		console.log(this.state.detail)
 	}
 	
 	handleAttendanceType = (attendanceType) => {
-		console.log(attendanceType)
 		this.setState({
 			detail: {
 				...this.state.detail,
@@ -47,10 +47,19 @@ export default class PatientDetail extends Component {
 		})
 	}
 
+	handleCRM = (crm) => {
+		this.setState({
+			detail: {
+				...this.state.detail,
+				mainProcedureCRM: crm
+			}
+		})
+	}
+
 	renderSelectedTab() {
 		switch (this.state.selectedTab) {
 			case 'profile':
-				return (<Profile perfil={this.state.detail} handleAttendanceType={this.handleAttendanceType} handleHospitalizationType={this.handleHospitalizationType} handleHeightAndWeight={this.handleHeightAndWeight} />);
+				return (<Profile perfil={this.state.detail} handleAttendanceType={this.handleAttendanceType} handleHospitalizationType={this.handleHospitalizationType} handleHeightAndWeight={this.handleHeightAndWeight} handleCRM={this.handleCRM} />);
 				break;
 			case 'exams':
 				return (<Exams exames={this.state.detail.examRequestList}/>);

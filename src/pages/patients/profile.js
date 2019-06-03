@@ -11,6 +11,7 @@ import TitleScreen from '../../components/Title'
 import moment from 'moment';
 import ModalList from '../../components/ModalList'
 import ModalWheelPicker from '../../components/ModalWheelPicker'
+import ModalInput from '../../components/ModalInput'
 
 export default class Profile extends React.Component {
 
@@ -20,6 +21,7 @@ export default class Profile extends React.Component {
 			modalAttendanceTypeVisible: false,
 			modalHospitalizationType: false,
 			modalHeightAndWeight: false,
+			modalCRM: false,
 			listAttendanceType: [
 				{key: 1, value: 'ELECTIVE', label: 'ELETIVO'},
 				{key: 2, value: 'EMERGENCY', label: 'EMERGÊNCIA'}
@@ -54,17 +56,26 @@ export default class Profile extends React.Component {
 	}
 
 	handleHeightAndWeight = (patientHeight, patientWeight) => {
-		console.log("Fechar?")
 		this.props.handleHeightAndWeight(patientHeight, patientWeight)
 		this.toggleModalHeightAndWeight()
 	}
 
+	toggleModalCRM = () => {
+		this.setState({modalCRM: !this.state.modalCRM})
+	}
+
+	handleCRM = (crm) => {
+		this.props.handleCRM(crm)
+		this.toggleModalCRM()
+	}
+
 	render() {
 		let trackingListStartDate = null;
-		let patientBornDate = this.props.perfil.patientBornDate !== null ? moment(this.props.perfil.patientBornDate).format('DD/MM/YYYY') : this.props.perfil.patientBornDate
-		let admissionDate   = this.props.perfil.admissionDate   !== null ? moment(this.props.perfil.admissionDate).format('DD/MM/YYYY')   : this.props.perfil.admissionDate
-		let medicalExitDate = this.props.perfil.medicalExitDate !== null ? moment(this.props.perfil.medicalExitDate).format('DD/MM/YYYY') : this.props.perfil.medicalExitDate
-		let exitDate        = this.props.perfil.exitDate        !== null ? moment(this.props.perfil.exitDate).format('DD/MM/YYYY')        : this.props.perfil.exitDate
+		let patientBornDate = this.props.perfil.patientBornDate  !== null ? moment(this.props.perfil.patientBornDate).format('DD/MM/YYYY') : this.props.perfil.patientBornDate
+		let admissionDate   = this.props.perfil.admissionDate    !== null ? moment(this.props.perfil.admissionDate).format('DD/MM/YYYY')   : this.props.perfil.admissionDate
+		let medicalExitDate = this.props.perfil.medicalExitDate  !== null ? moment(this.props.perfil.medicalExitDate).format('DD/MM/YYYY') : this.props.perfil.medicalExitDate
+		let exitDate        = this.props.perfil.exitDate         !== null ? moment(this.props.perfil.exitDate).format('DD/MM/YYYY')        : this.props.perfil.exitDate
+		let CRM 			= this.props.perfil.mainProcedureCRM !== null ? this.props.perfil.mainProcedureCRM							   : 'INFORMAR'
 
 		if (this.props.perfil.trackingList.length > 0) {
 			trackingListStartDate = moment(this.props.perfil.trackingList[0].startDate).format('DD/MM/YYYY');
@@ -85,6 +96,8 @@ export default class Profile extends React.Component {
 					initValueHeight={this.props.perfil.patientHeight} 
 					initValueWeight={this.props.perfil.patientWeight} 
 					actionClose={ this.handleHeightAndWeight} />
+
+				<ModalInput visible={this.state.modalCRM} crm={this.props.perfil.mainProcedureCRM} action={ this.handleCRM} />
 
 				<TitleScreen marginTop={5} marginLeft={5} title={this.props.perfil.patientName} />
 				<Line marginTop={3} marginBottom={3} marginLeft={5} width={90} size={2} />
@@ -182,6 +195,13 @@ export default class Profile extends React.Component {
 								<TextValue key={prop.cidId} marginLeft="5" value={prop.cidDisplayName} />
 							);
 						})}
+					</View>
+				</View>
+				
+				<View style={ styles.row }>
+					<View style={ styles.column100 }>
+						<TextLabel marginLeft="5" label='CRM do Responsável' />
+						<TextValue marginLeft="5" value={CRM} press={ this.toggleModalCRM } />
 					</View>
 				</View>
 
