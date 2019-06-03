@@ -274,6 +274,43 @@ export default class Hospital extends Component {
 		return hasAttendance 
 	}
 
+	loadHospitalsStorage = async () => {
+
+		AsyncStorage.getItem('hospitalList', (err, res) => {
+
+			if (res == null) {
+
+				Alert.alert(
+					'Erro ao carregar informações',
+					'Desculpe, não foi possível prosseguir offline, é necessário uma primeira sincronização conectado a internet!',
+					[
+						{
+							text: 'OK', onPress: () => {
+								this.props.navigation.navigate("SignIn");
+							}
+						},
+					],
+					{
+						cancelable: false
+					},
+				);
+			} 
+			else 
+			{
+				let hospitalList = JSON.parse(res);
+
+				hospitalList.forEach( hospital => {
+					hospital.logomarca = this.getLogomarca(hospital)
+					hospital.totalPatientsVisitedToday = this.countTotalPatientsVisited(hospital.hospitalizationList)
+					hospital.totalPatients = this.countTotalPatients(hospital.hospitalizationList)
+					hospital.lastVisit = this.setLastVisit(hospital.hospitalizationList)
+				});
+
+				this.setState({hospitals: hospitalList});	
+			}
+		});
+	}
+
 	sincronizar = async () => {
 
 		const { isConnected } = this.state;
@@ -281,43 +318,21 @@ export default class Hospital extends Component {
 		console.log('isConnected', isConnected);
 
 		if (isConnected) {
-			this.loadHospitals();
-		}
-		else
-		{
+
 			AsyncStorage.getItem('hospitalList', (err, res) => {
 
 				if (res == null) {
-
-					Alert.alert(
-						'Erro ao carregar informações',
-						'Desculpe, não foi possível prosseguir offline, é necessário uma primeira sincronização conectado a internet!',
-						[
-							{
-								text: 'OK', onPress: () => {
-									this.props.navigation.navigate("SignIn");
-								}
-							},
-						],
-						{
-							cancelable: false
-						},
-					);
-				} 
-				else 
+					this.loadHospitals();
+				}
+				else
 				{
-					let hospitalList = JSON.parse(res);
-
-					hospitalList.forEach( hospital => {
-						hospital.logomarca = this.getLogomarca(hospital)
-						hospital.totalPatientsVisitedToday = this.countTotalPatientsVisited(hospital.hospitalizationList)
-						hospital.totalPatients = this.countTotalPatients(hospital.hospitalizationList)
-						hospital.lastVisit = this.setLastVisit(hospital.hospitalizationList)
-					});
-
-					this.setState({hospitals: hospitalList});	
+					this.loadHospitalsStorage();
 				}
 			});
+		}
+		else
+		{
+			this.loadHospitalsStorage();
 		}
 	}
 
@@ -383,6 +398,12 @@ export default class Hospital extends Component {
 		</TouchableOpacity>
 	);
 
+	renderTimer(){
+	   if(this.state.hospitals)
+	      return <Timer dateSync={this.state.dateSync}/>;
+	   return null;
+	}
+
 	render(){
 		return (
 			<Container>
@@ -402,7 +423,9 @@ export default class Hospital extends Component {
 					<Right style={{flex: 1}} />
 				</Header>
 
-				<Timer dateSync={this.state.dateSync}/>
+				<View>
+		            { this.renderTimer() }
+		        </View>				
 
 				<Line size={1} />
 

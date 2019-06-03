@@ -34,38 +34,54 @@ export default class SignIn extends Component {
 	};
 
 	handleSignInPress = async () => {
+		
 		if (this.state.email.length === 0 || this.state.password.length === 0) {
 			this.setState({ error: 'Por favor, preencha todos os campos' }, () => false);
 		} else {
+			
 			this.setState({ textContent: 'Aguarde...' });
+
 			this.setState({loading: true});
+			
 			const params = {
 				username: this.state.email,
 				password: this.state.password
 			};
+			
 			const data = qs.stringify(params, { encode: false });
+
 			api.post('/api/login',
 				data
 			)
 			.then(response => {
-				let content = response.data.content;
-				Session.current.user = new User(content.name, content.profile);
-				AsyncStorage.setItem('userData', JSON.stringify(content), () => {
-		            if(response.data.success) {
-						this.setState({ textContent: 'Sincronizando...' });
-						api.get('/api/basedata/baseDataSync?lastDateSync=' + this.state.lastDateSync).then(res => {
-							this.setState({loading: false});
-							this.props.navigation.navigate("Hospitals", { baseDataSync: res.data.content.data });
-						}).catch(err => {
-							this.setState({loading: false});
-						    console.log(err);
 
-						});
-					} else {
-						console.log(response);
-						this.setState({loading: false});
-					}
-		        });			
+				let content = response.data.content;
+				
+				Session.current.user = new User(content.name, content.profile);
+				
+				if(response.data.success) {
+					
+					AsyncStorage.setItem('userData', JSON.stringify(content), () => {
+			        
+						//this.setState({ textContent: 'Sincronizando...' });
+						
+						//api.get('/api/basedata/baseDataSync?lastDateSync=' + this.state.lastDateSync).then(res => {
+							this.setState({loading: false});
+							//this.props.navigation.navigate("Hospitals", { baseDataSync: res.data.content.data });
+							this.props.navigation.navigate("Hospitals", { baseDataSync: null });
+						//}).catch(err => {
+							//this.setState({loading: false});
+						    //console.log(err);
+
+						//});
+			        });	
+		        }	
+		        else
+		        {
+		        	console.log(response);
+					this.setState({loading: false});
+		        }	
+
 			}).catch(error => {
 				this.setState({loading: false});
 				console.log(error);

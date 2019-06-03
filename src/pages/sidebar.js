@@ -27,6 +27,9 @@ export default class Sidebar extends Component {
 		}
 		return (
 			<LinearGradient colors={['#005cd1', '#35d8a6']} style={styles.linearGradient}>
+
+				/*<Button onPress={() => { this.props.navigation.closeDrawer(); }} title="X" />*/
+
 				<Text style={{ color: 'white', fontSize: 20, position: 'absolute', left: 20, top: 10}} onPress={() => { this.props.navigation.closeDrawer(); }}>X</Text>
 				<View style={styles.sideMenuContainer}>
 					<Image source={require('../images/logo-medico-consultor-branca.png')} style={styles.sideMenuLogoIcon} />
