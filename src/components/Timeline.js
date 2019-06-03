@@ -1,14 +1,8 @@
 "use strict";
 
 import React, { Component } from "react";
-import {
-  StyleSheet,
-  FlatList,
-  Image,
-  View,
-  Text,
-  TouchableOpacity
-} from "react-native";
+import { StyleSheet, FlatList, Image, View, Text, TouchableOpacity } from "react-native";
+import moment from "moment"
 
 const defaultCircleSize = 16;
 const defaultCircleColor = "#007AFF";
@@ -133,9 +127,8 @@ export default class Timeline extends Component {
     return (
       <View style={timeWrapper}>
         <View style={[styles.timeContainer, this.props.timeContainerStyle]}>
-          <Text style={[styles.time, this.props.timeStyle]}>
-            {rowData.performedAt}
-          </Text>
+          <Text style={[styles.time, this.props.timeStyle]}>{ moment(rowData.performedAt).format('DD/MM/YYYY') }</Text>
+          <Text style={[styles.time, this.props.timeStyle]}>{ moment(rowData.performedAt).format('HH:mm:ss') }</Text>
         </View>
       </View>
     );
@@ -358,7 +351,7 @@ const styles = StyleSheet.create({
     minWidth: 45
   },
   time: {
-    textAlign: "right",
+    textAlign: "center",
     color: defaultTimeTextColor
   },
   circle: {
