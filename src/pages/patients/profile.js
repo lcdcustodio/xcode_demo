@@ -54,6 +54,7 @@ export default class Profile extends React.Component {
 	}
 
 	handleHeightAndWeight = (patientHeight, patientWeight) => {
+		console.log("Fechar?")
 		this.props.handleHeightAndWeight(patientHeight, patientWeight)
 		this.toggleModalHeightAndWeight()
 	}
