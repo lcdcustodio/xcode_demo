@@ -12,6 +12,7 @@ import moment from 'moment';
 import ModalList from '../../components/ModalList'
 import ModalWheelPicker from '../../components/ModalWheelPicker'
 import ModalInput from '../../components/ModalInput'
+import ModalListSearchable from '../../components/ModalListSearchable'
 
 export default class Profile extends React.Component {
 
@@ -22,6 +23,7 @@ export default class Profile extends React.Component {
 			modalHospitalizationType: false,
 			modalHeightAndWeight: false,
 			modalCRM: false,
+			modalPrimaryCID: false,
 			listAttendanceType: [
 				{key: 1, value: 'ELECTIVE', label: 'ELETIVO'},
 				{key: 2, value: 'EMERGENCY', label: 'EMERGÊNCIA'}
@@ -69,6 +71,10 @@ export default class Profile extends React.Component {
 		this.toggleModalCRM()
 	}
 
+	toggleModalPrimaryCID = () => {
+		this.setState({modalPrimaryCID: !this.state.modalPrimaryCID})
+	}
+	
 	render() {
 		let trackingListStartDate = null;
 		let patientBornDate = this.props.perfil.patientBornDate  !== null ? moment(this.props.perfil.patientBornDate).format('DD/MM/YYYY') : this.props.perfil.patientBornDate
@@ -80,7 +86,7 @@ export default class Profile extends React.Component {
 		if (this.props.perfil.trackingList.length > 0) {
 			trackingListStartDate = moment(this.props.perfil.trackingList[0].startDate).format('DD/MM/YYYY');
 		}
-
+		
 		return (
 			<View style={ styles.container }>
 				
@@ -98,6 +104,10 @@ export default class Profile extends React.Component {
 					actionClose={ this.handleHeightAndWeight} />
 
 				<ModalInput visible={this.state.modalCRM} crm={this.props.perfil.mainProcedureCRM} action={ this.handleCRM} />
+
+				<ModalListSearchable visible={this.state.modalPrimaryCID} 
+					list={this.props.perfil.diagnosticHypothesisList} 
+					action={this.toggleModalPrimaryCID} />
 
 				<TitleScreen marginTop={5} marginLeft={5} title={this.props.perfil.patientName} />
 				<Line marginTop={3} marginBottom={3} marginLeft={5} width={90} size={2} />
@@ -181,7 +191,7 @@ export default class Profile extends React.Component {
 						<TextLabel marginLeft="5" label='CID Primário' />
 						{this.props.perfil.diagnosticHypothesisList.map((prop) => {
 							return (
-								<TextValue key={prop.cidId} marginLeft="5" value={prop.cidDisplayName} />
+								<TextValue key={prop.cidId} marginLeft="5" value={prop.cidDisplayName} press={this.toggleModalPrimaryCID} />
 							);
 						})}
 					</View>

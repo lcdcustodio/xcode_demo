@@ -21,7 +21,7 @@ export default class Patients extends Component {
 
 	willFocus = this.props.navigation.addListener('willFocus', (payload) => {
 		let patients = []
-
+		console.log("HOSPITAL => ", payload.state.params.hospital) 
 		if(payload.state.params.hospital.hospitalizationList.length === 0) {
 			alert("Desculpe, não foi possível exibir a lista de pacientes. Tente novamente mais tarde :|")
 			this.props.navigation.navigate({ routeName: 'Hospitals' })
@@ -35,7 +35,7 @@ export default class Patients extends Component {
 					patients.push(patient)
 				}
 			});
-			this.setState({patients})
+			this.setState({patients, hospital: payload.state.params.hospital})
 		}
 	})
 	
@@ -124,7 +124,7 @@ export default class Patients extends Component {
 	renderItem = ({ item }) => (
 		<TouchableOpacity
 			onPress={() => {
-				this.props.navigation.navigate("PatientDetail", { patient: item });
+				this.props.navigation.navigate("PatientDetail", { patient: item, hospital:  this.state.hospital});
 			}}>
 			<View style={[styles.productContainer]}>
 				<View>

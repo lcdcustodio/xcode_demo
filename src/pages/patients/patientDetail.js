@@ -16,7 +16,6 @@ export default class PatientDetail extends Component {
 			selectedTab: 'profile'
 		}
 		this.state.detail = this.props.navigation.getParam('patient');
-		console.log(this.state.detail)
 	}
 	
 	handleAttendanceType = (attendanceType) => {
