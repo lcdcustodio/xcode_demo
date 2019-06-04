@@ -49,10 +49,6 @@ export default class Hospital extends Component {
 				this.sincronizar();
 			}
 
-			console.log("Connection type", state.type);
-			
-			console.log("Is connected?", state.isConnected);
-
 		});
 
 		AsyncStorage.getItem('dateSync', (err, dateSync) => {
@@ -149,6 +145,7 @@ export default class Hospital extends Component {
 					);
 
 					console.log(error);
+					console.log(error.status);
 
 				});
 			});
@@ -184,8 +181,6 @@ export default class Hospital extends Component {
 		this.setState({
 			hospitals: [ ...listHospital], 
 		});
-
-		console.log('getInformationHospital');
 	}
 
 	getLogomarca(hospital) {
@@ -276,6 +271,8 @@ export default class Hospital extends Component {
 
 	loadHospitalsStorage = async () => {
 
+		this.setState({loading: true});
+
 		AsyncStorage.getItem('hospitalList', (err, res) => {
 
 			if (res == null) {
@@ -308,31 +305,61 @@ export default class Hospital extends Component {
 
 				this.setState({hospitals: hospitalList});	
 			}
+
+			this.setState({loading: false});
 		});
 	}
 
-	sincronizar = async () => {
+	sincronizar = async (fromServer) => {
 
 		const { isConnected } = this.state;
 
 		console.log('isConnected', isConnected);
 
-		if (isConnected) {
+		if (fromServer) {
 
-			AsyncStorage.getItem('hospitalList', (err, res) => {
-
-				if (res == null) {
-					this.loadHospitals();
-				}
-				else
-				{
-					this.loadHospitalsStorage();
-				}
-			});
+			if (isConnected) 
+			{
+				this.loadHospitals();
+			}
+			else
+			{
+				Alert.alert(
+					'Sem conexão com a internet',
+					'Desculpe, não identificamos uma conexão estável com a internet!',
+					[
+						{
+							text: 'OK', onPress: () => {
+								console.log('OK Pressed');
+							}
+						},
+					],
+					{
+						cancelable: false
+					},
+				);
+			}
+			
 		}
 		else
 		{
-			this.loadHospitalsStorage();
+			if (isConnected) {
+
+				AsyncStorage.getItem('hospitalList', (err, res) => {
+
+					if (res == null) {
+						this.sincronizar(true);
+					}
+					else
+					{
+						this.loadHospitalsStorage();
+					}
+				});
+			}
+			else
+			{
+				this.loadHospitalsStorage();
+			}
 		}
 	}
 
@@ -345,10 +372,6 @@ export default class Hospital extends Component {
 		{
 			return <Text style={[styles.niceBlue, {paddingLeft: 10}]}>{item.name}</Text>;
 		}
-
-		console.log('Render image or name', item);
-
-		return null;
 	}
 
 	renderItem = ({ item }) => (
@@ -434,6 +457,9 @@ export default class Hospital extends Component {
 					<Body style={{flex:8, alignItems: 'stretch'}}>
 						<Title>HOSPITAIS</Title>
 					</Body>
+					<Right style={{flex:1}} >
+						<Icon name="timer" style={{ color: 'white' }} onPress={() => this.sincronizar(true) } />
+					</Right>
 				</Header>
 
 				<View>
