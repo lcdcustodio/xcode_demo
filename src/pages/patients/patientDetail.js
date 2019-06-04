@@ -4,43 +4,43 @@ import { StyleSheet } from "react-native";
 
 //Pages
 import Profile from "./profile"
-import Exams from "./exams"
+import Events from "./events"
 import Visits from "./visits"
 
 export default class PatientDetail extends Component {
     
 	constructor(props) {
-
 		super(props);
-		
 		this.state = {
 			patient: null,
 			hospital: null,
 			baseDataSync: null,
 			selectedTab: 'profile'
-		}
+		};
 	}
 
 	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
-
-		this.state.patient = this.props.navigation.getParam('patient');
-		
-		this.state.hospital = this.props.navigation.getParam('hospital');
-
-		this.state.baseDataSync = this.props.navigation.getParam('baseDataSync');
+		this.setState({
+			patient: this.props.navigation.getParam('patient'),
+			hospital: this.props.navigation.getParam('hospital'),
+			baseDataSync: this.props.navigation.getParam('baseDataSync'),
+		});
 	});
 
 	renderSelectedTab() {
-
+		let patient = this.props.navigation.state.params.patient;
 		switch (this.state.selectedTab) {
 			case 'profile':
-				return (<Profile perfil={this.props.navigation.state.params.patient}/>);
+				return (<Profile perfil={patient}/>);
 				break;
-			case 'exams':
-				return (<Exams exames={this.props.navigation.state.params.patient.examRequestList}/>);
+			case 'events':
+				return (<Events
+					exames={patient.examRequestList}
+					reconciliacaoMedicamentosa={patient.recommendationMedicineReintegration}
+				/>);
 				break;
 			case 'visits':
-				return (<Visits visitas={this.props.navigation.state.params.patient.observationList}/>);
+				return (<Visits visitas={patient.observationList}/>);
 				break;
 			default:
 		}
@@ -53,7 +53,6 @@ export default class PatientDetail extends Component {
 	}
 
 	render(){
-
 		return (
 			<Container>
 				<Header style={ styles.header }>
@@ -73,7 +72,7 @@ export default class PatientDetail extends Component {
 							<Icon name="person" />
 							<Text>Perfil</Text>
 						</Button>
-						<Button backgroundColor={'#005cd1'} vertical active={this.state.selectedTab === 'exams'} onPress={() => this.switchScreen('exams', 'Timeline')}>
+						<Button backgroundColor={'#005cd1'} vertical active={this.state.selectedTab === 'events'} onPress={() => this.switchScreen('events', 'Timeline')}>
 							<Icon name="book" />
 							<Text>Timeline</Text>
 						</Button>
