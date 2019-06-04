@@ -131,7 +131,7 @@ export default class Hospital extends Component {
 
 					Alert.alert(
 						'Erro ao carregar informações',
-						'Desculpe, infelizmente não foi possível carregar a lista de hospitais, por favor, faça login e tente novamente!',
+						'Desculpe, aparentemente sua sessão expirou. Por favor, faça login e tente novamente!',
 						[
 							{
 								text: 'OK', onPress: () => {
