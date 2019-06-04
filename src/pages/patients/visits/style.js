@@ -1,7 +1,16 @@
 
 import { StyleSheet, Dimensions } from "react-native";
+import styled from 'styled-components';
 
 const screenHeight = Math.round(Dimensions.get('window').height - 130 );
+
+const ErrorMessage = styled.Text`
+  textAlign: center;
+  color: #fff;
+  fontSize: 16px;
+  marginBottom: 15px;
+  marginHorizontal: 20px;
+`;
 
 export default StyleSheet.create({
 	container:{
