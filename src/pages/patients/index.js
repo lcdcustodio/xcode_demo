@@ -156,8 +156,9 @@ export default class Patients extends Component {
 		return (
 			<Container>
 				<Header style={styles.headerMenu}>
+					
 					<Left style={{flex:1}} >
-						<Icon name="md-menu" style={{ color: 'white' }} onPress={() => this.props.navigation.openDrawer() } />
+						<Icon type="AntDesign" name="left" style={{ color: 'white' }} onPress={() => this.props.navigation.navigate('Hospitals') } />
 					</Left>
 					<Body style={{flex: 7, alignItems: 'stretch'}}>
 						<Title>{this.state.hospital.name}</Title>
