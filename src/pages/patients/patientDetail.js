@@ -1,13 +1,14 @@
 import React, { Component } from "react";
 import { Container, Content, Header, Left, Right, Button, Body, Icon, Title, Footer, FooterTab, Text } from 'native-base';
 import { StyleSheet } from "react-native";
+import { withNavigationFocus } from "react-navigation";
 
 //Pages
 import Profile from "./profile"
 import Exams from "./exams"
 import Visits from "./visits"
 
-export default class PatientDetail extends Component {
+class PatientDetail extends Component {
     
 	constructor(props) {
 		super(props);
@@ -17,6 +18,7 @@ export default class PatientDetail extends Component {
 			baseDataSync: this.props.navigation.getParam('baseDataSync'),
 			selectedTab: 'visits'
 		}
+		console.log("Executei o construtor")
 	}
 	
 	handleAttendanceType = (attendanceType) => {
@@ -57,11 +59,11 @@ export default class PatientDetail extends Component {
 	}
 
 	renderSelectedTab = () => {
+		console.log("Executei o renderSelectedTab")
 		switch (this.state.selectedTab) {
 			case 'profile':
 				return (<Profile perfil={this.state.patient} handleAttendanceType={this.handleAttendanceType} 
-					handleHospitalizationType={this.handleHospitalizationType} handleHeightAndWeight={this.handleHeightAndWeight} handleCRM={this.handleCRM} 
-					updateParentStatus={this.updateParentStatus} navigation={this.props.navigation}/>);
+					handleHospitalizationType={this.handleHospitalizationType} handleHeightAndWeight={this.handleHeightAndWeight} handleCRM={this.handleCRM} />);
 				break;
 			case 'exams':
 				return (<Exams exames={this.props.navigation.state.params.patient.examRequestList} updateParentStatus={this.updateParentStatus} navigation={this.props.navigation} />);
@@ -79,8 +81,21 @@ export default class PatientDetail extends Component {
 		})
 	}
 
+	componentDidMount() {
+		console.log("Executei o DidMount")
+		const { navigation } = this.props;
+		this.focusListener = navigation.addListener("didFocus", () => {
+			console.log("Atualizando o state de PatientDetail, para recuperar os dados que vieram da navegacao")
+		  	this.setState({
+				patient: this.props.navigation.getParam('patient'),
+				hospital: this.props.navigation.getParam('hospital'),
+				baseDataSync: this.props.navigation.getParam('baseDataSync'),
+			})
+		});
+	}
+
 	render(){
-		console.log("render")
+		console.log("Executei o render")
 		return (
 			<Container>
 				<Header style={ styles.header }>
@@ -114,6 +129,8 @@ export default class PatientDetail extends Component {
 		);
 	}
 }
+export default withNavigationFocus(PatientDetail);
+
 
 const styles = StyleSheet.create({
 	header: {
