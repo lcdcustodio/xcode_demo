@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled from 'styled-components'; 'react-native'
 
 const Container = styled.View`
   flex: 1;
@@ -42,9 +42,6 @@ const Button = styled.TouchableHighlight`
   height: 52px;
   borderRadius: 5px;
   backgroundColor: #ffffff;
-  shadowColor: "rgba(255, 113, 106, 0.3)";
-  shadowRadius: 30px;
-  shadowOpacity: 1px;
   marginTop: 15px;
   marginBottom: 15px;
 `;

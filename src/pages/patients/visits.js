@@ -1,7 +1,12 @@
 import React, { Component } from 'react';
+
 import { StyleSheet, Text, View, Dimensions, FlatList } from 'react-native';
+
 import { Icon } from 'native-base';
+
 import LinearGradient from 'react-native-linear-gradient';
+
+import moment from 'moment';
 
 const screenHeight = Math.round(Dimensions.get('window').height - 130 );
 
@@ -23,7 +28,7 @@ export default class Visitas extends React.Component {
 	renderItem = ({ item, index }) => (
 		<View>
 			<Text style={[ styles.title, styles.niceBlue ]}> 
-				<Text style={[styles.description, styles.niceBlue]}>Visita {item.observationDate} </Text>
+				<Text style={[styles.description, styles.niceBlue]}>Visita {moment(item.observationDate).format('DD/MM/YYYY HH:mm:ss')} </Text>
 			</Text>
 			<Text style={ styles.description}>
 				{item.observation}
@@ -37,7 +42,7 @@ export default class Visitas extends React.Component {
 
 				<FlatList
 					data={this.state.visitas}
-					keyExtractor={item => item.id}
+					keyExtractor={item => item.uuid}
 					renderItem={this.renderItem} />
 
 				<View style={ styles.rowButtonCircle }>

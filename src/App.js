@@ -9,7 +9,7 @@ import PatientDetailScreen from './pages/patients/patientDetail';
 
 export default class App extends Component {
     render() {
-        return  <AppContainer data='teste' ref={nav => this.navigator = nav}/>
+        return  <AppContainer ref={nav => this.navigator = nav}/>
     }
 }
 
@@ -28,7 +28,7 @@ const AppNavigator = createDrawerNavigator(
 			screen: PatientDetailScreen
 		},
 	}, {
-	contentComponent: Sidebar
+		contentComponent: Sidebar
 	}
 );
 

@@ -38,15 +38,15 @@ export default StyleSheet.create({
     fontStyle: "normal",
     textAlign: "left",
     color: "#51565f" ,
-    marginTop: 5, 
-    marginLeft: 3, 
+    marginTop: 7, 
+    marginLeft: 5, 
     marginBottom: 5, 
   }, 
 
   sideButtonRight : {
     height: '100%',
     backgroundColor: "#005cd1",
-    paddingTop: '8%', 
+    paddingTop: '15%', 
     fontWeight: "bold"
    }, 
 

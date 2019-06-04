@@ -12,16 +12,17 @@ export default class PatientDetail extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			detail: {},
-			selectedTab: 'profile'
+			patient: this.props.navigation.getParam('patient'),
+			hospital: this.props.navigation.getParam('hospital'),
+			baseDataSync: this.props.navigation.getParam('baseDataSync'),
+			selectedTab: 'visits'
 		}
-		this.state.detail = this.props.navigation.getParam('patient');
 	}
 	
 	handleAttendanceType = (attendanceType) => {
 		this.setState({
-			detail: {
-				...this.state.detail,
+			patient: {
+				...this.state.patient,
 				attendanceType
 			}
 		})
@@ -29,8 +30,8 @@ export default class PatientDetail extends Component {
 
 	handleHospitalizationType = (hospitalizationType) => {
 		this.setState({
-			detail: {
-				...this.state.detail,
+			patient: {
+				...this.state.patient,
 				hospitalizationType
 			}
 		})
@@ -38,8 +39,8 @@ export default class PatientDetail extends Component {
 
 	handleHeightAndWeight = (patientHeight, patientWeight) => {
 		this.setState({
-			detail: {
-				...this.state.detail,
+			patient: {
+				...this.state.patient,
 				patientHeight,
 				patientWeight
 			}
@@ -48,23 +49,25 @@ export default class PatientDetail extends Component {
 
 	handleCRM = (crm) => {
 		this.setState({
-			detail: {
-				...this.state.detail,
+			patient: {
+				...this.state.patient,
 				mainProcedureCRM: crm
 			}
 		})
 	}
 
-	renderSelectedTab() {
+	renderSelectedTab = () => {
 		switch (this.state.selectedTab) {
 			case 'profile':
-				return (<Profile perfil={this.state.detail} handleAttendanceType={this.handleAttendanceType} handleHospitalizationType={this.handleHospitalizationType} handleHeightAndWeight={this.handleHeightAndWeight} handleCRM={this.handleCRM} />);
+				return (<Profile perfil={this.state.patient} handleAttendanceType={this.handleAttendanceType} 
+					handleHospitalizationType={this.handleHospitalizationType} handleHeightAndWeight={this.handleHeightAndWeight} handleCRM={this.handleCRM} 
+					updateParentStatus={this.updateParentStatus} navigation={this.props.navigation}/>);
 				break;
 			case 'exams':
-				return (<Exams exames={this.state.detail.examRequestList}/>);
+				return (<Exams exames={this.props.navigation.state.params.patient.examRequestList} updateParentStatus={this.updateParentStatus} navigation={this.props.navigation} />);
 				break;
 			case 'visits':
-				return (<Visits visitas={this.state.detail.observationList}/>);
+				return (<Visits visitas={this.props.navigation.state.params.patient.observationList} updateParentStatus={this.updateParentStatus} navigation={this.props.navigation} />);
 				break;
 			default:
 		}
@@ -77,16 +80,16 @@ export default class PatientDetail extends Component {
 	}
 
 	render(){
+		console.log("render")
 		return (
 			<Container>
 				<Header style={ styles.header }>
 					<Left style={{flex:1}} >
-						<Icon type="AntDesign" name="left" style={{ color: 'white' }} onPress={() => this.props.navigation.navigate('Patients',  { hospital: this.props.navigation.getParam('hospital', null) } ) } />
+						<Icon type="AntDesign" name="left" style={{ color: 'white' }} onPress={() => this.props.navigation.navigate('Patients',  { hospital: this.state.hospital } ) } />
 					</Left>
 					<Body style={{flex: 1, alignItems: 'center',alignSelf: 'center'}}>
-						<Title> {this.state.detail.patientName } </Title>
+						<Title> {this.props.navigation.state.params.patient.patientName } </Title>
 					</Body>
-					<Right style={{flex: 1}} />
 				</Header>
 				<Content padder>
 					{ this.renderSelectedTab() }
