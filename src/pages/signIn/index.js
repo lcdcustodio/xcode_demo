@@ -19,8 +19,40 @@ export default class SignIn extends Component {
 			password: '*ru8u!uBus2A',
 			error: '',
 			textContent: '',
-			loading: false
+			loading: true
 		}
+
+		AsyncStorage.getItem('hospitalList', (err, hospitalList) => {
+
+			if (hospitalList != null) {
+
+				AsyncStorage.getItem('userData', (err, userData) => {
+
+					if (hospitalList != null) {
+
+						let user = JSON.parse(userData);
+
+						Session.current.user = new User(user.name, user.profile);
+
+						this.setState({loading: false});
+
+						this.props.navigation.navigate("Hospitals", { baseDataSync: null });
+
+					} 
+					else
+					{
+						this.setState({loading: false});
+					}
+
+				});
+
+			}
+			else
+			{
+				this.setState({loading: false});
+			}
+		
+		});
 	}
 
 	handleEmailChange = (email) => {

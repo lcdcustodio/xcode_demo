@@ -336,6 +336,21 @@ export default class Hospital extends Component {
 		}
 	}
 
+	renderImageOrName(item) {
+
+		if ( item.logomarca != null && item.logomarca != 4 ) {
+			return <Image source={item.logomarca} style={styles.hospitalIcon}  />;
+		}
+		else
+		{
+			return <Text style={[styles.niceBlue, {paddingLeft: 10}]}>{item.name}</Text>;
+		}
+
+		console.log('Render image or name', item);
+
+		return null;
+	}
+
 	renderItem = ({ item }) => (
 		
 		<TouchableOpacity
@@ -366,14 +381,13 @@ export default class Hospital extends Component {
 			}}>
 			
 			<View style={[styles.container, {alignItems: 'center'}]}>
-				<View>
-					<Image source={item.logomarca} style={styles.hospitalIcon}  />
-				</View>
-				<View style={{flexDirection: "column", width: '53%'}}>
-					{/* <View>
-						<Text style={[styles.title, styles.niceBlue]}>{item.name}</Text>
-					</View>*/}
 
+				<View style={{width: '43%'}}>
+					{ this.renderImageOrName(item) }
+				</View>
+			
+				<View style={{flexDirection: "column", width: '53%'}}>
+					
 					<View style={{flexDirection: "row", alignItems: 'center'}}>
 						<Icon type="AntDesign" name="calendar" style={styles.calendarIcon} />
 						<Text style={[styles.description, styles.niceBlue]}>Última Visita: </Text><Text style={[styles.description]}>{item.lastVisit}</Text>
@@ -399,9 +413,9 @@ export default class Hospital extends Component {
 	);
 
 	renderTimer(){
-	   if(this.state.hospitals)
-	      return <Timer dateSync={this.state.dateSync}/>;
-	   return null;
+		if(this.state.hospitals)
+			return <Timer dateSync={this.state.dateSync}/>;
+		return null;
 	}
 
 	render(){

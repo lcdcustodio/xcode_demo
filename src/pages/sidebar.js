@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, Image, Text } from 'react-native';
+import { View, StyleSheet, Image, Text, Button } from 'react-native';
 import { Icon } from 'native-base';
 import LinearGradient from 'react-native-linear-gradient';
 
@@ -28,9 +28,11 @@ export default class Sidebar extends Component {
 		return (
 			<LinearGradient colors={['#005cd1', '#35d8a6']} style={styles.linearGradient}>
 
-				/*<Button onPress={() => { this.props.navigation.closeDrawer(); }} title="X" />*/
+				<View style={styles.buttonContainer}>
+			        <Button onPress={() => { this.props.navigation.closeDrawer(); }} title="X" />
+			    </View>
 
-				<Text style={{ color: 'white', fontSize: 20, position: 'absolute', left: 20, top: 10}} onPress={() => { this.props.navigation.closeDrawer(); }}>X</Text>
+
 				<View style={styles.sideMenuContainer}>
 					<Image source={require('../images/logo-medico-consultor-branca.png')} style={styles.sideMenuLogoIcon} />
 					<Text style={{ fontSize: 14, color: '#FFF', fontWeight: "bold" }}>
@@ -65,7 +67,14 @@ export default class Sidebar extends Component {
 }
 
 const styles = StyleSheet.create({
-	sideMenuContainer: {
+	buttonContainer: {
+		flex: 1,
+		position: 'absolute',
+		left: 10,
+		top: 10,
+		width: 50
+	},
+  	sideMenuContainer: {
 		width: '100%',
 		height: '100%',
 		alignItems: 'center',

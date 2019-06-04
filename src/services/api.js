@@ -1,10 +1,8 @@
 import axios from "axios";
 
-const api = axios.create({
-  baseURL: 'http://appmedconsultor-hmg.rededor.com.br/medico-consultor',
-});
-
-/*axios.interceptors.request.use(request => {
+axios.defaults.baseURL = 'https://appmedconsultor.rededor.com.br';
+ 
+axios.interceptors.request.use(request => {
     console.log('Starting Request', request)
     return request
 });
@@ -12,6 +10,6 @@ const api = axios.create({
 axios.interceptors.response.use(response => {
     console.log('Response:', response)
     return response
-});*/
+});
 
-export default api;
+export default axios;

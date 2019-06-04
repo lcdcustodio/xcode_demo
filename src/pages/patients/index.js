@@ -159,7 +159,7 @@ export default class Patients extends Component {
 					<Left style={{flex:1}} >
 						<Icon name="md-menu" style={{ color: 'white' }} onPress={() => this.props.navigation.openDrawer() } />
 					</Left>
-					<Body style={{flex: 1, alignItems: 'center', alignSelf: 'center'}}>
+					<Body style={{flex: 7, alignItems: 'stretch'}}>
 						<Title>{this.state.hospital.name}</Title>
 					</Body>
 				</Header> 
