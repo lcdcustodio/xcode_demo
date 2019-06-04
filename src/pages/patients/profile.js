@@ -14,6 +14,30 @@ import moment from 'moment';
 
 export default class Profile extends React.Component {
 
+	attendanceType(item) {
+
+		if (item == 'EMERGENCY') {
+			return 'Emergencial';
+		}
+		else if(item == 'ELECTIVE')
+		{
+			return 'Eletivo';
+		}
+		return null;
+	}
+
+	hospitalizationType(item) {
+
+		if (item == 'SURGICAL') {
+			return 'Cirúrgico';
+		}
+		else if(item == 'CLINICAL')
+		{
+			return 'Clínico';
+		}
+		return null;
+	}
+
 	render() {
 
 		console.log(this.props.perfil);
@@ -46,7 +70,8 @@ export default class Profile extends React.Component {
 				<View style={ styles.row }>
 					<View style={ styles.column50 }>
 						<TextLabel marginLeft="10" label='Nascimento' />
-						<TextValue marginLeft="10" value={this.props.perfil.patientBornDate ? this.props.perfil.patientBornDate : '' } />
+						<TextValue marginLeft="10" value={this.props.perfil.patientBornDate ? moment(this.props.perfil.patientBornDate).format('DD/MM/YYYY') : '' } />
+						<TextValue marginLeft="20" size={13} value={ this.props.perfil.patientBornDate ? moment().diff(this.props.perfil.patientBornDate, 'years') + ' anos': '' }/>
 					</View>
 					
 					<View style={ styles.column50 }>
@@ -59,40 +84,40 @@ export default class Profile extends React.Component {
 				<View style={ styles.row }>
 					<View style={ styles.column50 }>
 						<TextLabel marginLeft="10" label='Atendimento' />
-						<TextValue marginLeft="10" value={this.props.perfil.attendanceType} />
+						<TextValue marginLeft="10" value={ this.attendanceType(this.props.perfil.attendanceType) } />
 					</View>
 					
 					<View style={ styles.column50 }>
 						<TextLabel marginLeft="0" label='Tipo' />
-						<TextValue marginLeft="0" value={this.props.perfil.hospitalizationType} />
+						<TextValue marginLeft="0" value={ this.hospitalizationType(this.props.perfil.hospitalizationType) } />
 					</View>
 				</View>
 
 				<View style={ styles.row }>
 					<View style={ styles.column100 }>
 						<TextLabel marginLeft="5" label='Data de Internação' />
-						<TextValue marginLeft="5" value={ this.props.perfil.admissionDate ? moment(this.props.perfil.admissionDate).format('DD/MM/YYYY HH:mm:ss') : ''} />
+						<TextValue marginLeft="5" value={ this.props.perfil.admissionDate ? moment(this.props.perfil.admissionDate).format('DD/MM/YYYY HH:mm') : ''} />
 					</View>
 				</View>
 					
 				<View style={ styles.row }>
 					<View style={ styles.column100 }>
 						<TextLabel marginLeft="5" label='Data de Início do Monitoramento' />
-						<TextValue marginLeft="5" value={ trackingListStartDate ? moment(trackingListStartDate).format('DD/MM/YYYY HH:mm:ss') : '' } />
+						<TextValue marginLeft="5" value={ trackingListStartDate ? moment(trackingListStartDate).format('DD/MM/YYYY HH:mm') : '' } />
 					</View>
 				</View>
 
 				<View style={ styles.row }>
 					<View style={ styles.column100 }>
 						<TextLabel marginLeft="5" label='Data da Alta Médica' />
-						<TextValue marginLeft="5" value={ this.props.perfil.medicalExitDate ? moment(this.props.perfil.medicalExitDate).format('DD/MM/YYYY HH:mm:ss') : '' } />
+						<TextValue marginLeft="5" value={ this.props.perfil.medicalExitDate ? moment(this.props.perfil.medicalExitDate).format('DD/MM/YYYY HH:mm') : '' } />
 					</View>
 				</View>
 
 				<View style={ styles.row }>
 					<View style={ styles.column100 }>
 						<TextLabel marginLeft="5" label='Data da Alta Administrativa' />
-						<TextValue marginLeft="5" value={ this.props.perfil.exitDate ? moment(this.props.perfil.exitDate).format('DD/MM/YYYY HH:mm:ss') : '' } />
+						<TextValue marginLeft="5" value={ this.props.perfil.exitDate ? moment(this.props.perfil.exitDate).format('DD/MM/YYYY HH:mm') : '' } />
 					</View>
 				</View>
 
