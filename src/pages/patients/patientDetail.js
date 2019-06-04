@@ -59,8 +59,8 @@ export default class PatientDetail extends Component {
 					<Left style={{flex:1}} >
 						<Icon type="AntDesign" name="left" style={{ color: 'white' }} onPress={() => this.props.navigation.navigate('Patients',  { hospital: this.state.hospital } ) } />
 					</Left>
-					<Body style={{flex: 1, alignItems: 'center',alignSelf: 'center'}}>
-						<Title> {this.props.navigation.state.params.patient.patientName } </Title>
+					<Body style={{flex: 7, alignItems: 'stretch'}}>
+						<Title> DETALHES DO PACIENTE </Title>
 					</Body>
 				</Header>
 				<Content padder>
