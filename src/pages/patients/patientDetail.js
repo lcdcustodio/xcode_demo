@@ -12,7 +12,7 @@ export default class PatientDetail extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			patient: null,
+			patient: this.props.navigation.getParam('patient'),
 			hospital: null,
 			baseDataSync: null,
 			selectedTab: 'profile'
@@ -40,10 +40,15 @@ export default class PatientDetail extends Component {
 				/>);
 				break;
 			case 'visits':
-				return (<Visits visitas={patient.observationList}/>);
+				return (<Visits patient={this.state.patient} updatePatient={this.updatePatient} />);
 				break;
 			default:
 		}
+	}
+
+	updatePatient = patient =>{
+		console.log("updatePatient = patient", patient)
+		this.setState({patient})
 	}
 
 	switchScreen(screen) {        
