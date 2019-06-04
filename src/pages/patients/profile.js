@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, Picker, Modal, FlatList } from 'react-native';
-import { Button, Icon } from 'native-base'
+import { StyleSheet, Text, View  } from 'react-native';
 import TextLabel from '../../components/TextLabel'
 import TextValue from '../../components/TextValue'
 import Line from '../../components/Line'
@@ -8,8 +7,8 @@ import TitleScreen from '../../components/Title'
 import moment from 'moment';
 
 import ModalList from '../../components/ModalList'
-import ModalWheelPicker from '../../components/ModalWheelPicker'
-import ModalInput from '../../components/ModalInput'
+import ModalCRM from '../../components/ModalCRM'
+import ModalWeightAndHeight from '../../components/ModalWeightAndHeight'
 import ModalListSearchable from '../../components/ModalListSearchable'
 
 
@@ -23,6 +22,7 @@ export default class Profile extends React.Component {
 			modalHeightAndWeight: false,
 			modalCRM: false,
 			modalPrimaryCID: false,
+			modalSecondaryCID: false,
 			listAttendanceType: [
 				{key: 1, value: 'ELECTIVE', label: 'ELETIVO'},
 				{key: 2, value: 'EMERGENCY', label: 'EMERGÊNCIA'}
@@ -74,35 +74,37 @@ export default class Profile extends React.Component {
 		this.setState({modalPrimaryCID: !this.state.modalPrimaryCID})
 	}
 
+	handlePrimaryCID = (cid) => {
+		this.props.handlePrimaryCID(cid.item)
+		this.toggleModalPrimaryCID()
+	}
+
+	toggleModalSecondaryCID = () => {
+		this.setState({modalSecondaryCID: !this.state.modalSecondaryCID})
+	}
+
+	handleSecondaryCID = (cid) => {
+		this.props.handleSecondaryCID(cid.item)
+		this.toggleModalSecondaryCID()
+	}
+
 	render() {
 		let trackingListStartDate = null;
 		let CRM = this.props.perfil.mainProcedureCRM !== null ? this.props.perfil.mainProcedureCRM : 'INFORMAR'
 
 		if (this.props.perfil.trackingList.length > 0) {
-			trackingListStartDate = moment(this.props.perfil.trackingList[0].startDate).format('DD/MM/YYYY');
+			trackingListStartDate = moment(this.props.perfil.trackingList[0].startDate).format('DD/MM/YYYY HH:mm');
 		}
-		
+
 		return (
 			<View style={ styles.container }>
 				
-				<ModalList visible={this.state.modalAttendanceTypeVisible} 
-					list={this.state.listAttendanceType} 
-					action={this.handleAttendanceType} />
-
-				<ModalList visible={this.state.modalHospitalizationType} 
-					list={this.state.listHospitalizationType} 
-					action={this.handleHospitalizationType} />
-
-				<ModalWheelPicker visible={this.state.modalHeightAndWeight} 
-					initValueHeight={this.props.perfil.patientHeight} 
-					initValueWeight={this.props.perfil.patientWeight} 
-					actionClose={ this.handleHeightAndWeight} />
-
-				<ModalInput visible={this.state.modalCRM} crm={this.props.perfil.mainProcedureCRM} action={ this.handleCRM} />
-
-				<ModalListSearchable visible={this.state.modalPrimaryCID} 
-					list={this.props.perfil.diagnosticHypothesisList} 
-					action={this.toggleModalPrimaryCID} />
+				<ModalList visible={this.state.modalAttendanceTypeVisible} list={this.state.listAttendanceType} action={this.handleAttendanceType} />
+				<ModalList visible={this.state.modalHospitalizationType}  list={this.state.listHospitalizationType}  action={this.handleHospitalizationType} />
+				<ModalCRM visible={this.state.modalCRM} crm={this.props.perfil.mainProcedureCRM ? this.props.perfil.mainProcedureCRM : ''} action={ this.handleCRM} />
+				<ModalWeightAndHeight visible={this.state.modalHeightAndWeight} height={this.props.perfil.patientHeight} weight={this.props.perfil.patientWeight} action={ this.handleHeightAndWeight} />
+				<ModalListSearchable visible={this.state.modalPrimaryCID} list={this.props.baseDataSync.cid} action={this.handlePrimaryCID} />
+				<ModalListSearchable visible={this.state.modalSecondaryCID} list={this.props.baseDataSync.cid} action={this.handleSecondaryCID} />
 
 				<TitleScreen marginTop={5} marginLeft={5} title={this.props.perfil.patientName} />
 				<Line marginTop={3} marginBottom={3} marginLeft={5} width={90} size={2} />
@@ -124,25 +126,25 @@ export default class Profile extends React.Component {
 				<View style={ styles.row }>
 					<View style={ styles.column50 }>
 						<TextLabel marginLeft="10" label='Nascimento' />
-						<TextValue marginLeft="10" value={this.props.perfil.patientBornDate ? this.props.perfil.patientBornDate : '' } />
+						<TextValue marginLeft="10" value={this.props.perfil.patientBornDate ? moment(this.props.perfil.patientBornDate).format('DD/MM/YYYY') : '' } />
 					</View>
 					
 					<View style={ styles.column50 }>
 						<TextLabel marginLeft="0" label='Altura/Peso' />
-						<TextValue marginLeft="0" value={ this.props.perfil.patientHeight && this.props.perfil.patientWeight ? `${this.props.perfil.patientHeight}m / ${this.props.perfil.patientWeight}kg` : '' } press={ this.toggleModalHeightAndWeight } />
-						<TextValue marginLeft="0" size={13} value={ this.props.perfil.patientHeight && this.props.perfil.patientWeight ? 'IMC ' + (this.props.perfil.patientWeight / Math.pow(this.props.perfil.patientHeight, 2)).toFixed(2) : '' }/>
+						<TextValue marginLeft="0" color={'#0000FF'} value={ this.props.perfil.patientHeight && this.props.perfil.patientWeight ? `${this.props.perfil.patientHeight}m / ${this.props.perfil.patientWeight}kg` : '' } press={ this.toggleModalHeightAndWeight } />
+						<TextValue marginLeft="0" size={13} value={ this.props.perfil.patientHeight && this.props.perfil.patientWeight ? 'IMC ' + (Number(this.props.perfil.patientWeight) / Math.pow(Number(this.props.perfil.patientHeight), 2)).toFixed(2) : '' }/>
 					</View>
 				</View>
 
 				<View style={ styles.row }>
 					<View style={ styles.column50 }>
 						<TextLabel marginLeft="10" label='Atendimento' />
-						<TextValue marginLeft="10" value={this.props.perfil.attendanceType} press={ this.toggleModalAttendanceType } />
+						<TextValue marginLeft="10" color={'#0000FF'} value={this.props.perfil.attendanceType} press={ this.toggleModalAttendanceType } />
 					</View>
 					
 					<View style={ styles.column50 }>
 						<TextLabel marginLeft="0" label='Tipo' />
-						<TextValue marginLeft="10" value={this.props.perfil.hospitalizationType} press={ this.toggleModalHospitalizationType } />
+						<TextValue marginLeft="0" color={'#0000FF'} value={this.props.perfil.hospitalizationType} press={ this.toggleModalHospitalizationType } />
 					</View>
 				</View>
 
@@ -156,7 +158,7 @@ export default class Profile extends React.Component {
 				<View style={ styles.row }>
 					<View style={ styles.column100 }>
 						<TextLabel marginLeft="5" label='Data de Início do Monitoramento' />
-						<TextValue marginLeft="5" value={ trackingListStartDate ? moment(trackingListStartDate).format('DD/MM/YYYY HH:mm') : '' } />
+						<TextValue marginLeft="5" value={ trackingListStartDate } />
 					</View>
 				</View>
 
@@ -186,7 +188,7 @@ export default class Profile extends React.Component {
 						<TextLabel marginLeft="5" label='CID Primário' />
 						{this.props.perfil.diagnosticHypothesisList.map((prop) => {
 							return (
-								<TextValue key={prop.cidId} marginLeft="5" value={prop.cidDisplayName} press={this.toggleModalPrimaryCID} />
+								<TextValue color={'#0000FF'} key={prop.cidId} marginLeft="5" value={prop.cidDisplayName ? prop.cidDisplayName : 'Selecionar'} press={this.toggleModalPrimaryCID} />
 							);
 						})}
 					</View>
@@ -197,7 +199,7 @@ export default class Profile extends React.Component {
 						<TextLabel marginLeft="5" label='CIDs Secundários' />
 						{this.props.perfil.secondaryCIDList.map((prop) => {
 							return (
-								<TextValue key={prop.cidId} marginLeft="5" value={prop.cidDisplayName} />
+								<TextValue color={'#0000FF'} key={prop.cidId} marginLeft="5" value={prop.cidDisplayName ? prop.cidDisplayName : 'Selecionar'} press={this.toggleModalPrimaryCID} />
 							);
 						})}
 					</View>
@@ -206,7 +208,7 @@ export default class Profile extends React.Component {
 				<View style={ styles.row }>
 					<View style={ styles.column100 }>
 						<TextLabel marginLeft="5" label='CRM do Responsável' />
-						<TextValue marginLeft="5" value={CRM} press={ this.toggleModalCRM } />
+						<TextValue marginLeft="5" color={'#0000FF'} value={CRM} press={ this.toggleModalCRM } />
 					</View>
 				</View>
 

@@ -8,23 +8,27 @@ export default class ModalListSearchable extends Component {
     super(props)
     this.state = {
       filter: null,
-      listCID: this.props.list
+      list: this.props.list
     }
   }
 
   searchFilterFunction = text => { 
-    const newListCID = this.props.list.filter(cid => {
-			return (cid.cidDisplayName.toUpperCase().includes(text.toUpperCase()))
+    const newList = this.props.list.filter(item => {
+      if(item.code != null) {
+        return (item.normalizedName.toUpperCase().includes(text.toUpperCase()) || item.code.toUpperCase().includes(text.toUpperCase()))  
+      } else {
+        return (item.normalizedName.toUpperCase().includes(text.toUpperCase()))
+      }
 		});
 
-    this.setState({ listCID: newListCID });
+    this.setState({ list: newList });
   };
 
   renderHeader = () => {    
     return (
       <TextInput editable = {true} value={this.state.filter}
         onChangeText={this.searchFilterFunction}
-        style={{marginLeft: '5%', marginTop: '5%', marginBottom: '5%', width: '90%', height: '50%', color:'#000000', borderColor: 'gray', borderWidth: 1}} />
+        style={{marginLeft: 20, marginTop: 20, marginBottom: 20, width: '90%', height: 50, color:'#000000', borderColor: 'gray', borderWidth: 1}} />
     );
   };
 
@@ -38,9 +42,13 @@ export default class ModalListSearchable extends Component {
 					<View style={styles.overlay}>
 						<View style={styles.container}>
 							<FlatList
-                data={this.state.listCID}
-								renderItem={ element => <Text style={styles.text} onPress={ () => { this.props.action(element) }}> {element.item.cidDisplayName} </Text> } 
-                keyExtractor={element => `${element.uuid}`}
+                data={this.state.list}
+                renderItem={ (element, index) => 
+                  <Text style={styles.text} onPress={ () => { this.props.action(element) }}> 
+                    { element.item.code !== null ? `${element.item.code} - ${element.item.name}` : element.item.name }
+                  </Text> 
+                } 
+                keyExtractor={element => `${element.id}`}
                 ListHeaderComponent={this.renderHeader}
                 />
 						</View>
@@ -55,9 +63,8 @@ ModalListSearchable.propTypes = {
   visible: PropTypes.bool.isRequired,
   list: PropTypes.arrayOf(
     PropTypes.shape({
-      uuid: PropTypes.string.isRequired,
-      cidId: PropTypes.number.isRequired,
-      cidDisplayName: PropTypes.string.isRequired,
+      id: PropTypes.number.isRequired,
+      name: PropTypes.string.isRequired,
     })
   ).isRequired,
   action: PropTypes.func.isRequired
@@ -68,14 +75,14 @@ const styles = StyleSheet.create({
 		flex: 1,
 		backgroundColor: 'rgba(0, 0, 0, 0.3)',
     flexDirection: "row",
-    paddingTop:'30%', 
+    paddingTop:'20%', 
     paddingLeft:'5%', 
     paddingRight:'5%'
   },
   container: {
     margin:'0%', 
     width:'100%', 
-    height:'50%', 
+    height:'80%', 
     backgroundColor: 'white', 
     borderRadius: 4, 
     borderColor:'#000000', 

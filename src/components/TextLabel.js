@@ -31,7 +31,7 @@ TextLabel.defaultProps = {
 
 const styles = StyleSheet.create({
   label: {
-    color: "rgb(194, 194, 194)", 
+    color: "#C2C2C2",
     fontFamily: "Gotham Rounded-Medium", 
     fontSize: 15, 
     fontWeight: "normal", 

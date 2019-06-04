@@ -9,7 +9,7 @@ export default class TextValue extends Component {
 
   render(){
     return (
-      <Text style={[styles.value, {"fontSize": this.props.size, "marginTop": `${this.props.marginTop}%`, "marginLeft": `${this.props.marginLeft}%` } ]} onPress={ this.props.press}> { this.props.value } </Text>
+      <Text style={[styles.value, {"color": this.props.color, "fontSize": this.props.size, "marginTop": `${this.props.marginTop}%`, "marginLeft": `${this.props.marginLeft}%` } ]} onPress={ this.props.press}> { this.props.value } </Text>
     )
   }
 }
@@ -19,11 +19,11 @@ TextValue.defaultProps = {
   marginLeft: 0,
   marginTop: 0,
   size: 18,
+  color: "#3D3D3D"
 };
 
 const styles = StyleSheet.create({
   value: {
-    color: "rgb(61, 61, 61)", 
     fontFamily: "Gotham Rounded-Book",
     fontWeight: "normal", 
     fontStyle: "normal", 

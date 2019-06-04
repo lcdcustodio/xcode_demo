@@ -2,11 +2,14 @@ import React, { Component } from "react";
 import { Container, Content, Header, Left, Right, Button, Body, Icon, Title, Footer, FooterTab, Text } from 'native-base';
 import { StyleSheet } from "react-native";
 import { withNavigationFocus } from "react-navigation";
+import moment from "moment"
+import uuidv4 from'uuid/v4'
 
 //Pages
 import Profile from "./profile"
 import Exams from "./exams"
 import Visits from "./visits"
+
 
 class PatientDetail extends Component {
     
@@ -16,7 +19,7 @@ class PatientDetail extends Component {
 			patient: this.props.navigation.getParam('patient'),
 			hospital: this.props.navigation.getParam('hospital'),
 			baseDataSync: this.props.navigation.getParam('baseDataSync'),
-			selectedTab: 'visits'
+			selectedTab: 'profile'
 		}
 		console.log("Executei o construtor")
 	}
@@ -58,12 +61,49 @@ class PatientDetail extends Component {
 		})
 	}
 
+	handlePrimaryCID = (cid) => {
+		let diagnosticHypothesisList = []
+		let diagnosticHypothesis = {
+			beginDate: moment(),
+			cidDisplayName: `${cid.code} - ${cid.name}`,
+			cidId: cid.id,
+			uuid: uuidv4()
+		}
+		diagnosticHypothesisList.push(diagnosticHypothesis)
+		
+		this.setState({
+			patient: {
+				...this.state.patient,
+				diagnosticHypothesisList
+			}
+		})
+	}
+
+	handleSecondaryCID = (cid) => {
+		let secondaryCIDList = []
+		let secondaryCID = {
+			beginDate: moment(),
+			cidDisplayName: `${cid.code} - ${cid.name}`,
+			cidId: cid.id,
+			uuid: uuidv4()
+		}
+		secondaryCIDList.push(secondaryCID)
+		
+		this.setState({
+			patient: {
+				...this.state.patient,
+				secondaryCIDList
+			}
+		})
+	}
+
 	renderSelectedTab = () => {
 		console.log("Executei o renderSelectedTab")
 		switch (this.state.selectedTab) {
 			case 'profile':
-				return (<Profile perfil={this.state.patient} handleAttendanceType={this.handleAttendanceType} 
-					handleHospitalizationType={this.handleHospitalizationType} handleHeightAndWeight={this.handleHeightAndWeight} handleCRM={this.handleCRM} />);
+				return (<Profile perfil={this.state.patient} handleAttendanceType={this.handleAttendanceType} hospital={this.state.hospital} 
+					baseDataSync={this.state.baseDataSync} handleHospitalizationType={this.handleHospitalizationType} 
+					handleHeightAndWeight={this.handleHeightAndWeight} handleCRM={this.handleCRM} handlePrimaryCID={this.handlePrimaryCID} />);
 				break;
 			case 'exams':
 				return (<Exams exames={this.props.navigation.state.params.patient.examRequestList} updateParentStatus={this.updateParentStatus} navigation={this.props.navigation} />);

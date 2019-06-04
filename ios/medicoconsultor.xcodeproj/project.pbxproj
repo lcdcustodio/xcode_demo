@@ -70,7 +70,6 @@
 		4E74E6C1296142549DBF4AC1 /* libRNCSlider.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5738A817CF654DBFABB898C0 /* libRNCSlider.a */; };
 		A69A70EA28364AECA8CBE9B1 /* libRNCNetInfo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ACCFA2EB0A164574B3AA311A /* libRNCNetInfo.a */; };
 		AE7555CB1CBF464DAC1BCE75 /* libRNCNetInfo-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E9C880EF05C747D38CD9159C /* libRNCNetInfo-tvOS.a */; };
-
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
