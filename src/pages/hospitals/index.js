@@ -274,6 +274,43 @@ export default class Hospital extends Component {
 		return hasAttendance 
 	}
 
+	loadHospitalsStorage = async () => {
+
+		AsyncStorage.getItem('hospitalList', (err, res) => {
+
+			if (res == null) {
+
+				Alert.alert(
+					'Erro ao carregar informações',
+					'Desculpe, não foi possível prosseguir offline, é necessário uma primeira sincronização conectado a internet!',
+					[
+						{
+							text: 'OK', onPress: () => {
+								this.props.navigation.navigate("SignIn");
+							}
+						},
+					],
+					{
+						cancelable: false
+					},
+				);
+			} 
+			else 
+			{
+				let hospitalList = JSON.parse(res);
+
+				hospitalList.forEach( hospital => {
+					hospital.logomarca = this.getLogomarca(hospital)
+					hospital.totalPatientsVisitedToday = this.countTotalPatientsVisited(hospital.hospitalizationList)
+					hospital.totalPatients = this.countTotalPatients(hospital.hospitalizationList)
+					hospital.lastVisit = this.setLastVisit(hospital.hospitalizationList)
+				});
+
+				this.setState({hospitals: hospitalList});	
+			}
+		});
+	}
+
 	sincronizar = async () => {
 
 		const { isConnected } = this.state;
@@ -281,44 +318,37 @@ export default class Hospital extends Component {
 		console.log('isConnected', isConnected);
 
 		if (isConnected) {
-			this.loadHospitals();
-		}
-		else
-		{
+
 			AsyncStorage.getItem('hospitalList', (err, res) => {
 
 				if (res == null) {
-
-					Alert.alert(
-						'Erro ao carregar informações',
-						'Desculpe, não foi possível prosseguir offline, é necessário uma primeira sincronização conectado a internet!',
-						[
-							{
-								text: 'OK', onPress: () => {
-									this.props.navigation.navigate("SignIn");
-								}
-							},
-						],
-						{
-							cancelable: false
-						},
-					);
-				} 
-				else 
+					this.loadHospitals();
+				}
+				else
 				{
-					let hospitalList = JSON.parse(res);
-
-					hospitalList.forEach( hospital => {
-						hospital.logomarca = this.getLogomarca(hospital)
-						hospital.totalPatientsVisitedToday = this.countTotalPatientsVisited(hospital.hospitalizationList)
-						hospital.totalPatients = this.countTotalPatients(hospital.hospitalizationList)
-						hospital.lastVisit = this.setLastVisit(hospital.hospitalizationList)
-					});
-
-					this.setState({hospitals: hospitalList});	
+					this.loadHospitalsStorage();
 				}
 			});
 		}
+		else
+		{
+			this.loadHospitalsStorage();
+		}
+	}
+
+	renderImageOrName(item) {
+
+		if ( item.logomarca != null && item.logomarca != 4 ) {
+			return <Image source={item.logomarca} style={styles.hospitalIcon}  />;
+		}
+		else
+		{
+			return <Text style={[styles.niceBlue, {paddingLeft: 10}]}>{item.name}</Text>;
+		}
+
+		console.log('Render image or name', item);
+
+		return null;
 	}
 
 	renderItem = ({ item }) => (
@@ -351,14 +381,13 @@ export default class Hospital extends Component {
 			}}>
 			
 			<View style={[styles.container, {alignItems: 'center'}]}>
-				<View>
-					<Image source={item.logomarca} style={styles.hospitalIcon}  />
-				</View>
-				<View style={{flexDirection: "column", width: '53%'}}>
-					{/* <View>
-						<Text style={[styles.title, styles.niceBlue]}>{item.name}</Text>
-					</View>*/}
 
+				<View style={{width: '43%'}}>
+					{ this.renderImageOrName(item) }
+				</View>
+			
+				<View style={{flexDirection: "column", width: '53%'}}>
+					
 					<View style={{flexDirection: "row", alignItems: 'center'}}>
 						<Icon type="AntDesign" name="calendar" style={styles.calendarIcon} />
 						<Text style={[styles.description, styles.niceBlue]}>Última Visita: </Text><Text style={[styles.description]}>{item.lastVisit}</Text>
@@ -383,6 +412,12 @@ export default class Hospital extends Component {
 		</TouchableOpacity>
 	);
 
+	renderTimer(){
+		if(this.state.hospitals)
+			return <Timer dateSync={this.state.dateSync}/>;
+		return null;
+	}
+
 	render(){
 		return (
 			<Container>
@@ -401,7 +436,9 @@ export default class Hospital extends Component {
 					</Body>
 				</Header>
 
-				<Timer dateSync={this.state.dateSync}/>
+				<View>
+		            { this.renderTimer() }
+		        </View>				
 
 				<Line size={1} />
 
