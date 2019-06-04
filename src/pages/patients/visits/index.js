@@ -188,7 +188,7 @@ export default class Visitas extends React.Component {
 					visible={this.state.modalVisible}
 					onRequestClose={() =>{ console.log("Modal has been closed.") } }>
 						<View style={styles.overlay}>
-							<View style={{backgroundColor: '#F8F8FF', borderRadius: 4, flexDirection: "row", flexWrap: 'wrap', height: '80%', marginTop: '25%', padding: 1}}>
+							<View style={{backgroundColor: '#F8F8FF', borderRadius: 4, flexDirection: "row", flexWrap: 'wrap', height: '75%', marginTop: '25%', padding: 1}}>
 							
 								<View style={{flexDirection: "row", width: '100%', justifyContent: 'space-between', backgroundColor: "#005cd1", alignItems: 'center'}}>
 										<Button backgroundColor={'#005cd1'} onPress={this.toggleModal}>
@@ -213,7 +213,7 @@ export default class Visitas extends React.Component {
 								</View>
 								<View style={{flexDirection: "row", width: '100%', flexWrap: 'wrap', paddingTop: '15%'}}>
 									<Text style={{fontWeight: "bold", width: '100%', fontSize: 17}}>Observação</Text>
-									<TextInput multiline={true}	maxHeight={'100%'} style={styles.textArea} value={this.state.visit.observation} onChangeText = {observation => this.addObservation(observation)} />
+									<TextInput multiline={true}	 numberOfLines={8} maxHeight={'80%'} style={styles.textArea} value={this.state.visit.observation} onChangeText = {observation => this.addObservation(observation)} />
 								</View>
 							</View>
 						</View>

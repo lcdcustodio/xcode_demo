@@ -79,9 +79,9 @@ export default StyleSheet.create({
  },
  	textArea: {
 		width: "100%",
-		height: "70%",
+		height: "100%",
 		borderColor: '#000',
 		borderWidth: 1, 
-		padding: 1
+		padding: 1,
 	}
 });
