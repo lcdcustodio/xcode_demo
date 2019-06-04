@@ -205,7 +205,7 @@ export default class Hospital extends Component {
 			return require('../../images/logo_hospital/quintaDor.png');
 		} 
 		
-		return require('../../images/logo_hospital/redeDor.png');
+		return null;
 	}
 
 	countTotalPatientsVisited = patients => {
@@ -365,7 +365,7 @@ export default class Hospital extends Component {
 
 	renderImageOrName(item) {
 
-		if ( item.logomarca != null && item.logomarca != 4 ) {
+		if ( item.logomarca ) {
 			return <Image source={item.logomarca} style={styles.hospitalIcon}  />;
 		}
 		else
