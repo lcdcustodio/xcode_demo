@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View  } from 'react-native';
+import { StyleSheet, Text, View, Alert  } from 'react-native';
 import TextLabel from '../../components/TextLabel'
 import TextValue from '../../components/TextValue'
 import Line from '../../components/Line'
@@ -112,8 +112,17 @@ export default class Profile extends React.Component {
 		this.toggleModalSecondaryCID()
 	}
 
-	removeSecondaryCID = () => {
-		alert("Deseja remover?")
+	removeSecondaryCID = (item) => {
+		console.log("Deseja remover?", item)
+		Alert.alert(
+			'Remover CID Secundário',
+			'Deseja remover?',
+			[
+				{text: 'Cancelar', onPress: () => console.log('Remocao de CID secundário cancelado'), style: 'cancel', },
+				{text: 'OK', onPress: () => this.props.removeSecondaryCID(item)},
+			],
+			{cancelable: false},
+		);
 	}
 
 	render() {
@@ -235,7 +244,7 @@ export default class Profile extends React.Component {
 							this.props.perfil.secondaryCIDList.length ? 
 								this.props.perfil.secondaryCIDList.map((cidItem) => {
 									return (
-										<TextValue color={'#0000FF'} key={cidItem.cidId} marginLeft="5" value={cidItem.cidDisplayName} press={this.removeSecondaryCID(cidItem)} />
+										<TextValue color={'#0000FF'} key={cidItem.cidId} marginLeft="5" value={cidItem.cidDisplayName} press={this.removeSecondaryCID} />
 									);
 								})
 							: 

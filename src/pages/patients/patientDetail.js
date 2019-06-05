@@ -4,6 +4,7 @@ import { StyleSheet, BackHandler } from "react-native";
 import { withNavigationFocus } from "react-navigation";
 import moment from "moment"
 import uuidv4 from'uuid/v4'
+import _ from 'lodash'
 
 //Pages
 import Profile from "./profile"
@@ -105,14 +106,20 @@ class PatientDetail extends Component {
 		}
 	}
 
+	removeSecondaryCID = (cid) => {
+		console.log('removeSecondaryCID')
+	}
+
 	renderSelectedTab = () => {
 		console.log("Executei o renderSelectedTab")
+		console.log("Base data sync", this.state.baseDataSync)
+		
 		switch (this.state.selectedTab) {
 			case 'profile':
 				return (<Profile perfil={this.state.patient} handleAttendanceType={this.handleAttendanceType} hospital={this.state.hospital} 
 					baseDataSync={this.state.baseDataSync} handleHospitalizationType={this.handleHospitalizationType} 
 					handleHeightAndWeight={this.handleHeightAndWeight} handleCRM={this.handleCRM} handlePrimaryCID={this.handlePrimaryCID}
-					handleSecondaryCID={this.handleSecondaryCID} />);
+					handleSecondaryCID={this.handleSecondaryCID} removeSecondaryCID={this.removeSecondaryCID} />);
 				break;
 			case 'exams':
 				return (<Exams exames={this.props.navigation.state.params.patient.examRequestList} updateParentStatus={this.updateParentStatus} navigation={this.props.navigation} />);
