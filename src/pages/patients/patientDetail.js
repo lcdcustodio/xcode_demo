@@ -80,21 +80,29 @@ class PatientDetail extends Component {
 	}
 
 	handleSecondaryCID = (cid) => {
-		let secondaryCIDList = []
 		let secondaryCID = {
 			beginDate: moment(),
 			cidDisplayName: `${cid.code} - ${cid.name}`,
 			cidId: cid.id,
 			uuid: uuidv4()
 		}
-		secondaryCIDList.push(secondaryCID)
-		
-		this.setState({
-			patient: {
-				...this.state.patient,
-				secondaryCIDList
-			}
-		})
+		if(this.state.patient.secondaryCIDList && this.state.patient.secondaryCIDList.length > 0) {
+			let cidList = this.state.patient.secondaryCIDList
+			cidList.push(secondaryCID)
+			this.setState({
+				patient: {
+					...this.state.patient,
+					secondaryCIDList: cidList
+				}
+			})
+		} else {
+			this.setState({
+				patient: {
+					...this.state.patient,
+					secondaryCIDList: [secondaryCID]
+				}
+			})
+		}
 	}
 
 	renderSelectedTab = () => {
@@ -103,7 +111,8 @@ class PatientDetail extends Component {
 			case 'profile':
 				return (<Profile perfil={this.state.patient} handleAttendanceType={this.handleAttendanceType} hospital={this.state.hospital} 
 					baseDataSync={this.state.baseDataSync} handleHospitalizationType={this.handleHospitalizationType} 
-					handleHeightAndWeight={this.handleHeightAndWeight} handleCRM={this.handleCRM} handlePrimaryCID={this.handlePrimaryCID} />);
+					handleHeightAndWeight={this.handleHeightAndWeight} handleCRM={this.handleCRM} handlePrimaryCID={this.handlePrimaryCID}
+					handleSecondaryCID={this.handleSecondaryCID} />);
 				break;
 			case 'exams':
 				return (<Exams exames={this.props.navigation.state.params.patient.examRequestList} updateParentStatus={this.updateParentStatus} navigation={this.props.navigation} />);

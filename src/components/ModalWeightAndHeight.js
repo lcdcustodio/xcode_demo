@@ -6,13 +6,13 @@ export default class ModalWeightAndHeight extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      height: this.props.height,
-      weight: this.props.weight
+      patientHeight: this.props.patientHeight,
+      patientWeight: this.props.patientWeight
     }
   }
 
   save = () => {
-    this.props.action(this.state.height, this.state.weight)
+    this.props.action(this.state.patientHeight, this.state.patientWeight)
   }
 
   render(){
@@ -22,23 +22,23 @@ export default class ModalWeightAndHeight extends Component {
 					transparent={true}
 					visible={this.props.visible} >
 
-					<View style={styles.overlay}>
-						<View style={styles.container}>
+          <View style={[styles.overlay, {paddingTop: `${this.props.paddingTop}%`} ]}>
+            <View style={[styles.container, {height: `${this.props.height}%`} ]}>
 
-              <View  style={{marginTop: '5%', width: '70%'}}>
+              <View  style={{marginBottom: '5%', marginTop: '5%'}}>
                 <Text> Altura: </Text>
-                <TextInput editable = {true} value={`${this.state.height}`}
-                  onChangeText={(height) => this.setState({height})}
+                <TextInput editable = {true} value={`${this.state.patientHeight}`}
+                  onChangeText={(patientHeight) => this.setState({patientHeight})}
                   keyboardType={'numeric'}
-                  style={{marginBottom: '5%', width: '70%', height: '25%', color:'#000000', borderColor: 'gray', borderWidth: 1}} />
+                  style={styles.inputText} />
 
                 <Text> Peso: </Text>
-                <TextInput editable = {true} value={`${this.state.weight}`}
-                  onChangeText={(weight) => this.setState({weight})}
+                <TextInput editable = {true} value={`${this.state.patientWeight}`}
+                  onChangeText={(patientWeight) => this.setState({patientWeight})}
                   keyboardType={'numeric'}
-                  style={{marginBottom: '5%', width: '70%', height: '25%', color:'#000000', borderColor: 'gray', borderWidth: 1}} />
+                  style={styles.inputText} />
               </View>
-              <Button style={{marginTop: '5%'}} onPress={ this.save } title="Salvar" color="#005cd1" />
+              <Button onPress={ this.save } title="Salvar" color="#005cd1" />
             </View>    
 					</View>
       </Modal>
@@ -47,18 +47,22 @@ export default class ModalWeightAndHeight extends Component {
 }
 
 ModalWeightAndHeight.propTypes = {
-  height: PropTypes.any.isRequired,
-  weight: PropTypes.any.isRequired,
+  patientHeight: PropTypes.any.isRequired,
+  patientWeight: PropTypes.any.isRequired,
   visible: PropTypes.bool.isRequired,
   action: PropTypes.func.isRequired
 }
+
+ModalWeightAndHeight.defaultProps = {
+  paddingTop: '20',
+  height:'100',
+};
 
 const styles = StyleSheet.create({
   overlay: {
 		flex: 1,
 		backgroundColor: 'rgba(0, 0, 0, 0.3)',
     flexDirection: "row",
-    paddingTop:'50%',
     paddingLeft:'5%', 
     paddingRight:'5%'
   },
@@ -66,11 +70,18 @@ const styles = StyleSheet.create({
     padding: '5%',
     margin:'0%', 
     width:'100%', 
-    height:'70%',
     backgroundColor: 'white', 
     borderRadius: 4, 
     borderColor:'#000000', 
     borderStyle:'solid', 
     borderWidth:1
   },
+  inputText: {
+    marginBottom: '5%', 
+    width: '70%', 
+    height: 35, 
+    color:'#000000', 
+    borderColor: 'gray', 
+    borderWidth: 1
+  }
 })

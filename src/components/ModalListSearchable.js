@@ -38,9 +38,9 @@ export default class ModalListSearchable extends Component {
 					animationType="fade"
 					transparent={true}
 					visible={this.props.visible} >
-
-					<View style={styles.overlay}>
-						<View style={styles.container}>
+          
+          <View style={[styles.overlay, {paddingTop: `${this.props.paddingTop}%`} ]}>
+            <View style={[styles.container, {height: `${this.props.height}%`} ]}>
 							<FlatList
                 data={this.state.list}
                 renderItem={ (element, index) => 
@@ -70,19 +70,22 @@ ModalListSearchable.propTypes = {
   action: PropTypes.func.isRequired
 }
 
+ModalListSearchable.defaultProps = {
+  paddingTop: '20',
+  height:'100',
+};
+
 const styles = StyleSheet.create({
   overlay: {
 		flex: 1,
 		backgroundColor: 'rgba(0, 0, 0, 0.3)',
     flexDirection: "row",
-    paddingTop:'20%', 
     paddingLeft:'5%', 
     paddingRight:'5%'
   },
   container: {
     margin:'0%', 
     width:'100%', 
-    height:'80%', 
     backgroundColor: 'white', 
     borderRadius: 4, 
     borderColor:'#000000', 

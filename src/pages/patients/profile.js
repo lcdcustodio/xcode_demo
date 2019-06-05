@@ -7,7 +7,7 @@ import TitleScreen from '../../components/Title'
 import moment from 'moment';
 
 import ModalList from '../../components/ModalList'
-import ModalCRM from '../../components/ModalCRM'
+import ModalInput from '../../components/ModalInput'
 import ModalWeightAndHeight from '../../components/ModalWeightAndHeight'
 import ModalListSearchable from '../../components/ModalListSearchable'
 
@@ -96,15 +96,17 @@ export default class Profile extends React.Component {
 			trackingListStartDate = moment(this.props.perfil.trackingList[0].startDate).format('DD/MM/YYYY HH:mm');
 		}
 
+		console.log("procedimentos => ", this.props.baseDataSync)
+
 		return (
 			<View style={ styles.container }>
 				
-				<ModalList visible={this.state.modalAttendanceTypeVisible} list={this.state.listAttendanceType} action={this.handleAttendanceType} />
-				<ModalList visible={this.state.modalHospitalizationType}  list={this.state.listHospitalizationType}  action={this.handleHospitalizationType} />
-				<ModalCRM visible={this.state.modalCRM} crm={this.props.perfil.mainProcedureCRM ? this.props.perfil.mainProcedureCRM : ''} action={ this.handleCRM} />
-				<ModalWeightAndHeight visible={this.state.modalHeightAndWeight} height={this.props.perfil.patientHeight} weight={this.props.perfil.patientWeight} action={ this.handleHeightAndWeight} />
-				<ModalListSearchable visible={this.state.modalPrimaryCID} list={this.props.baseDataSync.cid} action={this.handlePrimaryCID} />
-				<ModalListSearchable visible={this.state.modalSecondaryCID} list={this.props.baseDataSync.cid} action={this.handleSecondaryCID} />
+				<ModalList paddingTop={70} height={45} visible={this.state.modalAttendanceTypeVisible} list={this.state.listAttendanceType} action={this.handleAttendanceType} />
+				<ModalList paddingTop={70} height={45} visible={this.state.modalHospitalizationType}  list={this.state.listHospitalizationType}  action={this.handleHospitalizationType} />
+				<ModalInput paddingTop={50} height={40} visible={this.state.modalCRM} label={'CRM'} value={this.props.perfil.mainProcedureCRM ? this.props.perfil.mainProcedureCRM : ''} action={ this.handleCRM} />
+				<ModalWeightAndHeight paddingTop={50} height={70} visible={this.state.modalHeightAndWeight} patientHeight={this.props.perfil.patientHeight} patientWeight={this.props.perfil.patientWeight} action={ this.handleHeightAndWeight} />
+				<ModalListSearchable paddingTop={20} height={80} visible={this.state.modalPrimaryCID} list={this.props.baseDataSync.cid} action={this.handlePrimaryCID} />
+				<ModalListSearchable paddingTop={20} height={80} visible={this.state.modalSecondaryCID} list={this.props.baseDataSync.cid} action={this.handleSecondaryCID} />
 
 				<TitleScreen marginTop={5} marginLeft={5} title={this.props.perfil.patientName} />
 				<Line marginTop={3} marginBottom={3} marginLeft={5} width={90} size={2} />
@@ -188,7 +190,7 @@ export default class Profile extends React.Component {
 						<TextLabel marginLeft="5" label='CID Primário' />
 						{this.props.perfil.diagnosticHypothesisList.map((prop) => {
 							return (
-								<TextValue color={'#0000FF'} key={prop.cidId} marginLeft="5" value={prop.cidDisplayName ? prop.cidDisplayName : 'Selecionar'} press={this.toggleModalPrimaryCID} />
+								<TextValue color={'#0000FF'} key={prop.cidId} marginLeft="5" value={prop.cidDisplayName ? prop.cidDisplayName : 'Escolher'} press={this.toggleModalPrimaryCID} />
 							);
 						})}
 					</View>
@@ -197,11 +199,16 @@ export default class Profile extends React.Component {
 				<View style={ styles.row }>
 					<View style={ styles.column100 }>
 						<TextLabel marginLeft="5" label='CIDs Secundários' />
-						{this.props.perfil.secondaryCIDList.map((prop) => {
-							return (
-								<TextValue color={'#0000FF'} key={prop.cidId} marginLeft="5" value={prop.cidDisplayName ? prop.cidDisplayName : 'Selecionar'} press={this.toggleModalPrimaryCID} />
-							);
-						})}
+						{ 
+							this.props.perfil.secondaryCIDList.length ? 
+								this.props.perfil.secondaryCIDList.map((prop) => {
+									return (
+										<TextValue color={'#0000FF'} key={prop.cidId} marginLeft="5" value={prop.cidDisplayName} press={this.toggleModalSecondaryCID} />
+									);
+								})
+							: 
+							<TextValue color={'#0000FF'} marginLeft="5" value={'Adicionar'} press={this.toggleModalSecondaryCID} />
+						}
 					</View>
 				</View>
 				
