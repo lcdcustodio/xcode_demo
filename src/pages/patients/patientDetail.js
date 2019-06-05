@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Container, Content, Header, Left, Right, Button, Body, Icon, Title, Footer, FooterTab, Text } from 'native-base';
-import { StyleSheet } from "react-native";
+import { StyleSheet, BackHandler } from "react-native";
 
 //Pages
 import Profile from "./profile"
@@ -10,7 +10,9 @@ import Visits from "./visits"
 export default class PatientDetail extends Component {
     
 	constructor(props) {
+
 		super(props);
+		
 		this.state = {
 			patient: this.props.navigation.getParam('patient'),
 			hospital: null,
@@ -19,7 +21,21 @@ export default class PatientDetail extends Component {
 		};
 	}
 
+	componentDidMount() {
+		console.log('back press');
+		this.backHandler = BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
+	}
+
+	handleBackPress = () => {
+		console.log('go back');
+		this.props.navigation.navigate('Patients',  { hospital: this.state.hospital } )
+		return true;
+	}
+
 	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
+		
+		this.setState({selectedTab: 'profile'});
+
 		this.setState({
 			patient: this.props.navigation.getParam('patient'),
 			hospital: this.props.navigation.getParam('hospital'),

@@ -79,7 +79,7 @@ export default class SignIn extends Component {
 				username: this.state.email,
 				password: this.state.password
 			};
-			
+
 			const data = qs.stringify(params, { encode: false });
 
 			api.post('/api/login',
@@ -93,7 +93,10 @@ export default class SignIn extends Component {
 				
 				if(response.data.success) {
 					
-					AsyncStorage.setItem('userData', JSON.stringify(content), () => {
+					AsyncStorage.multiSet([
+					    ["auth", JSON.stringify(params)],
+					    ["userData", JSON.stringify(content)]
+					], () => {
 			        
 						//this.setState({ textContent: 'Sincronizando...' });
 						

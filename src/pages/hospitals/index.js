@@ -1,24 +1,16 @@
 import React, { Component } from "react";
-
 import api from '../../services/api';
-
 import { Container, Content, Header, Left, Right, Body, Icon, Title, Text, Thumbnail } from 'native-base';
-
-import { Alert, View, FlatList, TouchableOpacity, Image } from "react-native";
-
+import { Alert, View, FlatList, TouchableOpacity, Image, BackHandler } from "react-native";
 import AsyncStorage from '@react-native-community/async-storage';
-
 import NetInfo from "@react-native-community/netinfo";
-
 import Spinner from 'react-native-loading-spinner-overlay';
-
 import styles from './style'
-
 import Line from '../../components/Line'
-
 import Timer from '../../components/Timer'
-
 import moment from 'moment';
+import Session from '../../Session';
+import qs from "qs";
 
 export default class Hospital extends Component {
 
@@ -33,13 +25,29 @@ export default class Hospital extends Component {
 			isConnected: null,
 			dateSync: null,
 			page: 1,
-			loading: false
+			loading: false,
+			errorSync: 0
 		}
 
 		this.state.baseDataSync = this.props.navigation.getParam('baseDataSync');
 	}
+
+	componentDidMount() {
+		console.log('back press');
+		this.backHandler = BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
+	}
+
+	handleBackPress = () => {
+		console.log('go back');
+		this.props.navigation.navigate('Hospitals');
+		return true;
+	}
 	
 	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
+
+        this.setState({errorSync: 0});
+
+        this.setState({user: Session.current.user});
 
 		NetInfo.fetch().then(state => {
 
@@ -86,13 +94,25 @@ export default class Hospital extends Component {
 
 					if(response.status === 200) {
 
+						let user = Session.current.user;
+
+						console.log(user.profile);
+
 						let listHospital = []
 						
-						response.data.content.hospitalList.forEach( hospital => {
-							if(this.isTheSameHospital(hospital, parse)){
-								listHospital.push(hospital)
-							}
-						})
+						if (user.profile == 'CONSULTANT') {
+
+							response.data.content.hospitalList.forEach( hospital => {
+								if(this.isTheSameHospital(hospital, parse)){
+									listHospital.push(hospital)
+								}
+							});
+						
+						} 
+						else
+						{
+							listHospital = response.data.content.hospitalList;
+						}
 
 						this.getInformationHospital(listHospital).then(response => {
 
@@ -102,7 +122,7 @@ export default class Hospital extends Component {
 
 							AsyncStorage.setItem('dateSync', dateSync);
 
-							AsyncStorage.setItem('hospitalList', JSON.stringify(this.state.hospitals));						
+							AsyncStorage.setItem('hospitalList', JSON.stringify(listHospital));						
 						});
 					
 					} else {
@@ -127,25 +147,58 @@ export default class Hospital extends Component {
 				
 				}).catch(error => {
 
+					console.log(this.state.errorSync);
+
 					this.setState({loading: false});
 
-					Alert.alert(
-						'Erro ao carregar informações',
-						'Desculpe, aparentemente sua sessão expirou. Por favor, faça login e tente novamente!',
-						[
-							{
-								text: 'OK', onPress: () => {
-									this.props.navigation.navigate("SignIn");
+					this.setState({errorSync: (this.state.errorSync + 1) });
+
+					if (this.state.errorSync <= 3) {
+
+						AsyncStorage.getItem('auth', (err, auth) => {
+
+							console.log(auth);
+					            
+				            data = JSON.parse(auth);
+
+				            data = qs.stringify(data, { encode: false });
+
+							api.post('/api/login',
+								data
+							)
+							.then(response => {
+
+								let content = response.data.content;
+																
+								if(response.data.success) {
+									AsyncStorage.setItem('userData', JSON.stringify(content), () => {
+										this.sincronizar(true);
+									});
 								}
+
+								console.log(response);
+							});
+				        });
+					}
+					else
+					{
+						Alert.alert(
+							'Erro ao carregar informações',
+							'Desculpe, recebemos um erro inesperado do servidor, por favor, faça login e tente novamente! ',
+							[
+								{
+									text: 'OK', onPress: () => {
+										this.props.navigation.navigate("SignIn");
+									}
+								},
+							],
+							{
+								cancelable: false
 							},
-						],
-						{
-							cancelable: false
-						},
-					);
+						);
+					}
 
 					console.log(error);
-					console.log(error.status);
 
 				});
 			});
@@ -296,14 +349,7 @@ export default class Hospital extends Component {
 			{
 				let hospitalList = JSON.parse(res);
 
-				hospitalList.forEach( hospital => {
-					hospital.logomarca = this.getLogomarca(hospital)
-					hospital.totalPatientsVisitedToday = this.countTotalPatientsVisited(hospital.hospitalizationList)
-					hospital.totalPatients = this.countTotalPatients(hospital.hospitalizationList)
-					hospital.lastVisit = this.setLastVisit(hospital.hospitalizationList)
-				});
-
-				this.setState({hospitals: hospitalList});	
+				this.getInformationHospital(hospitalList);
 			}
 
 			this.setState({loading: false});
@@ -458,7 +504,7 @@ export default class Hospital extends Component {
 						<Title>HOSPITAIS</Title>
 					</Body>
 					<Right style={{flex:1}} >
-						<Icon name="timer" style={{ color: 'white' }} onPress={() => this.sincronizar(true) } />
+						<Icon name="sync" style={{ color: 'white' }} onPress={() => this.sincronizar(true) } />
 					</Right>
 				</Header>
 
