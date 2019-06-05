@@ -1,27 +1,152 @@
 import React, { Component } from "react";
 import { Container, Content, Header, Left, Right, Button, Body, Icon, Title, Footer, FooterTab, Text } from 'native-base';
 import { StyleSheet, BackHandler } from "react-native";
+import { withNavigationFocus } from "react-navigation";
+import moment from "moment"
+import uuidv4 from'uuid/v4'
 
 //Pages
 import Profile from "./profile"
 import Events from "./events"
 import Visits from "./visits"
 
-export default class PatientDetail extends Component {
+
+class PatientDetail extends Component {
     
 	constructor(props) {
-
 		super(props);
-		
 		this.state = {
 			patient: this.props.navigation.getParam('patient'),
-			hospital: null,
-			baseDataSync: null,
+			hospital: this.props.navigation.getParam('hospital'),
+			baseDataSync: this.props.navigation.getParam('baseDataSync'),
 			selectedTab: 'profile'
-		};
+		}
+		console.log("Executei o construtor")
+	}
+	
+	handleAttendanceType = (attendanceType) => {
+		this.setState({
+			patient: {
+				...this.state.patient,
+				attendanceType
+			}
+		})
+	}
+
+	handleHospitalizationType = (hospitalizationType) => {
+		this.setState({
+			patient: {
+				...this.state.patient,
+				hospitalizationType
+			}
+		})
+	}
+
+	handleHeightAndWeight = (patientHeight, patientWeight) => {
+		this.setState({
+			patient: {
+				...this.state.patient,
+				patientHeight,
+				patientWeight
+			}
+		})
+	}
+
+	handleCRM = (crm) => {
+		this.setState({
+			patient: {
+				...this.state.patient,
+				mainProcedureCRM: crm
+			}
+		})
+	}
+
+	handlePrimaryCID = (cid) => {
+		let diagnosticHypothesisList = []
+		let diagnosticHypothesis = {
+			beginDate: moment(),
+			cidDisplayName: `${cid.code} - ${cid.name}`,
+			cidId: cid.id,
+			uuid: uuidv4()
+		}
+		diagnosticHypothesisList.push(diagnosticHypothesis)
+		
+		this.setState({
+			patient: {
+				...this.state.patient,
+				diagnosticHypothesisList
+			}
+		})
+	}
+
+	handleSecondaryCID = (cid) => {
+		let secondaryCID = {
+			beginDate: moment(),
+			cidDisplayName: `${cid.code} - ${cid.name}`,
+			cidId: cid.id,
+			uuid: uuidv4()
+		}
+		if(this.state.patient.secondaryCIDList && this.state.patient.secondaryCIDList.length > 0) {
+			let cidList = this.state.patient.secondaryCIDList
+			cidList.push(secondaryCID)
+			this.setState({
+				patient: {
+					...this.state.patient,
+					secondaryCIDList: cidList
+				}
+			})
+		} else {
+			this.setState({
+				patient: {
+					...this.state.patient,
+					secondaryCIDList: [secondaryCID]
+				}
+			})
+		}
+	}
+
+	renderSelectedTab = () => {
+		console.log("Executei o renderSelectedTab")
+		switch (this.state.selectedTab) {
+			case 'profile':
+				return (<Profile perfil={this.state.patient} handleAttendanceType={this.handleAttendanceType} hospital={this.state.hospital} 
+					baseDataSync={this.state.baseDataSync} handleHospitalizationType={this.handleHospitalizationType} 
+					handleHeightAndWeight={this.handleHeightAndWeight} handleCRM={this.handleCRM} handlePrimaryCID={this.handlePrimaryCID}
+					handleSecondaryCID={this.handleSecondaryCID} />);
+				break;
+			case 'exams':
+				return (<Exams exames={this.props.navigation.state.params.patient.examRequestList} updateParentStatus={this.updateParentStatus} navigation={this.props.navigation} />);
+				break;
+			case 'visits':
+				return (<Visits visitas={this.props.navigation.state.params.patient.observationList} updateParentStatus={this.updateParentStatus} navigation={this.props.navigation} />);
+				break;
+			default:
+		}
+	}
+
+	updatePatient = patient =>{
+		console.log("updatePatient = patient", patient)
+		this.setState({patient})
+	}
+
+	switchScreen(screen) {        
+		this.setState({
+			selectedTab: screen
+		})
 	}
 
 	componentDidMount() {
+		console.log("Executei o DidMount")
+		const { navigation } = this.props;
+		this.focusListener = navigation.addListener("didFocus", () => {
+			console.log("Atualizando o state de PatientDetail, para recuperar os dados que vieram da navegacao")
+		  	this.setState({
+				patient: this.props.navigation.getParam('patient'),
+				hospital: this.props.navigation.getParam('hospital'),
+				baseDataSync: this.props.navigation.getParam('baseDataSync'),
+			})
+		});
+
 		console.log('back press');
 		this.backHandler = BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
 	}
@@ -43,37 +168,8 @@ export default class PatientDetail extends Component {
 		});
 	});
 
-	renderSelectedTab() {
-		let patient = this.props.navigation.state.params.patient;
-		switch (this.state.selectedTab) {
-			case 'profile':
-				return (<Profile perfil={patient}/>);
-				break;
-			case 'events':
-				return (<Events
-					exames={patient.examRequestList}
-					reconciliacaoMedicamentosa={patient.recommendationMedicineReintegration}
-				/>);
-				break;
-			case 'visits':
-				return (<Visits patient={this.state.patient} updatePatient={this.updatePatient} />);
-				break;
-			default:
-		}
-	}
-
-	updatePatient = patient =>{
-		console.log("updatePatient = patient", patient)
-		this.setState({patient})
-	}
-
-	switchScreen(screen) {        
-		this.setState({
-			selectedTab: screen
-		})
-	}
-
 	render(){
+
 		return (
 			<Container>
 				<Header style={ styles.header }>
@@ -107,6 +203,8 @@ export default class PatientDetail extends Component {
 		);
 	}
 }
+export default withNavigationFocus(PatientDetail);
+
 
 const styles = StyleSheet.create({
 	header: {

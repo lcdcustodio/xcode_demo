@@ -66,7 +66,7 @@ export default class SignIn extends Component {
 	};
 
 	handleSignInPress = async () => {
-		
+
 		if (this.state.email.length === 0 || this.state.password.length === 0) {
 			this.setState({ error: 'Por favor, preencha todos os campos' }, () => false);
 		} else {
@@ -114,12 +114,16 @@ export default class SignIn extends Component {
 		        else
 		        {
 		        	console.log(response);
+		        	
 					this.setState({loading: false});
 		        }	
 
 			}).catch(error => {
+				
 				this.setState({loading: false});
+				
 				console.log(error);
+				
 				if(error.response.status == 401) {
 					this.setState({ error: 'Usuário e senha não coincidem' }, () => false);
 				} else if(error.response.status == 500) {
@@ -146,7 +150,7 @@ export default class SignIn extends Component {
 							onChangeText={this.handleEmailChange}
 							autoCapitalize="none"
 							autoCorrect={false}
-	                        placeholderTextColor="#FFFFFF"
+              placeholderTextColor="#FFFFFF"
 							textAlign="auto"
 						/>
 						<Input

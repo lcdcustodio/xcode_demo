@@ -1,21 +1,14 @@
 import React, { Component } from "react"
-
 import styles from './style'
-
 import { Container, Content, Header, Left, Right, Body, Icon, Title, Text } from 'native-base'
-
 import { Alert, View, FlatList, TouchableOpacity, Image, BackHandler } from "react-native"
-
 import moment from 'moment'
-
 import _ from 'lodash'
 
 export default class Patients extends Component {
 	
 	constructor(props) {
-
 		super(props);
-		
 		this.state = {
 			hospital: {},
 			baseDataSync: {},
@@ -34,15 +27,11 @@ export default class Patients extends Component {
 	}
 
 	didFocus = this.props.navigation.addListener('didFocus', (res) => {
-		
 		let hospital = this.props.navigation.getParam('hospital');
-
 		let baseDataSync = this.props.navigation.getParam('baseDataSync');
-
 		let patients = [];
 
 		hospital.hospitalizationList.forEach( patient => {
-			
 			if(!patient.externalPatient && (patient.exitDate === null || this.exitDateBelow48Hours(patient.exitDate))) {
 				patient.totalDaysOfHospitalization = this.calculateDaysOfHospitalization(patient);
 				patient.statusColorName = this.getStatusColorName(patient);
@@ -53,9 +42,7 @@ export default class Patients extends Component {
 		});
 
 		hospital.hospitalizationList = patients;
-
 		this.setState({hospital: hospital});
-
 		this.setState({baseDataSync: baseDataSync});
 	});
 	
@@ -145,9 +132,6 @@ export default class Patients extends Component {
 	renderItem = ({ item }) => (
 		<TouchableOpacity
 			onPress={() => {
-
-				console.log({ patient: item, hospital: this.state.hospital, baseDataSync: this.state.baseDataSync });
-				
 				this.props.navigation.navigate("PatientDetail", { patient: item, hospital: this.state.hospital, baseDataSync: this.state.baseDataSync });
 			}}>
 			<View style={[styles.productContainer]}>
