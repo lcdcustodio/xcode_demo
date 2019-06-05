@@ -107,7 +107,7 @@ class PatientDetail extends Component {
 	}
 
 	removeSecondaryCID = (cid) => {
-		console.log('removeSecondaryCID')
+		console.log('removeSecondaryCID', cid)
 	}
 
 	renderSelectedTab = () => {
@@ -125,14 +125,13 @@ class PatientDetail extends Component {
 				return (<Exams exames={this.props.navigation.state.params.patient.examRequestList} updateParentStatus={this.updateParentStatus} navigation={this.props.navigation} />);
 				break;
 			case 'visits':
-				return (<Visits visitas={this.props.navigation.state.params.patient.observationList} updateParentStatus={this.updateParentStatus} navigation={this.props.navigation} />);
+				return (<Visits patient={this.state.patient} updateParentStatus={this.updateParentStatus} updatePatient={this.updatePatient} navigation={this.props.navigation} />);
 				break;
 			default:
 		}
 	}
 
 	updatePatient = patient =>{
-		console.log("updatePatient = patient", patient)
 		this.setState({patient})
 	}
 
