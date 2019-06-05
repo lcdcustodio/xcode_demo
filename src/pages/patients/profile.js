@@ -23,6 +23,7 @@ export default class Profile extends React.Component {
 			modalCRM: false,
 			modalPrimaryCID: false,
 			modalSecondaryCID: false,
+			modalMainProcedure: false,
 			listAttendanceType: [
 				{key: 1, value: 'ELECTIVE', label: 'ELETIVO'},
 				{key: 2, value: 'EMERGENCY', label: 'EMERGÊNCIA'}
@@ -124,6 +125,15 @@ export default class Profile extends React.Component {
 		);
 	}
 
+	toggleModalMainProcedure = () => {
+		this.setState({modalMainProcedure: !this.state.modalMainProcedure})
+	}
+
+	handleMainProcedure = (procedure) => {
+		this.props.handleMainProcedure(procedure.item)
+		this.toggleModalMainProcedure()
+	}
+
 	render() {
 		let trackingListStartDate = null;
 		let CRM = this.props.perfil.mainProcedureCRM !== null ? this.props.perfil.mainProcedureCRM : 'INFORMAR'
@@ -132,7 +142,8 @@ export default class Profile extends React.Component {
 			trackingListStartDate = moment(this.props.perfil.trackingList[0].startDate).format('DD/MM/YYYY HH:mm');
 		}
 
-		console.log("procedimentos => ", this.props.baseDataSync)
+		console.log("Base Data Sync => ", this.props.baseDataSync)
+		console.log("Patient => ", this.props.perfil)
 
 		return (
 			<View style={ styles.container }>
@@ -143,6 +154,7 @@ export default class Profile extends React.Component {
 				<ModalWeightAndHeight paddingTop={50} height={70} visible={this.state.modalHeightAndWeight} patientHeight={this.props.perfil.patientHeight} patientWeight={this.props.perfil.patientWeight} action={ this.handleHeightAndWeight} />
 				<ModalListSearchable paddingTop={20} height={80} visible={this.state.modalPrimaryCID} list={this.props.baseDataSync.cid} action={this.handlePrimaryCID} />
 				<ModalListSearchable paddingTop={20} height={80} visible={this.state.modalSecondaryCID} list={this.props.baseDataSync.cid} action={this.handleSecondaryCID} />
+				<ModalListSearchable paddingTop={20} height={80} visible={this.state.modalMainProcedure} list={this.props.baseDataSync.tuss} action={this.handleMainProcedure} />
 
 				<TitleScreen marginTop={5} marginLeft={5} title={this.props.perfil.patientName} />
 				<Line marginTop={3} marginBottom={3} marginLeft={5} width={90} size={2} />
@@ -198,7 +210,6 @@ export default class Profile extends React.Component {
 				<View style={ styles.row }>
 					<View style={ styles.column100 }>
 						<TextLabel marginLeft="5" label='Data de Início do Monitoramento' />
-						{console.log()}
 						<TextValue marginLeft="5" value={ trackingListStartDate } />
 					</View>
 				</View>
@@ -256,6 +267,18 @@ export default class Profile extends React.Component {
 					<View style={ styles.column100 }>
 						<TextLabel marginLeft="5" label='CRM do Responsável' />
 						<TextValue marginLeft="5" color={'#0000FF'} value={CRM} press={ this.toggleModalCRM } />
+					</View>
+				</View>
+
+				<View style={ styles.row }>
+					<View style={ styles.column100 }>
+						<TextLabel marginLeft="5" label='Procedimento Principal' />
+						{
+							this.props.perfil.mainProcedureTUSSDisplayName ? 
+							<TextValue marginLeft="5" color={'#0000FF'} value={this.props.perfil.mainProcedureTUSSDisplayName} press={this.toggleModalMainProcedure} />
+							:
+							<TextValue marginLeft="5" color={'#0000FF'} value={'ESCOLHER'} press={this.toggleModalSecondaryCID} press={this.toggleModalMainProcedure} />	
+						}
 					</View>
 				</View>
 

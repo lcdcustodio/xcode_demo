@@ -118,14 +118,13 @@ class PatientDetail extends Component {
 
 	renderSelectedTab = () => {
 		console.log("Executei o renderSelectedTab")
-		console.log("Base data sync", this.state.baseDataSync)
 		
 		switch (this.state.selectedTab) {
 			case 'profile':
 				return (<Profile perfil={this.state.patient} handleAttendanceType={this.handleAttendanceType} hospital={this.state.hospital} 
 					baseDataSync={this.state.baseDataSync} handleHospitalizationType={this.handleHospitalizationType} 
 					handleHeightAndWeight={this.handleHeightAndWeight} handleCRM={this.handleCRM} handlePrimaryCID={this.handlePrimaryCID}
-					handleSecondaryCID={this.handleSecondaryCID} removeSecondaryCID={this.removeSecondaryCID} />);
+					handleSecondaryCID={this.handleSecondaryCID} removeSecondaryCID={this.removeSecondaryCID} handleMainProcedure={this.handleMainProcedure} />);
 				break;
 			case 'exams':
 				return (<Exams exames={this.props.navigation.state.params.patient.examRequestList} updateParentStatus={this.updateParentStatus} navigation={this.props.navigation} />);
@@ -167,6 +166,16 @@ class PatientDetail extends Component {
 		console.log('go back');
 		this.props.navigation.navigate('Patients',  { hospital: this.state.hospital } )
 		return true;
+	}
+
+	handleMainProcedure = (procedure) => {
+		this.setState({
+			patient: {
+				...this.state.patient,
+				mainProcedureTUSSDisplayName: `${procedure.code} - ${procedure.name}`,
+				mainProcedureTUSSId: procedure.code
+			}
+		})
 	}
 
 	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
