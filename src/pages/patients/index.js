@@ -4,7 +4,7 @@ import styles from './style'
 
 import { Container, Content, Header, Left, Right, Body, Icon, Title, Text } from 'native-base'
 
-import { Alert, View, FlatList, TouchableOpacity, Image } from "react-native"
+import { Alert, View, FlatList, TouchableOpacity, Image, BackHandler } from "react-native"
 
 import moment from 'moment'
 
@@ -20,6 +20,17 @@ export default class Patients extends Component {
 			hospital: {},
 			baseDataSync: {},
 		}
+	}
+
+	componentDidMount() {
+		console.log('back press');
+		this.backHandler = BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
+	}
+
+	handleBackPress = () => {
+		console.log('go back');
+		this.props.navigation.navigate('Hospitals');
+		return true;
 	}
 
 	didFocus = this.props.navigation.addListener('didFocus', (res) => {
