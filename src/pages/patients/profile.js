@@ -112,6 +112,10 @@ export default class Profile extends React.Component {
 		this.toggleModalSecondaryCID()
 	}
 
+	removeSecondaryCID = () => {
+		alert("Deseja remover?")
+	}
+
 	render() {
 		let trackingListStartDate = null;
 		let CRM = this.props.perfil.mainProcedureCRM !== null ? this.props.perfil.mainProcedureCRM : 'INFORMAR'
@@ -186,7 +190,8 @@ export default class Profile extends React.Component {
 				<View style={ styles.row }>
 					<View style={ styles.column100 }>
 						<TextLabel marginLeft="5" label='Data de Início do Monitoramento' />
-						<TextValue marginLeft="5" value={ trackingListStartDate ? moment(trackingListStartDate).format('DD/MM/YYYY HH:mm') : '' } />
+						{console.log()}
+						<TextValue marginLeft="5" value={ trackingListStartDate } />
 					</View>
 				</View>
 
@@ -225,15 +230,16 @@ export default class Profile extends React.Component {
 				<View style={ styles.row }>
 					<View style={ styles.column100 }>
 						<TextLabel marginLeft="5" label='CIDs Secundários' />
+						<TextValue color={'#0000FF'} marginLeft="5" value={'ADICIONAR'} press={this.toggleModalSecondaryCID} />
 						{ 
 							this.props.perfil.secondaryCIDList.length ? 
-								this.props.perfil.secondaryCIDList.map((prop) => {
+								this.props.perfil.secondaryCIDList.map((cidItem) => {
 									return (
-										<TextValue color={'#0000FF'} key={prop.cidId} marginLeft="5" value={prop.cidDisplayName} press={this.toggleModalSecondaryCID} />
+										<TextValue color={'#0000FF'} key={cidItem.cidId} marginLeft="5" value={cidItem.cidDisplayName} press={this.removeSecondaryCID(cidItem)} />
 									);
 								})
 							: 
-							<TextValue color={'#0000FF'} marginLeft="5" value={'Adicionar'} press={this.toggleModalSecondaryCID} />
+							<View/>
 						}
 					</View>
 				</View>
