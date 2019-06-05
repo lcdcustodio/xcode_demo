@@ -2,7 +2,6 @@
 #
 .DS_Store
 src/services/api.js
-ios/
 
 # Xcode
 #
@@ -31,7 +30,6 @@ build/
 .gradle
 local.properties
 *.iml
-android/
 
 # node.js
 #
