@@ -4,6 +4,7 @@ import { StyleSheet, BackHandler } from "react-native";
 import { withNavigationFocus } from "react-navigation";
 import moment from "moment"
 import uuidv4 from'uuid/v4'
+import Recommedation from "./events/recommendation"
 
 //Pages
 import Profile from "./profile"
@@ -107,6 +108,7 @@ class PatientDetail extends Component {
 
 	renderSelectedTab = () => {
 		console.log("Executei o renderSelectedTab")
+		console.log(this.state.patient)
 		switch (this.state.selectedTab) {
 			case 'profile':
 				return (<Profile perfil={this.state.patient} handleAttendanceType={this.handleAttendanceType} hospital={this.state.hospital} 
@@ -118,14 +120,13 @@ class PatientDetail extends Component {
 				return (<Exams exames={this.props.navigation.state.params.patient.examRequestList} updateParentStatus={this.updateParentStatus} navigation={this.props.navigation} />);
 				break;
 			case 'visits':
-				return (<Visits visitas={this.props.navigation.state.params.patient.observationList} updateParentStatus={this.updateParentStatus} navigation={this.props.navigation} />);
+				return (<Visits patient={this.state.patient} updateParentStatus={this.updateParentStatus} updatePatient={this.updatePatient} navigation={this.props.navigation} />);
 				break;
 			default:
 		}
 	}
 
 	updatePatient = patient =>{
-		console.log("updatePatient = patient", patient)
 		this.setState({patient})
 	}
 
