@@ -1654,7 +1654,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = br.com.rededor.app.react.medicoconsultor;
+				PRODUCT_BUNDLE_IDENTIFIER = "-VK9AM7XGC.br.com.rededor.app.react.medicoconsultor";
 				PRODUCT_NAME = medicoconsultor;
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1687,7 +1687,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = br.com.rededor.app.react.medicoconsultor;
+				PRODUCT_BUNDLE_IDENTIFIER = "-VK9AM7XGC.br.com.rededor.app.react.medicoconsultor";
 				PRODUCT_NAME = medicoconsultor;
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
