@@ -1,7 +1,7 @@
 import React, { Component } from "react"
 import styles from './style'
 import { Container, Content, Header, Left, Right, Body, Icon, Title, Text } from 'native-base'
-import { Alert, View, FlatList, TouchableOpacity, Image } from "react-native"
+import { Alert, View, FlatList, TouchableOpacity, Image, BackHandler } from "react-native"
 import moment from 'moment'
 import _ from 'lodash'
 
@@ -13,6 +13,17 @@ export default class Patients extends Component {
 			hospital: {},
 			baseDataSync: {},
 		}
+	}
+
+	componentDidMount() {
+		console.log('back press');
+		this.backHandler = BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
+	}
+
+	handleBackPress = () => {
+		console.log('go back');
+		this.props.navigation.navigate('Hospitals');
+		return true;
 	}
 
 	didFocus = this.props.navigation.addListener('didFocus', (res) => {
@@ -140,10 +151,11 @@ export default class Patients extends Component {
 		return (
 			<Container>
 				<Header style={styles.headerMenu}>
+					
 					<Left style={{flex:1}} >
-						<Icon name="md-menu" style={{ color: 'white' }} onPress={() => this.props.navigation.openDrawer() } />
+						<Icon type="AntDesign" name="left" style={{ color: 'white' }} onPress={() => this.props.navigation.navigate('Hospitals') } />
 					</Left>
-					<Body style={{flex:8, alignItems: 'stretch'}}>
+					<Body style={{flex: 7, alignItems: 'stretch'}}>
 						<Title>{this.state.hospital.name}</Title>
 					</Body>
 				</Header> 

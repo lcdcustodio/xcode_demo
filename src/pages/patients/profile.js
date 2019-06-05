@@ -61,6 +61,30 @@ export default class Profile extends React.Component {
 		this.toggleModalHeightAndWeight()
 	}
 
+	attendanceType(item) {
+
+		if (item == 'EMERGENCY') {
+			return 'Emergencial';
+		}
+		else if(item == 'ELECTIVE')
+		{
+			return 'Eletivo';
+		}
+		return null;
+	}
+
+	hospitalizationType(item) {
+
+		if (item == 'SURGICAL') {
+			return 'Cirúrgico';
+		}
+		else if(item == 'CLINICAL')
+		{
+			return 'Clínico';
+		}
+		return null;
+	}
+
 	toggleModalCRM = () => {
 		this.setState({modalCRM: !this.state.modalCRM})
 	}
@@ -129,6 +153,8 @@ export default class Profile extends React.Component {
 					<View style={ styles.column50 }>
 						<TextLabel marginLeft="10" label='Nascimento' />
 						<TextValue marginLeft="10" value={this.props.perfil.patientBornDate ? moment(this.props.perfil.patientBornDate).format('DD/MM/YYYY') : '' } />
+
+						<TextValue marginLeft="20" size={13} value={ this.props.perfil.patientBornDate ? moment().diff(this.props.perfil.patientBornDate, 'years') + ' anos': '' }/>
 					</View>
 					
 					<View style={ styles.column50 }>
@@ -141,12 +167,12 @@ export default class Profile extends React.Component {
 				<View style={ styles.row }>
 					<View style={ styles.column50 }>
 						<TextLabel marginLeft="10" label='Atendimento' />
-						<TextValue marginLeft="10" color={'#0000FF'} value={this.props.perfil.attendanceType} press={ this.toggleModalAttendanceType } />
+						<TextValue marginLeft="10" color={'#0000FF'} value={ this.attendanceType(this.props.perfil.attendanceType) } press={ this.toggleModalAttendanceType } />
 					</View>
 					
 					<View style={ styles.column50 }>
 						<TextLabel marginLeft="0" label='Tipo' />
-						<TextValue marginLeft="0" color={'#0000FF'} value={this.props.perfil.hospitalizationType} press={ this.toggleModalHospitalizationType } />
+						<TextValue marginLeft="0" color={'#0000FF'} value={ this.hospitalizationType(this.props.perfil.hospitalizationType) } press={ this.toggleModalHospitalizationType } />
 					</View>
 				</View>
 
@@ -160,7 +186,7 @@ export default class Profile extends React.Component {
 				<View style={ styles.row }>
 					<View style={ styles.column100 }>
 						<TextLabel marginLeft="5" label='Data de Início do Monitoramento' />
-						<TextValue marginLeft="5" value={ trackingListStartDate } />
+						<TextValue marginLeft="5" value={ trackingListStartDate ? moment(trackingListStartDate).format('DD/MM/YYYY HH:mm') : '' } />
 					</View>
 				</View>
 

@@ -1,13 +1,13 @@
 import React, { Component } from "react";
 import { Container, Content, Header, Left, Right, Button, Body, Icon, Title, Footer, FooterTab, Text } from 'native-base';
-import { StyleSheet } from "react-native";
+import { StyleSheet, BackHandler } from "react-native";
 import { withNavigationFocus } from "react-navigation";
 import moment from "moment"
 import uuidv4 from'uuid/v4'
 
 //Pages
 import Profile from "./profile"
-import Exams from "./exams"
+import Events from "./events"
 import Visits from "./visits"
 
 
@@ -124,6 +124,11 @@ class PatientDetail extends Component {
 		}
 	}
 
+	updatePatient = patient =>{
+		console.log("updatePatient = patient", patient)
+		this.setState({patient})
+	}
+
 	switchScreen(screen) {        
 		this.setState({
 			selectedTab: screen
@@ -141,18 +146,38 @@ class PatientDetail extends Component {
 				baseDataSync: this.props.navigation.getParam('baseDataSync'),
 			})
 		});
+
+		console.log('back press');
+		this.backHandler = BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
 	}
 
+	handleBackPress = () => {
+		console.log('go back');
+		this.props.navigation.navigate('Patients',  { hospital: this.state.hospital } )
+		return true;
+	}
+
+	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
+		
+		this.setState({selectedTab: 'profile'});
+
+		this.setState({
+			patient: this.props.navigation.getParam('patient'),
+			hospital: this.props.navigation.getParam('hospital'),
+			baseDataSync: this.props.navigation.getParam('baseDataSync'),
+		});
+	});
+
 	render(){
-		console.log("Executei o render")
+
 		return (
 			<Container>
 				<Header style={ styles.header }>
 					<Left style={{flex:1}} >
 						<Icon type="AntDesign" name="left" style={{ color: 'white' }} onPress={() => this.props.navigation.navigate('Patients',  { hospital: this.state.hospital } ) } />
 					</Left>
-					<Body style={{flex: 1, alignItems: 'center',alignSelf: 'center'}}>
-						<Title> {this.props.navigation.state.params.patient.patientName } </Title>
+					<Body style={{flex: 7, alignItems: 'stretch'}}>
+						<Title> DETALHES DO PACIENTE </Title>
 					</Body>
 				</Header>
 				<Content padder>
@@ -164,7 +189,7 @@ class PatientDetail extends Component {
 							<Icon name="person" />
 							<Text>Perfil</Text>
 						</Button>
-						<Button backgroundColor={'#005cd1'} vertical active={this.state.selectedTab === 'exams'} onPress={() => this.switchScreen('exams', 'Timeline')}>
+						<Button backgroundColor={'#005cd1'} vertical active={this.state.selectedTab === 'events'} onPress={() => this.switchScreen('events', 'Timeline')}>
 							<Icon name="book" />
 							<Text>Timeline</Text>
 						</Button>

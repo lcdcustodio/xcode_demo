@@ -1,24 +1,16 @@
 import React, { Component } from "react";
-
 import api from '../../services/api';
-
 import { Container, Content, Header, Left, Right, Body, Icon, Title, Text, Thumbnail } from 'native-base';
-
-import { Alert, View, FlatList, TouchableOpacity, Image } from "react-native";
-
+import { Alert, View, FlatList, TouchableOpacity, Image, BackHandler } from "react-native";
 import AsyncStorage from '@react-native-community/async-storage';
-
 import NetInfo from "@react-native-community/netinfo";
-
 import Spinner from 'react-native-loading-spinner-overlay';
-
 import styles from './style'
-
 import Line from '../../components/Line'
-
 import Timer from '../../components/Timer'
-
 import moment from 'moment';
+import Session from '../../Session';
+import qs from "qs";
 
 export default class Hospital extends Component {
 
@@ -33,13 +25,29 @@ export default class Hospital extends Component {
 			isConnected: null,
 			dateSync: null,
 			page: 1,
-			loading: false
+			loading: false,
+			errorSync: 0
 		}
 
 		this.state.baseDataSync = this.props.navigation.getParam('baseDataSync');
 	}
+
+	componentDidMount() {
+		console.log('back press');
+		this.backHandler = BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
+	}
+
+	handleBackPress = () => {
+		console.log('go back');
+		this.props.navigation.navigate('Hospitals');
+		return true;
+	}
 	
 	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
+
+        this.setState({errorSync: 0});
+
+        this.setState({user: Session.current.user});
 
 		NetInfo.fetch().then(state => {
 
@@ -48,10 +56,6 @@ export default class Hospital extends Component {
 			if (this.state.hospitals == null) {
 				this.sincronizar();
 			}
-
-			console.log("Connection type", state.type);
-			
-			console.log("Is connected?", state.isConnected);
 
 		});
 
@@ -90,13 +94,25 @@ export default class Hospital extends Component {
 
 					if(response.status === 200) {
 
+						let user = Session.current.user;
+
+						console.log(user.profile);
+
 						let listHospital = []
 						
-						response.data.content.hospitalList.forEach( hospital => {
-							if(this.isTheSameHospital(hospital, parse)){
-								listHospital.push(hospital)
-							}
-						})
+						if (user.profile == 'CONSULTANT') {
+
+							response.data.content.hospitalList.forEach( hospital => {
+								if(this.isTheSameHospital(hospital, parse)){
+									listHospital.push(hospital)
+								}
+							});
+						
+						} 
+						else
+						{
+							listHospital = response.data.content.hospitalList;
+						}
 
 						this.getInformationHospital(listHospital).then(response => {
 
@@ -106,7 +122,7 @@ export default class Hospital extends Component {
 
 							AsyncStorage.setItem('dateSync', dateSync);
 
-							AsyncStorage.setItem('hospitalList', JSON.stringify(this.state.hospitals));						
+							AsyncStorage.setItem('hospitalList', JSON.stringify(listHospital));						
 						});
 					
 					} else {
@@ -131,22 +147,56 @@ export default class Hospital extends Component {
 				
 				}).catch(error => {
 
+					console.log(this.state.errorSync);
+
 					this.setState({loading: false});
 
-					Alert.alert(
-						'Erro ao carregar informações',
-						'Desculpe, infelizmente não foi possível carregar a lista de hospitais, por favor, faça login e tente novamente!',
-						[
-							{
-								text: 'OK', onPress: () => {
-									this.props.navigation.navigate("SignIn");
+					this.setState({errorSync: (this.state.errorSync + 1) });
+
+					if (this.state.errorSync <= 3) {
+
+						AsyncStorage.getItem('auth', (err, auth) => {
+
+							console.log(auth);
+					            
+				            data = JSON.parse(auth);
+
+				            data = qs.stringify(data, { encode: false });
+
+							api.post('/api/login',
+								data
+							)
+							.then(response => {
+
+								let content = response.data.content;
+																
+								if(response.data.success) {
+									AsyncStorage.setItem('userData', JSON.stringify(content), () => {
+										this.sincronizar(true);
+									});
 								}
+
+								console.log(response);
+							});
+				        });
+					}
+					else
+					{
+						Alert.alert(
+							'Erro ao carregar informações',
+							'Desculpe, recebemos um erro inesperado do servidor, por favor, faça login e tente novamente! ',
+							[
+								{
+									text: 'OK', onPress: () => {
+										this.props.navigation.navigate("SignIn");
+									}
+								},
+							],
+							{
+								cancelable: false
 							},
-						],
-						{
-							cancelable: false
-						},
-					);
+						);
+					}
 
 					console.log(error);
 
@@ -184,8 +234,6 @@ export default class Hospital extends Component {
 		this.setState({
 			hospitals: [ ...listHospital], 
 		});
-
-		console.log('getInformationHospital');
 	}
 
 	getLogomarca(hospital) {
@@ -210,7 +258,7 @@ export default class Hospital extends Component {
 			return require('../../images/logo_hospital/quintaDor.png');
 		} 
 		
-		return require('../../images/logo_hospital/redeDor.png');
+		return null;
 	}
 
 	countTotalPatientsVisited = patients => {
@@ -274,50 +322,101 @@ export default class Hospital extends Component {
 		return hasAttendance 
 	}
 
-	sincronizar = async () => {
+	loadHospitalsStorage = async () => {
+
+		this.setState({loading: true});
+
+		AsyncStorage.getItem('hospitalList', (err, res) => {
+
+			if (res == null) {
+
+				Alert.alert(
+					'Erro ao carregar informações',
+					'Desculpe, não foi possível prosseguir offline, é necessário uma primeira sincronização conectado a internet!',
+					[
+						{
+							text: 'OK', onPress: () => {
+								this.props.navigation.navigate("SignIn");
+							}
+						},
+					],
+					{
+						cancelable: false
+					},
+				);
+			} 
+			else 
+			{
+				let hospitalList = JSON.parse(res);
+
+				this.getInformationHospital(hospitalList);
+			}
+
+			this.setState({loading: false});
+		});
+	}
+
+	sincronizar = async (fromServer) => {
 
 		const { isConnected } = this.state;
 
 		console.log('isConnected', isConnected);
 
-		if (isConnected) {
-			this.loadHospitals();
+		if (fromServer) {
+
+			if (isConnected) 
+			{
+				this.loadHospitals();
+			}
+			else
+			{
+				Alert.alert(
+					'Sem conexão com a internet',
+					'Desculpe, não identificamos uma conexão estável com a internet!',
+					[
+						{
+							text: 'OK', onPress: () => {
+								console.log('OK Pressed');
+							}
+						},
+					],
+					{
+						cancelable: false
+					},
+				);
+			}
+			
 		}
 		else
 		{
-			AsyncStorage.getItem('hospitalList', (err, res) => {
+			if (isConnected) {
 
-				if (res == null) {
+				AsyncStorage.getItem('hospitalList', (err, res) => {
 
-					Alert.alert(
-						'Erro ao carregar informações',
-						'Desculpe, não foi possível prosseguir offline, é necessário uma primeira sincronização conectado a internet!',
-						[
-							{
-								text: 'OK', onPress: () => {
-									this.props.navigation.navigate("SignIn");
-								}
-							},
-						],
-						{
-							cancelable: false
-						},
-					);
-				} 
-				else 
-				{
-					let hospitalList = JSON.parse(res);
+					if (res == null) {
+						this.sincronizar(true);
+					}
+					else
+					{
+						this.loadHospitalsStorage();
+					}
+				});
+			}
+			else
+			{
+				this.loadHospitalsStorage();
+			}
+		}
+	}
 
-					hospitalList.forEach( hospital => {
-						hospital.logomarca = this.getLogomarca(hospital)
-						hospital.totalPatientsVisitedToday = this.countTotalPatientsVisited(hospital.hospitalizationList)
-						hospital.totalPatients = this.countTotalPatients(hospital.hospitalizationList)
-						hospital.lastVisit = this.setLastVisit(hospital.hospitalizationList)
-					});
+	renderImageOrName(item) {
 
-					this.setState({hospitals: hospitalList});	
-				}
-			});
+		if ( item.logomarca ) {
+			return <Image source={item.logomarca} style={styles.hospitalIcon}  />;
+		}
+		else
+		{
+			return <Text style={[styles.niceBlue, {paddingLeft: 10}]}>{item.name}</Text>;
 		}
 	}
 
@@ -351,14 +450,13 @@ export default class Hospital extends Component {
 			}}>
 			
 			<View style={[styles.container, {alignItems: 'center'}]}>
-				<View>
-					<Image source={item.logomarca} style={styles.hospitalIcon}  />
-				</View>
-				<View style={{flexDirection: "column", width: '53%'}}>
-					{/* <View>
-						<Text style={[styles.title, styles.niceBlue]}>{item.name}</Text>
-					</View>*/}
 
+				<View style={{width: '43%'}}>
+					{ this.renderImageOrName(item) }
+				</View>
+			
+				<View style={{flexDirection: "column", width: '53%'}}>
+					
 					<View style={{flexDirection: "row", alignItems: 'center'}}>
 						<Icon type="AntDesign" name="calendar" style={styles.calendarIcon} />
 						<Text style={[styles.description, styles.niceBlue]}>Última Visita: </Text><Text style={[styles.description]}>{item.lastVisit}</Text>
@@ -383,6 +481,12 @@ export default class Hospital extends Component {
 		</TouchableOpacity>
 	);
 
+	renderTimer(){
+		if(this.state.hospitals)
+			return <Timer dateSync={this.state.dateSync}/>;
+		return null;
+	}
+
 	render(){
 		return (
 			<Container>
@@ -399,9 +503,14 @@ export default class Hospital extends Component {
 					<Body style={{flex:8, alignItems: 'stretch'}}>
 						<Title>HOSPITAIS</Title>
 					</Body>
+					<Right style={{flex:1}} >
+						<Icon name="sync" style={{ color: 'white' }} onPress={() => this.sincronizar(true) } />
+					</Right>
 				</Header>
 
-				<Timer dateSync={this.state.dateSync}/>
+				<View>
+		            { this.renderTimer() }
+		        </View>				
 
 				<Line size={1} />
 
