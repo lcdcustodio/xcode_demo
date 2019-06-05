@@ -113,7 +113,6 @@ export default class Profile extends React.Component {
 	}
 
 	removeSecondaryCID = (item) => {
-		console.log("Deseja remover?", item)
 		Alert.alert(
 			'Remover CID Secundário',
 			'Deseja remover?',
@@ -244,7 +243,7 @@ export default class Profile extends React.Component {
 							this.props.perfil.secondaryCIDList.length ? 
 								this.props.perfil.secondaryCIDList.map((cidItem) => {
 									return (
-										<TextValue color={'#0000FF'} key={cidItem.cidId} marginLeft="5" value={cidItem.cidDisplayName} press={this.removeSecondaryCID} />
+										<Text style={styles.textValue} key={cidItem.cidId} onPress={ () => this.removeSecondaryCID(cidItem) }> { cidItem.cidDisplayName } </Text>
 									);
 								})
 							: 
@@ -286,9 +285,20 @@ const styles = StyleSheet.create({
 		flex: 1,
 		backgroundColor: 'rgba(0, 0, 0, 0.3)',
 		flexDirection: "row",
-	 },
-	 item: {
-    padding: 10,
-    fontSize: 18,
-  },
+	},
+	item: {
+    	padding: 10,
+    	fontSize: 18,
+	},
+	textValue: {
+		fontFamily: "Gotham Rounded-Book",
+		fontWeight: "normal", 
+		fontStyle: "normal", 
+		lineHeight: 22, 
+		letterSpacing: 0,
+		color: '#0000FF',
+		fontSize: 18,
+		marginTop: '0%', 
+		marginLeft: '5%'
+	}
 });

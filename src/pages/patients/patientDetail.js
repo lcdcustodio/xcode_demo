@@ -107,7 +107,13 @@ class PatientDetail extends Component {
 	}
 
 	removeSecondaryCID = (cid) => {
-		console.log('removeSecondaryCID', cid)
+		let newCidList = this.state.patient.secondaryCIDList.filter(item => item.cidId !== cid.cidId)
+		this.setState({
+			patient: {
+				...this.state.patient,
+				secondaryCIDList: newCidList
+			}
+		})
 	}
 
 	renderSelectedTab = () => {
