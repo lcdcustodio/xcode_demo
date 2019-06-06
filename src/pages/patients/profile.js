@@ -135,12 +135,7 @@ export default class Profile extends React.Component {
 	}
 
 	render() {
-		let trackingListStartDate = null;
 		let CRM = this.props.perfil.mainProcedureCRM !== null ? this.props.perfil.mainProcedureCRM : 'INFORMAR'
-
-		if (this.props.perfil.trackingList.length > 0) {
-			trackingListStartDate = moment(this.props.perfil.trackingList[0].startDate).format('DD/MM/YYYY HH:mm');
-		}
 
 		console.log("Base Data Sync => ", this.props.baseDataSync)
 		console.log("Patient => ", this.props.perfil)
@@ -200,19 +195,32 @@ export default class Profile extends React.Component {
 					</View>
 				</View>
 
+				<Line marginTop={5} marginBottom={1} marginLeft={5} width={90} size={2} />
+
 				<View style={ styles.row }>
 					<View style={ styles.column100 }>
 						<TextLabel marginLeft="5" label='Data de Internação' />
 						<TextValue marginLeft="5" value={ this.props.perfil.admissionDate ? moment(this.props.perfil.admissionDate).format('DD/MM/YYYY HH:mm') : ''} />
 					</View>
 				</View>
-					
+
 				<View style={ styles.row }>
 					<View style={ styles.column100 }>
-						<TextLabel marginLeft="5" label='Data de Início do Monitoramento' />
-						<TextValue marginLeft="5" value={ trackingListStartDate } />
+						{this.props.perfil.trackingList.map((prop, index) => {
+							return (
+								<View key={prop.trackingId} style={{marginTop: '2%'}}>
+									<TextLabel marginLeft="5" label={`${++index} Monitoramento`} />
+									<TextLabel marginLeft="5" label='Data Início do Monitoramento' />
+									<TextValue marginLeft="5" value={ prop.startDate ? moment(prop.startDate).format('DD/MM/YYYY') : '' } />
+									<TextLabel marginLeft="5" label='Data Fim do Monitoramento' />
+									<TextValue marginLeft="5" value={ prop.endDate ? moment(prop.endDate).format('DD/MM/YYYY') : '' } />
+								</View>
+							);
+						})}
 					</View>
 				</View>
+				
+				<Line marginTop={3} marginBottom={1} marginLeft={5} width={90} size={2} />
 
 				<View style={ styles.row }>
 					<View style={ styles.column100 }>
@@ -234,7 +242,28 @@ export default class Profile extends React.Component {
 						<TextValue marginLeft="5" value={this.props.perfil.exitDescription} />
 					</View>
 				</View>
+				
+				<Line marginTop={5} marginBottom={1} marginLeft={5} width={90} size={2} />
+				
+				<View style={ styles.row }>
+					<View style={ styles.column100 }>
+						<TextLabel marginLeft="5" label='Procedimento Principal' />
+						{
+							this.props.perfil.mainProcedureTUSSDisplayName ? 
+							<TextValue marginLeft="5" color={'#0000FF'} value={this.props.perfil.mainProcedureTUSSDisplayName} press={this.toggleModalMainProcedure} />
+							:
+							<TextValue marginLeft="5" color={'#0000FF'} value={'ESCOLHER'} press={this.toggleModalSecondaryCID} press={this.toggleModalMainProcedure} />	
+						}
+					</View>
+				</View>
 
+				<View style={ styles.row }>
+					<View style={ styles.column100 }>
+						<TextLabel marginLeft="5" label='CRM do Responsável' />
+						<TextValue marginLeft="5" color={'#0000FF'} value={CRM} press={ this.toggleModalCRM } />
+					</View>
+				</View>
+				
 				<View style={ styles.row }>
 					<View style={ styles.column100 }>
 						<TextLabel marginLeft="5" label='CID Primário' />
@@ -259,25 +288,6 @@ export default class Profile extends React.Component {
 								})
 							: 
 							<View/>
-						}
-					</View>
-				</View>
-				
-				<View style={ styles.row }>
-					<View style={ styles.column100 }>
-						<TextLabel marginLeft="5" label='CRM do Responsável' />
-						<TextValue marginLeft="5" color={'#0000FF'} value={CRM} press={ this.toggleModalCRM } />
-					</View>
-				</View>
-
-				<View style={ styles.row }>
-					<View style={ styles.column100 }>
-						<TextLabel marginLeft="5" label='Procedimento Principal' />
-						{
-							this.props.perfil.mainProcedureTUSSDisplayName ? 
-							<TextValue marginLeft="5" color={'#0000FF'} value={this.props.perfil.mainProcedureTUSSDisplayName} press={this.toggleModalMainProcedure} />
-							:
-							<TextValue marginLeft="5" color={'#0000FF'} value={'ESCOLHER'} press={this.toggleModalSecondaryCID} press={this.toggleModalMainProcedure} />	
 						}
 					</View>
 				</View>
@@ -322,6 +332,17 @@ const styles = StyleSheet.create({
 		color: '#0000FF',
 		fontSize: 18,
 		marginTop: '0%', 
+		marginLeft: '5%'
+	},
+	trackingListItem: {
+		fontFamily: "Gotham Rounded-Book",
+		fontWeight: "normal", 
+		fontStyle: "normal", 
+		lineHeight: 22, 
+		letterSpacing: 0,
+		color: '#0000FF',
+		fontSize: 18,
+		marginTop: '3%', 
 		marginLeft: '5%'
 	}
 });
