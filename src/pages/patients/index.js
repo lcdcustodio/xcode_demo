@@ -6,261 +6,250 @@ import moment from 'moment'
 import _ from 'lodash'
 
 export default class Patients extends Component {
-	
-	constructor(props) {
-		super(props);
-		this.state = {
-			hospital: {},
-			baseDataSync: {},
-		}
-	}
+    
+    constructor(props) {
+        super(props);
+        this.state = {
+            hospital: {},
+            baseDataSync: {},
+        }
+    }
 
-	componentDidMount() {
-		console.log('back press');
-		this.backHandler = BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
-	}
+    componentDidMount() {
+        console.log('back press');
+        this.backHandler = BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
+    }
 
-	handleBackPress = () => {
-		console.log('go back');
-		this.props.navigation.navigate('Hospitals');
-		return true;
-	}
+    handleBackPress = () => {
+        console.log('go back');
+        this.props.navigation.navigate('Hospitals');
+        return true;
+    }
 
-	didFocus = this.props.navigation.addListener('didFocus', (res) => {
-		let hospital = this.props.navigation.getParam('hospital');
-		let baseDataSync = this.props.navigation.getParam('baseDataSync');
-		let patients = [];
+    didFocus = this.props.navigation.addListener('didFocus', (res) => {
+        let hospital = this.props.navigation.getParam('hospital');
+        let baseDataSync = this.props.navigation.getParam('baseDataSync');
+        let patients = [];
 
-		console.log(baseDataSync);
+        console.log(baseDataSync);
 
-		console.log(hospital.hospitalizationList);
+        console.log(hospital.hospitalizationList);
 
-		hospital.hospitalizationList.forEach( patient => {
+        hospital.hospitalizationList.forEach( patient => {
 
-			let adminDischargeExit = false;
+            let adminDischargeExit = false;
 
-			for (var i = 0; i < patient.trackingList.length; i++) {
-				if (patient.trackingList[i].endMode == 'ADMIN_DISCHARGE_EXIT') {
-					adminDischargeExit = true;
-				}
-			}
-			
-			// TODO POR FAVOR
+            for (var i = 0; i < patient.trackingList.length; i++) {
+                if (patient.trackingList[i].endMode == 'ADMIN_DISCHARGE_EXIT') {
+                    adminDischargeExit = true;
+                }
+            }
+            
+            let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
 
-			let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
+            if(
+                (patient.exitDate == null && listOfOrderedPatientObservations.length == 0) || 
 
-			console.log(patient.patientName, patient);
+                (patient.exitDate == null && listOfOrderedPatientObservations.length > 0 && !listOfOrderedPatientObservations[0].endTracking) || 
 
-			if(
-			
-				(patient.exitDate == null && listOfOrderedPatientObservations.length == 0) || 
+                (patient.exitDate != null && listOfOrderedPatientObservations.length > 0 && !listOfOrderedPatientObservations[0].medicalRelease)
+            )
+            {
+                patient.totalDaysOfHospitalization = this.calculateDaysOfHospitalization(patient);
+                patient.colorNumber = this.getColorNumber(patient);
+                patient.colorName = this.getColor(patient.colorNumber);
+                patient.lastVisit = this.getLastVisit(patient);
+                patient.iconNumber = this.getIconNumber(patient);
+                patient.icon = this.getIcon(patient.iconNumber);
+                patient.orderField = this.getOrderField(patient);
+                patients.push(patient);
+            }
+        });
 
-				(patient.exitDate == null && listOfOrderedPatientObservations.length > 0 && !listOfOrderedPatientObservations[0].endTracking) || 
+        patients = _.orderBy(patients, ['orderField'], ['asc']);
 
-				(patient.exitDate != null && listOfOrderedPatientObservations.length > 0 && !listOfOrderedPatientObservations[0].medicalRelease)
+        //console.log(patients);
 
-			)
-			{
-				patient.totalDaysOfHospitalization = this.calculateDaysOfHospitalization(patient);
-				patient.statusColorName = this.getStatusColorName(patient);
-				patient.lastVisit = this.getLastVisit(patient);
-				patient.logoStatusVisit = this.getStatusLogoVisit(patient);
-				patients.push(patient);
-			}
-		});
+        hospital.hospitalizationList = patients;
+        this.setState({hospital: hospital});
+        this.setState({baseDataSync: baseDataSync});
+    });
+    
+    exitDateBelow48Hours(date) {
+        const today = moment()
+        let dateFormatted = moment(moment(date).format('YYYY-MM-DD'))
+        let total = today.diff(dateFormatted, 'days')
+        return total < 3 ? true : false
+    }
 
-		hospital.hospitalizationList = patients;
-		this.setState({hospital: hospital});
-		this.setState({baseDataSync: baseDataSync});
-	});
-	
-	exitDateBelow48Hours(date) {
-		const today = moment()
-		let dateFormatted = moment(moment(date).format('YYYY-MM-DD'))
-		let total = today.diff(dateFormatted, 'days')
-		return total < 3 ? true : false
-	}
+    calculateDaysOfHospitalization(patient) {
 
-	calculateDaysOfHospitalization(patient) {
+        const today = moment();
 
-		const today = moment();
-		let admissionDate = moment(moment(patient.admissionDate).format('YYYY-MM-DD'));
-		let totalHospitalizationDays = today.diff(admissionDate, 'hours');
+        let admissionDate = moment(moment(patient.admissionDate).format('YYYY-MM-DD'));
 
-		totalHospitalizationDays = Math.round((totalHospitalizationDays / 24));
+        let totalHospitalizationHours = today.diff(admissionDate, 'hours');
 
-		console.log(totalHospitalizationDays, patient.patientName);
+        totalHospitalizationHours = Math.round((totalHospitalizationHours / 24));
 
-		return totalHospitalizationDays;
-	}
+        return totalHospitalizationHours;
+    }
 
-	getStatusColorName(patient) {
-		if(patient.locationType === 'UTI' || patient.locationType === 'CTI') {
-			return 'red'
-		} else if(patient.locationType === 'SEMI') {
-			return '#FDBD18'
-		} else {
-			return 'black'
-		}
-	}
+    getColorNumber(patient) {
 
-	getLastVisit(patient) {
-		let listOfOrderedPatientVisits = _.orderBy(patient.trackingList, ['endDate'], ['desc'])
-		if(patient.trackingList.length === 0 || listOfOrderedPatientVisits[0].endDate === null) {
-			return 'SEM VISITAS'
-		} else if(this.isToday(listOfOrderedPatientVisits[0].endDate)) {
-			return 'HOJE'
-		} else if(this.isYesterday(listOfOrderedPatientVisits[0].endDate)) {
-			return 'ONTEM'
-		} else {
-			return this.totalDaysAgo(listOfOrderedPatientVisits[0].endDate)
-		}
-	}
+        if(patient.locationType === 'UTI' || patient.locationType === 'CTI') {
+            return 0;
+        } else if(patient.locationType === 'SEMI') {
+            return 1;
+        } else {
+            return 2;
+        }
+    }
 
-	isToday(date) {
-		const today = moment()
-		let dateFormatted = moment(moment(date).format('YYYY-MM-DD'))
-		let diffDays = today.diff(dateFormatted, 'days')
-		return diffDays === 0 ? true : false
-	}
+    getColor(colorNumber) {
 
-	isYesterday(date) {
-		const yesterday = moment().subtract(1, 'day');
-		let dateFormatted = moment(moment(date).format('YYYY-MM-DD'))
-		let diffDays = yesterday.diff(dateFormatted, 'days')
-		return diffDays === 0 ? true : false
-	}
+        if(colorNumber == 0) {
+            return 'red'
+        } else if(colorNumber == 1) {
+            return '#FDBD18'
+        } else {
+            return 'black'
+        }
+    }
 
-	totalDaysAgo(date) {
-		const today = moment()
-		let dateFormatted = moment(moment(date).format('YYYY-MM-DD'))
-		return today.diff(dateFormatted, 'days') + ' Dias'
-	}
+    getLastVisit(patient) {
+        let listOfOrderedPatientVisits = _.orderBy(patient.trackingList, ['endDate'], ['desc'])
+        if(patient.trackingList.length === 0 || listOfOrderedPatientVisits[0].endDate === null) {
+            return 'SEM VISITAS'
+        } else if(this.isToday(listOfOrderedPatientVisits[0].endDate)) {
+            return 'HOJE'
+        } else if(this.isYesterday(listOfOrderedPatientVisits[0].endDate)) {
+            return 'ONTEM'
+        } else {
+            return this.totalDaysAgo(listOfOrderedPatientVisits[0].endDate)
+        }
+    }
 
-	exitDateIsNotEqualToLastVisit(patient) {
-		const exitDate = moment(patient.exitDate)
-		let listOfOrderedPatientVisits = _.orderBy(patient.trackingList, ['endDate'], ['desc'])
-		let dateLastVisitFormatted = moment(moment(listOfOrderedPatientVisits[0].endDate).format('YYYY-MM-DD'))
-		let diffDays = exitDate.diff(dateLastVisitFormatted, 'days')
-		return diffDays !== 0 ? true : false
-	}
+    isToday(date) {
+        const today = moment()
+        let dateFormatted = moment(moment(date).format('YYYY-MM-DD'))
+        let diffDays = today.diff(dateFormatted, 'days')
+        return diffDays === 0 ? true : false
+    }
 
-	getStatusLogoVisit(patient) {
-		
-		let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc'])
-		
-		let lastVisit = null;
+    isYesterday(date) {
+        const yesterday = moment().subtract(1, 'day');
+        let dateFormatted = moment(moment(date).format('YYYY-MM-DD'))
+        let diffDays = yesterday.diff(dateFormatted, 'days')
+        return diffDays === 0 ? true : false
+    }
 
-		if (listOfOrderedPatientObservations.length > 0) {
-			
-			const today = moment();
-			
-			lastVisit = moment(moment(listOfOrderedPatientObservations[0].observationDate).format('YYYY-MM-DD'));
+    totalDaysAgo(date) {
+        const today = moment()
+        let dateFormatted = moment(moment(date).format('YYYY-MM-DD'))
+        return today.diff(dateFormatted, 'days') + ' Dias'
+    }
 
-			lastVisit = today.diff(lastVisit, 'days');
+    exitDateIsNotEqualToLastVisit(patient) {
+        const exitDate = moment(patient.exitDate)
+        let listOfOrderedPatientVisits = _.orderBy(patient.trackingList, ['endDate'], ['desc'])
+        let dateLastVisitFormatted = moment(moment(listOfOrderedPatientVisits[0].endDate).format('YYYY-MM-DD'))
+        let diffDays = exitDate.diff(dateLastVisitFormatted, 'days')
+        return diffDays !== 0 ? true : false
+    }
 
-			console.log(lastVisit);
-		}
+    getIconNumber(patient) {
+        
+        let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc'])
+        
+        let lastVisit = null;
 
-		if(patient.exitDate == null && lastVisit == 0)
-		{
-			return require('../../images/ic_visibility_green_24px.png'); // OLHO CINZA COM CHECK
-		}
-		else if(patient.exitDate == null && (lastVisit > 0 || patient.observationList.length == 0))
-		{
-			return require('../../images/ic_visibility_blue_24px.png'); // OLHO AZUL
-		}
-		else
-		{
-			return require('../../images/ic_home_24px.png'); // CASA AZUL
-		}
+        if (listOfOrderedPatientObservations.length > 0) {
+            
+            const today = moment();
+            
+            lastVisit = moment(moment(listOfOrderedPatientObservations[0].observationDate).format('YYYY-MM-DD'));
 
-		/*if(patient.exitDate === null && patient.lastVisit !== 'HOJE' && listOfOrderedPatientObservations.length > 0 && !listOfOrderedPatientObservations[0].alert && !listOfOrderedPatientObservations[0].endTracking) {
-			
-			console.log('OLHO AZUL');	
+            lastVisit = today.diff(lastVisit, 'days');
+        }
 
-			return require('../../images/ic_visibility_blue_24px.png'); // OLHO AZUL
+        if(patient.exitDate == null && lastVisit == 0)
+        {
+            return 2; // OLHO CINZA COM CHECK
+        }
+        else if(patient.exitDate == null && (lastVisit > 0 || patient.observationList.length == 0))
+        {
+            return 0; // OLHO AZUL
+        }
+        else
+        {
+            return 1; // CASA AZUL
+        }
+    }
 
-		} else if(patient.exitDate === null && patient.lastVisit !== 'HOJE' && listOfOrderedPatientObservations.length > 0 && listOfOrderedPatientObservations[0].alert && !listOfOrderedPatientObservations[0].endTracking) {
-			
-			console.log('OLHO AZUL COM EXCLAMAÇÃO');	
+    getIcon(iconNumber) {
+                
+        if(iconNumber == 2)
+        {
+            return require('../../images/ic_visibility_green_24px.png'); // OLHO CINZA COM CHECK
+        }
+        else if(iconNumber == 0)
+        {
+            return require('../../images/ic_visibility_blue_24px.png'); // OLHO AZUL
+        }
+        else if(iconNumber == 1)
+        {
+            return require('../../images/ic_home_24px.png'); // OLHO AZUL
+        }
+    }
 
-			return require('../../images/ic_visibility_exclamation_24px.png');  // OLHO AZUL COM EXCLAMAÇÃO
+    getOrderField(patient) {
+        return patient.iconNumber + "" + patient.colorNumber + "" + patient.patientName;
+    }
 
-		} else if(patient.exitDate === null && patient.lastVisit !== 'HOJE' && listOfOrderedPatientObservations.length > 0 && listOfOrderedPatientObservations[0].endTracking) {
-			
-			console.log('OLHO AZUL COM X VERMELHO');
+    renderItem = ({ item }) => (
+        <TouchableOpacity
+            onPress={() => {
+                this.props.navigation.navigate("PatientDetail", { patient: item, hospital: this.state.hospital, baseDataSync: this.state.baseDataSync });
+            }}>
+            <View style={[styles.productContainer]}>
+                <View>
+                    <Text style={[styles.patientTitle, {color: `${item.colorName}`} ]}> {item.patientName} </Text>
+                    <Text style={styles.hospitalizationDescription}> INTERNADO: {item.totalDaysOfHospitalization} Dias | SETOR: {item.locationSession} | LEITO: {item.locationBed} </Text>  
+                    <Text style={styles.lastVisit}> Última visita: {item.lastVisit} </Text>
+                </View>
+                <View >
+                    <Image source={item.icon} style={{width: 25, height: 25}} />
+                </View>
+            </View>
+        </TouchableOpacity>
+    );
 
-			return require('../../images/ic_visibility_red_24px.png'); // OLHO AZUL COM X VERMELHO
-
-		} else if(patient.exitDate === null && patient.lastVisit === 'HOJE' && listOfOrderedPatientObservations.length > 0 && !listOfOrderedPatientObservations[0].endTracking) {
-			
-			console.log('// OLHO VERDE COM CHECK');
-
-			return require('../../images/ic_visibility_green_24px.png'); // OLHO CINZA COM CHECK
-
-		} else if(patient.exitDate === null && patient.lastVisit === 'HOJE' && listOfOrderedPatientObservations.length > 0 && listOfOrderedPatientObservations[0].endTracking) {
-			
-			console.log('OLHO CINZA COM X VERMELHO');
-
-			return require('../../images/ic_visibility_grey_24px.png'); // OLHO CINZA COM X VERMELHO
-
-		} else if( (patient.exitDate !== null || patient.death) && this.exitDateIsNotEqualToLastVisit(patient)) {
-			
-			console.log('CASA AZUL');
-
-			return require('../../images/ic_home_24px.png'); // CASA AZUL
-		
-		}*/
-
-		
-
-
-	}
-
-	renderItem = ({ item }) => (
-		<TouchableOpacity
-			onPress={() => {
-				this.props.navigation.navigate("PatientDetail", { patient: item, hospital: this.state.hospital, baseDataSync: this.state.baseDataSync });
-			}}>
-			<View style={[styles.productContainer]}>
-				<View>
-					<Text style={[styles.patientTitle, {color: `${item.statusColorName}`} ]}> {item.patientName} </Text>
-					<Text style={styles.hospitalizationDescription}> INTERNADO: {item.totalDaysOfHospitalization} Dias | SETOR: {item.locationSession} | LEITO: {item.locationBed} </Text>  
-					<Text style={styles.lastVisit}> Última visita: {item.lastVisit} </Text>
-				</View>
-				<View >
-					<Image source={item.logoStatusVisit} style={{width: 25, height: 25}} />
-				</View>
-			</View>
-		</TouchableOpacity>
-	);
-
-	render(){
-		return (
-			<Container>
-				<Header style={styles.headerMenu}>
-					
-					<Left style={{flex:1}} >
-						<Icon type="AntDesign" name="left" style={{ color: 'white' }} onPress={() => this.props.navigation.navigate('Hospitals') } />
-					</Left>
-					<Body style={{flex: 7, alignItems: 'stretch'}}>
-						<Title>{this.state.hospital.name}</Title>
-					</Body>
-				</Header> 
-				<Content>
-					<View style={styles.container}>
-						<FlatList
-							contentContainerStyle={styles.list}
-							data={this.state.hospital.hospitalizationList}
-							keyExtractor={item => `${item.id}`}
-							renderItem={this.renderItem}
-							onEndReached={this.sincronizar}
-							onEndReachedThreshold={0.1}
-						/>
-					</View>
-				</Content>
-			</Container>
-		);
-	}
+    render(){
+        return (
+            <Container>
+                <Header style={styles.headerMenu}>
+                    
+                    <Left style={{flex:1}} >
+                        <Icon type="AntDesign" name="left" style={{ color: 'white' }} onPress={() => this.props.navigation.navigate('Hospitals') } />
+                    </Left>
+                    <Body style={{flex: 7, alignItems: 'stretch'}}>
+                        <Title>{this.state.hospital.name}</Title>
+                    </Body>
+                </Header> 
+                <Content>
+                    <View style={styles.container}>
+                        <FlatList
+                            contentContainerStyle={styles.list}
+                            data={this.state.hospital.hospitalizationList}
+                            keyExtractor={item => `${item.id}`}
+                            renderItem={this.renderItem}
+                            onEndReached={this.sincronizar}
+                            onEndReachedThreshold={0.1}
+                        />
+                    </View>
+                </Content>
+            </Container>
+        );
+    }
 }
