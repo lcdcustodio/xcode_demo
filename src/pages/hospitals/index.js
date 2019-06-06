@@ -94,6 +94,8 @@ export default class Hospital extends Component {
 
 					if(response.status === 200) {
 
+						console.log(response.data.content.hospitalList);
+						
 						let user = Session.current.user;
 
 						console.log(response.data.content.hospitalList);
@@ -308,7 +310,7 @@ export default class Hospital extends Component {
 					}
 				}
 			})
-		})
+		});
 		
 		return lastVisit != null ? moment(lastVisit).format('DD/MM/YYYY') : 'Sem visita'
 	}

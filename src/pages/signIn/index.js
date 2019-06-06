@@ -102,25 +102,22 @@ export default class SignIn extends Component {
 			        
 						this.setState({ textContent: 'Sincronizando...' });
 						
-						api.get('/api/basedata/baseDataSync?lastDateSync=' + this.state.lastDateSync).then(res => {
+						//api.get('/api/basedata/baseDataSync?lastDateSync=' + this.state.lastDateSync).then(res => {
 							this.setState({loading: false});
-							console.log("SYNC", res.data.content.data)
-							this.props.navigation.navigate("Hospitals", { baseDataSync: res.data.content.data });
-						}).catch(err => {
-							this.setState({loading: false});
-						    console.log(err);
-
-						});
+							//console.log("SYNC", res.data.content.data)
+							this.props.navigation.navigate("Hospitals", { baseDataSync: null });
+						//}).catch(err => {
+						//	this.setState({loading: false});
+						//    console.log(err);
+						//});
 			        });	
-
-			        console.log(response.data);
 		        }	
 		        else
-		        {
-		        	console.log(response);
-		        	
+		        {		        	
 					this.setState({loading: false});
 		        }	
+
+		        console.log(response);
 
 			}).catch(error => {
 				

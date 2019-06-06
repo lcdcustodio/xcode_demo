@@ -31,8 +31,22 @@ export default class Patients extends Component {
 		let baseDataSync = this.props.navigation.getParam('baseDataSync');
 		let patients = [];
 
+		console.log(hospital.hospitalizationList);
+
 		hospital.hospitalizationList.forEach( patient => {
-			if(!patient.externalPatient && (patient.exitDate === null || this.exitDateBelow48Hours(patient.exitDate))) {
+
+			let adminDischargeExit = false;
+
+			for (var i = 0; i < patient.trackingList.length; i++) {
+				if (patient.trackingList[i].endMode == 'ADMIN_DISCHARGE_EXIT') {
+					adminDischargeExit = true;
+				}
+			}
+
+			console.log(patient.patientName);
+			console.log(adminDischargeExit);
+			
+			if(!patient.externalPatient && patient.exitDate === null || adminDischargeExit) {
 				patient.totalDaysOfHospitalization = this.calculateDaysOfHospitalization(patient);
 				patient.statusColorName = this.getStatusColorName(patient);
 				patient.lastVisit = this.getLastVisit(patient);
