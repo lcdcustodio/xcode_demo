@@ -31,6 +31,8 @@ export default class Patients extends Component {
 		let baseDataSync = this.props.navigation.getParam('baseDataSync');
 		let patients = [];
 
+		console.log(baseDataSync);
+
 		console.log(hospital.hospitalizationList);
 
 		hospital.hospitalizationList.forEach( patient => {
@@ -42,11 +44,23 @@ export default class Patients extends Component {
 					adminDischargeExit = true;
 				}
 			}
-
-			console.log(patient.patientName);
-			console.log(adminDischargeExit);
 			
-			if(!patient.externalPatient && patient.exitDate === null || adminDischargeExit) {
+			// TODO POR FAVOR
+
+			let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
+
+			console.log(patient.patientName, patient);
+
+			if(
+			
+				(patient.exitDate == null && listOfOrderedPatientObservations.length == 0) || 
+
+				(patient.exitDate == null && listOfOrderedPatientObservations.length > 0 && !listOfOrderedPatientObservations[0].endTracking) || 
+
+				(patient.exitDate != null && listOfOrderedPatientObservations.length > 0 && !listOfOrderedPatientObservations[0].medicalRelease)
+
+			)
+			{
 				patient.totalDaysOfHospitalization = this.calculateDaysOfHospitalization(patient);
 				patient.statusColorName = this.getStatusColorName(patient);
 				patient.lastVisit = this.getLastVisit(patient);
@@ -68,9 +82,15 @@ export default class Patients extends Component {
 	}
 
 	calculateDaysOfHospitalization(patient) {
-		const today = moment()
-		let admissionDate = moment(moment(patient.admissionDate).format('YYYY-MM-DD'))
-		let totalHospitalizationDays = today.diff(admissionDate, 'days')
+
+		const today = moment();
+		let admissionDate = moment(moment(patient.admissionDate).format('YYYY-MM-DD'));
+		let totalHospitalizationDays = today.diff(admissionDate, 'hours');
+
+		totalHospitalizationDays = Math.round((totalHospitalizationDays / 24));
+
+		console.log(totalHospitalizationDays, patient.patientName);
+
 		return totalHospitalizationDays;
 	}
 
@@ -78,7 +98,7 @@ export default class Patients extends Component {
 		if(patient.locationType === 'UTI' || patient.locationType === 'CTI') {
 			return 'red'
 		} else if(patient.locationType === 'SEMI') {
-			return 'yellow'
+			return '#FDBD18'
 		} else {
 			return 'black'
 		}
@@ -126,21 +146,76 @@ export default class Patients extends Component {
 	}
 
 	getStatusLogoVisit(patient) {
+		
 		let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc'])
 		
-		if(patient.exitDate === null && patient.lastVisit !== 'HOJE' && listOfOrderedPatientObservations.length > 0 && !listOfOrderedPatientObservations[0].alert && !listOfOrderedPatientObservations[0].endTracking) {
-			return require('../../images/ic_visibility_blue_24px.png')
-		} else if(patient.exitDate === null && patient.lastVisit !== 'HOJE' && listOfOrderedPatientObservations.length > 0 && listOfOrderedPatientObservations[0].alert && !listOfOrderedPatientObservations[0].endTracking) {
-			return require('../../images/ic_visibility_exclamation_24px.png')
-		} else if(patient.exitDate === null && patient.lastVisit !== 'HOJE' && listOfOrderedPatientObservations.length > 0 && listOfOrderedPatientObservations[0].endTracking) {
-			return require('../../images/ic_visibility_red_24px.png')
-		} else if(patient.exitDate === null && patient.lastVisit === 'HOJE' && listOfOrderedPatientObservations.length > 0 && !listOfOrderedPatientObservations[0].endTracking) {
-			return require('../../images/ic_visibility_green_24px.png')
-		} else if(patient.exitDate === null && patient.lastVisit === 'HOJE' && listOfOrderedPatientObservations.length > 0 && listOfOrderedPatientObservations[0].endTracking) {
-			return require('../../images/ic_visibility_grey_24px.png')
-		} else if( (patient.exitDate !== null || patient.death) && this.exitDateIsNotEqualToLastVisit(patient)) {
-			return require('../../images/ic_home_24px.png')
+		let lastVisit = null;
+
+		if (listOfOrderedPatientObservations.length > 0) {
+			
+			const today = moment();
+			
+			lastVisit = moment(moment(listOfOrderedPatientObservations[0].observationDate).format('YYYY-MM-DD'));
+
+			lastVisit = today.diff(lastVisit, 'days');
+
+			console.log(lastVisit);
 		}
+
+		if(patient.exitDate == null && lastVisit == 0)
+		{
+			return require('../../images/ic_visibility_green_24px.png'); // OLHO CINZA COM CHECK
+		}
+		else if(patient.exitDate == null && (lastVisit > 0 || patient.observationList.length == 0))
+		{
+			return require('../../images/ic_visibility_blue_24px.png'); // OLHO AZUL
+		}
+		else
+		{
+			return require('../../images/ic_home_24px.png'); // CASA AZUL
+		}
+
+		/*if(patient.exitDate === null && patient.lastVisit !== 'HOJE' && listOfOrderedPatientObservations.length > 0 && !listOfOrderedPatientObservations[0].alert && !listOfOrderedPatientObservations[0].endTracking) {
+			
+			console.log('OLHO AZUL');	
+
+			return require('../../images/ic_visibility_blue_24px.png'); // OLHO AZUL
+
+		} else if(patient.exitDate === null && patient.lastVisit !== 'HOJE' && listOfOrderedPatientObservations.length > 0 && listOfOrderedPatientObservations[0].alert && !listOfOrderedPatientObservations[0].endTracking) {
+			
+			console.log('OLHO AZUL COM EXCLAMAÇÃO');	
+
+			return require('../../images/ic_visibility_exclamation_24px.png');  // OLHO AZUL COM EXCLAMAÇÃO
+
+		} else if(patient.exitDate === null && patient.lastVisit !== 'HOJE' && listOfOrderedPatientObservations.length > 0 && listOfOrderedPatientObservations[0].endTracking) {
+			
+			console.log('OLHO AZUL COM X VERMELHO');
+
+			return require('../../images/ic_visibility_red_24px.png'); // OLHO AZUL COM X VERMELHO
+
+		} else if(patient.exitDate === null && patient.lastVisit === 'HOJE' && listOfOrderedPatientObservations.length > 0 && !listOfOrderedPatientObservations[0].endTracking) {
+			
+			console.log('// OLHO VERDE COM CHECK');
+
+			return require('../../images/ic_visibility_green_24px.png'); // OLHO CINZA COM CHECK
+
+		} else if(patient.exitDate === null && patient.lastVisit === 'HOJE' && listOfOrderedPatientObservations.length > 0 && listOfOrderedPatientObservations[0].endTracking) {
+			
+			console.log('OLHO CINZA COM X VERMELHO');
+
+			return require('../../images/ic_visibility_grey_24px.png'); // OLHO CINZA COM X VERMELHO
+
+		} else if( (patient.exitDate !== null || patient.death) && this.exitDateIsNotEqualToLastVisit(patient)) {
+			
+			console.log('CASA AZUL');
+
+			return require('../../images/ic_home_24px.png'); // CASA AZUL
+		
+		}*/
+
+		
+
+
 	}
 
 	renderItem = ({ item }) => (

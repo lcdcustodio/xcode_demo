@@ -11,6 +11,7 @@ import Timer from '../../components/Timer'
 import moment from 'moment';
 import Session from '../../Session';
 import qs from "qs";
+import _ from 'lodash'
 
 export default class Hospital extends Component {
 
@@ -44,6 +45,8 @@ export default class Hospital extends Component {
 	}
 	
 	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
+
+		console.log(this.state.baseDataSync);
 
         this.setState({errorSync: 0});
 
@@ -94,17 +97,17 @@ export default class Hospital extends Component {
 
 					if(response.status === 200) {
 
-						console.log(response.data.content.hospitalList);
+						let hospitalListOrdered = _.orderBy(response.data.content.hospitalList, ['name'], ['asc']);
+
+						console.log(hospitalListOrdered);
 						
 						let user = Session.current.user;
-
-						console.log(response.data.content.hospitalList);
 
 						let listHospital = []
 						
 						if (user.profile == 'CONSULTANT') {
 
-							response.data.content.hospitalList.forEach( hospital => {
+							hospitalListOrdered.forEach( hospital => {
 								if(this.isTheSameHospital(hospital, parse)){
 									listHospital.push(hospital)
 								}
@@ -113,7 +116,7 @@ export default class Hospital extends Component {
 						} 
 						else
 						{
-							listHospital = response.data.content.hospitalList;
+							listHospital = hospitalListOrdered;
 						}
 
 						this.getInformationHospital(listHospital).then(response => {
@@ -471,7 +474,7 @@ export default class Hospital extends Component {
 					
 					<View style={{flexDirection: "row", alignItems: 'center'}}>
 						<Icon type="AntDesign" name="user" style={styles.userIcon}/>
-						<Text style={[styles.description, styles.niceBlue]}>Pendentes:</Text><Text style={[styles.description]}>{item.totalPatientsVisitedToday}</Text>
+						<Text style={[styles.description, styles.niceBlue]}>Visitas: </Text><Text style={[styles.description]}>{item.totalPatientsVisitedToday}</Text>
 					</View>
 				</View>
 				<View style={[styles.sideButtonRight]}>
@@ -502,7 +505,7 @@ export default class Hospital extends Component {
 					<Left style={{flex:1}} >
 						<Icon name="md-menu" style={{ color: 'white' }} onPress={() => this.props.navigation.openDrawer() } />
 					</Left>
-					<Body style={{flex:8, alignItems: 'stretch'}}>
+					<Body style={{flex:8, alignItems: 'stretch', color: 'white'}}>
 						<Title>HOSPITAIS</Title>
 					</Body>
 					<Right style={{flex:1}} >

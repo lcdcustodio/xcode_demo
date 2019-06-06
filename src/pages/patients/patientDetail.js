@@ -22,6 +22,7 @@ class PatientDetail extends Component {
 			baseDataSync: this.props.navigation.getParam('baseDataSync'),
 			selectedTab: 'profile'
 		}
+		console.log(this.state.baseDataSync)
 		console.log("Executei o construtor")
 	}
 	

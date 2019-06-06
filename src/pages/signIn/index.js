@@ -19,10 +19,12 @@ export default class SignIn extends Component {
 			password: '*ru8u!uBus2A',
 			error: '',
 			textContent: '',
-			loading: true
+			loading: false
 		}
 
-		AsyncStorage.getItem('hospitalList', (err, hospitalList) => {
+		this.props.navigation.navigate("Hospitals", { baseDataSync: null });
+
+		/*AsyncStorage.getItem('hospitalList', (err, hospitalList) => {
 
 			if (hospitalList != null) {
 
@@ -52,7 +54,7 @@ export default class SignIn extends Component {
 				this.setState({loading: false});
 			}
 		
-		});
+		});*/
 	}
 
 	handleEmailChange = (email) => {
@@ -103,8 +105,8 @@ export default class SignIn extends Component {
 						this.setState({ textContent: 'Sincronizando...' });
 						
 						//api.get('/api/basedata/baseDataSync?lastDateSync=' + this.state.lastDateSync).then(res => {
-							this.setState({loading: false});
 							//console.log("SYNC", res.data.content.data)
+							this.setState({loading: false});
 							this.props.navigation.navigate("Hospitals", { baseDataSync: null });
 						//}).catch(err => {
 						//	this.setState({loading: false});
