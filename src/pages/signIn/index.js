@@ -112,6 +112,8 @@ export default class SignIn extends Component {
 
 						});
 			        });	
+
+			        console.log(response.data);
 		        }	
 		        else
 		        {

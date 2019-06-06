@@ -96,7 +96,7 @@ export default class Hospital extends Component {
 
 						let user = Session.current.user;
 
-						console.log(user.profile);
+						console.log(response.data.content.hospitalList);
 
 						let listHospital = []
 						
