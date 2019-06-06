@@ -139,7 +139,6 @@ export default class Profile extends React.Component {
 
 		console.log("Base Data Sync => ", this.props.baseDataSync)
 		console.log("Patient => ", this.props.perfil)
-		console.log("Patient STR => ", JSON.stringify(this.props.perfil) )
 
 		return (
 			<View style={ styles.container }>

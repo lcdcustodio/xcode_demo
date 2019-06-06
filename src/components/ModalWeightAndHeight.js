@@ -11,6 +11,22 @@ export default class ModalWeightAndHeight extends Component {
     }
   }
 
+    validateHeight = (height) => {
+        height = height.replace(/ [a-z] | [A-Z] | [&\/\\#,+()$~%.'":*?<>{}]/g, "");
+        let isValid = height.match(/^[0-9,]+$/)
+        if(isValid) {
+            this.setState({patientHeight: height})
+        }
+    }
+
+    validateWeight = (weight) => {
+        weight = weight.replace(/ [a-z] | [A-Z] | [&\/\\#,+()$~%.'":*?<>{}]/g, "");
+        let isValid = weight.match(/^[0-9,]+$/)
+        if(isValid) {
+            this.setState({patientWeight: weight})
+        }
+    }
+
   save = () => {
     this.props.action(this.state.patientHeight, this.state.patientWeight)
   }
@@ -28,7 +44,7 @@ export default class ModalWeightAndHeight extends Component {
               <View  style={{marginBottom: '5%', marginTop: '5%'}}>
                 <Text> Altura: </Text>
                 <TextInput editable = {true} value={`${this.state.patientHeight}`}
-                  onChangeText={(patientHeight) => this.setState({patientHeight})}
+                  onChangeText={(patientHeight) => this.validateHeight(patientHeight) }
                   keyboardType={'numeric'}
                   style={styles.inputText} />
 
