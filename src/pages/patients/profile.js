@@ -139,6 +139,7 @@ export default class Profile extends React.Component {
 
 		console.log("Base Data Sync => ", this.props.baseDataSync)
 		console.log("Patient => ", this.props.perfil)
+		console.log("Patient STR => ", JSON.stringify(this.props.perfil) )
 
 		return (
 			<View style={ styles.container }>
@@ -289,6 +290,23 @@ export default class Profile extends React.Component {
 							: 
 							<View/>
 						}
+					</View>
+				</View>
+				
+				<View style={ styles.row }>
+					<View style={ styles.column100 }>
+						<TextLabel marginLeft="5" label='Internações Anteriores' />
+						{this.props.perfil.previousHospitalizations.map((prop) => {
+							let startDate = prop.admissionDate ? moment(prop.admissionDate).format('DD/MM/YYYY') : ''
+							let endDate = prop.exitDate ? moment(prop.exitDate).format('DD/MM/YYYY') : ''
+
+							return (
+								<View key={prop.id} style={{marginTop: '2%', marginBottom: '3%'}}>
+									<TextValue marginLeft="5" value={ `${startDate} à ${endDate} - ${prop.hospitalizationDays} dias \n`} />
+									<TextValue marginLeft="5" value={ `${prop.exitCidDisplayName}` } />
+								</View>
+							);
+						})}
 					</View>
 				</View>
 
