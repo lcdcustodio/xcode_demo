@@ -66,6 +66,8 @@ export default class SignIn extends Component {
 	};
 
 	handleSignInPress = async () => {
+		
+
 
 		if (this.state.email.length === 0 || this.state.password.length === 0) {
 			this.setState({ error: 'Por favor, preencha todos os campos' }, () => false);
@@ -98,17 +100,17 @@ export default class SignIn extends Component {
 					    ["userData", JSON.stringify(content)]
 					], () => {
 			        
-						//this.setState({ textContent: 'Sincronizando...' });
+						this.setState({ textContent: 'Sincronizando...' });
 						
-						//api.get('/api/basedata/baseDataSync?lastDateSync=' + this.state.lastDateSync).then(res => {
+						api.get('/api/basedata/baseDataSync?lastDateSync=' + this.state.lastDateSync).then(res => {
 							this.setState({loading: false});
-							//this.props.navigation.navigate("Hospitals", { baseDataSync: res.data.content.data });
-							this.props.navigation.navigate("Hospitals", { baseDataSync: null });
-						//}).catch(err => {
-							//this.setState({loading: false});
-						    //console.log(err);
+							console.log("SYNC", res.data.content.data)
+							this.props.navigation.navigate("Hospitals", { baseDataSync: res.data.content.data });
+						}).catch(err => {
+							this.setState({loading: false});
+						    console.log(err);
 
-						//});
+						});
 			        });	
 		        }	
 		        else
@@ -130,7 +132,7 @@ export default class SignIn extends Component {
 					this.setState({ error: 'Falha na comunicação com o servidor de aplicação' }, () => false);
 				}
 			});
-		}
+		} 
 	};
 
 	render() {
