@@ -239,29 +239,35 @@ export default class Hospital extends Component {
 		this.setState({
 			hospitals: [ ...listHospital], 
 		});
+		console.log("hospitais",this.state.hospitals)
 	}
 
 	getLogomarca(hospital) {
 
-		if(hospital.id === 4) {
-			return require('../../images/logo_hospital/copaDor.png');
-		} else if(hospital.id === 5) {
-			return require('../../images/logo_hospital/niteroiDor.png');
+		if(hospital.id === 61) {
+			return require('../../images/logo_hospital/rj/realDor.png');
+		} else if(hospital.id === 4) {
+			return require('../../images/logo_hospital/rj/copaDor.png');
+        }  else if(hospital.id === 5) {
+			return require('../../images/logo_hospital/rj/niteroiDor.png');
+        }  else if(hospital.id === 1) {
+			return require('../../images/logo_hospital/rj/bangu.png');
         }  else if(hospital.id === 7) {
-			return require('../../images/logo_hospital/oesteDor.png');
+			return require('../../images/logo_hospital/rj/oesteDor.png');
         }  else if(hospital.id === 2) {
-			return require('../../images/logo_hospital/barraDor.png');
+			return require('../../images/logo_hospital/rj/barraDor.png');
         }  else if(hospital.id === 9) {
-			return require('../../images/logo_hospital/riosDor.png');
+			return require('../../images/logo_hospital/rj/riosDor.png');
         }  else if(hospital.id === 101) {
-			return require('../../images/logo_hospital/badim.png');
+			return require('../../images/logo_hospital/rj/badim.png');
         }  else if(hospital.id === 6) {
-			return require('../../images/logo_hospital/norteDor.png');
-        }  else if(hospital.id === 3) {
-			return require('../../images/logo_hospital/caxiasDor.png');
+			return require('../../images/logo_hospital/rj/norteDor.png');
+		} else if(hospital.id === 3) {
+			return require('../../images/logo_hospital/rj/caxiasDor.png');
         }  else if(hospital.id === 8) {
-			return require('../../images/logo_hospital/quintaDor.png');
-		} 
+			return require('../../images/logo_hospital/rj/quintaDor.png');
+        }  
+
 		
 		return null;
 	}
