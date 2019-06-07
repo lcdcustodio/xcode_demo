@@ -19,26 +19,26 @@ export default class SignIn extends Component {
 			password: '*ru8u!uBus2A',
 			error: '',
 			textContent: '',
-			loading: false
+			loading: true
 		}
 
-		this.props.navigation.navigate("Hospitals", { baseDataSync: null });
-
-		/*AsyncStorage.getItem('hospitalList', (err, hospitalList) => {
+		AsyncStorage.getItem('hospitalList', (err, hospitalList) => {
 
 			if (hospitalList != null) {
 
-				AsyncStorage.getItem('userData', (err, userData) => {
+				AsyncStorage.getItem('userData', async (err, userData) => {
 
 					if (hospitalList != null) {
 
 						let user = JSON.parse(userData);
 
 						Session.current.user = new User(user.name, user.profile);
+						
+						let baseDataSync = await this.getBaseDataSync();
 
 						this.setState({loading: false});
 
-						this.props.navigation.navigate("Hospitals", { baseDataSync: null });
+						this.props.navigation.navigate("Hospitals", { baseDataSync });
 
 					} 
 					else
@@ -54,7 +54,16 @@ export default class SignIn extends Component {
 				this.setState({loading: false});
 			}
 		
-		});*/
+		});
+	}
+	
+	getBaseDataSync = async () => {
+		return await api.get('/api/basedata/baseDataSync?lastDateSync=' + this.state.lastDateSync).then(res => {
+			return res.data.content.data
+		}).catch(err => {
+			this.setState({loading: false});
+			console.log("SignIn.getBaseDataSync => Error => ", err)
+		});
 	}
 
 	handleEmailChange = (email) => {
@@ -100,18 +109,13 @@ export default class SignIn extends Component {
 					AsyncStorage.multiSet([
 					    ["auth", JSON.stringify(params)],
 					    ["userData", JSON.stringify(content)]
-					], () => {
+					], async() => {
 			        
 						this.setState({ textContent: 'Sincronizando...' });
 						
-						//api.get('/api/basedata/baseDataSync?lastDateSync=' + this.state.lastDateSync).then(res => {
-							//console.log("SYNC", res.data.content.data)
-							this.setState({loading: false});
-							this.props.navigation.navigate("Hospitals", { baseDataSync: null });
-						//}).catch(err => {
-						//	this.setState({loading: false});
-						//    console.log(err);
-						//});
+						let baseDataSync = await this.getBaseDataSync();
+						this.setState({loading: false});
+						this.props.navigation.navigate("Hospitals", { baseDataSync });
 			        });	
 		        }	
 		        else
