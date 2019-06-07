@@ -1,70 +1,186 @@
-import React, { Component } from 'react';
-import { Text, View, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import React from 'react';
+import { Text, View, StyleSheet, TextInput, Alert} from 'react-native';
+import { Button, Icon, Container } from 'native-base';
+import TextValue from '../../../../components/TextValue'
+import ModalList from '../../../../components/ModalList'
+import ModalListSearchable from '../../../../components/ModalListSearchable'
+import moment from 'moment';
+import uuid from 'uuid/v4';
 
-export default class recommedation extends Component {
-	
+export default class Recommendation extends React.Component {
+
 	constructor(props) {
-		const WELCOME_HOME = "welcome home"
-		const INDICACAO_AMBULATORIO = "INDICAÇÃO AMBULATÓRIO"
-		const RECOMENDACAO_MEDICAMENTOSA = "REC. MEDICAMENTOSA"
 		super(props);
 		this.state = {	
-			recommendation: '',
-			observation: '',
-			modalVisible: false,
-			recommendationClinicalIndication: null,
-			recommendationWelcomeHomeIndication: null,
-			recommendationMedicineReintegration: null
+			recommendationType: 'Selecione',
+			modalRecommendationTypeVisible: false,
+			modalSpecialtyVisible: false,
+			listRecommendationType: [
+				{key: 1, value: 'WELCOME_HOME', label: 'WELCOME HOME'},
+				{key: 2, value: 'INDICACAO_AMBULATORIO', label: 'INDICAÇÃO AMBULATORIO'},
+				{key: 3, value: 'RECOMENDACAO_MEDICAMENTOSA', label: 'RECOMENDAÇÃO MEDICAMENTOSA'}
+			],
+			recommendation: {
+				uuid: null,
+				performedAt: null,
+				observation: ''
+			}
 		}
 	}
 	
-	updateRecommendation = (recommendation) => {
-		this.setState({ recommendation })
+	save = () => {
+	
+		if(this.state.recommendationType === 'Selecione'){
+			this.showAlertMsg("Selecione uma recomendação")
+		} else {
+			if(this.selectedRecommendationMedicineReintegration() || this.selectedRecommendationWelcomeHomeIndication() || this.selectedrecommendationClinicalIndication()){
+				console.log("RecommendationMedicineReintegration", this.props.patient.recommendationMedicineReintegration)
+				console.log("RecommendationWelcomeHomeIndication", this.props.patient.recommendationWelcomeHomeIndication)
+				console.log("RecommendationClinicalIndication", this.props.patient.recommendationClinicalIndication)
+			} 
+		} 
+	}
+
+	toggleModalRecommendationType = () => {
+		this.setState({
+			modalRecommendationTypeVisible: !this.state.modalRecommendationTypeVisible
+		})
+	}
+
+	toggleModalSpecialty = () => {
+		this.setState({
+			modalSpecialtyVisible: !this.state.modalSpecialtyVisible 
+		})
+	}
+
+	addRecommendation = recommendationType => {
+		this.setState({
+			recommendationType: recommendationType.item.label,
+			recommendation: {
+				...this.state.recommendation, 
+				uuid: uuid(), 
+				performedAt: moment() 
+			}
+		})
+		this.toggleModalRecommendationType()
 	}
 
 	addObservation = observation => {
-		this.setState({	observation })
+		this.setState({ 
+			recommendation :  {
+				...this.state.recommendation,
+				observation
+			}
+		})
 	}
 
-	picker = _ => {
-	    this.setState({modalVisible: !this.state.visible})
-		console.log("exibindo modal")
+	showAlertMsg= item =>{Alert.alert('Atenção', item,[{text: 'OK', onPress: () => {}}],{cancelable: false});}
+
+	selectedRecommendationWelcomeHomeIndication=_=>{
+		const indicationItem = this.state.listRecommendationType[0]
+		if (this.state.recommendationType === indicationItem.label ) {
+			if(this.props.patient.recommendationWelcomeHomeIndication){
+				this.showAlertMsg(indicationItem.label + " já cadastrado!")
+			} else {
+				this.props.patient.recommendationWelcomeHomeIndication = this.state.recommendation
+			}	
+		}
 	}
 
-	itemSelected = item =>{
-		if(item === WELCOME_HOME){
-				
-		} else 
-		if(item === INDICACAO_AMBULATORIO){
-
-		} if (item === RECOMENDACAO_MEDICAMENTOSA){
+	selectedrecommendationClinicalIndication =_=>{
+		const clinicalIndicationItem = this.state.listRecommendationType[1]
+		if (this.state.recommendationType === clinicalIndicationItem.label) {
+			if(this.props.patient.recommendationClinicalIndication){
+				this.showAlertMsg(clinicalIndicationItem.label + " já cadastrado!")
+			} else{
+				if(!this.state.recommendation.specialtyId){
+					this.showAlertMsg("Selecione uma especialidade")
+				} else {
+					return this.props.patient.recommendationClinicalIndication = this.state.recommendation
+				}
+			} 
 
 		}
 	}
 
-	render() {
-		return (
-			<View style={ styles.container }>
-				<View style={styles.row}>
-					<Text style={styles.title}>Recomendação</Text>
-						<TouchableOpacity style={styles.styleButton} onPress={this.picker} underlayColor='#fff'>
-							<Text style={styles.textButton}>Escolher</Text>
-						</TouchableOpacity>
-					 <View>
-				</View>
-					<Text style={styles.text}>{this.state.recommendation}</Text>
-					<Text style={styles.label }>Observation</Text>
-					<TextInput multiline={true} numberOfLines={5} style={styles.textArea} 
-					value={this.state.observation} onChangeText = {observation => this.addObservation(observation)} />
-				</View>
-				<View>
-	 		</View>
-
-			</View>);
+	selectedRecommendationMedicineReintegration=_=>{
+		const reintegrationItem = this.state.listRecommendationType[2]
+		if (this.state.recommendationType === reintegrationItem.label ) {
+			if(this.props.patient.recommendationMedicineReintegration){
+				this.showAlertMsg(reintegrationItem.label + " já cadastrado!")
+			} else {
+				return this.props.patient.recommendationMedicineReintegration = this.state.recommendation
+			}
+		} 
 	}
+
+	recommendationType (item) {
+		const recommendation = this.state.listRecommendationType
+		if (item == recommendation[0].label){
+			return recommendation[0].label;
+		} else if(item == recommendation[1].label){
+			return recommendation[1].label;
+		} else if (item == recommendation[2].label){
+			return recommendation[2].label;
+		} else {
+			return item
+		}
+	}
+
+	showViewSpecialty =_=>{
+		if(this.state.recommendationType === this.state.listRecommendationType[1].label){
+			return 	<View style={ [styles.column100, {padding: 2}] }>
+						<TextValue 	marginLeft="5" marginTop="2" marginBottom="2" press={ this.toggleModalSpecialty } color={'#0000FF'} value={ this.state.recommendation.specialtyDisplayName ? this.state.recommendation.specialtyDisplayName : 'Selecione' }  />
+					</View>
+		}
+	}
+
+	handlePrimaryspecialtyId = (specialty) => {
+
+		this.setState({
+			recommendation: {
+				...this.state.recommendation,
+				specialtyId: specialty.item.id,
+				specialtyDisplayName: specialty.item.normalizedName
+			}
+		})
+
+		this.toggleModalSpecialty()
+	}
+
+	render() {
+		return (<Container>
+					<View style={ styles.container }>
+						<ModalList paddingTop={50} height={50} visible={this.state.modalRecommendationTypeVisible} 	list={this.state.listRecommendationType} action={this.addRecommendation} />
+						<ModalListSearchable paddingTop={30} height={100} visible={this.state.modalSpecialtyVisible} list={this.props.baseDataSync.specialty} action={this.handlePrimaryspecialtyId} />
+						<View style={styles.row}>
+							<Text style={styles.title}>Recomendação</Text>
+							<View style={ styles.column100 }>
+								<TextValue 	marginLeft="2" marginTop="2" marginBottom="2" press={ this.toggleModalRecommendationType } color={'#0000FF'} value={ this.state.recommendationType }  />
+							</View>
+						</View>
+						
+						{ this.showViewSpecialty() }
+
+						<View>
+							<Text style={styles.label }>Observação</Text>
+							<TextInput multiline={true} numberOfLines={5} style={styles.textArea} 
+							value={this.state.recommendation.observation} onChangeText = {observation => this.addObservation(observation)} />
+						</View>
+						<View>
+							<Button style={styles.styleButton} onPress={ () => this.save() }>
+								<Text style={styles.textButton}>Salvar</Text>
+							</Button>
+						</View>
+					</View>
+				</Container>
+			)}
 }
 
 const styles = StyleSheet.create({
+	headerMenu: {
+		backgroundColor: "#005cd1"
+	},
 	container: {
 		display: 'flex'
 	},
@@ -86,12 +202,11 @@ const styles = StyleSheet.create({
 		paddingBottom: 8,
 	},
 	textButton: {
-		fontSize: 18,
-      	color:  "#19769F", 
-		paddingLeft: 2
+		color: '#FFF',
+		fontSize: 20
 	}, 
 	label: {
-		fontSize: 16,
+		fontSize: 17,
 		color:  "#A9A9A9", 
 		paddingLeft: 2
 	},
@@ -104,8 +219,16 @@ const styles = StyleSheet.create({
 	},
 	styleButton:{
 		paddingTop:8,
-		paddingBottom:5,
-		backgroundColor:'#FFF',
-		borderColor: '#fff'
-	  }
+		paddingBottom:8,
+		backgroundColor:'#19769F',
+		borderColor: '#fff',
+		padding: 2, 
+		marginTop: '1%', 
+		width: '100%', 
+		justifyContent: 'center'
+	  },
+	  column100: {
+		justifyContent: 'flex-start', 
+		width: '100%'
+	}
 });
