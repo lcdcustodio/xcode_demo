@@ -13,7 +13,6 @@ export default StyleSheet.create({
 	},
 
 	patientTitle: {
-		width: 171,
         height: 14,
         fontFamily: "Gotham Rounded",
         fontSize: 14,

@@ -19,10 +19,12 @@ export default class SignIn extends Component {
 			password: '*ru8u!uBus2A',
 			error: '',
 			textContent: '',
-			loading: true
+			loading: false
 		}
 
-		AsyncStorage.getItem('hospitalList', (err, hospitalList) => {
+		this.props.navigation.navigate("Hospitals", { baseDataSync: null });
+
+		/*AsyncStorage.getItem('hospitalList', (err, hospitalList) => {
 
 			if (hospitalList != null) {
 
@@ -52,7 +54,7 @@ export default class SignIn extends Component {
 				this.setState({loading: false});
 			}
 		
-		});
+		});*/
 	}
 
 	handleEmailChange = (email) => {
@@ -102,23 +104,22 @@ export default class SignIn extends Component {
 			        
 						this.setState({ textContent: 'Sincronizando...' });
 						
-						api.get('/api/basedata/baseDataSync?lastDateSync=' + this.state.lastDateSync).then(res => {
+						//api.get('/api/basedata/baseDataSync?lastDateSync=' + this.state.lastDateSync).then(res => {
+							//console.log("SYNC", res.data.content.data)
 							this.setState({loading: false});
-							console.log("SYNC", res.data.content.data)
-							this.props.navigation.navigate("Hospitals", { baseDataSync: res.data.content.data });
-						}).catch(err => {
-							this.setState({loading: false});
-						    console.log(err);
-
-						});
+							this.props.navigation.navigate("Hospitals", { baseDataSync: null });
+						//}).catch(err => {
+						//	this.setState({loading: false});
+						//    console.log(err);
+						//});
 			        });	
 		        }	
 		        else
-		        {
-		        	console.log(response);
-		        	
+		        {		        	
 					this.setState({loading: false});
 		        }	
+
+		        console.log(response);
 
 			}).catch(error => {
 				
