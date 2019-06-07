@@ -3,12 +3,6 @@ package com.medicoconsultor;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
-import com.reactnativecommunity.netinfo.NetInfoPackage;
-import com.reactnativecommunity.asyncstorage.AsyncStoragePackage;
-import com.BV.LinearGradient.LinearGradientPackage;
-import com.oblador.vectoricons.VectorIconsPackage;
-import com.swmansion.rnscreens.RNScreensPackage;
-import com.swmansion.gesturehandler.react.RNGestureHandlerPackage;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
@@ -28,13 +22,7 @@ public class MainApplication extends Application implements ReactApplication {
     @Override
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
-          new MainReactPackage(),
-            new NetInfoPackage(),
-            new AsyncStoragePackage(),
-            new LinearGradientPackage(),
-            new VectorIconsPackage(),
-            new RNScreensPackage(),
-            new RNGestureHandlerPackage()
+          new MainReactPackage()
       );
     }
 

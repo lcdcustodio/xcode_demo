@@ -76,136 +76,149 @@ export default class Hospital extends Component {
 			this.setState({loading: true});
 
 			AsyncStorage.getItem('userData', (err, res) => {
-			
-	            let parse = JSON.parse(res);
 
-	            let token = parse.token;
-			
-				let data = { "hospitalizationList": [] };
-				
-				api.post('/api/v2.0/sync', data, 
+				if (res == null) 
 				{
-					headers: {
-						"Content-Type": "application/json",
-					  	"Accept": "application/json",
-					  	"Token": token, 
-					}
-
-				}).then(response => {
-
 					this.setState({loading: false});
 
-					if(response.status === 200) {
+					this.props.navigation.navigate("SignIn");
+				} 
+				else
+				{
 
-						let hospitalListOrdered = _.orderBy(response.data.content.hospitalList, ['name'], ['asc']);
+					console.log(res);
+				
+		            let parse = JSON.parse(res);
 
-						console.log(hospitalListOrdered);
-						
-						let user = Session.current.user;
-
-						let listHospital = []
-						
-						if (user.profile == 'CONSULTANT') {
-
-							hospitalListOrdered.forEach( hospital => {
-								if(this.isTheSameHospital(hospital, parse)){
-									listHospital.push(hospital)
-								}
-							});
-						
-						} 
-						else
-						{
-							listHospital = hospitalListOrdered;
+		            let token = parse.token;
+				
+					let data = { "hospitalizationList": [] };
+					
+					api.post('/api/v2.0/sync', data, 
+					{
+						headers: {
+							"Content-Type": "application/json",
+						  	"Accept": "application/json",
+						  	"Token": token, 
 						}
 
-						this.getInformationHospital(listHospital).then(response => {
+					}).then(response => {
 
-							const dateSync = moment().format('DD/MM/YYYY [às] HH:mm:ss');
+						this.setState({loading: false});
 
-							this.setState({dateSync: dateSync});
+						if(response.status === 200) {
 
-							AsyncStorage.setItem('dateSync', dateSync);
+							let hospitalListOrdered = _.orderBy(response.data.content.hospitalList, ['name'], ['asc']);
 
-							AsyncStorage.setItem('hospitalList', JSON.stringify(listHospital));						
-						});
-					
-					} else {
+							console.log(hospitalListOrdered);
+							
+							let user = Session.current.user;
 
-						Alert.alert(
-							'Erro ao carregar informações',
-							'Desculpe, recebemos um erro inesperado do servidor, por favor, faça login e tente novamente! ',
-							[
-								{
-									text: 'OK', onPress: () => {
-										this.props.navigation.navigate("SignIn");
+							let listHospital = []
+							
+							if (user.profile == 'CONSULTANT') {
+
+								hospitalListOrdered.forEach( hospital => {
+									if(this.isTheSameHospital(hospital, parse)){
+										listHospital.push(hospital)
 									}
-								},
-							],
+								});
+							
+							} 
+							else
 							{
-								cancelable: false
-							},
-						);
+								listHospital = hospitalListOrdered;
+							}
 
-						console.log(response);
-					}
-				
-				}).catch(error => {
+							this.getInformationHospital(listHospital).then(response => {
 
-					console.log(this.state.errorSync);
+								const dateSync = moment().format('DD/MM/YYYY [às] HH:mm:ss');
 
-					this.setState({loading: false});
+								this.setState({dateSync: dateSync});
 
-					this.setState({errorSync: (this.state.errorSync + 1) });
+								AsyncStorage.setItem('dateSync', dateSync);
 
-					if (this.state.errorSync <= 3) {
-
-						AsyncStorage.getItem('auth', (err, auth) => {
-
-							console.log(auth);
-					            
-				            data = JSON.parse(auth);
-
-				            data = qs.stringify(data, { encode: false });
-
-							api.post('/api/login',
-								data
-							)
-							.then(response => {
-
-								let content = response.data.content;
-																
-								if(response.data.success) {
-									AsyncStorage.setItem('userData', JSON.stringify(content), () => {
-										this.sincronizar(true);
-									});
-								}
-
-								console.log(response);
+								AsyncStorage.setItem('hospitalList', JSON.stringify(listHospital));						
 							});
-				        });
-					}
-					else
-					{
-						Alert.alert(
-							'Erro ao carregar informações',
-							'Desculpe, recebemos um erro inesperado do servidor, por favor, faça login e tente novamente! ',
-							[
+						
+						} else {
+
+							Alert.alert(
+								'Erro ao carregar informações',
+								'Desculpe, recebemos um erro inesperado do servidor, por favor, faça login e tente novamente! ',
+								[
+									{
+										text: 'OK', onPress: () => {
+											this.props.navigation.navigate("SignIn");
+										}
+									},
+								],
 								{
-									text: 'OK', onPress: () => {
-										this.props.navigation.navigate("SignIn");
-									}
+									cancelable: false
 								},
-							],
-							{
-								cancelable: false
-							},
-						);
-					}
+							);
 
-					console.log(error);
+							console.log(response);
+						}
+					
+					}).catch(error => {
 
-				});
+						console.log(this.state.errorSync);
+
+						this.setState({loading: false});
+
+						this.setState({errorSync: (this.state.errorSync + 1) });
+
+						if (this.state.errorSync <= 3) {
+
+							AsyncStorage.getItem('auth', (err, auth) => {
+
+								console.log(auth);
+						            
+					            data = JSON.parse(auth);
+
+					            data = qs.stringify(data, { encode: false });
+
+								api.post('/api/login',
+									data
+								)
+								.then(response => {
+
+									let content = response.data.content;
+																	
+									if(response.data.success) {
+										AsyncStorage.setItem('userData', JSON.stringify(content), () => {
+											this.sincronizar(true);
+										});
+									}
+
+									console.log(response);
+								});
+					        });
+						}
+						else
+						{
+							Alert.alert(
+								'Erro ao carregar informações',
+								'Desculpe, recebemos um erro inesperado do servidor, por favor, faça login e tente novamente! ',
+								[
+									{
+										text: 'OK', onPress: () => {
+											this.props.navigation.navigate("SignIn");
+										}
+									},
+								],
+								{
+									cancelable: false
+								},
+							);
+						}
+
+						console.log(error);
+
+					});
+
+				}
 			});
 
         } catch(error) {
