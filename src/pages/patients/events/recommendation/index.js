@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text, View, StyleSheet, TextInput, Alert} from 'react-native';
-import { Button, Icon, Container } from 'native-base';
+import { Button, Container } from 'native-base';
 import TextValue from '../../../../components/TextValue'
 import ModalList from '../../../../components/ModalList'
 import ModalListSearchable from '../../../../components/ModalListSearchable'
@@ -37,6 +37,12 @@ export default class Recommendation extends React.Component {
 				console.log("RecommendationMedicineReintegration", this.props.patient.recommendationMedicineReintegration)
 				console.log("RecommendationWelcomeHomeIndication", this.props.patient.recommendationWelcomeHomeIndication)
 				console.log("RecommendationClinicalIndication", this.props.patient.recommendationClinicalIndication)
+				
+				//vericar com leonardo o arquivo de timeline
+				this.props.navigation.navigate("Exams", 
+											{ exames: this.props.navigation.state.params.patient.examRequestList, 
+												navigation:this.props.navigation,  
+												baseDataSync: res.data.content.data });
 			} 
 		} 
 	}
@@ -208,7 +214,8 @@ const styles = StyleSheet.create({
 	label: {
 		fontSize: 17,
 		color:  "#A9A9A9", 
-		paddingLeft: 2
+		paddingLeft: 2,
+		marginTop: 8
 	},
 	textArea: {
 		width: "100%",
@@ -225,7 +232,8 @@ const styles = StyleSheet.create({
 		padding: 2, 
 		marginTop: '1%', 
 		width: '100%', 
-		justifyContent: 'center'
+		justifyContent: 'center',
+		borderRadius: 4
 	  },
 	  column100: {
 		justifyContent: 'flex-start', 
