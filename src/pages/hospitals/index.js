@@ -250,7 +250,6 @@ export default class Hospital extends Component {
 		this.setState({
 			hospitals: [ ...listHospital], 
 		});
-		console.log("hospitais",this.state.hospitals)
 	}
 
 	getLogomarca(hospital) {
@@ -340,8 +339,6 @@ export default class Hospital extends Component {
             }
 
 		}, 0);
-
-		console.log(totalPatients);
 
 		return totalPatients;
 	}

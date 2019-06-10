@@ -216,7 +216,7 @@ export default class SignIn extends Component {
 						/>
 						{this.state.error.length !== 0 && <ErrorMessage>{this.state.error}</ErrorMessage>}
 						<Button onPress={this.handleSignInPress}>
-							<ButtonText>ENTRAR</ButtonText>
+							<ButtonText style={{backgroundColor: 'white'}}>ENTRAR</ButtonText>
 						</Button>
 				</Container>
 			</ImageBackground>
