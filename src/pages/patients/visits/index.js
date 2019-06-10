@@ -100,6 +100,7 @@ export default class Visitas extends React.Component {
 	}
 
 	toggleModal = _ => {
+		debugger;
 	    this.setState({modalVisible: !this.state.modalVisible})
 	}
 
@@ -188,19 +189,19 @@ export default class Visitas extends React.Component {
 					visible={this.state.modalVisible}
 					onRequestClose={() =>{ console.log("Modal has been closed.") } }>
 						<View style={styles.overlay}>
-							<View style={{backgroundColor: '#F8F8FF', borderRadius: 4, flexDirection: "row", flexWrap: 'wrap', height: '75%', marginTop: '25%', padding: 1}}>
+							<View style={styles.modal}>
 							
-								<View style={{flexDirection: "row", width: '100%', justifyContent: 'space-between', backgroundColor: "#005cd1", alignItems: 'center'}}>
+								<View style={styles.viewVisit}>
 										<Button backgroundColor={'#005cd1'} onPress={this.toggleModal}>
-											<Icon type="AntDesign" name="close" style={{color: 'white', fontSize: 18, marginTop: 1, marginBottom: 1, marginLeft: '12%'}} />
+											<Icon type="AntDesign" name="close" style={styles.close} />
 										</Button>
-										<Text style={{fontWeight: "bold", fontSize: 18, color: 'white'}}>Visita</Text>
+										<Text style={styles.textVisit}>Visita</Text>
 										<Button backgroundColor={'#005cd1'} onPress={this.save}>
-											<Icon type="AntDesign" name="save" style={{color: 'white', fontSize: 18, marginTop: 1, marginBottom: 1, marginRight: '12%'}} />
+											<Icon type="AntDesign" name="save" style={styles.save} />
 										</Button>
 								</View>
 
-								<View style={{flexDirection: "row", width: '100%', flexWrap: 'wrap', alignItems:'center', paddingTop: '10%'}}>
+								<View style={styles.alertInformation}>
 									<View style={{order: 1 , width:'10%', paddingLeft: 2}} >
 										<Icon type="Feather" name="alert-circle" style={{color: 'red', fontSize: 25}} />
 									</View>
@@ -211,8 +212,8 @@ export default class Visitas extends React.Component {
 										<Switch onValueChange={this.toggleSwitch} value={this.state.visit.alert} style={{ transform: [{ scaleX: 1.3 }, { scaleY: 1.3 } ]}}/>
 									</View>	
 								</View>
-								<View style={{flexDirection: "row", width: '100%', flexWrap: 'wrap', paddingTop: '15%'}}>
-									<Text style={{fontWeight: "bold", width: '100%', fontSize: 17}}>Observação</Text>
+								<View style={styles.observation}>
+									<Text style={styles.textObservation}>Observação</Text>
 									<TextInput multiline={true}	 numberOfLines={8} maxHeight={'80%'} style={styles.textArea} value={this.state.visit.observation} onChangeText = {observation => this.addObservation(observation)} />
 								</View>
 							</View>
