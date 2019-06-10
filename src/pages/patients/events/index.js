@@ -100,7 +100,7 @@ export default class Events extends Component {
 		: null);
 
 	_create = () => {
-		console.log('CREATE');
+		this.props.navigation.navigate('Recommendation', {	patient: this.props.patient });
 	}
 
 	_read = (event) => {

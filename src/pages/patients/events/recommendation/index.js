@@ -7,6 +7,8 @@ import ModalListSearchable from '../../../../components/ModalListSearchable'
 import moment from 'moment';
 import uuid from 'uuid/v4';
 
+import Events from "../index"
+
 export default class Recommendation extends React.Component {
 
 	constructor(props) {
@@ -34,15 +36,7 @@ export default class Recommendation extends React.Component {
 			this.showAlertMsg("Selecione uma recomendação")
 		} else {
 			if(this.selectedRecommendationMedicineReintegration() || this.selectedRecommendationWelcomeHomeIndication() || this.selectedrecommendationClinicalIndication()){
-				console.log("RecommendationMedicineReintegration", this.props.patient.recommendationMedicineReintegration)
-				console.log("RecommendationWelcomeHomeIndication", this.props.patient.recommendationWelcomeHomeIndication)
-				console.log("RecommendationClinicalIndication", this.props.patient.recommendationClinicalIndication)
-				
-				//vericar com leonardo o arquivo de timeline
-				this.props.navigation.navigate("Exams", 
-											{ exames: this.props.navigation.state.params.patient.examRequestList, 
-												navigation:this.props.navigation,  
-												baseDataSync: res.data.content.data });
+				this.props.navigation.navigate("Events", { 	exames: this.props.navigation.state.params.patient.examRequestList});
 			} 
 		} 
 	}
@@ -135,7 +129,7 @@ export default class Recommendation extends React.Component {
 
 	showViewSpecialty =_=>{
 		if(this.state.recommendationType === this.state.listRecommendationType[1].label){
-			return 	<View style={ [styles.column100, {padding: 2}] }>
+			return 	<View style={ [styles.column100] }>
 						<TextValue 	marginLeft="5" marginTop="2" marginBottom="2" press={ this.toggleModalSpecialty } color={'#0000FF'} value={ this.state.recommendation.specialtyDisplayName ? this.state.recommendation.specialtyDisplayName : 'Selecione' }  />
 					</View>
 		}
@@ -237,6 +231,7 @@ const styles = StyleSheet.create({
 	  },
 	  column100: {
 		justifyContent: 'flex-start', 
-		width: '100%'
+		width: '100%',
+		padding: 2
 	}
 });
