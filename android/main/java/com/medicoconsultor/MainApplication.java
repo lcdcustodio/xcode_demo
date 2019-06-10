@@ -28,11 +28,10 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new AsyncStoragePackage(),
+            new LinearGradientPackage(),
             new VectorIconsPackage(),
             new RNScreensPackage(),
-            new LinearGradientPackage(),
-            new NetInfoPackage(),
-            new AsyncStoragePackage(),
             new RNGestureHandlerPackage()
       );
     }
