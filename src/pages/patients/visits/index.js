@@ -7,6 +7,8 @@ import moment from 'moment';
 import _ from 'lodash'
 import uuid from 'uuid/v4';
 
+import Patient from '../../../model/Patient';
+
 export default class Visitas extends React.Component {
 	
 	constructor(props) {
@@ -157,20 +159,17 @@ export default class Visitas extends React.Component {
 	}
 
 	showVisitButton = visits => {
-		  if (!visits[0] || !this.isToday(visits[0].observationDate)){
-			return <View style={ styles.rowButtonCircle }>
-						<LinearGradient colors={['#035fcc', '#023066']} style={ [styles.circle, styles.borderCircle ]} >
-							<Icon type="FontAwesome5" name="id-badge" style={ styles.iconCircle } onPress={this.appoint} />
-							<Text style={ styles.textCircle } > VISITAR </Text>
-						</LinearGradient>
-					</View>
+
+		console.log('showVisitButton => ', this.state.patient);
+
+		let p = new Patient(this.state.patient);
+		console.log('Status => ', p.getHospitalizationStatus());	
+
+		
+		if (!visits[0] || !this.isToday(visits[0].observationDate)) {
+			return <GradientButton colors={['#035fcc', '#023066']} iconName="id-badge" onPress={this.appoint}>VISITAR</GradientButton>
 		} else {
-			return  <View style={ styles.rowButtonCircle }>
-						<LinearGradient colors={['#808080', '#696969']} style={ [styles.circle, styles.borderCircle ]} >
-							<Icon type="FontAwesome5" name="id-badge" style={ styles.iconCircle }  />
-							<Text style={ styles.textCircle } > VISITADO </Text>
-						</LinearGradient>
-					</View>
+			return <GradientButton colors={['#808080', '#696969']} iconName="id-badge">VISITADO</GradientButton>
 		}
 	}
 	
@@ -230,4 +229,30 @@ export default class Visitas extends React.Component {
 			</View>
 		);
 	}
+
+	_isHospitalizationOpen = () => {
+		const trackings = this.state.patient.trackingList;
+		if (trackings && trackings.length > 0) {
+			for (let i = trackings.length - 1; i >= 0; i--) {
+				if (!trackings[i].endDate) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	_isHospitalizationCloseable = () => {
+		const observations = this.state.patient.observationList;
+
+	}
 }
+
+const GradientButton = (props) => (
+	<View style={ styles.rowButtonCircle }>
+		<LinearGradient colors={ props.colors } style={ [styles.circle, styles.borderCircle ]} >
+			<Icon type="FontAwesome5" name={ props.iconName } style={ styles.iconCircle } onPress={ props.onPress } />
+			<Text style={ styles.textCircle } >{ props.children }</Text>
+		</LinearGradient>
+	</View>
+);
