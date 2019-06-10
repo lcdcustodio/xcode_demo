@@ -25,53 +25,59 @@ export default class SignIn extends Component {
 	}
 
 	componentDidMount() {
-        
-		if (this.state.baseDataSync == null) {
+        	
+        this.setState({loading: true});
 
-			this.setState({loading: true});
+        AsyncStorage.getItem('baseDataSync', async (err, baseDataSync) => {
 
-			AsyncStorage.getItem('hospitalList', (err, hospitalList) => {
+        	console.log(baseDataSync);
 
-				console.log(hospitalList);
+			if (baseDataSync != null) {
 
-				if (hospitalList != null) {
+				AsyncStorage.getItem('hospitalList', (err, hospitalList) => {
 
-					AsyncStorage.getItem('userData', async (err, userData) => {
+					console.log(hospitalList);
 
-						console.log(userData);
+					if (hospitalList != null) {
 
-						if (userData != null) {
+						AsyncStorage.getItem('userData', async (err, userData) => {
 
-							let user = JSON.parse(userData);
+							console.log(userData);
 
-							Session.current.user = new User(user.name, user.profile);
-							
-							let baseDataSync = await this.getBaseDataSync();
+							if (userData != null) {
 
-							this.setState({baseDataSync: baseDataSync});
+								let user = JSON.parse(userData);
 
-							this.setState({loading: false});
+								Session.current.user = new User(user.name, user.profile);
 
-							this.props.navigation.navigate("Hospitals", { baseDataSync });
+								console.log(Session.current.user);
 
-						} 
-						else
-						{
-							this.setState({loading: false});
-						}
+								this.setState({loading: false});
+								
+								this.props.navigation.navigate("Hospitals");
 
-					});
-				}
-				else
-				{
-					this.setState({loading: false});
-				}
-			
-			});
+							} 
+							else
+							{
+								this.setState({loading: false});
+							}
 
-		}
+						});
+					}
+					else
+					{
+						this.setState({loading: false});
+					}
+				
+				});
 
-		console.log(this.state.baseDataSync);
+			}
+			else
+			{
+				this.setState({loading: false});
+			}
+
+		});
     }
 	
 	getBaseDataSync = async () => {
@@ -125,16 +131,36 @@ export default class SignIn extends Component {
 					    ["auth", JSON.stringify(params)],
 					    ["userData", JSON.stringify(content)]
 					], async() => {
-			        
-						this.setState({ textContent: 'Sincronizando...' });
-						
-						let baseDataSync = await this.getBaseDataSync();
 
-						this.setState({baseDataSync: baseDataSync});
+						AsyncStorage.getItem('baseDataSync', async (err, baseDataSync) => {
 
-						this.setState({loading: false});
+				        	console.log(baseDataSync);
+
+							if (baseDataSync != null) {
+
+								this.setState({loading: false});
 						
-						this.props.navigation.navigate("Hospitals", { baseDataSync });
+								this.props.navigation.navigate("Hospitals");
+
+							}
+							else
+							{
+								this.setState({ textContent: 'Sincronizando...' });
+
+								let baseDataSync = await this.getBaseDataSync();
+
+								AsyncStorage.setItem('baseDataSync', JSON.stringify(baseDataSync), () => {
+
+									this.setState({loading: false});
+
+									this.props.navigation.navigate("Hospitals");
+
+								});
+							}
+
+
+						});
+				
 			        });	
 		        }	
 		        else
