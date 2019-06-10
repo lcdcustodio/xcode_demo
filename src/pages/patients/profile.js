@@ -144,9 +144,10 @@ export default class Profile extends React.Component {
 
 	render() {
 		let CRM = this.props.patient.mainProcedureCRM !== null ? this.props.patient.mainProcedureCRM : 'INFORMAR'
-
+		const { container, row, column50, column100, overlay, item, textValue, trackingListItem, hospitalizationsListContainer } = styles;
+		
 		return (
-			<View style={ styles.container }>
+			<View style={ container }>
 				
 				<ModalList paddingTop={70} height={45} visible={this.state.modalAttendanceType} list={this.state.listAttendanceType} action={this.handleAttendanceType} />
 				<ModalList paddingTop={70} height={45} visible={this.state.modalHospitalizationType}  list={this.state.listHospitalizationType}  action={this.handleHospitalizationType} />
@@ -161,40 +162,40 @@ export default class Profile extends React.Component {
 				<TextLabel marginLeft="5" label='Prontuário' />
 				<TextValue marginLeft="5" value={this.props.patient.medicalRecordsNumber} />	
 
-				<View style={ styles.row }>
-					<View style={ styles.column50 }>
+				<View style={ row }>
+					<View style={ column50 }>
 						<TextLabel marginLeft="10" label='Convênio' />
 						<TextValue marginLeft="10" value={this.props.patient.agreement} />
 					</View>
 					
-					<View style={ styles.column50 }>
+					<View style={ column50 }>
 						<TextLabel marginLeft="0" label='Plano' />
 						<TextValue marginLeft="0" value={this.props.patient.plane} />
 					</View>
 				</View>
 
-				<View style={ styles.row }>
-					<View style={ styles.column50 }>
+				<View style={ row }>
+					<View style={ column50 }>
 						<TextLabel marginLeft="10" label='Nascimento' />
 						<TextValue marginLeft="10" value={this.props.patient.patientBornDate ? moment(this.props.patient.patientBornDate).format('DD/MM/YYYY') : '' } />
 
 						<TextValue marginLeft="20" size={13} value={ this.props.patient.patientBornDate ? moment().diff(this.props.patient.patientBornDate, 'years') + ' anos': '' }/>
 					</View>
 					
-					<View style={ styles.column50 }>
+					<View style={ column50 }>
 						<TextLabel marginLeft="0" label='Altura/Peso' />
 						<TextValue marginLeft="0" color={'#0000FF'} value={ this.props.patient.patientHeight && this.props.patient.patientWeight ? `${this.props.patient.patientHeight}m / ${this.props.patient.patientWeight}kg` : '' } press={ () => { this.toggleModal('modalHeightAndWeight')} } />
 						<TextValue marginLeft="0" size={13} value={ this.props.patient.patientHeight && this.props.patient.patientWeight ? 'IMC ' + (Number(this.props.patient.patientWeight) / Math.pow(Number(this.props.patient.patientHeight), 2)).toFixed(2) : '' }/>
 					</View>
 				</View>
 
-				<View style={ styles.row }>
-					<View style={ styles.column50 }>
+				<View style={ row }>
+					<View style={ column50 }>
 						<TextLabel marginLeft="10" label='Atendimento' />
 						<TextValue marginLeft="10" color={'#0000FF'} value={ this.attendanceType(this.props.patient.attendanceType) } press={ () => { this.toggleModal('modalAttendanceType')}} />
 					</View>
 					
-					<View style={ styles.column50 }>
+					<View style={ column50 }>
 						<TextLabel marginLeft="0" label='Tipo' />
 						<TextValue marginLeft="0" color={'#0000FF'} value={ this.hospitalizationType(this.props.patient.hospitalizationType) } press={ () => { this.toggleModal('modalHospitalizationType')} } />
 					</View>
@@ -202,15 +203,15 @@ export default class Profile extends React.Component {
 
 				<Line marginTop={5} marginBottom={1} marginLeft={5} width={90} size={2} />
 
-				<View style={ styles.row }>
-					<View style={ styles.column100 }>
+				<View style={ row }>
+					<View style={ column100 }>
 						<TextLabel marginLeft="5" label='Data de Internação' />
 						<TextValue marginLeft="5" value={ this.props.patient.admissionDate ? moment(this.props.patient.admissionDate).format('DD/MM/YYYY HH:mm') : ''} />
 					</View>
 				</View>
 
-				<View style={ styles.row }>
-					<View style={ styles.column100 }>
+				<View style={ row }>
+					<View style={ column100 }>
 						{this.props.patient.trackingList.map((prop, index) => {
 							return (
 								<View key={prop.trackingId} style={{marginTop: '2%'}}>
@@ -227,22 +228,22 @@ export default class Profile extends React.Component {
 				
 				<Line marginTop={3} marginBottom={1} marginLeft={5} width={90} size={2} />
 
-				<View style={ styles.row }>
-					<View style={ styles.column100 }>
+				<View style={ row }>
+					<View style={ column100 }>
 						<TextLabel marginLeft="5" label='Data da Alta Médica' />
 						<TextValue marginLeft="5" value={ this.props.patient.medicalExitDate ? moment(this.props.patient.medicalExitDate).format('DD/MM/YYYY HH:mm') : '' } />
 					</View>
 				</View>
 
-				<View style={ styles.row }>
-					<View style={ styles.column100 }>
+				<View style={ row }>
+					<View style={ column100 }>
 						<TextLabel marginLeft="5" label='Data da Alta Administrativa' />
 						<TextValue marginLeft="5" value={ this.props.patient.exitDate ? moment(this.props.patient.exitDate).format('DD/MM/YYYY HH:mm') : '' } />
 					</View>
 				</View>
 
-				<View style={ styles.row }>
-					<View style={ styles.column100 }>
+				<View style={ row }>
+					<View style={ column100 }>
 						<TextLabel marginLeft="5" label='Motivo da alta Administrativa' />
 						<TextValue marginLeft="5" value={this.props.patient.exitDescription} />
 					</View>
@@ -250,8 +251,8 @@ export default class Profile extends React.Component {
 				
 				<Line marginTop={5} marginBottom={1} marginLeft={5} width={90} size={2} />
 				
-				<View style={ styles.row }>
-					<View style={ styles.column100 }>
+				<View style={ row }>
+					<View style={ column100 }>
 						<TextLabel marginLeft="5" label='Procedimento Principal' />
 						{
 							this.props.patient.mainProcedureTUSSDisplayName ? 
@@ -262,15 +263,15 @@ export default class Profile extends React.Component {
 					</View>
 				</View>
 
-				<View style={ styles.row }>
-					<View style={ styles.column100 }>
+				<View style={ row }>
+					<View style={ column100 }>
 						<TextLabel marginLeft="5" label='CRM do Responsável' />
 						<TextValue marginLeft="5" color={'#0000FF'} value={CRM} press={ () => { this.toggleModal('modalCRM')} } />
 					</View>
 				</View>
 				
-				<View style={ styles.row }>
-					<View style={ styles.column100 }>
+				<View style={ row }>
+					<View style={ column100 }>
 						<TextLabel marginLeft="5" label='CID Primário' />
 						{this.props.patient.diagnosticHypothesisList.map((prop) => {
 							return (
@@ -280,15 +281,15 @@ export default class Profile extends React.Component {
 					</View>
 				</View>
 					
-				<View style={ styles.row }>
-					<View style={ styles.column100 }>
+				<View style={ row }>
+					<View style={ column100 }>
 						<TextLabel marginLeft="5" label='CIDs Secundários' />
 						<TextValue color={'#0000FF'} marginLeft="5" value={'ADICIONAR'} press={ () => { this.toggleModal('modalSecondaryCID')} } />
 						{ 
 							this.props.patient.secondaryCIDList.length ? 
 								this.props.patient.secondaryCIDList.map((cidItem) => {
 									return (
-										<Text style={styles.textValue} key={cidItem.cidId} onPress={ () => this.removeSecondaryCID(cidItem) }> { cidItem.cidDisplayName } </Text>
+										<Text style={textValue} key={cidItem.cidId} onPress={ () => this.removeSecondaryCID(cidItem) }> { cidItem.cidDisplayName } </Text>
 									);
 								})
 							: 
@@ -297,15 +298,15 @@ export default class Profile extends React.Component {
 					</View>
 				</View>
 				
-				<View style={ styles.row }>
-					<View style={ styles.column100 }>
+				<View style={ row }>
+					<View style={ column100 }>
 						<TextLabel marginLeft="5" label='Internações Anteriores' />
 						{this.props.patient.previousHospitalizations.map((prop) => {
 							let startDate = prop.admissionDate ? moment(prop.admissionDate).format('DD/MM/YYYY') : ''
 							let endDate = prop.exitDate ? moment(prop.exitDate).format('DD/MM/YYYY') : ''
 
 							return (
-								<View key={prop.id} style={ styles.hospitalizationsListContainer }>
+								<View key={prop.id} style={ hospitalizationsListContainer }>
 									<TextValue marginLeft="5" value={ `${startDate} à ${endDate} - ${prop.hospitalizationDays} dias \n`} />
 									<TextValue marginLeft="5" value={ `${prop.exitCidDisplayName}` } />
 								</View>
