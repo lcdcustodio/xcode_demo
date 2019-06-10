@@ -1,23 +1,25 @@
 import React, { Component } from 'react';
 import { StyleSheet, Text, View, Alert  } from 'react-native';
-import TextLabel from '../../components/TextLabel'
-import TextValue from '../../components/TextValue'
-import Line from '../../components/Line'
-import TitleScreen from '../../components/Title'
+import TextLabel from '../../components/TextLabel';
+import TextValue from '../../components/TextValue';
+import Line from '../../components/Line';
+import TitleScreen from '../../components/Title';
 import moment from 'moment';
+import uuidv4 from'uuid/v4';
 
-import ModalList from '../../components/ModalList'
-import ModalInput from '../../components/ModalInput'
-import ModalWeightAndHeight from '../../components/ModalWeightAndHeight'
-import ModalListSearchable from '../../components/ModalListSearchable'
+import ModalList from '../../components/ModalList';
+import ModalInput from '../../components/ModalInput';
+import ModalWeightAndHeight from '../../components/ModalWeightAndHeight';
+import ModalListSearchable from '../../components/ModalListSearchable';
+import AsyncStorage from '@react-native-community/async-storage';
 
-
-export default class Profile extends React.Component {
+export default class Profile extends Component {
 
 	constructor(props) {
 		super(props);	
 		this.state = {
-			modalAttendanceTypeVisible: false,
+			baseDataSync: null,
+			modalAttendanceType: false,
 			modalHospitalizationType: false,
 			modalHeightAndWeight: false,
 			modalCRM: false,
@@ -33,33 +35,40 @@ export default class Profile extends React.Component {
 				{key: 2, value: 'SURGICAL', label: 'CIRÚRGICO'}
 			]
 		}
+
+		AsyncStorage.getItem('baseDataSync', (err, baseDataSync) => {
+			this.setState({
+				baseDataSync
+			});
+		});
 	}
 
-	toggleModalAttendanceType = () => {
-		this.setState({modalAttendanceTypeVisible: !this.state.modalAttendanceTypeVisible})
+	/* didFocus = this.props.navigation.addListener('didFocus', (res) => {
+		AsyncStorage.getItem('baseDataSync', (err, baseDataSync) => {
+			this.setState({
+				dataBaseSync
+			});
+		});
+	}); */
+
+	toggleModal = (modalName) => {
+		this.setState({[modalName]: !this.state[modalName]})
 	}
 
 	handleAttendanceType = (attendanceType) => {
-		this.props.handleAttendanceType(attendanceType.item.value)
-		this.toggleModalAttendanceType()
-	}
-
-	toggleModalHospitalizationType = () => {
-		this.setState({modalHospitalizationType: !this.state.modalHospitalizationType})
+		this.props.handleUpdatePatient('attendanceType', attendanceType.item.value)
+		this.toggleModal('modalAttendanceType')
 	}
 
 	handleHospitalizationType = (hospitalizationType) => {
-		this.props.handleHospitalizationType(hospitalizationType.item.value)
-		this.toggleModalHospitalizationType()
+		this.props.handleUpdatePatient('hospitalizationType', hospitalizationType.item.value)
+		this.toggleModal('modalHospitalizationType')
 	}
 
-	toggleModalHeightAndWeight = () => {
-		this.setState({modalHeightAndWeight: !this.state.modalHeightAndWeight})
-	}
-
-	handleHeightAndWeight = (patientHeight, patientWeight) => {
-		this.props.handleHeightAndWeight(patientHeight, patientWeight)
-		this.toggleModalHeightAndWeight()
+	handleHeightAndWeight = async (patientHeight, patientWeight) => {
+		await this.props.handleUpdatePatient('patientHeight', patientHeight)
+		await this.props.handleUpdatePatient('patientWeight', patientWeight)
+		this.toggleModal('modalHeightAndWeight')
 	}
 
 	attendanceType(item) {
@@ -86,127 +95,140 @@ export default class Profile extends React.Component {
 		return null;
 	}
 
-	toggleModalCRM = () => {
-		this.setState({modalCRM: !this.state.modalCRM})
-	}
-
 	handleCRM = (crm) => {
-		this.props.handleCRM(crm)
-		this.toggleModalCRM()
-	}
-
-	toggleModalPrimaryCID = () => {
-		this.setState({modalPrimaryCID: !this.state.modalPrimaryCID})
+		this.props.handleUpdatePatient('mainProcedureCRM', crm)
+		this.toggleModal('modalCRM')
 	}
 
 	handlePrimaryCID = (cid) => {
-		this.props.handlePrimaryCID(cid.item)
-		this.toggleModalPrimaryCID()
-	}
+		let diagnosticHypothesisList = []
+		let diagnosticHypothesis = {
+			beginDate: moment(),
+			cidDisplayName: `${cid.item.code} - ${cid.item.name}`,
+			cidId: cid.item.id,
+			uuid: uuidv4()
+		}
+		diagnosticHypothesisList.push(diagnosticHypothesis)
 
-	toggleModalSecondaryCID = () => {
-		this.setState({modalSecondaryCID: !this.state.modalSecondaryCID})
+		this.props.handleUpdatePatient('diagnosticHypothesisList', diagnosticHypothesisList)
+		this.toggleModal('modalPrimaryCID')
 	}
 
 	handleSecondaryCID = (cid) => {
-		this.props.handleSecondaryCID(cid.item)
-		this.toggleModalSecondaryCID()
+		let secondaryCID = {
+			beginDate: moment(),
+			cidDisplayName: `${cid.item.code} - ${cid.item.name}`,
+			cidId: cid.item.id,
+			uuid: uuidv4()
+		}
+
+		if(this.props.patient.secondaryCIDList && this.props.patient.secondaryCIDList.length > 0) {
+			let cidList = this.props.patient.secondaryCIDList
+			cidList.push(secondaryCID)
+			this.props.handleUpdatePatient('secondaryCIDList', cidList)
+		} else {
+			let cidList = [];
+			cidList.push(secondaryCID)
+			this.props.handleUpdatePatient('secondaryCIDList', cidList)
+		}
+		this.toggleModal('modalSecondaryCID')
 	}
 
-	removeSecondaryCID = (item) => {
+	removeSecondaryCID = (cidToRemove) => {
 		Alert.alert(
 			'Remover CID Secundário',
 			'Deseja remover?',
 			[
 				{text: 'Cancelar', onPress: () => console.log('Remocao de CID secundário cancelado'), style: 'cancel', },
-				{text: 'OK', onPress: () => this.props.removeSecondaryCID(item)},
+				{text: 'OK', onPress: () => 
+					{
+						let newCidList = this.props.patient.secondaryCIDList.filter(item => item.cidId !== cidToRemove.cidId)
+						this.props.handleUpdatePatient("secondaryCIDList", newCidList)
+					},
+				}
 			],
 			{cancelable: false},
 		);
 	}
 
-	toggleModalMainProcedure = () => {
-		this.setState({modalMainProcedure: !this.state.modalMainProcedure})
-	}
-
-	handleMainProcedure = (procedure) => {
-		this.props.handleMainProcedure(procedure.item)
-		this.toggleModalMainProcedure()
+	handleMainProcedure = async (procedure) => {
+		await this.props.handleUpdatePatient('mainProcedureTUSSDisplayName', `${procedure.item.code} - ${procedure.item.name}`)
+		await this.props.handleUpdatePatient('mainProcedureTUSSId', procedure.item.code)
+		this.toggleModal('modalMainProcedure')
 	}
 
 	render() {
-		let CRM = this.props.perfil.mainProcedureCRM !== null ? this.props.perfil.mainProcedureCRM : 'INFORMAR'
-
-		console.log("Base Data Sync => ", this.props.baseDataSync)
-		console.log("Patient => ", this.props.perfil)
-
+		console.log("baseDataSync", this.state.baseDataSync);
+		let CRM = this.props.patient.mainProcedureCRM !== null ? this.props.patient.mainProcedureCRM : 'INFORMAR';
+		const { container, row, column50, column100, overlay, item, textValue, trackingListItem, hospitalizationsListContainer } = styles;
+		
 		return (
-			<View style={ styles.container }>
+			<View style={ container }>
 				
-				<ModalList paddingTop={70} height={45} visible={this.state.modalAttendanceTypeVisible} list={this.state.listAttendanceType} action={this.handleAttendanceType} />
+				<ModalList paddingTop={70} height={45} visible={this.state.modalAttendanceType} list={this.state.listAttendanceType} action={this.handleAttendanceType} />
 				<ModalList paddingTop={70} height={45} visible={this.state.modalHospitalizationType}  list={this.state.listHospitalizationType}  action={this.handleHospitalizationType} />
-				<ModalInput paddingTop={50} height={40} visible={this.state.modalCRM} label={'CRM'} value={this.props.perfil.mainProcedureCRM ? this.props.perfil.mainProcedureCRM : ''} action={ this.handleCRM} />
-				<ModalWeightAndHeight paddingTop={50} height={70} visible={this.state.modalHeightAndWeight} patientHeight={this.props.perfil.patientHeight} patientWeight={this.props.perfil.patientWeight} action={ this.handleHeightAndWeight} />
-				<ModalListSearchable paddingTop={20} height={80} visible={this.state.modalPrimaryCID} list={this.props.baseDataSync.cid} action={this.handlePrimaryCID} />
+				<ModalInput paddingTop={50} height={40} visible={this.state.modalCRM} label={'CRM'} value={this.props.patient.mainProcedureCRM ? this.props.patient.mainProcedureCRM : ''} action={ this.handleCRM} />
+				<ModalWeightAndHeight paddingTop={50} height={70} visible={this.state.modalHeightAndWeight} patientHeight={this.props.patient.patientHeight} patientWeight={this.props.patient.patientWeight} action={ this.handleHeightAndWeight} />
+				{/* <ModalListSearchable paddingTop={20} height={80} visible={this.state.modalPrimaryCID} list={this.props.baseDataSync.cid} action={this.handlePrimaryCID} />
 				<ModalListSearchable paddingTop={20} height={80} visible={this.state.modalSecondaryCID} list={this.props.baseDataSync.cid} action={this.handleSecondaryCID} />
-				<ModalListSearchable paddingTop={20} height={80} visible={this.state.modalMainProcedure} list={this.props.baseDataSync.tuss} action={this.handleMainProcedure} />
+				<ModalListSearchable paddingTop={20} height={80} visible={this.state.modalMainProcedure} list={this.props.baseDataSync.tuss} action={this.handleMainProcedure} /> */}
 
-				<TitleScreen marginTop={5} marginLeft={5} title={this.props.perfil.patientName} />
+				<TitleScreen marginTop={5} marginLeft={5} title={this.props.patient.patientName} />
 				<Line marginTop={3} marginBottom={3} marginLeft={5} width={90} size={2} />
 				<TextLabel marginLeft="5" label='Prontuário' />
-				<TextValue marginLeft="5" value={this.props.perfil.medicalRecordsNumber} />	
+				<TextValue marginLeft="5" value={this.props.patient.medicalRecordsNumber} />	
 
-				<View style={ styles.row }>
-					<View style={ styles.column50 }>
+				<View style={ row }>
+					<View style={ column50 }>
 						<TextLabel marginLeft="10" label='Convênio' />
-						<TextValue marginLeft="10" value={this.props.perfil.agreement} />
+						<TextValue marginLeft="10" value={this.props.patient.agreement} />
 					</View>
 					
-					<View style={ styles.column50 }>
+					<View style={ column50 }>
 						<TextLabel marginLeft="0" label='Plano' />
-						<TextValue marginLeft="0" value={this.props.perfil.plane} />
+						<TextValue marginLeft="0" value={this.props.patient.plane} />
 					</View>
 				</View>
 
-				<View style={ styles.row }>
-					<View style={ styles.column50 }>
+				<View style={ row }>
+					<View style={ column50 }>
 						<TextLabel marginLeft="10" label='Nascimento' />
-						<TextValue marginLeft="10" value={this.props.perfil.patientBornDate ? moment(this.props.perfil.patientBornDate).format('DD/MM/YYYY') : '' } />
+						<TextValue marginLeft="10" value={this.props.patient.patientBornDate ? moment(this.props.patient.patientBornDate).format('DD/MM/YYYY') : '' } />
 
-						<TextValue marginLeft="20" size={13} value={ this.props.perfil.patientBornDate ? moment().diff(this.props.perfil.patientBornDate, 'years') + ' anos': '' }/>
+						<TextValue marginLeft="20" size={13} value={ this.props.patient.patientBornDate ? moment().diff(this.props.patient.patientBornDate, 'years') + ' anos': '' }/>
 					</View>
 					
-					<View style={ styles.column50 }>
+					<View style={ column50 }>
 						<TextLabel marginLeft="0" label='Altura/Peso' />
-						<TextValue marginLeft="0" color={'#0000FF'} value={ this.props.perfil.patientHeight && this.props.perfil.patientWeight ? `${this.props.perfil.patientHeight}m / ${this.props.perfil.patientWeight}kg` : '' } press={ this.toggleModalHeightAndWeight } />
-						<TextValue marginLeft="0" size={13} value={ this.props.perfil.patientHeight && this.props.perfil.patientWeight ? 'IMC ' + (Number(this.props.perfil.patientWeight) / Math.pow(Number(this.props.perfil.patientHeight), 2)).toFixed(2) : '' }/>
+						<TextValue marginLeft="0" color={'#0000FF'} value={ this.props.patient.patientHeight && this.props.patient.patientWeight ? `${this.props.patient.patientHeight}m / ${this.props.patient.patientWeight}kg` : '' } press={ () => { this.toggleModal('modalHeightAndWeight')} } />
+						<TextValue marginLeft="0" size={13} value={ this.props.patient.patientHeight && this.props.patient.patientWeight ? 'IMC ' + (Number(this.props.patient.patientWeight) / Math.pow(Number(this.props.patient.patientHeight), 2)).toFixed(2) : '' }/>
 					</View>
 				</View>
 
-				<View style={ styles.row }>
-					<View style={ styles.column50 }>
+				<View style={ row }>
+					<View style={ column50 }>
 						<TextLabel marginLeft="10" label='Atendimento' />
-						<TextValue marginLeft="10" color={'#0000FF'} value={ this.attendanceType(this.props.perfil.attendanceType) } press={ this.toggleModalAttendanceType } />
+						<TextValue marginLeft="10" color={'#0000FF'} value={ this.attendanceType(this.props.patient.attendanceType) } press={ () => { this.toggleModal('modalAttendanceType')}} />
 					</View>
 					
-					<View style={ styles.column50 }>
+					<View style={ column50 }>
 						<TextLabel marginLeft="0" label='Tipo' />
-						<TextValue marginLeft="0" color={'#0000FF'} value={ this.hospitalizationType(this.props.perfil.hospitalizationType) } press={ this.toggleModalHospitalizationType } />
+						<TextValue marginLeft="0" color={'#0000FF'} value={ this.hospitalizationType(this.props.patient.hospitalizationType) } press={ () => { this.toggleModal('modalHospitalizationType')} } />
 					</View>
 				</View>
 
 				<Line marginTop={5} marginBottom={1} marginLeft={5} width={90} size={2} />
 
-				<View style={ styles.row }>
-					<View style={ styles.column100 }>
+				<View style={ row }>
+					<View style={ column100 }>
 						<TextLabel marginLeft="5" label='Data de Internação' />
-						<TextValue marginLeft="5" value={ this.props.perfil.admissionDate ? moment(this.props.perfil.admissionDate).format('DD/MM/YYYY HH:mm') : ''} />
+						<TextValue marginLeft="5" value={ this.props.patient.admissionDate ? moment(this.props.patient.admissionDate).format('DD/MM/YYYY HH:mm') : ''} />
 					</View>
 				</View>
 
-				<View style={ styles.row }>
-					<View style={ styles.column100 }>
-						{this.props.perfil.trackingList.map((prop, index) => {
+				<View style={ row }>
+					<View style={ column100 }>
+						{this.props.patient.trackingList && this.props.patient.trackingList.map((prop, index) => {
 							return (
 								<View key={prop.trackingId} style={{marginTop: '2%'}}>
 									<TextLabel marginLeft="5" label={`${++index} Monitoramento`} />
@@ -222,68 +244,68 @@ export default class Profile extends React.Component {
 				
 				<Line marginTop={3} marginBottom={1} marginLeft={5} width={90} size={2} />
 
-				<View style={ styles.row }>
-					<View style={ styles.column100 }>
+				<View style={ row }>
+					<View style={ column100 }>
 						<TextLabel marginLeft="5" label='Data da Alta Médica' />
-						<TextValue marginLeft="5" value={ this.props.perfil.medicalExitDate ? moment(this.props.perfil.medicalExitDate).format('DD/MM/YYYY HH:mm') : '' } />
+						<TextValue marginLeft="5" value={ this.props.patient.medicalExitDate ? moment(this.props.patient.medicalExitDate).format('DD/MM/YYYY HH:mm') : '' } />
 					</View>
 				</View>
 
-				<View style={ styles.row }>
-					<View style={ styles.column100 }>
+				<View style={ row }>
+					<View style={ column100 }>
 						<TextLabel marginLeft="5" label='Data da Alta Administrativa' />
-						<TextValue marginLeft="5" value={ this.props.perfil.exitDate ? moment(this.props.perfil.exitDate).format('DD/MM/YYYY HH:mm') : '' } />
+						<TextValue marginLeft="5" value={ this.props.patient.exitDate ? moment(this.props.patient.exitDate).format('DD/MM/YYYY HH:mm') : '' } />
 					</View>
 				</View>
 
-				<View style={ styles.row }>
-					<View style={ styles.column100 }>
+				<View style={ row }>
+					<View style={ column100 }>
 						<TextLabel marginLeft="5" label='Motivo da alta Administrativa' />
-						<TextValue marginLeft="5" value={this.props.perfil.exitDescription} />
+						<TextValue marginLeft="5" value={this.props.patient.exitDescription} />
 					</View>
 				</View>
 				
 				<Line marginTop={5} marginBottom={1} marginLeft={5} width={90} size={2} />
 				
-				<View style={ styles.row }>
-					<View style={ styles.column100 }>
+				<View style={ row }>
+					<View style={ column100 }>
 						<TextLabel marginLeft="5" label='Procedimento Principal' />
 						{
-							this.props.perfil.mainProcedureTUSSDisplayName ? 
-							<TextValue marginLeft="5" color={'#0000FF'} value={this.props.perfil.mainProcedureTUSSDisplayName} press={this.toggleModalMainProcedure} />
+							this.props.patient.mainProcedureTUSSDisplayName ? 
+							<TextValue marginLeft="5" color={'#0000FF'} value={this.props.patient.mainProcedureTUSSDisplayName} press={ () => { this.toggleModal('modalMainProcedure')} } />
 							:
-							<TextValue marginLeft="5" color={'#0000FF'} value={'ESCOLHER'} press={this.toggleModalSecondaryCID} press={this.toggleModalMainProcedure} />	
+							<TextValue marginLeft="5" color={'#0000FF'} value={'ESCOLHER'} press={this.toggleModalSecondaryCID} press={ () => { this.toggleModal('modalMainProcedure')} } />	
 						}
 					</View>
 				</View>
 
-				<View style={ styles.row }>
-					<View style={ styles.column100 }>
+				<View style={ row }>
+					<View style={ column100 }>
 						<TextLabel marginLeft="5" label='CRM do Responsável' />
-						<TextValue marginLeft="5" color={'#0000FF'} value={CRM} press={ this.toggleModalCRM } />
+						<TextValue marginLeft="5" color={'#0000FF'} value={CRM} press={ () => { this.toggleModal('modalCRM')} } />
 					</View>
 				</View>
 				
-				<View style={ styles.row }>
-					<View style={ styles.column100 }>
+				<View style={ row }>
+					<View style={ column100 }>
 						<TextLabel marginLeft="5" label='CID Primário' />
-						{this.props.perfil.diagnosticHypothesisList.map((prop) => {
+						{this.props.patient.diagnosticHypothesisList && this.props.patient.diagnosticHypothesisList.map((prop) => {
 							return (
-								<TextValue color={'#0000FF'} key={prop.cidId} marginLeft="5" value={prop.cidDisplayName ? prop.cidDisplayName : 'Escolher'} press={this.toggleModalPrimaryCID} />
+								<TextValue color={'#0000FF'} key={prop.cidId} marginLeft="5" value={prop.cidDisplayName ? prop.cidDisplayName : 'Escolher'} press={ () => { this.toggleModal('modalPrimaryCID')} } />
 							);
 						})}
 					</View>
 				</View>
 					
-				<View style={ styles.row }>
-					<View style={ styles.column100 }>
+				<View style={ row }>
+					<View style={ column100 }>
 						<TextLabel marginLeft="5" label='CIDs Secundários' />
-						<TextValue color={'#0000FF'} marginLeft="5" value={'ADICIONAR'} press={this.toggleModalSecondaryCID} />
+						<TextValue color={'#0000FF'} marginLeft="5" value={'ADICIONAR'} press={ () => { this.toggleModal('modalSecondaryCID')} } />
 						{ 
-							this.props.perfil.secondaryCIDList.length ? 
-								this.props.perfil.secondaryCIDList.map((cidItem) => {
+							this.props.patient.secondaryCIDList.length ? 
+								this.props.patient.secondaryCIDList.map((cidItem) => {
 									return (
-										<Text style={styles.textValue} key={cidItem.cidId} onPress={ () => this.removeSecondaryCID(cidItem) }> { cidItem.cidDisplayName } </Text>
+										<Text style={textValue} key={cidItem.cidId} onPress={ () => this.removeSecondaryCID(cidItem) }> { cidItem.cidDisplayName } </Text>
 									);
 								})
 							: 
@@ -292,15 +314,15 @@ export default class Profile extends React.Component {
 					</View>
 				</View>
 				
-				<View style={ styles.row }>
-					<View style={ styles.column100 }>
+				<View style={ row }>
+					<View style={ column100 }>
 						<TextLabel marginLeft="5" label='Internações Anteriores' />
-						{this.props.perfil.previousHospitalizations.map((prop) => {
+						{this.props.patient.previousHospitalizations && this.props.patient.previousHospitalizations.map((prop) => {
 							let startDate = prop.admissionDate ? moment(prop.admissionDate).format('DD/MM/YYYY') : ''
 							let endDate = prop.exitDate ? moment(prop.exitDate).format('DD/MM/YYYY') : ''
 
 							return (
-								<View key={prop.id} style={{marginTop: '2%', marginBottom: '3%'}}>
+								<View key={prop.id} style={ hospitalizationsListContainer }>
 									<TextValue marginLeft="5" value={ `${startDate} à ${endDate} - ${prop.hospitalizationDays} dias \n`} />
 									<TextValue marginLeft="5" value={ `${prop.exitCidDisplayName}` } />
 								</View>
@@ -361,5 +383,9 @@ const styles = StyleSheet.create({
 		fontSize: 18,
 		marginTop: '3%', 
 		marginLeft: '5%'
+	},
+	hospitalizationsListContainer: {
+		marginTop: '2%', 
+		marginBottom: '3%'
 	}
 });
