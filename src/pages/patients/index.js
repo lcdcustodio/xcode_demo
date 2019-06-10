@@ -4,6 +4,7 @@ import { Container, Content, Header, Left, Right, Body, Icon, Title, Text } from
 import { Alert, View, FlatList, TouchableOpacity, Image, BackHandler } from "react-native"
 import moment from 'moment'
 import _ from 'lodash'
+import AsyncStorage from '@react-native-community/async-storage';
 
 export default class Patients extends Component {
     
@@ -26,44 +27,45 @@ export default class Patients extends Component {
 
     didFocus = this.props.navigation.addListener('didFocus', (res) => {
 
-        let hospital = this.props.navigation.getParam('hospital');
+        AsyncStorage.getItem('hospital', (err, hospital) => {
+            
+            let patients = [];
 
-        let patients = [];
+            hospital = JSON.parse(hospital);
 
-        console.log(hospital.hospitalizationList);
+            hospital.hospitalizationList.forEach( patient => {
 
-        hospital.hospitalizationList.forEach( patient => {
+                let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
 
-            let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
+                if (
+                    (patient.exitDate == null && listOfOrderedPatientObservations.length == 0) || 
 
-            if(
-                (patient.exitDate == null && listOfOrderedPatientObservations.length == 0) || 
+                    (patient.exitDate == null && listOfOrderedPatientObservations.length > 0 && !listOfOrderedPatientObservations[0].endTracking) || 
 
-                (patient.exitDate == null && listOfOrderedPatientObservations.length > 0 && !listOfOrderedPatientObservations[0].endTracking) || 
+                    (patient.exitDate != null && listOfOrderedPatientObservations.length > 0 && !listOfOrderedPatientObservations[0].medicalRelease)
+                )
+                {
+                    patient.totalDaysOfHospitalization = this.calculateDaysOfHospitalization(patient);
+                    patient.colorNumber = this.getColorNumber(patient);
+                    patient.colorName = this.getColor(patient.colorNumber);
+                    patient.lastVisit = this.getLastVisit(patient);
+                    patient.iconNumber = this.getIconNumber(patient);
+                    patient.icon = this.getIcon(patient.iconNumber);
+                    patient.orderField = this.getOrderField(patient);
+                    patients.push(patient);
+                }
 
-                (patient.exitDate != null && listOfOrderedPatientObservations.length > 0 && !listOfOrderedPatientObservations[0].medicalRelease)
-            )
-            {
-                patient.totalDaysOfHospitalization = this.calculateDaysOfHospitalization(patient);
-                patient.colorNumber = this.getColorNumber(patient);
-                patient.colorName = this.getColor(patient.colorNumber);
-                patient.lastVisit = this.getLastVisit(patient);
-                patient.iconNumber = this.getIconNumber(patient);
-                patient.icon = this.getIcon(patient.iconNumber);
-                patient.orderField = this.getOrderField(patient);
-                patients.push(patient);
-            }
+                console.log(patients);
+            });
+
+            patients = _.orderBy(patients, ['orderField'], ['asc']);
+
+            hospital.hospitalizationList = patients;
 
             console.log(patients);
+
+            this.setState({hospital: hospital});
         });
-
-        patients = _.orderBy(patients, ['orderField'], ['asc']);
-
-        hospital.hospitalizationList = patients;
-
-        console.log(patients);
-
-        this.setState({hospital: hospital});
     });
     
     exitDateBelow48Hours(date) {
