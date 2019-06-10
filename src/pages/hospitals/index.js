@@ -374,9 +374,21 @@ export default class Hospital extends Component {
 			}
 		});
 
-		console.log(lastVisit);
+		if (lastVisit == null) {
+			lastVisit = 'Sem visita';
+		}
+		else
+		{
+			let visit = new Date()
+
+			var day = (visit.getDay() < 10 ? '0' : '') + visit.getDay();
+
+			var month = ((visit.getMonth() + 1) < 10 ? '0' : '') + (visit.getMonth() + 1);
+
+			lastVisit = day + "/" + month + "/" + visit.getFullYear();
+		}
 		
-		return lastVisit != null ? moment(lastVisit).format('DD/MM/YYYY') : 'Sem visita'
+		return lastVisit;
 	}
 
 	loadHospitalsStorage = async () => {
@@ -469,7 +481,7 @@ export default class Hospital extends Component {
 	renderImageOrName(item) {
 
 		if ( item.logomarca ) {
-			return <Image source={item.logomarca} style={styles.hospitalIcon}  />;
+			return <Image source={item.logomarca} style={[styles.hospitalIcon, {width: 140, height: 60 }]}/>;
 		}
 		else
 		{

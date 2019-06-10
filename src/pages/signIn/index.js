@@ -19,7 +19,6 @@ export default class SignIn extends Component {
 			password: '*ru8u!uBus2A',
 			error: '',
 			textContent: '',
-			baseDataSync: null,
 			loading: false
 		}
 	}
