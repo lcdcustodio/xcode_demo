@@ -29,7 +29,7 @@ export default class Sidebar extends Component {
 			<LinearGradient colors={['#005cd1', '#35d8a6']} style={styles.linearGradient}>
 
 				<View style={styles.sideMenuContainer}>
-					<Image source={require('../images/logo-medico-consultor-branca.png')} style={styles.sideMenuLogoIcon} />
+					<Image source={require('../images/logo-mc-branca.png')} style={styles.sideMenuLogoIcon} />
 					<Text style={{ fontSize: 14, color: '#FFF', fontWeight: "bold" }}>
 						{user.name}
 					</Text>

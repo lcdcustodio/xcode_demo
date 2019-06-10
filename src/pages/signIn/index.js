@@ -34,13 +34,13 @@ export default class SignIn extends Component {
 
 				console.log(hospitalList);
 
-				if (hospitalList != 'undefined') {
+				if (hospitalList != null) {
 
 					AsyncStorage.getItem('userData', async (err, userData) => {
 
 						console.log(userData);
 
-						if (userData != 'undefined') {
+						if (userData != null) {
 
 							let user = JSON.parse(userData);
 

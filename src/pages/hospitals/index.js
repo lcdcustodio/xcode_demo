@@ -350,21 +350,34 @@ export default class Hospital extends Component {
 	}
 
 	setLastVisit = patients => {
+		
 		let lastVisit = null;
+		
 		patients.forEach(patient => {
-			patient.observationList.forEach( item =>{
-				if(item.observationDate != null) {
-					if(lastVisit == null) {
-						lastVisit = new Date(item.observationDate)
-					} else {
-						let visit = new Date(item.observationDate)
+
+			let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
+
+			if (listOfOrderedPatientObservations.length > 0) {
+
+				patient.observationList.forEach( item => {
+
+					if (lastVisit != null) {
+
+						let visit = new Date(item.observationDate);
+
 						if(lastVisit < visit){
-							lastVisit = visit
+							lastVisit = visit;
 						}
 					}
-				}
-			})
+					else
+					{
+						lastVisit = new Date(item.observationDate)
+					}
+				});
+			}
 		});
+
+		console.log(lastVisit);
 		
 		return lastVisit != null ? moment(lastVisit).format('DD/MM/YYYY') : 'Sem visita'
 	}
