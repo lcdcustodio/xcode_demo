@@ -11,13 +11,14 @@ import ModalList from '../../components/ModalList';
 import ModalInput from '../../components/ModalInput';
 import ModalWeightAndHeight from '../../components/ModalWeightAndHeight';
 import ModalListSearchable from '../../components/ModalListSearchable';
+import AsyncStorage from '@react-native-community/async-storage';
 
-
-export default class Profile extends React.Component {
+export default class Profile extends Component {
 
 	constructor(props) {
 		super(props);	
 		this.state = {
+			baseDataSync: null,
 			modalAttendanceType: false,
 			modalHospitalizationType: false,
 			modalHeightAndWeight: false,
@@ -34,7 +35,21 @@ export default class Profile extends React.Component {
 				{key: 2, value: 'SURGICAL', label: 'CIRÚRGICO'}
 			]
 		}
+
+		AsyncStorage.getItem('baseDataSync', (err, baseDataSync) => {
+			this.setState({
+				baseDataSync
+			});
+		});
 	}
+
+	/* didFocus = this.props.navigation.addListener('didFocus', (res) => {
+		AsyncStorage.getItem('baseDataSync', (err, baseDataSync) => {
+			this.setState({
+				dataBaseSync
+			});
+		});
+	}); */
 
 	toggleModal = (modalName) => {
 		this.setState({[modalName]: !this.state[modalName]})
@@ -143,7 +158,8 @@ export default class Profile extends React.Component {
 	}
 
 	render() {
-		let CRM = this.props.patient.mainProcedureCRM !== null ? this.props.patient.mainProcedureCRM : 'INFORMAR'
+		console.log("baseDataSync", this.state.baseDataSync);
+		let CRM = this.props.patient.mainProcedureCRM !== null ? this.props.patient.mainProcedureCRM : 'INFORMAR';
 		const { container, row, column50, column100, overlay, item, textValue, trackingListItem, hospitalizationsListContainer } = styles;
 		
 		return (
@@ -153,9 +169,9 @@ export default class Profile extends React.Component {
 				<ModalList paddingTop={70} height={45} visible={this.state.modalHospitalizationType}  list={this.state.listHospitalizationType}  action={this.handleHospitalizationType} />
 				<ModalInput paddingTop={50} height={40} visible={this.state.modalCRM} label={'CRM'} value={this.props.patient.mainProcedureCRM ? this.props.patient.mainProcedureCRM : ''} action={ this.handleCRM} />
 				<ModalWeightAndHeight paddingTop={50} height={70} visible={this.state.modalHeightAndWeight} patientHeight={this.props.patient.patientHeight} patientWeight={this.props.patient.patientWeight} action={ this.handleHeightAndWeight} />
-				<ModalListSearchable paddingTop={20} height={80} visible={this.state.modalPrimaryCID} list={this.props.baseDataSync.cid} action={this.handlePrimaryCID} />
+				{/* <ModalListSearchable paddingTop={20} height={80} visible={this.state.modalPrimaryCID} list={this.props.baseDataSync.cid} action={this.handlePrimaryCID} />
 				<ModalListSearchable paddingTop={20} height={80} visible={this.state.modalSecondaryCID} list={this.props.baseDataSync.cid} action={this.handleSecondaryCID} />
-				<ModalListSearchable paddingTop={20} height={80} visible={this.state.modalMainProcedure} list={this.props.baseDataSync.tuss} action={this.handleMainProcedure} />
+				<ModalListSearchable paddingTop={20} height={80} visible={this.state.modalMainProcedure} list={this.props.baseDataSync.tuss} action={this.handleMainProcedure} /> */}
 
 				<TitleScreen marginTop={5} marginLeft={5} title={this.props.patient.patientName} />
 				<Line marginTop={3} marginBottom={3} marginLeft={5} width={90} size={2} />
@@ -212,7 +228,7 @@ export default class Profile extends React.Component {
 
 				<View style={ row }>
 					<View style={ column100 }>
-						{this.props.patient.trackingList.map((prop, index) => {
+						{this.props.patient.trackingList && this.props.patient.trackingList.map((prop, index) => {
 							return (
 								<View key={prop.trackingId} style={{marginTop: '2%'}}>
 									<TextLabel marginLeft="5" label={`${++index} Monitoramento`} />
@@ -273,7 +289,7 @@ export default class Profile extends React.Component {
 				<View style={ row }>
 					<View style={ column100 }>
 						<TextLabel marginLeft="5" label='CID Primário' />
-						{this.props.patient.diagnosticHypothesisList.map((prop) => {
+						{this.props.patient.diagnosticHypothesisList && this.props.patient.diagnosticHypothesisList.map((prop) => {
 							return (
 								<TextValue color={'#0000FF'} key={prop.cidId} marginLeft="5" value={prop.cidDisplayName ? prop.cidDisplayName : 'Escolher'} press={ () => { this.toggleModal('modalPrimaryCID')} } />
 							);
@@ -301,7 +317,7 @@ export default class Profile extends React.Component {
 				<View style={ row }>
 					<View style={ column100 }>
 						<TextLabel marginLeft="5" label='Internações Anteriores' />
-						{this.props.patient.previousHospitalizations.map((prop) => {
+						{this.props.patient.previousHospitalizations && this.props.patient.previousHospitalizations.map((prop) => {
 							let startDate = prop.admissionDate ? moment(prop.admissionDate).format('DD/MM/YYYY') : ''
 							let endDate = prop.exitDate ? moment(prop.exitDate).format('DD/MM/YYYY') : ''
 

@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import { Container, Content, Header, Left, Right, Button, Body, Icon, Title, Footer, FooterTab, Text } from 'native-base';
 import { StyleSheet, BackHandler } from "react-native";
-import { withNavigationFocus } from "react-navigation";
 import _ from 'lodash';
 
 //Pages
@@ -16,8 +15,6 @@ class PatientDetail extends Component {
 		super(props);
 		this.state = {
 			patient: this.props.navigation.getParam('patient'),
-			hospital: this.props.navigation.getParam('hospital'),
-			baseDataSync: this.props.navigation.getParam('baseDataSync'),
 			selectedTab: 'profile'
 		}
 	}
@@ -34,11 +31,12 @@ class PatientDetail extends Component {
 	renderSelectedTab = () => {
 		switch (this.state.selectedTab) {
 			case 'profile':
-				return (<Profile patient={this.state.patient} handleUpdatePatient={this.handleUpdatePatient} baseDataSync={this.state.baseDataSync} />);
+				console.log(this.state.patient)
+				return (<Profile patient={this.state.patient} handleUpdatePatient={this.handleUpdatePatient} />);
 			case 'events':
-				return <Events patient={this.state.patient} parent={this} updateParentStatus={this.updateParentStatus} navigation={this.props.navigation} />;
+				return <Events patient={this.state.patient} parent={this} navigation={this.props.navigation} />;
 			case 'visits':
-				return (<Visits patient={this.state.patient} updateParentStatus={this.updateParentStatus} updatePatient={this.updatePatient} navigation={this.props.navigation} />);
+				return (<Visits patient={this.state.patient} updatePatient={this.updatePatient} navigation={this.props.navigation} />);
 		}
 	}
 
@@ -46,30 +44,17 @@ class PatientDetail extends Component {
 		this.setState({patient})
 	}
 
-	componentDidMount() {
-		const { navigation } = this.props;
-		this.focusListener = navigation.addListener("didFocus", () => {
-		  	this.setState({
-				patient: this.props.navigation.getParam('patient'),
-				hospital: this.props.navigation.getParam('hospital'),
-				baseDataSync: this.props.navigation.getParam('baseDataSync'),
-			})
-		});
-		this.backHandler = BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
-	}
-
 	handleBackPress = () => {
-		this.props.navigation.navigate('Patients',  { hospital: this.state.hospital } )
+		this.props.navigation.navigate('Patients');
 		return true;
 	}
 
 	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
 		this.setState({
 			patient: this.props.navigation.getParam('patient'),
-			hospital: this.props.navigation.getParam('hospital'),
-			baseDataSync: this.props.navigation.getParam('baseDataSync'),
 			selectedTab: 'profile',
 		});
+		this.backHandler = BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
 	});
 
 	isSelected(screen) {
@@ -110,7 +95,7 @@ class PatientDetail extends Component {
 	}
 }
 
-export default withNavigationFocus(PatientDetail);
+export default PatientDetail;
 
 const backgroundColor = '#005cd1';
 

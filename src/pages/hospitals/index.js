@@ -502,7 +502,9 @@ export default class Hospital extends Component {
 				}
 				else
 				{
-					this.props.navigation.navigate("Patients", { hospital: item});
+					AsyncStorage.setItem('hospital', JSON.stringify(item), () => {
+						this.props.navigation.navigate("Patients");
+					});
 				}
 			}}>
 			
