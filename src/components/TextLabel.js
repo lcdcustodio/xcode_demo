@@ -32,7 +32,7 @@ TextLabel.defaultProps = {
 const styles = StyleSheet.create({
   label: {
     color: "#C2C2C2",
-    fontFamily: "Gotham Rounded-Medium", 
+    fontFamily: "Gotham Rounded", 
     fontSize: 15, 
     fontWeight: "normal", 
     fontStyle: "normal", 

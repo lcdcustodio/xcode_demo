@@ -76,136 +76,150 @@ export default class Hospital extends Component {
 			this.setState({loading: true});
 
 			AsyncStorage.getItem('userData', (err, res) => {
-			
-	            let parse = JSON.parse(res);
 
-	            let token = parse.token;
-			
-				let data = { "hospitalizationList": [] };
-				
-				api.post('/api/v2.0/sync', data, 
+				if (res == null) 
 				{
-					headers: {
-						"Content-Type": "application/json",
-					  	"Accept": "application/json",
-					  	"Token": token, 
-					}
-
-				}).then(response => {
-
 					this.setState({loading: false});
 
-					if(response.status === 200) {
+					this.props.navigation.navigate("SignIn");
+				} 
+				else
+				{				
+		            let parse = JSON.parse(res);
 
-						let hospitalListOrdered = _.orderBy(response.data.content.hospitalList, ['name'], ['asc']);
+		            if (Session.current.user == null) {
+		            	Session.current.user = parse;
+		            }
 
-						console.log(hospitalListOrdered);
-						
-						let user = Session.current.user;
+					console.log(Session.current.user);
 
-						let listHospital = []
-						
-						if (user.profile == 'CONSULTANT') {
-
-							hospitalListOrdered.forEach( hospital => {
-								if(this.isTheSameHospital(hospital, parse)){
-									listHospital.push(hospital)
-								}
-							});
-						
-						} 
-						else
-						{
-							listHospital = hospitalListOrdered;
+		            let token = parse.token;
+				
+					let data = { "hospitalizationList": [] };
+					
+					api.post('/api/v2.0/sync', data, 
+					{
+						headers: {
+							"Content-Type": "application/json",
+						  	"Accept": "application/json",
+						  	"Token": token, 
 						}
 
-						this.getInformationHospital(listHospital).then(response => {
-
-							const dateSync = moment().format('DD/MM/YYYY [às] HH:mm:ss');
-
-							this.setState({dateSync: dateSync});
-
-							AsyncStorage.setItem('dateSync', dateSync);
-
-							AsyncStorage.setItem('hospitalList', JSON.stringify(listHospital));						
-						});
-					
-					} else {
-
-						Alert.alert(
-							'Erro ao carregar informações',
-							'Desculpe, recebemos um erro inesperado do servidor, por favor, faça login e tente novamente! ',
-							[
-								{
-									text: 'OK', onPress: () => {
-										this.props.navigation.navigate("SignIn");
-									}
-								},
-							],
-							{
-								cancelable: false
-							},
-						);
+					}).then(response => {
 
 						console.log(response);
-					}
-				
-				}).catch(error => {
 
-					console.log(this.state.errorSync);
+						this.setState({loading: false});
 
-					this.setState({loading: false});
+						if(response.status === 200) {
 
-					this.setState({errorSync: (this.state.errorSync + 1) });
+							let hospitalListOrdered = _.orderBy(response.data.content.hospitalList, ['name'], ['asc']);
+							
+							let user = Session.current.user;
 
-					if (this.state.errorSync <= 3) {
+							let listHospital = []
+							
+							if (user.profile == 'CONSULTANT') {
 
-						AsyncStorage.getItem('auth', (err, auth) => {
-
-							console.log(auth);
-					            
-				            data = JSON.parse(auth);
-
-				            data = qs.stringify(data, { encode: false });
-
-							api.post('/api/login',
-								data
-							)
-							.then(response => {
-
-								let content = response.data.content;
-																
-								if(response.data.success) {
-									AsyncStorage.setItem('userData', JSON.stringify(content), () => {
-										this.sincronizar(true);
-									});
-								}
-
-								console.log(response);
-							});
-				        });
-					}
-					else
-					{
-						Alert.alert(
-							'Erro ao carregar informações',
-							'Desculpe, recebemos um erro inesperado do servidor, por favor, faça login e tente novamente! ',
-							[
-								{
-									text: 'OK', onPress: () => {
-										this.props.navigation.navigate("SignIn");
+								hospitalListOrdered.forEach( hospital => {
+									if(this.isTheSameHospital(hospital, parse)){
+										listHospital.push(hospital)
 									}
-								},
-							],
+								});
+							
+							} 
+							else
 							{
-								cancelable: false
-							},
-						);
-					}
+								listHospital = hospitalListOrdered;
+							}
 
-					console.log(error);
+							this.getInformationHospital(listHospital).then(response => {
 
-				});
+								const dateSync = moment().format('DD/MM/YYYY [às] HH:mm:ss');
+
+								this.setState({dateSync: dateSync});
+
+								AsyncStorage.setItem('dateSync', dateSync);
+
+								AsyncStorage.setItem('hospitalList', JSON.stringify(listHospital));						
+							});
+						
+						} else {
+
+							Alert.alert(
+								'Erro ao carregar informações',
+								'Desculpe, recebemos um erro inesperado do servidor, por favor, faça login e tente novamente! ',
+								[
+									{
+										text: 'OK', onPress: () => {
+											this.props.navigation.navigate("SignIn");
+										}
+									},
+								],
+								{
+									cancelable: false
+								},
+							);
+
+							console.log(response);
+						}
+					
+					}).catch(error => {
+
+						this.setState({loading: false});
+
+						this.setState({errorSync: (this.state.errorSync + 1) });
+
+						if (this.state.errorSync <= 3) {
+
+							AsyncStorage.getItem('auth', (err, auth) => {
+
+								console.log(auth);
+						            
+					            data = JSON.parse(auth);
+
+					            data = qs.stringify(data, { encode: false });
+
+								api.post('/api/login',
+									data
+								)
+								.then(response => {
+
+									let content = response.data.content;
+																	
+									if(response.data.success) {
+										AsyncStorage.setItem('userData', JSON.stringify(content), () => {
+											this.sincronizar(true);
+										});
+									}
+
+									console.log(response);
+								});
+					        });
+						}
+						else
+						{
+							Alert.alert(
+								'Erro ao carregar informações',
+								'Desculpe, recebemos um erro inesperado do servidor, por favor, faça login e tente novamente! ',
+								[
+									{
+										text: 'OK', onPress: () => {
+											this.props.navigation.navigate("SignIn");
+										}
+									},
+								],
+								{
+									cancelable: false
+								},
+							);
+						}
+
+						console.log(error);
+
+					});
+
+				}
 			});
 
         } catch(error) {
@@ -239,89 +253,139 @@ export default class Hospital extends Component {
 		this.setState({
 			hospitals: [ ...listHospital], 
 		});
+		console.log("hospitais",this.state.hospitals)
 	}
 
 	getLogomarca(hospital) {
 
-		if(hospital.id === 4) {
-			return require('../../images/logo_hospital/copaDor.png');
-		} else if(hospital.id === 5) {
-			return require('../../images/logo_hospital/niteroiDor.png');
+		if(hospital.id === 61) {
+			return require('../../images/logo_hospital/rj/realDor.png');
+		} else if(hospital.id === 4) {
+			return require('../../images/logo_hospital/rj/copaDor.png');
+        }  else if(hospital.id === 5) {
+			return require('../../images/logo_hospital/rj/niteroiDor.png');
+        }  else if(hospital.id === 1) {
+			return require('../../images/logo_hospital/rj/bangu.png');
         }  else if(hospital.id === 7) {
-			return require('../../images/logo_hospital/oesteDor.png');
+			return require('../../images/logo_hospital/rj/oesteDor.png');
         }  else if(hospital.id === 2) {
-			return require('../../images/logo_hospital/barraDor.png');
+			return require('../../images/logo_hospital/rj/barraDor.png');
         }  else if(hospital.id === 9) {
-			return require('../../images/logo_hospital/riosDor.png');
+			return require('../../images/logo_hospital/rj/riosDor.png');
         }  else if(hospital.id === 101) {
-			return require('../../images/logo_hospital/badim.png');
+			return require('../../images/logo_hospital/rj/badim.png');
         }  else if(hospital.id === 6) {
-			return require('../../images/logo_hospital/norteDor.png');
-        }  else if(hospital.id === 3) {
-			return require('../../images/logo_hospital/caxiasDor.png');
+			return require('../../images/logo_hospital/rj/norteDor.png');
+		} else if(hospital.id === 3) {
+			return require('../../images/logo_hospital/rj/caxiasDor.png');
         }  else if(hospital.id === 8) {
-			return require('../../images/logo_hospital/quintaDor.png');
-		} 
+			return require('../../images/logo_hospital/rj/quintaDor.png');
+        }  
+
 		
 		return null;
 	}
 
 	countTotalPatientsVisited = patients => {
 
-		let totalPatientsVisited = patients.reduce((patientsVisited, patient) => {
-			
-			if(patient.exitDate === null) {
-				let attendanceToday = this.hasAttendanceToday(patient)
-				if(attendanceToday) {
-					return patientsVisited + 1
-				} else {
-					return patientsVisited
-				}
-			} else {
-				return patientsVisited;
-			}
+		let totalPatientsVisited = 0;
 
-		}, 0);
+		const today = moment().format('YYYY-MM-DD');
+
+		patients.forEach(patient => {
+
+			let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
+
+			if (
+
+				(patient.exitDate == null && listOfOrderedPatientObservations.length > 0 && !listOfOrderedPatientObservations[0].endTracking) || 
+
+            	(patient.exitDate != null && listOfOrderedPatientObservations.length > 0 && !listOfOrderedPatientObservations[0].medicalRelease)
+					
+			) {
+
+				patient.observationList.forEach( item =>{
+
+					let observationDate = moment(item.observationDate).format('YYYY-MM-DD');
+
+					if(today == observationDate)
+		            {
+		            	totalPatientsVisited = totalPatientsVisited + 1;
+		            }
+
+				});
+
+			}
+		});
 
 		return totalPatientsVisited;
 	}	
 
 	countTotalPatients = patients => {
+
 		let totalPatients = patients.reduce((totalPatients, patient) => {
-			
-			if(patient.exitDate === null) {
-				return totalPatients + 1;
-			} else {
-				return totalPatients;
-			}
+
+			let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
+
+            if(
+                (patient.exitDate == null && listOfOrderedPatientObservations.length == 0) || 
+
+                (patient.exitDate == null && listOfOrderedPatientObservations.length > 0 && !listOfOrderedPatientObservations[0].endTracking) || 
+
+                (patient.exitDate != null && listOfOrderedPatientObservations.length > 0 && !listOfOrderedPatientObservations[0].medicalRelease)
+            )
+            {
+            	return totalPatients + 1;
+            }
+            else
+            {
+            	return totalPatients;
+            }
+
 		}, 0);
+
+		console.log(totalPatients);
+
 		return totalPatients;
 	}
 
 	setLastVisit = patients => {
+		
 		let lastVisit = null;
+		
 		patients.forEach(patient => {
-			patient.trackingList.forEach( item =>{
-				if(item.endDate != null) {
-					if(lastVisit == null) {
-						lastVisit = new Date(item.endDate)
-					} else {
-						let visit = new Date(item.endDate)
+
+			let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
+
+			if (listOfOrderedPatientObservations.length > 0) {
+
+				patient.observationList.forEach( item => {
+
+					if (lastVisit != null) {
+
+						let visit = new Date(item.observationDate);
+
 						if(lastVisit < visit){
-							lastVisit = visit
+							lastVisit = visit;
 						}
 					}
-				}
-			})
+					else
+					{
+						lastVisit = new Date(item.observationDate)
+					}
+				});
+			}
 		});
+
+		console.log(lastVisit);
 		
 		return lastVisit != null ? moment(lastVisit).format('DD/MM/YYYY') : 'Sem visita'
 	}
 
 	hasAttendanceToday(patient) {
 		const today = moment().format('YYYY-MM-DD');
-		let hasAttendance = patient.trackingList.find(visit => {
-			let visitDate = moment(visit.startDate).format('YYYY-MM-DD')
+		let hasAttendance = patient.observationList.find(visit => {
+			let visitDate = moment(visit.observationDate).format('YYYY-MM-DD')
 			return visitDate === today
 		});
 		return hasAttendance 
@@ -454,9 +518,9 @@ export default class Hospital extends Component {
 				}
 			}}>
 			
-			<View style={[styles.container, {alignItems: 'center'}]}>
+			<View style={[styles.container, {alignItems: 'center', textAlign: 'center'}]}>
 
-				<View style={{width: '43%'}}>
+				<View style={{width: '43%', alignItems: 'center', textAlign: "center", justifyContent: 'center'}}>
 					{ this.renderImageOrName(item) }
 				</View>
 			
@@ -505,8 +569,8 @@ export default class Hospital extends Component {
 					<Left style={{flex:1}} >
 						<Icon name="md-menu" style={{ color: 'white' }} onPress={() => this.props.navigation.openDrawer() } />
 					</Left>
-					<Body style={{flex:8, alignItems: 'stretch', color: 'white'}}>
-						<Title>HOSPITAIS</Title>
+					<Body style={{flex:8, alignItems: 'stretch'}}>
+						<Title style={{color: 'white'}}>HOSPITAIS</Title>
 					</Body>
 					<Right style={{flex:1}} >
 						<Icon name="sync" style={{ color: 'white' }} onPress={() => this.sincronizar(true) } />

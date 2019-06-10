@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, Image, Text, Button } from 'react-native';
+import { View, StyleSheet, Image, Text, Button, TouchableOpacity } from 'react-native';
 import { Icon } from 'native-base';
 import LinearGradient from 'react-native-linear-gradient';
 
@@ -28,13 +28,8 @@ export default class Sidebar extends Component {
 		return (
 			<LinearGradient colors={['#005cd1', '#35d8a6']} style={styles.linearGradient}>
 
-				<View style={styles.buttonContainer}>
-			        <Button onPress={() => { this.props.navigation.closeDrawer(); }} title="X" />
-			    </View>
-
-
 				<View style={styles.sideMenuContainer}>
-					<Image source={require('../images/logo-medico-consultor-branca.png')} style={styles.sideMenuLogoIcon} />
+					<Image source={require('../images/logo-mc-branca.png')} style={styles.sideMenuLogoIcon} />
 					<Text style={{ fontSize: 14, color: '#FFF', fontWeight: "bold" }}>
 						{user.name}
 					</Text>

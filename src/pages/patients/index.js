@@ -37,14 +37,6 @@ export default class Patients extends Component {
 
         hospital.hospitalizationList.forEach( patient => {
 
-            let adminDischargeExit = false;
-
-            for (var i = 0; i < patient.trackingList.length; i++) {
-                if (patient.trackingList[i].endMode == 'ADMIN_DISCHARGE_EXIT') {
-                    adminDischargeExit = true;
-                }
-            }
-            
             let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
 
             if(
@@ -118,15 +110,15 @@ export default class Patients extends Component {
     }
 
     getLastVisit(patient) {
-        let listOfOrderedPatientVisits = _.orderBy(patient.trackingList, ['endDate'], ['desc'])
-        if(patient.trackingList.length === 0 || listOfOrderedPatientVisits[0].endDate === null) {
+        let listOfOrderedPatientVisits = _.orderBy(patient.observationList, ['observationDate'], ['desc'])
+        if(patient.observationList.length === 0 || listOfOrderedPatientVisits[0].observationDate === null) {
             return 'SEM VISITAS'
-        } else if(this.isToday(listOfOrderedPatientVisits[0].endDate)) {
+        } else if(this.isToday(listOfOrderedPatientVisits[0].observationDate)) {
             return 'HOJE'
-        } else if(this.isYesterday(listOfOrderedPatientVisits[0].endDate)) {
+        } else if(this.isYesterday(listOfOrderedPatientVisits[0].observationDate)) {
             return 'ONTEM'
         } else {
-            return this.totalDaysAgo(listOfOrderedPatientVisits[0].endDate)
+            return this.totalDaysAgo(listOfOrderedPatientVisits[0].observationDate)
         }
     }
 
@@ -152,8 +144,8 @@ export default class Patients extends Component {
 
     exitDateIsNotEqualToLastVisit(patient) {
         const exitDate = moment(patient.exitDate)
-        let listOfOrderedPatientVisits = _.orderBy(patient.trackingList, ['endDate'], ['desc'])
-        let dateLastVisitFormatted = moment(moment(listOfOrderedPatientVisits[0].endDate).format('YYYY-MM-DD'))
+        let listOfOrderedPatientVisits = _.orderBy(patient.observationList, ['observationDate'], ['desc'])
+        let dateLastVisitFormatted = moment(moment(listOfOrderedPatientVisits[0].observationDate).format('YYYY-MM-DD'))
         let diffDays = exitDate.diff(dateLastVisitFormatted, 'days')
         return diffDays !== 0 ? true : false
     }
@@ -233,8 +225,8 @@ export default class Patients extends Component {
                     <Left style={{flex:1}} >
                         <Icon type="AntDesign" name="left" style={{ color: 'white' }} onPress={() => this.props.navigation.navigate('Hospitals') } />
                     </Left>
-                    <Body style={{flex: 7, alignItems: 'stretch'}}>
-                        <Title>{this.state.hospital.name}</Title>
+                    <Body style={{flex: 3, flexDirection: 'row'}}>
+                        <Title style={{color: 'white'}}>{this.state.hospital.name}</Title>
                     </Body>
                 </Header> 
                 <Content>

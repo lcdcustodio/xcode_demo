@@ -9,7 +9,7 @@ export default class Title extends Component {
 
   render() {
     return (
-      <Text style={{ marginTop: `${this.props.marginTop}%`, marginLeft: `${this.props.marginLeft}%`, fontFamily: "Gotham Rounded-Medium", fontSize: this.props.size, fontWeight: "400", 
+      <Text style={{ marginTop: `${this.props.marginTop}%`, marginLeft: `${this.props.marginLeft}%`, fontFamily: "Gotham Rounded", fontSize: this.props.size, fontWeight: "400", 
         fontStyle: "normal", lineHeight: 24, letterSpacing: 0, textAlign: "left", color: `${this.props.color}` }} > {this.props.title} </Text>
     )
   }
