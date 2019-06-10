@@ -21,7 +21,6 @@ export default class Hospital extends Component {
 
 		this.state = {
 			infos: {},
-			baseDataSync: {},
 			hospitals: null,
 			isConnected: null,
 			dateSync: null,
@@ -29,8 +28,6 @@ export default class Hospital extends Component {
 			loading: false,
 			errorSync: 0
 		}
-
-		this.state.baseDataSync = this.props.navigation.getParam('baseDataSync');
 	}
 
 	componentDidMount() {
@@ -45,8 +42,6 @@ export default class Hospital extends Component {
 	}
 	
 	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
-
-		console.log(this.state.baseDataSync);
 
         this.setState({errorSync: 0});
 
@@ -82,7 +77,7 @@ export default class Hospital extends Component {
 					this.setState({loading: false});
 
 					this.props.navigation.navigate("SignIn");
-				} 
+				}
 				else
 				{				
 		            let parse = JSON.parse(res);
@@ -135,6 +130,8 @@ export default class Hospital extends Component {
 
 							this.getInformationHospital(listHospital).then(response => {
 
+								this.setState({loading: false});
+								
 								const dateSync = moment().format('DD/MM/YYYY [às] HH:mm:ss');
 
 								this.setState({dateSync: dateSync});
@@ -382,15 +379,6 @@ export default class Hospital extends Component {
 		return lastVisit != null ? moment(lastVisit).format('DD/MM/YYYY') : 'Sem visita'
 	}
 
-	hasAttendanceToday(patient) {
-		const today = moment().format('YYYY-MM-DD');
-		let hasAttendance = patient.observationList.find(visit => {
-			let visitDate = moment(visit.observationDate).format('YYYY-MM-DD')
-			return visitDate === today
-		});
-		return hasAttendance 
-	}
-
 	loadHospitalsStorage = async () => {
 
 		this.setState({loading: true});
@@ -514,7 +502,7 @@ export default class Hospital extends Component {
 				}
 				else
 				{
-					this.props.navigation.navigate("Patients", { hospital: item, baseDataSync: this.state.baseDataSync });
+					this.props.navigation.navigate("Patients", { hospital: item});
 				}
 			}}>
 			
