@@ -2,14 +2,12 @@ import React, { Component } from "react";
 import { Container, Content, Header, Left, Right, Button, Body, Icon, Title, Footer, FooterTab, Text } from 'native-base';
 import { StyleSheet, BackHandler } from "react-native";
 import { withNavigationFocus } from "react-navigation";
-import moment from "moment"
-import uuidv4 from'uuid/v4'
-import _ from 'lodash'
+import _ from 'lodash';
 
 //Pages
-import Profile from "./profile"
-import Events from "./events"
-import Visits from "./visits"
+import Profile from "./profile";
+import Events from "./events";
+import Visits from "./visits";
 
 
 class PatientDetail extends Component {
@@ -22,110 +20,21 @@ class PatientDetail extends Component {
 			baseDataSync: this.props.navigation.getParam('baseDataSync'),
 			selectedTab: 'profile'
 		}
-		console.log(this.state.baseDataSync)
-		console.log("Executei o construtor")
 	}
 
-	handleAttendanceType = (attendanceType) => {
+	handleUpdatePatient = async (attribute, value) => {
 		this.setState({
 			patient: {
 				...this.state.patient,
-				attendanceType
-			}
-		})
-	}
-
-	handleHospitalizationType = (hospitalizationType) => {
-		this.setState({
-			patient: {
-				...this.state.patient,
-				hospitalizationType
-			}
-		})
-	}
-
-	handleHeightAndWeight = (patientHeight, patientWeight) => {
-		this.setState({
-			patient: {
-				...this.state.patient,
-				patientHeight,
-				patientWeight
-			}
-		})
-	}
-
-	handleCRM = (crm) => {
-		this.setState({
-			patient: {
-				...this.state.patient,
-				mainProcedureCRM: crm
-			}
-		})
-	}
-
-	handlePrimaryCID = (cid) => {
-		let diagnosticHypothesisList = []
-		let diagnosticHypothesis = {
-			beginDate: moment(),
-			cidDisplayName: `${cid.code} - ${cid.name}`,
-			cidId: cid.id,
-			uuid: uuidv4()
-		}
-		diagnosticHypothesisList.push(diagnosticHypothesis)
-		
-		this.setState({
-			patient: {
-				...this.state.patient,
-				diagnosticHypothesisList
-			}
-		})
-	}
-
-	handleSecondaryCID = (cid) => {
-		let secondaryCID = {
-			beginDate: moment(),
-			cidDisplayName: `${cid.code} - ${cid.name}`,
-			cidId: cid.id,
-			uuid: uuidv4()
-		}
-		if(this.state.patient.secondaryCIDList && this.state.patient.secondaryCIDList.length > 0) {
-			let cidList = this.state.patient.secondaryCIDList
-			cidList.push(secondaryCID)
-			this.setState({
-				patient: {
-					...this.state.patient,
-					secondaryCIDList: cidList
-				}
-			})
-		} else {
-			this.setState({
-				patient: {
-					...this.state.patient,
-					secondaryCIDList: [secondaryCID]
-				}
-			})
-		}
-	}
-
-	removeSecondaryCID = (cid) => {
-		let newCidList = this.state.patient.secondaryCIDList.filter(item => item.cidId !== cid.cidId)
-		this.setState({
-			patient: {
-				...this.state.patient,
-				secondaryCIDList: newCidList
+				[attribute]: value
 			}
 		})
 	}
 
 	renderSelectedTab = () => {
-		console.log("Executei o renderSelectedTab")
-		
 		switch (this.state.selectedTab) {
 			case 'profile':
-				return (<Profile perfil={this.state.patient} handleAttendanceType={this.handleAttendanceType} hospital={this.state.hospital} 
-					baseDataSync={this.state.baseDataSync} handleHospitalizationType={this.handleHospitalizationType} 
-					handleHeightAndWeight={this.handleHeightAndWeight} handleCRM={this.handleCRM} handlePrimaryCID={this.handlePrimaryCID}
-					handleSecondaryCID={this.handleSecondaryCID} removeSecondaryCID={this.removeSecondaryCID} handleMainProcedure={this.handleMainProcedure} />);
+				return (<Profile patient={this.state.patient} handleUpdatePatient={this.handleUpdatePatient} baseDataSync={this.state.baseDataSync} />);
 			case 'events':
 				return <Events patient={this.state.patient} parent={this} updateParentStatus={this.updateParentStatus} navigation={this.props.navigation} />;
 			case 'visits':
@@ -138,35 +47,20 @@ class PatientDetail extends Component {
 	}
 
 	componentDidMount() {
-		console.log("Executei o DidMount")
 		const { navigation } = this.props;
 		this.focusListener = navigation.addListener("didFocus", () => {
-			console.log("Atualizando o state de PatientDetail, para recuperar os dados que vieram da navegacao")
 		  	this.setState({
 				patient: this.props.navigation.getParam('patient'),
 				hospital: this.props.navigation.getParam('hospital'),
 				baseDataSync: this.props.navigation.getParam('baseDataSync'),
 			})
 		});
-
-		console.log('back press');
 		this.backHandler = BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
 	}
 
 	handleBackPress = () => {
-		console.log('go back');
 		this.props.navigation.navigate('Patients',  { hospital: this.state.hospital } )
 		return true;
-	}
-
-	handleMainProcedure = (procedure) => {
-		this.setState({
-			patient: {
-				...this.state.patient,
-				mainProcedureTUSSDisplayName: `${procedure.code} - ${procedure.name}`,
-				mainProcedureTUSSId: procedure.code
-			}
-		})
 	}
 
 	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
