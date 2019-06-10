@@ -7,7 +7,7 @@ import moment from 'moment';
 import _ from 'lodash'
 import uuid from 'uuid/v4';
 
-import Patient from '../../../model/Patient';
+import Patient, { VisitsButtonEnum } from '../../../model/Patient';
 
 export default class Visitas extends React.Component {
 	
@@ -159,17 +159,18 @@ export default class Visitas extends React.Component {
 	}
 
 	showVisitButton = visits => {
-
-		console.log('showVisitButton => ', this.state.patient);
-
-		let p = new Patient(this.state.patient);
-		console.log('Status => ', p.getHospitalizationStatus());	
-
-		
-		if (!visits[0] || !this.isToday(visits[0].observationDate)) {
-			return <GradientButton colors={['#035fcc', '#023066']} iconName="id-badge" onPress={this.appoint}>VISITAR</GradientButton>
-		} else {
-			return <GradientButton colors={['#808080', '#696969']} iconName="id-badge">VISITADO</GradientButton>
+		const patient = new Patient(this.state.patient);
+		switch (patient.getVisitsButtonEnum()) {
+			case VisitsButtonEnum.Visit:
+				return <VisitButton onPress={this.appoint}/>;
+			case VisitsButtonEnum.Visited:
+				return <VisitedButton/>;
+			case VisitsButtonEnum.Finalize:
+				return <FinalizeButton/>;
+			case VisitsButtonEnum.EndTrackingEnabled:
+				return <EndTrackingButtonEnabled/>;
+			case VisitsButtonEnum.EndTrackingDisabled:
+				return <EndTrackingButtonDisabled/>;
 		}
 	}
 	
@@ -225,34 +226,34 @@ export default class Visitas extends React.Component {
 					renderItem={this.renderItem}/>
 
 				{this.showVisitButton(listOfOrderedObservationDate)}
-
 			</View>
 		);
-	}
-
-	_isHospitalizationOpen = () => {
-		const trackings = this.state.patient.trackingList;
-		if (trackings && trackings.length > 0) {
-			for (let i = trackings.length - 1; i >= 0; i--) {
-				if (!trackings[i].endDate) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
-	_isHospitalizationCloseable = () => {
-		const observations = this.state.patient.observationList;
-
 	}
 }
 
 const GradientButton = (props) => (
 	<View style={ styles.rowButtonCircle }>
 		<LinearGradient colors={ props.colors } style={ [styles.circle, styles.borderCircle ]} >
-			<Icon type="FontAwesome5" name={ props.iconName } style={ styles.iconCircle } onPress={ props.onPress } />
+			<Icon type="FontAwesome5" name={ props.iconName } style={ styles.iconCircle } onPress={ props.onPress }/>
 			<Text style={ styles.textCircle } >{ props.children }</Text>
 		</LinearGradient>
 	</View>
 );
+
+const COLORS_ENABLED = ['#035fcc', '#023066'];
+const COLORS_DISABLED = ['#808080', '#696969'];
+
+const VisitButton = (props) =>
+	<GradientButton colors={COLORS_ENABLED} iconName="id-badge" onPress={props.onPress}>VISITAR</GradientButton>;
+
+const VisitedButton = (props) =>
+	<GradientButton colors={COLORS_DISABLED} iconName="id-badge">VISITADO</GradientButton>;
+
+const FinalizeButton = (props) =>
+	<GradientButton colors={COLORS_ENABLED} iconName="id-badge" onPress={props.onPress}>FINALIZAR</GradientButton>;
+
+const EndTrackingButtonEnabled = (props) =>
+	<GradientButton colors={COLORS_ENABLED} iconName="id-badge" onPress={props.onPress}>FIM DO MONITORAMENTO</GradientButton>;
+
+const EndTrackingButtonDisabled = (props) =>
+	<GradientButton colors={COLORS_DISABLED} iconName="id-badge">FIM DO MONITORAMENTO</GradientButton>;

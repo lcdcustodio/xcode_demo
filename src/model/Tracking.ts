@@ -1,7 +1,7 @@
-import Comparable, { compareJsonDate } from '../util/Comparable';
+import { compareJsonDate } from '../util/Comparable';
 import JsonEntity from '../util/JsonEntity';
 
-export default class Tracking extends JsonEntity implements Comparable<Tracking> {
+export default class Tracking extends JsonEntity<Tracking> {
 
     compareTo(other: Tracking): number {
         return compareJsonDate(this.json.startDate, other.json.startDate);
