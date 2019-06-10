@@ -341,7 +341,7 @@ const styles = StyleSheet.create({
     	fontSize: 18,
 	},
 	textValue: {
-		fontFamily: "Gotham Rounded-Book",
+		fontFamily: "Gotham Rounded",
 		fontWeight: "normal", 
 		fontStyle: "normal", 
 		lineHeight: 22, 
@@ -352,7 +352,7 @@ const styles = StyleSheet.create({
 		marginLeft: '5%'
 	},
 	trackingListItem: {
-		fontFamily: "Gotham Rounded-Book",
+		fontFamily: "Gotham Rounded",
 		fontWeight: "normal", 
 		fontStyle: "normal", 
 		lineHeight: 22, 

@@ -84,11 +84,14 @@ export default class Hospital extends Component {
 					this.props.navigation.navigate("SignIn");
 				} 
 				else
-				{
-
-					console.log(res);
-				
+				{				
 		            let parse = JSON.parse(res);
+
+		            if (Session.current.user == null) {
+		            	Session.current.user = parse;
+		            }
+
+					console.log(Session.current.user);
 
 		            let token = parse.token;
 				
@@ -104,13 +107,13 @@ export default class Hospital extends Component {
 
 					}).then(response => {
 
+						console.log(response);
+
 						this.setState({loading: false});
 
 						if(response.status === 200) {
 
 							let hospitalListOrdered = _.orderBy(response.data.content.hospitalList, ['name'], ['asc']);
-
-							console.log(hospitalListOrdered);
 							
 							let user = Session.current.user;
 
@@ -162,8 +165,6 @@ export default class Hospital extends Component {
 						}
 					
 					}).catch(error => {
-
-						console.log(this.state.errorSync);
 
 						this.setState({loading: false});
 
@@ -287,45 +288,76 @@ export default class Hospital extends Component {
 
 	countTotalPatientsVisited = patients => {
 
-		let totalPatientsVisited = patients.reduce((patientsVisited, patient) => {
-			
-			if(patient.exitDate === null) {
-				let attendanceToday = this.hasAttendanceToday(patient)
-				if(attendanceToday) {
-					return patientsVisited + 1
-				} else {
-					return patientsVisited
-				}
-			} else {
-				return patientsVisited;
-			}
+		let totalPatientsVisited = 0;
 
-		}, 0);
+		const today = moment().format('YYYY-MM-DD');
+
+		patients.forEach(patient => {
+
+			let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
+
+			if (
+
+				(patient.exitDate == null && listOfOrderedPatientObservations.length > 0 && !listOfOrderedPatientObservations[0].endTracking) || 
+
+            	(patient.exitDate != null && listOfOrderedPatientObservations.length > 0 && !listOfOrderedPatientObservations[0].medicalRelease)
+					
+			) {
+
+				patient.observationList.forEach( item =>{
+
+					let observationDate = moment(item.observationDate).format('YYYY-MM-DD');
+
+					if(today == observationDate)
+		            {
+		            	totalPatientsVisited = totalPatientsVisited + 1;
+		            }
+
+				});
+
+			}
+		});
 
 		return totalPatientsVisited;
 	}	
 
 	countTotalPatients = patients => {
+
 		let totalPatients = patients.reduce((totalPatients, patient) => {
-			
-			if(patient.exitDate === null) {
-				return totalPatients + 1;
-			} else {
-				return totalPatients;
-			}
+
+			let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
+
+            if(
+                (patient.exitDate == null && listOfOrderedPatientObservations.length == 0) || 
+
+                (patient.exitDate == null && listOfOrderedPatientObservations.length > 0 && !listOfOrderedPatientObservations[0].endTracking) || 
+
+                (patient.exitDate != null && listOfOrderedPatientObservations.length > 0 && !listOfOrderedPatientObservations[0].medicalRelease)
+            )
+            {
+            	return totalPatients + 1;
+            }
+            else
+            {
+            	return totalPatients;
+            }
+
 		}, 0);
+
+		console.log(totalPatients);
+
 		return totalPatients;
 	}
 
 	setLastVisit = patients => {
 		let lastVisit = null;
 		patients.forEach(patient => {
-			patient.trackingList.forEach( item =>{
-				if(item.endDate != null) {
+			patient.observationList.forEach( item =>{
+				if(item.observationDate != null) {
 					if(lastVisit == null) {
-						lastVisit = new Date(item.endDate)
+						lastVisit = new Date(item.observationDate)
 					} else {
-						let visit = new Date(item.endDate)
+						let visit = new Date(item.observationDate)
 						if(lastVisit < visit){
 							lastVisit = visit
 						}
@@ -339,8 +371,8 @@ export default class Hospital extends Component {
 
 	hasAttendanceToday(patient) {
 		const today = moment().format('YYYY-MM-DD');
-		let hasAttendance = patient.trackingList.find(visit => {
-			let visitDate = moment(visit.startDate).format('YYYY-MM-DD')
+		let hasAttendance = patient.observationList.find(visit => {
+			let visitDate = moment(visit.observationDate).format('YYYY-MM-DD')
 			return visitDate === today
 		});
 		return hasAttendance 
@@ -473,9 +505,9 @@ export default class Hospital extends Component {
 				}
 			}}>
 			
-			<View style={[styles.container, {alignItems: 'center'}]}>
+			<View style={[styles.container, {alignItems: 'center', textAlign: 'center'}]}>
 
-				<View style={{width: '43%'}}>
+				<View style={{width: '43%', alignItems: 'center', textAlign: "center", justifyContent: 'center'}}>
 					{ this.renderImageOrName(item) }
 				</View>
 			
@@ -524,8 +556,8 @@ export default class Hospital extends Component {
 					<Left style={{flex:1}} >
 						<Icon name="md-menu" style={{ color: 'white' }} onPress={() => this.props.navigation.openDrawer() } />
 					</Left>
-					<Body style={{flex:8, alignItems: 'stretch', color: 'white'}}>
-						<Title>HOSPITAIS</Title>
+					<Body style={{flex:8, alignItems: 'stretch'}}>
+						<Title style={{color: 'white'}}>HOSPITAIS</Title>
 					</Body>
 					<Right style={{flex:1}} >
 						<Icon name="sync" style={{ color: 'white' }} onPress={() => this.sincronizar(true) } />

@@ -19,43 +19,60 @@ export default class SignIn extends Component {
 			password: '*ru8u!uBus2A',
 			error: '',
 			textContent: '',
-			loading: true
+			baseDataSync: null,
+			loading: false
+		}
+	}
+
+	componentDidMount() {
+        
+		if (this.state.baseDataSync == null) {
+
+			this.setState({loading: true});
+
+			AsyncStorage.getItem('hospitalList', (err, hospitalList) => {
+
+				console.log(hospitalList);
+
+				if (hospitalList != 'undefined') {
+
+					AsyncStorage.getItem('userData', async (err, userData) => {
+
+						console.log(userData);
+
+						if (userData != 'undefined') {
+
+							let user = JSON.parse(userData);
+
+							Session.current.user = new User(user.name, user.profile);
+							
+							let baseDataSync = await this.getBaseDataSync();
+
+							this.setState({baseDataSync: baseDataSync});
+
+							this.setState({loading: false});
+
+							this.props.navigation.navigate("Hospitals", { baseDataSync });
+
+						} 
+						else
+						{
+							this.setState({loading: false});
+						}
+
+					});
+				}
+				else
+				{
+					this.setState({loading: false});
+				}
+			
+			});
+
 		}
 
-		AsyncStorage.getItem('hospitalList', (err, hospitalList) => {
-
-			if (hospitalList != null) {
-
-				AsyncStorage.getItem('userData', async (err, userData) => {
-
-					if (hospitalList != null) {
-
-						let user = JSON.parse(userData);
-
-						Session.current.user = new User(user.name, user.profile);
-						
-						let baseDataSync = await this.getBaseDataSync();
-
-						this.setState({loading: false});
-
-						this.props.navigation.navigate("Hospitals", { baseDataSync });
-
-					} 
-					else
-					{
-						this.setState({loading: false});
-					}
-
-				});
-
-			}
-			else
-			{
-				this.setState({loading: false});
-			}
-		
-		});
-	}
+		console.log(this.state.baseDataSync);
+    }
 	
 	getBaseDataSync = async () => {
 		return await api.get('/api/basedata/baseDataSync?lastDateSync=' + this.state.lastDateSync).then(res => {
@@ -78,8 +95,6 @@ export default class SignIn extends Component {
 
 	handleSignInPress = async () => {
 		
-
-
 		if (this.state.email.length === 0 || this.state.password.length === 0) {
 			this.setState({ error: 'Por favor, preencha todos os campos' }, () => false);
 		} else {
@@ -114,7 +129,11 @@ export default class SignIn extends Component {
 						this.setState({ textContent: 'Sincronizando...' });
 						
 						let baseDataSync = await this.getBaseDataSync();
+
+						this.setState({baseDataSync: baseDataSync});
+
 						this.setState({loading: false});
+						
 						this.props.navigation.navigate("Hospitals", { baseDataSync });
 			        });	
 		        }	

@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
 		flexDirection: 'row',
 		alignItems: 'center',
 		justifyContent: 'center',
-		fontFamily:'Segoe UI-Semibold', 
+		fontFamily:'Segoe UI', 
 		fontWeight:'400', 
 		fontSize:13, 
 		fontStyle:'normal', 

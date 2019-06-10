@@ -28,15 +28,6 @@ export default class Sidebar extends Component {
 		return (
 			<LinearGradient colors={['#005cd1', '#35d8a6']} style={styles.linearGradient}>
 
-				<View style={styles.buttonContainer}>
-				<TouchableOpacity activeOpacity={0.8} onPress={() => { this.props.navigation.closeDrawer(); }}>
-			        <Text style={{ fontSize: 21, color: '#FFF', fontWeight: "bold", marginLeft: 10 }}>
-						X
-					</Text> 
-				</TouchableOpacity>
-			    </View>
-
-
 				<View style={styles.sideMenuContainer}>
 					<Image source={require('../images/logo-medico-consultor-branca.png')} style={styles.sideMenuLogoIcon} />
 					<Text style={{ fontSize: 14, color: '#FFF', fontWeight: "bold" }}>

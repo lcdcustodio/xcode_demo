@@ -26,7 +26,7 @@ TextValue.defaultProps = {
 
 const styles = StyleSheet.create({
   value: {
-    fontFamily: "Gotham Rounded-Book",
+    fontFamily: "Gotham Rounded",
     fontWeight: "normal", 
     fontStyle: "normal", 
     lineHeight: 22, 

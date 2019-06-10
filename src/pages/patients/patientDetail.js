@@ -256,7 +256,6 @@ const styles = StyleSheet.create({
 	patientName: {
 		marginTop: '17%',
 		marginLeft: '5%',
-		fontFamily: "Gotham Rounded-Medium",
 		fontSize: 20,
 		fontWeight: "400",
 		fontStyle: "normal",

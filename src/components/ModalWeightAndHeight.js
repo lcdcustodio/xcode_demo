@@ -87,8 +87,6 @@ export default class ModalWeightAndHeight extends Component {
 }
 
 ModalWeightAndHeight.propTypes = {
-  patientHeight: PropTypes.any.isRequired,
-  patientWeight: PropTypes.any.isRequired,
   visible: PropTypes.bool.isRequired,
   action: PropTypes.func.isRequired
 }
