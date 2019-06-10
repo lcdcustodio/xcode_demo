@@ -11,12 +11,10 @@ export default class Patients extends Component {
         super(props);
         this.state = {
             hospital: {},
-            baseDataSync: {},
         }
     }
 
     componentDidMount() {
-        console.log('back press');
         this.backHandler = BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
     }
 
@@ -27,11 +25,10 @@ export default class Patients extends Component {
     }
 
     didFocus = this.props.navigation.addListener('didFocus', (res) => {
-        let hospital = this.props.navigation.getParam('hospital');
-        let baseDataSync = this.props.navigation.getParam('baseDataSync');
-        let patients = [];
 
-        console.log(baseDataSync);
+        let hospital = this.props.navigation.getParam('hospital');
+
+        let patients = [];
 
         console.log(hospital.hospitalizationList);
 
@@ -56,15 +53,17 @@ export default class Patients extends Component {
                 patient.orderField = this.getOrderField(patient);
                 patients.push(patient);
             }
+
+            console.log(patients);
         });
 
         patients = _.orderBy(patients, ['orderField'], ['asc']);
 
-        //console.log(patients);
-
         hospital.hospitalizationList = patients;
+
+        console.log(patients);
+
         this.setState({hospital: hospital});
-        this.setState({baseDataSync: baseDataSync});
     });
     
     exitDateBelow48Hours(date) {
@@ -202,7 +201,7 @@ export default class Patients extends Component {
     renderItem = ({ item }) => (
         <TouchableOpacity
             onPress={() => {
-                this.props.navigation.navigate("PatientDetail", { patient: item, hospital: this.state.hospital, baseDataSync: this.state.baseDataSync });
+                this.props.navigation.navigate("PatientDetail", { patient: item});
             }}>
             <View style={[styles.productContainer]}>
                 <View>
