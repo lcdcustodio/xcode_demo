@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View  } from 'react-native';
+import { StyleSheet, Text, View, Alert  } from 'react-native';
 import TextLabel from '../../components/TextLabel'
 import TextValue from '../../components/TextValue'
 import Line from '../../components/Line'
@@ -23,6 +23,7 @@ export default class Profile extends React.Component {
 			modalCRM: false,
 			modalPrimaryCID: false,
 			modalSecondaryCID: false,
+			modalMainProcedure: false,
 			listAttendanceType: [
 				{key: 1, value: 'ELECTIVE', label: 'ELETIVO'},
 				{key: 2, value: 'EMERGENCY', label: 'EMERGÊNCIA'}
@@ -112,15 +113,32 @@ export default class Profile extends React.Component {
 		this.toggleModalSecondaryCID()
 	}
 
+	removeSecondaryCID = (item) => {
+		Alert.alert(
+			'Remover CID Secundário',
+			'Deseja remover?',
+			[
+				{text: 'Cancelar', onPress: () => console.log('Remocao de CID secundário cancelado'), style: 'cancel', },
+				{text: 'OK', onPress: () => this.props.removeSecondaryCID(item)},
+			],
+			{cancelable: false},
+		);
+	}
+
+	toggleModalMainProcedure = () => {
+		this.setState({modalMainProcedure: !this.state.modalMainProcedure})
+	}
+
+	handleMainProcedure = (procedure) => {
+		this.props.handleMainProcedure(procedure.item)
+		this.toggleModalMainProcedure()
+	}
+
 	render() {
-		let trackingListStartDate = null;
 		let CRM = this.props.perfil.mainProcedureCRM !== null ? this.props.perfil.mainProcedureCRM : 'INFORMAR'
 
-		if (this.props.perfil.trackingList.length > 0) {
-			trackingListStartDate = moment(this.props.perfil.trackingList[0].startDate).format('DD/MM/YYYY HH:mm');
-		}
-
-		console.log("procedimentos => ", this.props.baseDataSync)
+		console.log("Base Data Sync => ", this.props.baseDataSync)
+		console.log("Patient => ", this.props.perfil)
 
 		return (
 			<View style={ styles.container }>
@@ -131,6 +149,7 @@ export default class Profile extends React.Component {
 				<ModalWeightAndHeight paddingTop={50} height={70} visible={this.state.modalHeightAndWeight} patientHeight={this.props.perfil.patientHeight} patientWeight={this.props.perfil.patientWeight} action={ this.handleHeightAndWeight} />
 				<ModalListSearchable paddingTop={20} height={80} visible={this.state.modalPrimaryCID} list={this.props.baseDataSync.cid} action={this.handlePrimaryCID} />
 				<ModalListSearchable paddingTop={20} height={80} visible={this.state.modalSecondaryCID} list={this.props.baseDataSync.cid} action={this.handleSecondaryCID} />
+				<ModalListSearchable paddingTop={20} height={80} visible={this.state.modalMainProcedure} list={this.props.baseDataSync.tuss} action={this.handleMainProcedure} />
 
 				<TitleScreen marginTop={5} marginLeft={5} title={this.props.perfil.patientName} />
 				<Line marginTop={3} marginBottom={3} marginLeft={5} width={90} size={2} />
@@ -176,19 +195,32 @@ export default class Profile extends React.Component {
 					</View>
 				</View>
 
+				<Line marginTop={5} marginBottom={1} marginLeft={5} width={90} size={2} />
+
 				<View style={ styles.row }>
 					<View style={ styles.column100 }>
 						<TextLabel marginLeft="5" label='Data de Internação' />
 						<TextValue marginLeft="5" value={ this.props.perfil.admissionDate ? moment(this.props.perfil.admissionDate).format('DD/MM/YYYY HH:mm') : ''} />
 					</View>
 				</View>
-					
+
 				<View style={ styles.row }>
 					<View style={ styles.column100 }>
-						<TextLabel marginLeft="5" label='Data de Início do Monitoramento' />
-						<TextValue marginLeft="5" value={ trackingListStartDate ? moment(trackingListStartDate).format('DD/MM/YYYY HH:mm') : '' } />
+						{this.props.perfil.trackingList.map((prop, index) => {
+							return (
+								<View key={prop.trackingId} style={{marginTop: '2%'}}>
+									<TextLabel marginLeft="5" label={`${++index} Monitoramento`} />
+									<TextLabel marginLeft="5" label='Data Início do Monitoramento' />
+									<TextValue marginLeft="5" value={ prop.startDate ? moment(prop.startDate).format('DD/MM/YYYY') : '' } />
+									<TextLabel marginLeft="5" label='Data Fim do Monitoramento' />
+									<TextValue marginLeft="5" value={ prop.endDate ? moment(prop.endDate).format('DD/MM/YYYY') : '' } />
+								</View>
+							);
+						})}
 					</View>
 				</View>
+				
+				<Line marginTop={3} marginBottom={1} marginLeft={5} width={90} size={2} />
 
 				<View style={ styles.row }>
 					<View style={ styles.column100 }>
@@ -210,7 +242,28 @@ export default class Profile extends React.Component {
 						<TextValue marginLeft="5" value={this.props.perfil.exitDescription} />
 					</View>
 				</View>
+				
+				<Line marginTop={5} marginBottom={1} marginLeft={5} width={90} size={2} />
+				
+				<View style={ styles.row }>
+					<View style={ styles.column100 }>
+						<TextLabel marginLeft="5" label='Procedimento Principal' />
+						{
+							this.props.perfil.mainProcedureTUSSDisplayName ? 
+							<TextValue marginLeft="5" color={'#0000FF'} value={this.props.perfil.mainProcedureTUSSDisplayName} press={this.toggleModalMainProcedure} />
+							:
+							<TextValue marginLeft="5" color={'#0000FF'} value={'ESCOLHER'} press={this.toggleModalSecondaryCID} press={this.toggleModalMainProcedure} />	
+						}
+					</View>
+				</View>
 
+				<View style={ styles.row }>
+					<View style={ styles.column100 }>
+						<TextLabel marginLeft="5" label='CRM do Responsável' />
+						<TextValue marginLeft="5" color={'#0000FF'} value={CRM} press={ this.toggleModalCRM } />
+					</View>
+				</View>
+				
 				<View style={ styles.row }>
 					<View style={ styles.column100 }>
 						<TextLabel marginLeft="5" label='CID Primário' />
@@ -225,23 +278,34 @@ export default class Profile extends React.Component {
 				<View style={ styles.row }>
 					<View style={ styles.column100 }>
 						<TextLabel marginLeft="5" label='CIDs Secundários' />
+						<TextValue color={'#0000FF'} marginLeft="5" value={'ADICIONAR'} press={this.toggleModalSecondaryCID} />
 						{ 
 							this.props.perfil.secondaryCIDList.length ? 
-								this.props.perfil.secondaryCIDList.map((prop) => {
+								this.props.perfil.secondaryCIDList.map((cidItem) => {
 									return (
-										<TextValue color={'#0000FF'} key={prop.cidId} marginLeft="5" value={prop.cidDisplayName} press={this.toggleModalSecondaryCID} />
+										<Text style={styles.textValue} key={cidItem.cidId} onPress={ () => this.removeSecondaryCID(cidItem) }> { cidItem.cidDisplayName } </Text>
 									);
 								})
 							: 
-							<TextValue color={'#0000FF'} marginLeft="5" value={'Adicionar'} press={this.toggleModalSecondaryCID} />
+							<View/>
 						}
 					</View>
 				</View>
 				
 				<View style={ styles.row }>
 					<View style={ styles.column100 }>
-						<TextLabel marginLeft="5" label='CRM do Responsável' />
-						<TextValue marginLeft="5" color={'#0000FF'} value={CRM} press={ this.toggleModalCRM } />
+						<TextLabel marginLeft="5" label='Internações Anteriores' />
+						{this.props.perfil.previousHospitalizations.map((prop) => {
+							let startDate = prop.admissionDate ? moment(prop.admissionDate).format('DD/MM/YYYY') : ''
+							let endDate = prop.exitDate ? moment(prop.exitDate).format('DD/MM/YYYY') : ''
+
+							return (
+								<View key={prop.id} style={{marginTop: '2%', marginBottom: '3%'}}>
+									<TextValue marginLeft="5" value={ `${startDate} à ${endDate} - ${prop.hospitalizationDays} dias \n`} />
+									<TextValue marginLeft="5" value={ `${prop.exitCidDisplayName}` } />
+								</View>
+							);
+						})}
 					</View>
 				</View>
 
@@ -271,9 +335,31 @@ const styles = StyleSheet.create({
 		flex: 1,
 		backgroundColor: 'rgba(0, 0, 0, 0.3)',
 		flexDirection: "row",
-	 },
-	 item: {
-    padding: 10,
-    fontSize: 18,
-  },
+	},
+	item: {
+    	padding: 10,
+    	fontSize: 18,
+	},
+	textValue: {
+		fontFamily: "Gotham Rounded",
+		fontWeight: "normal", 
+		fontStyle: "normal", 
+		lineHeight: 22, 
+		letterSpacing: 0,
+		color: '#0000FF',
+		fontSize: 18,
+		marginTop: '0%', 
+		marginLeft: '5%'
+	},
+	trackingListItem: {
+		fontFamily: "Gotham Rounded",
+		fontWeight: "normal", 
+		fontStyle: "normal", 
+		lineHeight: 22, 
+		letterSpacing: 0,
+		color: '#0000FF',
+		fontSize: 18,
+		marginTop: '3%', 
+		marginLeft: '5%'
+	}
 });

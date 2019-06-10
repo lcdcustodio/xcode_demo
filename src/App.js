@@ -6,6 +6,7 @@ import HospitalsScreen from './pages/hospitals';
 import SignInScreen from './pages/signIn';
 import PatientsScreen from './pages/patients';
 import PatientDetailScreen from './pages/patients/patientDetail';
+import EventDetailScreen from './pages/patients/events/detail';
 
 export default class App extends Component {
     render() {
@@ -26,6 +27,9 @@ const AppNavigator = createDrawerNavigator(
 		},
 		PatientDetail: {
 			screen: PatientDetailScreen
+		},
+		EventDetail: {
+			screen: EventDetailScreen
 		},
 	}, {
 		contentComponent: Sidebar

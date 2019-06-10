@@ -4,7 +4,7 @@ import { StyleSheet, BackHandler } from "react-native";
 import { withNavigationFocus } from "react-navigation";
 import moment from "moment"
 import uuidv4 from'uuid/v4'
-import Recommedation from "./events/recommendation"
+import _ from 'lodash'
 
 //Pages
 import Profile from "./profile"
@@ -22,9 +22,10 @@ class PatientDetail extends Component {
 			baseDataSync: this.props.navigation.getParam('baseDataSync'),
 			selectedTab: 'profile'
 		}
+		console.log(this.state.baseDataSync)
 		console.log("Executei o construtor")
 	}
-	
+
 	handleAttendanceType = (attendanceType) => {
 		this.setState({
 			patient: {
@@ -106,34 +107,34 @@ class PatientDetail extends Component {
 		}
 	}
 
+	removeSecondaryCID = (cid) => {
+		let newCidList = this.state.patient.secondaryCIDList.filter(item => item.cidId !== cid.cidId)
+		this.setState({
+			patient: {
+				...this.state.patient,
+				secondaryCIDList: newCidList
+			}
+		})
+	}
+
 	renderSelectedTab = () => {
 		console.log("Executei o renderSelectedTab")
-		console.log(this.state.patient)
+		
 		switch (this.state.selectedTab) {
 			case 'profile':
 				return (<Profile perfil={this.state.patient} handleAttendanceType={this.handleAttendanceType} hospital={this.state.hospital} 
 					baseDataSync={this.state.baseDataSync} handleHospitalizationType={this.handleHospitalizationType} 
 					handleHeightAndWeight={this.handleHeightAndWeight} handleCRM={this.handleCRM} handlePrimaryCID={this.handlePrimaryCID}
-					handleSecondaryCID={this.handleSecondaryCID} />);
-				break;
-			case 'exams':
-				return (<Exams exames={this.props.navigation.state.params.patient.examRequestList} updateParentStatus={this.updateParentStatus} navigation={this.props.navigation} />);
-				break;
+					handleSecondaryCID={this.handleSecondaryCID} removeSecondaryCID={this.removeSecondaryCID} handleMainProcedure={this.handleMainProcedure} />);
+			case 'events':
+				return <Events patient={this.state.patient} parent={this} updateParentStatus={this.updateParentStatus} navigation={this.props.navigation} />;
 			case 'visits':
 				return (<Visits patient={this.state.patient} updateParentStatus={this.updateParentStatus} updatePatient={this.updatePatient} navigation={this.props.navigation} />);
-				break;
-			default:
 		}
 	}
 
 	updatePatient = patient =>{
 		this.setState({patient})
-	}
-
-	switchScreen(screen) {        
-		this.setState({
-			selectedTab: screen
-		})
 	}
 
 	componentDidMount() {
@@ -158,24 +159,39 @@ class PatientDetail extends Component {
 		return true;
 	}
 
-	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
-		
-		this.setState({selectedTab: 'profile'});
+	handleMainProcedure = (procedure) => {
+		this.setState({
+			patient: {
+				...this.state.patient,
+				mainProcedureTUSSDisplayName: `${procedure.code} - ${procedure.name}`,
+				mainProcedureTUSSId: procedure.code
+			}
+		})
+	}
 
+	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
 		this.setState({
 			patient: this.props.navigation.getParam('patient'),
 			hospital: this.props.navigation.getParam('hospital'),
 			baseDataSync: this.props.navigation.getParam('baseDataSync'),
+			selectedTab: 'profile',
 		});
 	});
 
-	render(){
+	isSelected(screen) {
+		return (screen === this.state.selectedTab);
+	}
 
+	selectScreen(screen) {
+		this.setState({ selectedTab: screen });
+	}
+
+	render() {
 		return (
 			<Container>
 				<Header style={ styles.header }>
 					<Left style={{flex:1}} >
-						<Icon type="AntDesign" name="left" style={{ color: 'white' }} onPress={() => this.props.navigation.navigate('Patients',  { hospital: this.state.hospital } ) } />
+						<Icon type="AntDesign" name="left" style={{ color: 'white' }} onPress={this._goBack} />
 					</Left>
 					<Body style={{flex: 7, alignItems: 'stretch'}}>
 						<Title> DETALHES DO PACIENTE </Title>
@@ -186,33 +202,39 @@ class PatientDetail extends Component {
 				</Content>
 				<Footer>
 					<FooterTab>
-						<Button backgroundColor={'#005cd1'} vertical active={this.state.selectedTab === 'profile'} onPress={() => this.switchScreen('profile', 'Perfil')}>
-							<Icon name="person" />
-							<Text>Perfil</Text>
-						</Button>
-						<Button backgroundColor={'#005cd1'} vertical active={this.state.selectedTab === 'events'} onPress={() => this.switchScreen('events', 'Timeline')}>
-							<Icon name="book" />
-							<Text>Timeline</Text>
-						</Button>
-						<Button backgroundColor={'#005cd1'} vertical active={this.state.selectedTab === 'visits'} onPress={() => this.switchScreen('visits', 'Visitas')}>
-							<Icon active name="calendar" />
-							<Text>Visitas</Text>
-						</Button>
+						<Tab name='profile' displayName='Perfil' iconName='person' parent={this} />
+						<Tab name='events' displayName='Timeline' iconName='book' parent={this} />
+						<Tab name='visits' displayName='Visitas' iconName='calendar' parent={this} />
 					</FooterTab>
 				</Footer>
 			</Container>
 		);
 	}
+
+	_goBack = () => {
+		this.props.navigation.navigate('Patients',  {hospital: this.state.hospital});
+	}
 }
+
 export default withNavigationFocus(PatientDetail);
 
+const backgroundColor = '#005cd1';
+
+const Tab = (props) => (
+	<Button backgroundColor={backgroundColor} vertical
+			active={props.parent.isSelected(props.name)}
+			onPress={() => props.parent.selectScreen(props.name)}>
+		<Icon name={props.iconName} />
+		<Text>{props.displayName}</Text>
+	</Button>
+);
 
 const styles = StyleSheet.create({
 	header: {
-		backgroundColor: "#005cd1"
+		backgroundColor: backgroundColor
 	},
 	footer: {
-		backgroundColor: "#005cd1"
+		backgroundColor: backgroundColor
 	},
 	productContainer: {
 		backgroundColor: "#FFF",
@@ -234,7 +256,6 @@ const styles = StyleSheet.create({
 	patientName: {
 		marginTop: '17%',
 		marginLeft: '5%',
-		fontFamily: "Gotham Rounded-Medium",
 		fontSize: 20,
 		fontWeight: "400",
 		fontStyle: "normal",

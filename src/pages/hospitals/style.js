@@ -32,8 +32,7 @@ export default StyleSheet.create({
   niceBlue: {color:  "#19769F"}, 
 
   description : {
-    fontFamily: "Gotham Rounded",
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "normal",
     fontStyle: "normal",
     textAlign: "left",
@@ -43,12 +42,13 @@ export default StyleSheet.create({
     marginBottom: 5, 
   }, 
 
-  sideButtonRight : {
-    height: '100%',
-    backgroundColor: "#005cd1",
-    paddingTop: '15%', 
-    fontWeight: "bold"
-   }, 
+    sideButtonRight : {
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: 100,
+        backgroundColor: "#005cd1",
+        fontWeight: "bold"
+    }, 
 
   headerMenu: {backgroundColor: "#005cd1"}, 
 

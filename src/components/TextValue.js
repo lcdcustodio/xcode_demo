@@ -7,9 +7,11 @@ export default class TextValue extends Component {
     super(props)   
   }
 
+
   render(){
     return (
-      <Text style={[styles.value, {"color": this.props.color, "fontSize": this.props.size, "marginTop": `${this.props.marginTop}%`, "marginLeft": `${this.props.marginLeft}%` } ]} onPress={ this.props.press}> { this.props.value } </Text>
+      <Text style={[styles.value, {"color": this.props.color, "fontSize": this.props.size, "marginTop": `${this.props.marginTop}%`, "marginLeft": `${this.props.marginLeft}%` } ]} 
+        onPress={ item => this.props.press ? this.props.press(this.props.value) : ''}> { this.props.value } </Text>
     )
   }
 }
@@ -24,7 +26,7 @@ TextValue.defaultProps = {
 
 const styles = StyleSheet.create({
   value: {
-    fontFamily: "Gotham Rounded-Book",
+    fontFamily: "Gotham Rounded",
     fontWeight: "normal", 
     fontStyle: "normal", 
     lineHeight: 22, 

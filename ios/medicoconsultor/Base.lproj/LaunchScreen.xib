@@ -15,7 +15,7 @@
             <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="logo" translatesAutoresizingMaskIntoConstraints="NO" id="GEW-MS-K1S">
+                <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="Icon-marketing-1024x1024" translatesAutoresizingMaskIntoConstraints="NO" id="m5X-8h-kgP">
                     <rect key="frame" x="67" y="269" width="240" height="128"/>
                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
                 </imageView>
@@ -27,6 +27,6 @@
         </view>
     </objects>
     <resources>
-        <image name="logo" width="1024" height="1024"/>
+        <image name="Icon-marketing-1024x1024" width="512" height="512"/>
     </resources>
 </document>

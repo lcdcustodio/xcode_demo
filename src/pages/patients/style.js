@@ -13,10 +13,8 @@ export default StyleSheet.create({
 	},
 
 	patientTitle: {
-		width: 171,
         height: 14,
-        fontFamily: "Gotham Rounded",
-        fontSize: 14,
+        fontSize: 12,
         fontWeight: "500",
         fontStyle: "normal",
         lineHeight: 17,
@@ -27,8 +25,7 @@ export default StyleSheet.create({
 	productDescription: {
         width: 171,
         height: 14,
-        fontFamily: "Gotham Rounded",
-        fontSize: 15,
+        fontSize: 12,
         fontWeight: "500",
         fontStyle: "normal",
         lineHeight: 17,
@@ -39,7 +36,6 @@ export default StyleSheet.create({
     hospitalizationDescription : {
         width: '100%',
         height: 12,
-        fontFamily: "Gotham Rounded",
         fontSize: 13,
         fontWeight: "normal",
         fontStyle: "normal",
@@ -54,7 +50,6 @@ export default StyleSheet.create({
         marginTop: '2%',
         width: '100%',
         height: 11,
-        fontFamily: "Gotham Rounded",
         fontSize: 12,
         fontWeight: "normal",
         fontStyle: "normal",
