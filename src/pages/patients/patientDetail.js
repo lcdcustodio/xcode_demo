@@ -73,7 +73,7 @@ class PatientDetail extends Component {
 						<Icon type="AntDesign" name="left" style={{ color: 'white' }} onPress={this._goBack} />
 					</Left>
 					<Body style={{flex: 7, alignItems: 'stretch'}}>
-						<Title> DETALHES DO PACIENTE </Title>
+						<Title style={{color: 'white'}}> DETALHES DO PACIENTE </Title>
 					</Body>
 				</Header>
 				<Content padder>
