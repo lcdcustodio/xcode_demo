@@ -12,6 +12,7 @@ import moment from 'moment';
 import Session from '../../Session';
 import qs from "qs";
 import _ from 'lodash'
+import data from '../../../data.json';
 
 export default class Hospital extends Component {
 
@@ -28,6 +29,8 @@ export default class Hospital extends Component {
 			loading: false,
 			errorSync: 0
 		}
+
+		console.log(data);
 	}
 
 	componentDidMount() {
@@ -60,6 +63,7 @@ export default class Hospital extends Component {
 		AsyncStorage.getItem('dateSync', (err, dateSync) => {
             this.setState({dateSync: dateSync});
         });
+
 	});
 
 	loadHospitals = async () => {
@@ -250,7 +254,6 @@ export default class Hospital extends Component {
 		this.setState({
 			hospitals: [ ...listHospital], 
 		});
-		console.log("hospitais",this.state.hospitals)
 	}
 
 	getLogomarca(hospital) {
@@ -341,8 +344,6 @@ export default class Hospital extends Component {
 
 		}, 0);
 
-		console.log(totalPatients);
-
 		return totalPatients;
 	}
 
@@ -374,9 +375,21 @@ export default class Hospital extends Component {
 			}
 		});
 
-		console.log(lastVisit);
+		if (lastVisit == null) {
+			lastVisit = 'Sem visita';
+		}
+		else
+		{
+			let visit = new Date()
+
+			var day = (visit.getDay() < 10 ? '0' : '') + visit.getDay();
+
+			var month = ((visit.getMonth() + 1) < 10 ? '0' : '') + (visit.getMonth() + 1);
+
+			lastVisit = day + "/" + month + "/" + visit.getFullYear();
+		}
 		
-		return lastVisit != null ? moment(lastVisit).format('DD/MM/YYYY') : 'Sem visita'
+		return lastVisit;
 	}
 
 	loadHospitalsStorage = async () => {
@@ -469,7 +482,7 @@ export default class Hospital extends Component {
 	renderImageOrName(item) {
 
 		if ( item.logomarca ) {
-			return <Image source={item.logomarca} style={styles.hospitalIcon}  />;
+			return <Image source={item.logomarca} style={[styles.hospitalIcon, {width: 140, height: 60 }]}/>;
 		}
 		else
 		{
