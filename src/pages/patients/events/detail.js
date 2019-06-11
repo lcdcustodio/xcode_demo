@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { Container, Content, Header, Left, Body, Icon, Text, Title, Footer, FooterTab } from 'native-base';
 import { StyleSheet } from "react-native";
-import TimelineEvent, { TimelineEventEnum, TimelineEventEvaluation, timelineEventSorter } from '../../../model/TimelineEvent'
+import { TimelineEventEnum } from '../../../util/TimelineEvent'
 import ExamRequestView		from './ExamRequestView';
 import FurtherOpinionView	from './FurtherOpinionView';
 import MedicalProcedureView	from './MedicalProcedureView';

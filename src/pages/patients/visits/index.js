@@ -7,6 +7,9 @@ import moment from 'moment';
 import _ from 'lodash'
 import uuid from 'uuid/v4';
 
+import Patient, { HospitalizationStatusEnum, StatusVisitEnum, FinalizationErrorEnum } from '../../../model/Patient';
+import { TrackingEndModeEnum } from '../../../model/Tracking';
+
 export default class Visitas extends React.Component {
 	
 	constructor(props) {
@@ -119,6 +122,28 @@ export default class Visitas extends React.Component {
 		})
 	}
 
+	finalize = () => {
+		const patient = new Patient(this.state.patient);
+		const errors = patient.validateFinalization();
+		if (!errors.length) {
+			Alert.alert('...', 'Em desenvolvimento.', [{text: 'OK'}], {cancelable: false})
+		} else {
+			let fields = FINALIZE_ERROR_FIELDS[errors[0]];
+			let msg = '';
+			if (errors.length === 1) {
+				msg = 'O campo ' + fields + ' precisa ser preenchido.';
+			} else {
+				const lastIndex = errors.length - 1;
+				for (let i = 1; i < lastIndex; i++) {
+					fields += ', ' + FINALIZE_ERROR_FIELDS[errors[i]];
+				}
+				fields += ' e ' +  FINALIZE_ERROR_FIELDS[errors[lastIndex]];
+				msg = 'Os campos ' + fields + ' precisam ser preenchidos.';
+			}
+			Alert.alert('Atenção', msg, [{text: 'OK'}], {cancelable: false});
+		}
+	}
+	
 	showModal = _ => {
 		this.setState({modalVisible: false});
 	}
@@ -156,22 +181,30 @@ export default class Visitas extends React.Component {
 		return newVisit.uuid === oldVisit.uuid;
 	}
 
-	showVisitButton = visits => {
-		  if (!visits[0] || !this.isToday(visits[0].observationDate)){
-			return <View style={ styles.rowButtonCircle }>
-						<LinearGradient colors={['#035fcc', '#023066']} style={ [styles.circle, styles.borderCircle ]} >
-							<Icon type="FontAwesome5" name="id-badge" style={ styles.iconCircle } onPress={this.appoint} />
-							<Text style={ styles.textCircle } > VISITAR </Text>
-						</LinearGradient>
-					</View>
-		} else {
-			return  <View style={ styles.rowButtonCircle }>
-						<LinearGradient colors={['#808080', '#696969']} style={ [styles.circle, styles.borderCircle ]} >
-							<Icon type="FontAwesome5" name="id-badge" style={ styles.iconCircle }  />
-							<Text style={ styles.textCircle } > VISITADO </Text>
-						</LinearGradient>
-					</View>
+	showButton = () => {
+		const patient = new Patient(this.state.patient);
+		switch (patient.getHospitalizationStatusEnum()) {
+			case HospitalizationStatusEnum.Open:
+				return (patient.getStatusVisitEnum() === StatusVisitEnum.Visited)
+					? <VisitedButton/>
+					: <VisitButton onPress={this.appoint}/>;
+
+			case HospitalizationStatusEnum.CanBeClosed:
+				const lastTracking = patient.getLastTracking();
+				if (lastTracking && lastTracking.endMode === TrackingEndModeEnum.AdminDischarge) {
+					return <FinalizeButton onPress={this.finalize}/>;
+				}
+				if (lastTracking && lastTracking.json.endDate) {
+					return (patient.getStatusVisitEnum() === StatusVisitEnum.VisitedEndTracking)
+						? <EndTrackingButtonDisabled/>
+						: <EndTrackingButtonEnabled/>;
+				}
+			case HospitalizationStatusEnum.Closed:
+				console.warn('Visitas: finalizado não é exibido.', patient);
+				return null;
 		}
+		console.warn('Visitas: tipo de botão não mapeado.', patient);
+		return null;
 	}
 	
 	render() {
@@ -227,9 +260,42 @@ export default class Visitas extends React.Component {
 					extraData={this.props}
 					renderItem={this.renderItem}/>
 
-				{this.showVisitButton(listOfOrderedObservationDate)}
-
+				{this.showButton()}
 			</View>
 		);
 	}
 }
+
+const FINALIZE_ERROR_FIELDS = [];
+FINALIZE_ERROR_FIELDS[FinalizationErrorEnum.HeightAndWeightMissing] = 'Altura / Peso';
+FINALIZE_ERROR_FIELDS[FinalizationErrorEnum.AttendanceTypeMissing] = 'Atendimento';
+FINALIZE_ERROR_FIELDS[FinalizationErrorEnum.HospitalizationTypeMissing] = 'Tipo';
+FINALIZE_ERROR_FIELDS[FinalizationErrorEnum.PrimaryCidMissing] = 'CID Primário';
+FINALIZE_ERROR_FIELDS[FinalizationErrorEnum.CrmMissing] = 'CRM do Responsável';
+
+const COLORS_ENABLED = ['#035fcc', '#023066'];
+const COLORS_DISABLED = ['#808080', '#696969'];
+
+const GradientButton = (props) => (
+	<View style={ styles.rowButtonCircle }>
+		<LinearGradient colors={ props.colors } style={ [styles.circle, styles.borderCircle ]} >
+			<Icon type="FontAwesome5" name={ props.iconName } style={ styles.iconCircle } onPress={ props.onPress }/>
+			<Text style={ styles.textCircle } >{ props.children }</Text>
+		</LinearGradient>
+	</View>
+);
+
+const VisitButton = (props) =>
+	<GradientButton colors={COLORS_ENABLED} iconName="id-badge" onPress={props.onPress}>VISITAR</GradientButton>;
+
+const VisitedButton = (props) =>
+	<GradientButton colors={COLORS_DISABLED} iconName="id-badge">VISITADO</GradientButton>;
+
+const FinalizeButton = (props) =>
+	<GradientButton colors={COLORS_ENABLED} iconName="id-badge" onPress={props.onPress}>FINALIZAR</GradientButton>;
+
+const EndTrackingButtonEnabled = (props) =>
+	<GradientButton colors={COLORS_ENABLED} iconName="id-badge" onPress={props.onPress}>FIM DO MONITORAMENTO</GradientButton>;
+
+const EndTrackingButtonDisabled = (props) =>
+	<GradientButton colors={COLORS_DISABLED} iconName="id-badge">FIM DO MONITORAMENTO</GradientButton>;

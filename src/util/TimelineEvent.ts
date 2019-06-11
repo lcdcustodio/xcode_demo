@@ -1,3 +1,4 @@
+import Comparable, { compareDate } from './Comparable';
 
 export enum TimelineEventEnum {
     ExamRequest,
@@ -6,7 +7,7 @@ export enum TimelineEventEnum {
     MedicineUsage,
 }
 
-export default class TimelineEvent {
+export default class TimelineEvent implements Comparable<TimelineEvent> {
     public readonly typeEnum: TimelineEventEnum;
     public readonly data: any;
     public readonly time: Date;
@@ -26,6 +27,10 @@ export default class TimelineEvent {
         this.costEvaluation = costEvaluation;
         this.qualityEvaluation = qualityEvaluation;
     }
+
+    compareTo(other: TimelineEvent): number {
+        return compareDate(this.time, other.time);
+    }
 }
 
 export class TimelineEventEvaluation {
@@ -39,7 +44,5 @@ export class TimelineEventEvaluation {
 }
 
 export function timelineEventSorter (a: TimelineEvent, b: TimelineEvent) {
-    const timeA = a.time.getTime();
-    const timeB = b.time.getTime();
-    return -(timeA === timeB ? 0 : (timeA < timeB? -1 : 1));
+    return -a.compareTo(b);
 }
