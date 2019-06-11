@@ -23,7 +23,7 @@ export default class SignIn extends Component {
 		}
 	}
 
-	componentDidMount() {
+	/*componentDidMount() {
         	
         this.setState({loading: true});
 
@@ -77,7 +77,7 @@ export default class SignIn extends Component {
 			}
 
 		});
-    }
+    }*/
 	
 	getBaseDataSync = async () => {
 		return await api.get('/api/basedata/baseDataSync?lastDateSync=' + this.state.lastDateSync).then(res => {
@@ -125,40 +125,23 @@ export default class SignIn extends Component {
 				Session.current.user = new User(content.name, content.profile);
 				
 				if(response.data.success) {
-					
+
+					//this.setState({ textContent: 'Sincronizando...' });
+
+					console.log('ERRRO');
+
 					AsyncStorage.multiSet([
 					    ["auth", JSON.stringify(params)],
 					    ["userData", JSON.stringify(content)]
 					], async() => {
 
-						AsyncStorage.getItem('baseDataSync', async (err, baseDataSync) => {
+						//let baseDataSync = await this.getBaseDataSync();
 
-				        	console.log(baseDataSync);
+						//console.log(JSON.stringify(baseDataSync));
 
-							if (baseDataSync != null) {
+						this.setState({loading: false});
 
-								this.setState({loading: false});
-						
-								this.props.navigation.navigate("Hospitals");
-
-							}
-							else
-							{
-								this.setState({ textContent: 'Sincronizando...' });
-
-								let baseDataSync = await this.getBaseDataSync();
-
-								AsyncStorage.setItem('baseDataSync', JSON.stringify(baseDataSync), () => {
-
-									this.setState({loading: false});
-
-									this.props.navigation.navigate("Hospitals");
-
-								});
-							}
-
-
-						});
+						this.props.navigation.navigate("Hospitals");
 				
 			        });	
 		        }	

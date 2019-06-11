@@ -12,6 +12,7 @@ import moment from 'moment';
 import Session from '../../Session';
 import qs from "qs";
 import _ from 'lodash'
+import data from '../../../data.json';
 
 export default class Hospital extends Component {
 
@@ -28,6 +29,8 @@ export default class Hospital extends Component {
 			loading: false,
 			errorSync: 0
 		}
+
+		console.log(data);
 	}
 
 	componentDidMount() {
@@ -60,6 +63,7 @@ export default class Hospital extends Component {
 		AsyncStorage.getItem('dateSync', (err, dateSync) => {
             this.setState({dateSync: dateSync});
         });
+
 	});
 
 	loadHospitals = async () => {
