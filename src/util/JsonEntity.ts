@@ -1,12 +1,13 @@
 import Comparable, { compare } from './Comparable';
 
 export default abstract class JsonEntity<T extends JsonEntity<T>> implements Comparable<T> {
+
     public readonly json: any;
+    
     private loadedLists: Map<string, any[]>;
 
     public constructor(json: any) {
         this.json = json;
-        this.loadedLists = new Map<string, any[]>();
     }
 
     public get dirty(): boolean {
@@ -20,8 +21,12 @@ export default abstract class JsonEntity<T extends JsonEntity<T>> implements Com
     }
 
     protected getList<M extends JsonEntity<M>>(key: string, constructor: new(json:any)=>M): M[]  {
-        if (this.loadedLists.has(key)) {
-            return this.loadedLists.get(key);
+        if (this.loadedLists) {
+            if (this.loadedLists.has(key)) {
+                return this.loadedLists.get(key);
+            }
+        } else {
+            this.loadedLists = new Map<string, any[]>();
         }
         const listJson: any[] = this.json[key];
         const list: M[] = [];
