@@ -11,14 +11,16 @@ import ModalList from '../../components/ModalList';
 import ModalInput from '../../components/ModalInput';
 import ModalWeightAndHeight from '../../components/ModalWeightAndHeight';
 import ModalListSearchable from '../../components/ModalListSearchable';
-import AsyncStorage from '@react-native-community/async-storage';
+
+import data from '../../../data.json';
 
 export default class Profile extends Component {
 
 	constructor(props) {
 		super(props);	
 		this.state = {
-			baseDataSync: null,
+			cid: data.cid,
+			tuss: data.tuss,
 			modalAttendanceType: false,
 			modalHospitalizationType: false,
 			modalHeightAndWeight: false,
@@ -36,21 +38,7 @@ export default class Profile extends Component {
 				{key: 2, value: 'SURGICAL', label: 'CIRÚRGICO'}
 			]
 		}
-
-		AsyncStorage.getItem('baseDataSync', (err, baseDataSync) => {
-			this.setState({
-				baseDataSync
-			});
-		});
 	}
-
-	/* didFocus = this.props.navigation.addListener('didFocus', (res) => {
-		AsyncStorage.getItem('baseDataSync', (err, baseDataSync) => {
-			this.setState({
-				dataBaseSync
-			});
-		});
-	}); */
 
 	toggleModal = (modalName) => {
 		this.setState({[modalName]: !this.state[modalName]})
@@ -169,16 +157,15 @@ export default class Profile extends Component {
 			case 'CRM':
 				return ( <ModalInput paddingTop={50} height={40} visible={this.state.modalCRM} label={'CRM'} value={this.props.patient.mainProcedureCRM ? this.props.patient.mainProcedureCRM : ''} action={ this.handleCRM} /> );
 			case 'PrimaryCID':
-				return ( <ModalListSearchable paddingTop={20} height={80} visible={this.state.modalPrimaryCID} list={this.props.baseDataSync.cid} action={this.handlePrimaryCID} /> );
+				return ( <ModalListSearchable paddingTop={20} height={80} visible={this.state.modalPrimaryCID} list={this.state.cid} action={this.handlePrimaryCID} /> );
 			case 'SecondaryCID':
-				return ( <ModalListSearchable paddingTop={20} height={80} visible={this.state.modalSecondaryCID} list={this.props.baseDataSync.cid} action={this.handleSecondaryCID} /> );
+				return ( <ModalListSearchable paddingTop={20} height={80} visible={this.state.modalSecondaryCID} list={this.state.cid} action={this.handleSecondaryCID} /> );
 			case 'MainProcedure':
-				return ( <ModalListSearchable paddingTop={20} height={80} visible={this.state.modalMainProcedure} list={this.props.baseDataSync.tuss} action={this.handleMainProcedure} /> );
+				return ( <ModalListSearchable paddingTop={20} height={80} visible={this.state.modalMainProcedure} list={this.state.tuss} action={this.handleMainProcedure} /> );
 		}
 	}
 
 	render() {
-		console.log("baseDataSync", this.state.baseDataSync);
 		let CRM = this.props.patient.mainProcedureCRM !== null ? this.props.patient.mainProcedureCRM : 'INFORMAR';
 		const { container, row, column50, column100, overlay, item, textValue, trackingListItem, hospitalizationsListContainer } = styles;
 		
@@ -303,6 +290,8 @@ export default class Profile extends Component {
 				<View style={ row }>
 					<View style={ column100 }>
 						<TextLabel marginLeft="5" label='CID Primário' />
+						{ this.props.patient.diagnosticHypothesisList && this.props.patient.diagnosticHypothesisList.length === 0 ? <TextValue color={'#0000FF'} marginLeft="5" value={'ADICIONAR'} press={ () => { this.setState({modalSelected: 'PrimaryCID', modalPrimaryCID: true}) }} /> : null }
+
 						{this.props.patient.diagnosticHypothesisList && this.props.patient.diagnosticHypothesisList.map((prop) => {
 							return (
 								<TextValue color={'#0000FF'} key={prop.cidId} marginLeft="5" value={prop.cidDisplayName ? prop.cidDisplayName : 'Escolher'} press={ () => { this.setState({modalSelected: 'PrimaryCID', modalPrimaryCID: true}) }} />
