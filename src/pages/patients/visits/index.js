@@ -221,15 +221,15 @@ export default class Visitas extends React.Component {
 					visible={this.state.modalVisible}
 					onRequestClose={() =>{ console.log("Modal has been closed.") } }>
 						<View style={styles.overlay}>
-							<View style={{backgroundColor: '#F8F8FF', borderRadius: 4, flexDirection: "row", flexWrap: 'wrap', height: '75%', marginTop: '25%', padding: 1}}>
+							<View style={{backgroundColor: '#F8F8FF', borderRadius: 4, flexDirection: "row", flexWrap: 'wrap', height: '60%', marginTop: '25%', padding: 10}}>
 							
 								<View style={{flexDirection: "row", width: '100%', justifyContent: 'space-between', backgroundColor: "#005cd1", alignItems: 'center'}}>
 										<Button backgroundColor={'#005cd1'} onPress={this.toggleModal}>
-											<Icon type="AntDesign" name="close" style={{color: 'white', fontSize: 18, marginTop: 1, marginBottom: 1, marginLeft: '12%'}} />
+											<Icon type="AntDesign" name="close" style={{color: 'white', fontSize: 18, marginTop: 1, marginBottom: 1, marginLeft: '5%'}} />
 										</Button>
 										<Text style={{fontWeight: "bold", fontSize: 18, color: 'white'}}>Visita</Text>
 										<Button backgroundColor={'#005cd1'} onPress={this.save}>
-											<Icon type="AntDesign" name="save" style={{color: 'white', fontSize: 18, marginTop: 1, marginBottom: 1, marginRight: '12%'}} />
+											<Icon type="AntDesign" name="save" style={{color: 'white', fontSize: 18, marginTop: 1, marginBottom: 1, marginRight: '5%'}} />
 										</Button>
 								</View>
 
@@ -244,9 +244,11 @@ export default class Visitas extends React.Component {
 										<Switch onValueChange={this.toggleSwitch} value={this.state.visit.alert} style={{ transform: [{ scaleX: 1.3 }, { scaleY: 1.3 } ]}}/>
 									</View>	
 								</View>
+
 								<View style={{flexDirection: "row", width: '100%', flexWrap: 'wrap', paddingTop: '15%'}}>
-									<Text style={{fontWeight: "bold", width: '100%', fontSize: 17}}>Observação</Text>
-									<TextInput multiline={true}	 numberOfLines={8} maxHeight={'80%'} style={styles.textArea} value={this.state.visit.observation} onChangeText = {observation => this.addObservation(observation)} />
+									<Text style={{fontWeight: "bold", width: '100%', fontSize: 17}}>Observação:</Text>
+									<TextInput multiline={true}	
+									numberOfLines={5} maxHeight={'70%'} style={styles.textArea} value={this.state.visit.observation} onChangeText = {observation => this.addObservation(observation)} />
 								</View>
 							</View>
 						</View>
