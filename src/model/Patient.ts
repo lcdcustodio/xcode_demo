@@ -1,52 +1,63 @@
 import JsonEntity	from '../util/JsonEntity';
-import { HospitalizationStatusEnum } from './Hospitalization';
 import Observation	from './Observation';
-import Tracking		from './Tracking';
+import Tracking, { TrackingEndModeEnum } from './Tracking';
 
 export default class Patient extends JsonEntity<Patient> {
 
-	public getTrackingList(): Tracking[] {
+	public get attendanceType(): AttendanceTypeEnum {
+		return this.json.attendanceType;
+	}
+
+	public set attendanceType(value: AttendanceTypeEnum) {
+		this.json.attendanceType = value;
+	}
+
+	public get hospitalizationType(): HospitalizationTypeEnum {
+		return this.json.hospitalizationType;
+	}
+
+	public set hospitalizationType(value: HospitalizationTypeEnum) {
+		this.json.hospitalizationType = value;
+	}
+
+	public get trackingList(): Tracking[] {
 		return this.getList('trackingList', Tracking);
 	}
 
-	public getObservationList(): Observation[] {
+	public get observationList(): Observation[] {
 		return this.getList('observationList', Observation);
 	}
 
-	public getVisitsButtonEnum(): VisitsButtonEnum {
-		switch (this.getHospitalizationStatusEnum()) {
-			case HospitalizationStatusEnum.Open:
-				const statusVisit = this.getStatusVisitEnum();
-				return (statusVisit === StatusVisitEnum.Visited)
-					? VisitsButtonEnum.Visited
-					: VisitsButtonEnum.Visit;
-
-			case HospitalizationStatusEnum.CanBeClosed:
-				const lastTracking = this.getLastTracking();
-				if (lastTracking && lastTracking.json.endMode === ADMIN_DISCHARGE_EXIT) {
-					return VisitsButtonEnum.Finalize;
-				}
-				if (lastTracking && lastTracking.json.endDate) {
-					const statusVisit = this.getStatusVisitEnum();
-					return (statusVisit === StatusVisitEnum.VisitedEndTracking)
-						? VisitsButtonEnum.EndTrackingDisabled
-						: VisitsButtonEnum.EndTrackingEnabled;
-				}
-				return VisitsButtonEnum.Unexpected;
-
-			case HospitalizationStatusEnum.Closed:
-				return VisitsButtonEnum.Unexpected; // Finalizados não são exibidos.
-		}
-	}
-
 	public getLastTracking(): Tracking {
-		const list = this.getTrackingList();
+		const list = this.trackingList;
 		return (list.length >= 0 ? list[list.length - 1] : null);
 	}
 	
 	public getLastObservation(): Observation {
-		const list = this.getObservationList();
+		const list = this.observationList;
 		return (list.length >= 0 ? list[list.length - 1] : null);
+	}
+
+	public validateFinalization(): FinalizationErrorEnum[] {
+		const { patientHeight, patientWeight, attendanceType, hospitalizationType, diagnosticHypothesisList,
+				mainProcedureCRM } = this.json;
+		const errors = [];
+		if (patientHeight == null || patientWeight == null) {
+			errors.push(FinalizationErrorEnum.HeightAndWeightMissing);
+		}
+		if (!attendanceType) {
+			errors.push(FinalizationErrorEnum.AttendanceTypeMissing);
+		}
+		if (!hospitalizationType) {
+			errors.push(FinalizationErrorEnum.HospitalizationTypeMissing);
+		}
+		if (!diagnosticHypothesisList || !diagnosticHypothesisList.length) {
+			errors.push(FinalizationErrorEnum.PrimaryCidMissing);
+		}
+		if (!mainProcedureCRM && attendanceType === HospitalizationTypeEnum.Surgical) {
+			errors.push(FinalizationErrorEnum.CrmMissing);
+		}
+		return errors;
 	}
 
 	public getHospitalizationStatusEnum(): HospitalizationStatusEnum {
@@ -80,7 +91,7 @@ export default class Patient extends JsonEntity<Patient> {
             } else {
 				const lastTracking = this.getLastTracking();
 				if (lastTracking) {
-					return (lastTracking.json.endMode === ADMIN_DISCHARGE_EXIT)
+					return (lastTracking.endMode === TrackingEndModeEnum.AdminDischarge)
 						? StatusVisitEnum.NotVisitedDischarged
 						: StatusVisitEnum.NotVisitedEndTracking;
 				}
@@ -107,24 +118,37 @@ export default class Patient extends JsonEntity<Patient> {
     }
 }
 
-const ADMIN_DISCHARGE_EXIT = 'ADMIN_DISCHARGE_EXIT';
+export enum AttendanceTypeEnum {
+	Elective,
+	Emergency,
+}
+
+export enum HospitalizationTypeEnum {
+	Surgical,
+	Clinical,
+}
+
+export enum FinalizationErrorEnum {
+	HeightAndWeightMissing,
+	AttendanceTypeMissing,
+	HospitalizationTypeMissing,
+	PrimaryCidMissing,
+	CrmMissing,
+}
+
+export enum HospitalizationStatusEnum {
+    Open,
+    Closed,
+    CanBeClosed,
+}
 
 export enum StatusVisitEnum {
-    NotVisited = 1,
+    NotVisited,
     NotVisitedAlert,
     NotVisitedEndTracking,
     NotVisitedDischarged,
     Visited,
     VisitedEndTracking,
 	VisitedDischarged,
-	Unexpected,
-}
-
-export enum VisitsButtonEnum {
-	Visit,
-	Visited,
-	Finalize,
-	EndTrackingEnabled,
-	EndTrackingDisabled,
 	Unexpected,
 }

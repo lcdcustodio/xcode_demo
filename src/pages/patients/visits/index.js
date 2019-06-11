@@ -7,7 +7,8 @@ import moment from 'moment';
 import _ from 'lodash'
 import uuid from 'uuid/v4';
 
-import Patient, { VisitsButtonEnum } from '../../../model/Patient';
+import Patient, { HospitalizationStatusEnum, StatusVisitEnum, FinalizationErrorEnum } from '../../../model/Patient';
+import { TrackingEndModeEnum } from '../../../model/Tracking';
 
 export default class Visitas extends React.Component {
 	
@@ -121,6 +122,28 @@ export default class Visitas extends React.Component {
 		})
 	}
 
+	finalize = () => {
+		const patient = new Patient(this.state.patient);
+		const errors = patient.validateFinalization();
+		if (!errors.length) {
+			Alert.alert('...', 'Em desenvolvimento.', [{text: 'OK'}], {cancelable: false})
+		} else {
+			let fields = FINALIZE_ERROR_FIELDS[errors[0]];
+			let msg = '';
+			if (errors.length === 1) {
+				msg = 'O campo ' + fields + ' precisa ser preenchido.';
+			} else {
+				const lastIndex = errors.length - 1;
+				for (let i = 1; i < lastIndex; i++) {
+					fields += ', ' + FINALIZE_ERROR_FIELDS[errors[i]];
+				}
+				fields += ' e ' +  FINALIZE_ERROR_FIELDS[errors[lastIndex]];
+				msg = 'Os campos ' + fields + ' precisam ser preenchidos.';
+			}
+			Alert.alert('Atenção', msg, [{text: 'OK'}], {cancelable: false});
+		}
+	}
+	
 	showModal = _ => {
 		this.setState({modalVisible: false});
 	}
@@ -158,20 +181,30 @@ export default class Visitas extends React.Component {
 		return newVisit.uuid === oldVisit.uuid;
 	}
 
-	showVisitButton = visits => {
+	showButton = () => {
 		const patient = new Patient(this.state.patient);
-		switch (patient.getVisitsButtonEnum()) {
-			case VisitsButtonEnum.Visit:
-				return <VisitButton onPress={this.appoint}/>;
-			case VisitsButtonEnum.Visited:
-				return <VisitedButton/>;
-			case VisitsButtonEnum.Finalize:
-				return <FinalizeButton/>;
-			case VisitsButtonEnum.EndTrackingEnabled:
-				return <EndTrackingButtonEnabled/>;
-			case VisitsButtonEnum.EndTrackingDisabled:
-				return <EndTrackingButtonDisabled/>;
+		switch (patient.getHospitalizationStatusEnum()) {
+			case HospitalizationStatusEnum.Open:
+				return (patient.getStatusVisitEnum() === StatusVisitEnum.Visited)
+					? <VisitedButton/>
+					: <VisitButton onPress={this.appoint}/>;
+
+			case HospitalizationStatusEnum.CanBeClosed:
+				const lastTracking = patient.getLastTracking();
+				if (lastTracking && lastTracking.endMode === TrackingEndModeEnum.AdminDischarge) {
+					return <FinalizeButton onPress={this.finalize}/>;
+				}
+				if (lastTracking && lastTracking.json.endDate) {
+					return (patient.getStatusVisitEnum() === StatusVisitEnum.VisitedEndTracking)
+						? <EndTrackingButtonDisabled/>
+						: <EndTrackingButtonEnabled/>;
+				}
+			case HospitalizationStatusEnum.Closed:
+				console.warn('Visitas: finalizado não é exibido.', patient);
+				return null;
 		}
+		console.warn('Visitas: tipo de botão não mapeado.', patient);
+		return null;
 	}
 	
 	render() {
@@ -225,11 +258,21 @@ export default class Visitas extends React.Component {
 					extraData={this.props}
 					renderItem={this.renderItem}/>
 
-				{this.showVisitButton(listOfOrderedObservationDate)}
+				{this.showButton()}
 			</View>
 		);
 	}
 }
+
+const FINALIZE_ERROR_FIELDS = [];
+FINALIZE_ERROR_FIELDS[FinalizationErrorEnum.HeightAndWeightMissing] = 'Altura / Peso';
+FINALIZE_ERROR_FIELDS[FinalizationErrorEnum.AttendanceTypeMissing] = 'Atendimento';
+FINALIZE_ERROR_FIELDS[FinalizationErrorEnum.HospitalizationTypeMissing] = 'Tipo';
+FINALIZE_ERROR_FIELDS[FinalizationErrorEnum.PrimaryCidMissing] = 'CID Primário';
+FINALIZE_ERROR_FIELDS[FinalizationErrorEnum.CrmMissing] = 'CRM do Responsável';
+
+const COLORS_ENABLED = ['#035fcc', '#023066'];
+const COLORS_DISABLED = ['#808080', '#696969'];
 
 const GradientButton = (props) => (
 	<View style={ styles.rowButtonCircle }>
@@ -239,9 +282,6 @@ const GradientButton = (props) => (
 		</LinearGradient>
 	</View>
 );
-
-const COLORS_ENABLED = ['#035fcc', '#023066'];
-const COLORS_DISABLED = ['#808080', '#696969'];
 
 const VisitButton = (props) =>
 	<GradientButton colors={COLORS_ENABLED} iconName="id-badge" onPress={props.onPress}>VISITAR</GradientButton>;
