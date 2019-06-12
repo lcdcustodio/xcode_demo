@@ -18,6 +18,7 @@ export default class Title extends Component {
 Title.defaultProps = {
   marginTop: 0,
   marginLeft: 0,
+  fontWeight: "bold",
   size: 20,
   color: 'rgb(25, 118, 159)',
   title: 'Title'

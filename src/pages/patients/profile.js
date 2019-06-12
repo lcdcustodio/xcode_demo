@@ -14,7 +14,9 @@ import ModalListSearchable from '../../components/ModalListSearchable';
 
 import data from '../../../data.json';
 
-import { Button, Paragraph, Dialog, Portal, RadioButton, Text, Divider, TextInput, Searchbar, List } from 'react-native-paper';
+import { Button, Paragraph, Dialog, Portal, RadioButton, Divider, TextInput, Searchbar } from 'react-native-paper';
+
+import { Content, ListItem, Text, List, Left, Right, Icon, Body, Switch } from 'native-base';
 
 export default class Profile extends Component {
 
@@ -204,7 +206,7 @@ export default class Profile extends Component {
 							<Divider />
 							
 							<Dialog.Content>
-								<RadioButton.Group onValueChange={ value => { this.handleAttendanceType(value) } } value={this.props.patient.attendanceType}>
+								<RadioButton.Group onValueChange={ value => { this.handleAttendanceType(value) } } value={this.attendanceType(this.props.patient.attendanceType)}>
 									<View style={{flexDirection: 'row', alignItems: 'center'}}>
 										<RadioButton value="ELECTIVE" />
 										<Text>Eletivo</Text>
@@ -350,221 +352,171 @@ export default class Profile extends Component {
 					</Dialog>
 				</Portal>
 
-				<TitleScreen marginTop={5} marginLeft={5} title={this.props.patient.patientName} />
-				<Line marginTop={3} marginBottom={3} marginLeft={5} width={90} size={2} />
-				<TextLabel marginLeft="5" label='Prontuário' />
-				<TextValue marginLeft="5" value={this.props.patient.medicalRecordsNumber} />	
+				<Content>
 
-				<View style={ row }>
-					<View style={ column50 }>
-						<TextLabel marginLeft="10" label='Convênio' />
-						<TextValue marginLeft="10" value={this.props.patient.agreement} />
-					</View>
-					
-					<View style={ column50 }>
-						<TextLabel marginLeft="0" label='Plano' />
-						<TextValue marginLeft="0" value={this.props.patient.plane} />
-					</View>
-				</View>
+					<ListItem itemDivider>
+						<Text>Dados Básicos</Text>
+					</ListItem> 
 
-				<View style={ row }>
-					<View style={ column50 }>
-						<TextLabel marginLeft="10" label='Nascimento' />
-						<TextValue marginLeft="10" value={this.props.patient.patientBornDate ? moment(this.props.patient.patientBornDate).format('DD/MM/YYYY') : '' } />
+					<ListItem>
+					<Body>
+						<Text style={{fontWeight: 'bold'}}>Nome{"\n"}<TextValue value={this.props.patient.patientName} /></Text>
+					</Body>
+					</ListItem>
 
-						<TextValue marginLeft="20" size={13} value={ this.props.patient.patientBornDate ? moment().diff(this.props.patient.patientBornDate, 'years') + ' anos': '' }/>
-					</View>
-					
-					<View style={ column50 }>
-						<TextLabel marginLeft="0" label='Altura/Peso' />
-						<TextValue marginLeft="0" color={'#0000FF'} value={ this.props.patient.patientHeight && this.props.patient.patientWeight ? `${this.props.patient.patientHeight}m / ${this.props.patient.patientWeight}kg` : '' } press={ () => { this.setState({modalSelected: 'HeightAndWeight', modalHeightAndWeight: true}) }}/>
-						<TextValue marginLeft="0" size={13} value={ this.props.patient.patientHeight && this.props.patient.patientWeight ? 'IMC ' + (Number(this.props.patient.patientWeight) / Math.pow(Number(this.props.patient.patientHeight), 2)).toFixed(2) : '' }/>
-					</View>
-				</View>
+					<ListItem>
+					<Body>
+						<Text style={{fontWeight: 'bold'}}>Prontuário{"\n"}<TextValue value={this.props.patient.medicalRecordsNumber} /></Text>
+					</Body>
+					</ListItem>
 
-				<View style={ row }>
-					<View style={ column50 }>
-						<TextLabel marginLeft="10" label='Atendimento' />
-						<TextValue marginLeft="10" color={'#0000FF'} value={ this.attendanceType(this.props.patient.attendanceType) } press={ () => { this.setState({modalSelected: 'AttendanceType', modalAttendanceType: true}) }}/>
-					</View>
-					
-					<View style={ column50 }>
-						<TextLabel marginLeft="0" label='Tipo' />
-						<TextValue marginLeft="0" color={'#0000FF'} value={ this.hospitalizationType(this.props.patient.hospitalizationType) } press={ () => { this.setState({modalSelected: 'HospitalizationType', modalHospitalizationType: true}) }}/>
-					</View>
-				</View>
+					<ListItem>
+					<Body>
+						<Text style={{fontWeight: 'bold'}}>Convênio{"\n"}<TextValue value={this.props.patient.agreement} /></Text>
+					</Body>
+					</ListItem>
 
-				<Line marginTop={5} marginBottom={1} marginLeft={5} width={90} size={2} />
+					<ListItem>
+					<Body>
+						<Text style={{fontWeight: 'bold'}}>Plano{"\n"}<TextValue value={this.props.patient.plane} /></Text>
+					</Body>
+					</ListItem>
 
-				<View style={ row }>
-					<View style={ column100 }>
-						<TextLabel marginLeft="5" label='Data de Internação' />
-						<TextValue marginLeft="5" value={ this.props.patient.admissionDate ? moment(this.props.patient.admissionDate).format('DD/MM/YYYY HH:mm') : ''} />
-					</View>
-				</View>
+					<ListItem>
+					<Body>
+						<Text style={{fontWeight: 'bold'}}>Nascimento{"\n"}
+							<TextValue value={this.props.patient.patientBornDate ? moment(this.props.patient.patientBornDate).format('DD/MM/YYYY') : '' } />{"\n"}
+						</Text>
+					</Body>
+					<Right>
+						<TextValue size={13} value={ this.props.patient.patientBornDate ? moment().diff(this.props.patient.patientBornDate, 'years') + ' anos': '' }/>
+		            </Right>
+					</ListItem>
 
-				<View style={ row }>
-					<View style={ column100 }>
-						{this.props.patient.trackingList && this.props.patient.trackingList.map((prop, index) => {
-							return (
-								<View key={prop.trackingId} style={{marginTop: '2%'}}>
-									<TextLabel marginLeft="5" label={`${++index} Monitoramento`} />
-									<TextLabel marginLeft="5" label='Data Início do Monitoramento' />
-									<TextValue marginLeft="5" value={ prop.startDate ? moment(prop.startDate).format('DD/MM/YYYY') : '' } />
-									<TextLabel marginLeft="5" label='Data Fim do Monitoramento' />
-									<TextValue marginLeft="5" value={ prop.endDate ? moment(prop.endDate).format('DD/MM/YYYY') : '' } />
-								</View>
-							);
-						})}
-					</View>
-				</View>
-				
-				<Line marginTop={3} marginBottom={1} marginLeft={5} width={90} size={2} />
+					<ListItem>
+					<Body>
+						<Text style={{fontWeight: 'bold'}}>Altura/Peso{"\n"}
+							<TextValue color={'#0000FF'} value={ this.props.patient.patientHeight && this.props.patient.patientWeight ? `${this.props.patient.patientHeight}m / ${this.props.patient.patientWeight}kg` : '' } press={ () => { this.setState({modalSelected: 'HeightAndWeight', modalHeightAndWeight: true}) }}/>{"\n"}
+						</Text>
+					</Body>
+					<Right>
+						<TextValue size={13} value={ this.props.patient.patientHeight && this.props.patient.patientWeight ? 'IMC ' + (Number(this.props.patient.patientWeight) / Math.pow(Number(this.props.patient.patientHeight), 2)).toFixed(2) : '' }/>
+		            </Right>
+					</ListItem>
 
-				<View style={ row }>
-					<View style={ column100 }>
-						<TextLabel marginLeft="5" label='Data da Alta Médica' />
-						<TextValue marginLeft="5" value={ this.props.patient.medicalExitDate ? moment(this.props.patient.medicalExitDate).format('DD/MM/YYYY HH:mm') : '' } />
-					</View>
-				</View>
+					<ListItem itemDivider>
+						<Text>Dados da Internação</Text>
+					</ListItem>
 
-				<View style={ row }>
-					<View style={ column100 }>
-						<TextLabel marginLeft="5" label='Data da Alta Administrativa' />
-						<TextValue marginLeft="5" value={ this.props.patient.exitDate ? moment(this.props.patient.exitDate).format('DD/MM/YYYY HH:mm') : '' } />
-					</View>
-				</View>
+					<ListItem>
+					<Body>
+						<Text style={{fontWeight: 'bold'}}>Atendimento{"\n"}<TextValue value={this.props.patient.attendanceType} press={ () => { this.setState({modalSelected: 'AttendanceType', modalAttendanceType: true}) }}/></Text>
+					</Body>
+					</ListItem>
 
-				<View style={ row }>
-					<View style={ column100 }>
-						<TextLabel marginLeft="5" label='Motivo da alta Administrativa' />
-						<TextValue marginLeft="5" value={this.props.patient.exitDescription} />
-					</View>
-				</View>
-				
-				<Line marginTop={5} marginBottom={1} marginLeft={5} width={90} size={2} />
-				
-				<View style={ row }>
-					<View style={ column100 }>
-						<TextLabel marginLeft="5" label='Procedimento Principal' />
-						{
-							this.props.patient.mainProcedureTUSSDisplayName ? 
-							<TextValue marginLeft="5" color={'#0000FF'} value={this.props.patient.mainProcedureTUSSDisplayName} press={ () => { this.setState({modalSelected: 'MainProcedure', modalMainProcedure: true}) }} />
-							:
-							<TextValue marginLeft="5" color={'#0000FF'} value={'ESCOLHER'} press={this.toggleModalSecondaryCID} press={ () => { this.setState({modalSelected: 'MainProcedure', modalMainProcedure: true}) }} />	
-						}
-					</View>
-				</View>
+					<ListItem>
+					<Body>
+						<Text style={{fontWeight: 'bold'}}>Data de Internação{"\n"}<TextValue value={ this.props.patient.admissionDate ? moment(this.props.patient.admissionDate).format('DD/MM/YYYY HH:mm') : ''} /></Text>
+					</Body>
+					</ListItem>
 
-				<View style={ row }>
-					<View style={ column100 }>
-						<TextLabel marginLeft="5" label='CRM do Responsável' />
-						<TextValue marginLeft="5" color={'#0000FF'} value={CRM} press={ () => { this.setState({modalSelected: 'CRM', modalCRM: true}) }} />
-					</View>
-				</View>
-				
-				<View style={ row }>
-					<View style={ column100 }>
-						<TextLabel marginLeft="5" label='CID Primário' />
-						{ this.props.patient.diagnosticHypothesisList && this.props.patient.diagnosticHypothesisList.length === 0 ? <TextValue color={'#0000FF'} marginLeft="5" value={'ADICIONAR'} press={ () => { this.setState({modalSelected: 'PrimaryCID', modalPrimaryCID: true}) }} /> : null }
+					<ListItem>
+					<Body>
+						<Text style={{fontWeight: 'bold'}}>Data da Alta Médica{"\n"}<TextValue value={ this.props.patient.medicalExitDate ? moment(this.props.patient.medicalExitDate).format('DD/MM/YYYY HH:mm') : '' } /></Text>
+					</Body>
+					</ListItem>
 
-						{this.props.patient.diagnosticHypothesisList && this.props.patient.diagnosticHypothesisList.map((prop) => {
-							return (
-								<TextValue color={'#0000FF'} key={prop.cidId} marginLeft="5" value={prop.cidDisplayName ? prop.cidDisplayName : 'Escolher'} press={ () => { this.setState({modalSelected: 'PrimaryCID', modalPrimaryCID: true}) }} />
-							);
-						})}
-					</View>
-				</View>
-					
-				<View style={ row }>
-					<View style={ column100 }>
-						<TextLabel marginLeft="5" label='CIDs Secundários' />
-						<TextValue color={'#0000FF'} marginLeft="5" value={'ADICIONAR'} press={ () => { this.setState({modalSelected: 'SecondaryCID', modalSecondaryCID: true}) }} />
-						{ 
-							this.props.patient.secondaryCIDList.length ? 
-								this.props.patient.secondaryCIDList.map((cidItem) => {
-									return (
-										<Text style={textValue} key={cidItem.cidId} onPress={ () => this.removeSecondaryCID(cidItem) }> { cidItem.cidDisplayName } </Text>
-									);
-								})
-							: 
-							<View/>
-						}
-					</View>
-				</View>
-				
-				<View style={ row }>
-					<View style={ column100 }>
-						<TextLabel marginLeft="5" label='Internações Anteriores' />
-						{this.props.patient.previousHospitalizations && this.props.patient.previousHospitalizations.map((prop) => {
-							let startDate = prop.admissionDate ? moment(prop.admissionDate).format('DD/MM/YYYY') : ''
-							let endDate = prop.exitDate ? moment(prop.exitDate).format('DD/MM/YYYY') : ''
+					<ListItem>
+					<Body>
+						<Text style={{fontWeight: 'bold'}}>Data da Alta Administrativa{"\n"}<TextValue value={ this.props.patient.exitDate ? moment(this.props.patient.exitDate).format('DD/MM/YYYY HH:mm') : '' } /></Text>
+					</Body>
+					</ListItem>
 
-							return (
-								<View key={prop.id} style={ hospitalizationsListContainer }>
-									<TextValue marginLeft="5" value={ `${startDate} à ${endDate} - ${prop.hospitalizationDays} dias \n`} />
-									<TextValue marginLeft="5" value={ `${prop.exitCidDisplayName}` } />
-								</View>
-							);
-						})}
-					</View>
-				</View>
+					<ListItem>
+					<Body>
+						<Text style={{fontWeight: 'bold'}}>Motivo da Alta Administrativa{"\n"}<TextValue value={this.props.patient.exitDescription} /></Text>
+					</Body>
+					</ListItem>
 
-				<Text> {'\n'} </Text>
+					<ListItem>
+					<Body>
+						<Text style={{fontWeight: 'bold'}}>Tipo da Internação{"\n"}<TextValue color={'#0000FF'} value={ this.hospitalizationType(this.props.patient.hospitalizationType) } press={ () => { this.setState({modalSelected: 'HospitalizationType', modalHospitalizationType: true}) }}/></Text>
+					</Body>
+					</ListItem>
+
+					<ListItem>
+					<Body>
+						<Text style={{fontWeight: 'bold'}}>Procedimento Principal{"\n"}{
+						this.props.patient.mainProcedureTUSSDisplayName ? 
+						<TextValue color={'#0000FF'} value={this.props.patient.mainProcedureTUSSDisplayName} press={ () => { this.setState({modalSelected: 'MainProcedure', modalMainProcedure: true}) }} />
+						:
+						<TextValue color={'#0000FF'} value={'ESCOLHER'} press={this.toggleModalSecondaryCID} press={ () => { this.setState({modalSelected: 'MainProcedure', modalMainProcedure: true}) }} />	
+					}</Text>
+					</Body>
+					</ListItem>
+
+					<ListItem>
+					<Body>
+						<Text style={{fontWeight: 'bold'}}>CRM do Responsável{"\n"}<TextValue color={'#0000FF'} value={CRM} press={ () => { this.setState({modalSelected: 'CRM', modalCRM: true}) }} /></Text>
+					</Body>
+					</ListItem>
+
+					<ListItem>
+					<Body>
+						<Text style={{fontWeight: 'bold'}}>CID Primário{"\n"}{ this.props.patient.diagnosticHypothesisList && this.props.patient.diagnosticHypothesisList.length === 0 ? <TextValue color={'#0000FF'} value={'ADICIONAR'} press={ () => { this.setState({modalSelected: 'PrimaryCID', modalPrimaryCID: true}) }} /> : null }
+							{this.props.patient.diagnosticHypothesisList && this.props.patient.diagnosticHypothesisList.map((prop) => {
+								return (
+									<TextValue color={'#0000FF'} key={prop.cidId} value={prop.cidDisplayName ? prop.cidDisplayName : 'Escolher'} press={ () => { this.setState({modalSelected: 'PrimaryCID', modalPrimaryCID: true}) }} />
+								);
+							})}
+						</Text>
+					</Body>
+					</ListItem>
+
+					<ListItem>
+					<Body>
+						<Text style={{fontWeight: 'bold'}}>CIDs Secundários{"\n"}<TextValue color={'#0000FF'} value={'ADICIONAR'} press={ () => { this.setState({modalSelected: 'SecondaryCID', modalSecondaryCID: true}) }} />
+							{ 
+								this.props.patient.secondaryCIDList.length ? 
+									this.props.patient.secondaryCIDList.map((cidItem) => {
+										return (
+											<Text style={textValue} key={cidItem.cidId} onPress={ () => this.removeSecondaryCID(cidItem) }> { cidItem.cidDisplayName } </Text>
+										);
+									})
+								: 
+								<Text/>
+							}
+						</Text>
+					</Body>
+					</ListItem>
+
+					<ListItem itemDivider>
+						<Text>Internações Anteriores</Text>
+					</ListItem>
+
+					{this.props.patient.previousHospitalizations && this.props.patient.previousHospitalizations.map((prop) => {
+						let startDate = prop.admissionDate ? moment(prop.admissionDate).format('DD/MM/YYYY') : ''
+						let endDate = prop.exitDate ? moment(prop.exitDate).format('DD/MM/YYYY') : ''
+
+						return (
+							<ListItem>
+								<Body>
+									<Text style={{fontWeight: 'bold'}}>
+										{ `${startDate} à ${endDate} (${prop.hospitalizationDays}`} { `${prop.hospitalizationDays <= 1 ? 'dia' : 'dias'}` }) {"\n"} 
+										<TextValue value={ `${prop.exitCidDisplayName ? prop.exitCidDisplayName : ''}` } />
+									</Text>
+								</Body>
+							</ListItem>
+						);
+					})}
+
+				</Content>
+
 			</View>
 		);
 	}
 }
 
 const styles = StyleSheet.create({
-	container: {
-		flex:1,
-	},
-	row: {
-		flexDirection: 'row', 
-		marginTop: '5%'
-	},
-	column50: {
-		justifyContent: 'flex-start', 
-		width: '50%'
-	},
-	column100: {
-		justifyContent: 'flex-start', 
-		width: '100%'
-	},
-	overlay: {
-		flex: 1,
-		backgroundColor: 'rgba(0, 0, 0, 0.3)',
-		flexDirection: "row",
-	},
-	item: {
-    	padding: 10,
-    	fontSize: 18,
-	},
-	textValue: {
-		fontFamily: "Gotham Rounded",
-		fontWeight: "normal", 
-		fontStyle: "normal", 
-		lineHeight: 22, 
-		letterSpacing: 0,
-		color: '#0000FF',
-		fontSize: 18,
-		marginTop: '0%', 
-		marginLeft: '5%'
-	},
-	trackingListItem: {
-		fontFamily: "Gotham Rounded",
-		fontWeight: "normal", 
-		fontStyle: "normal", 
-		lineHeight: 22, 
-		letterSpacing: 0,
-		color: '#0000FF',
-		fontSize: 18,
-		marginTop: '3%', 
-		marginLeft: '5%'
-	},
-	hospitalizationsListContainer: {
-		marginTop: '2%', 
-		marginBottom: '3%'
-	}
+
 });

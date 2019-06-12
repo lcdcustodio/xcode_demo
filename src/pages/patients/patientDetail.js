@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Container, Content, Header, Left, Right, Button, Body, Icon, Title, Footer, FooterTab, Text } from 'native-base';
+import { Container, Content, Header, Left, Right, Button, Body, Icon, Title, Subtitle, Footer, FooterTab, Text } from 'native-base';
 import { StyleSheet, BackHandler } from "react-native";
 import _ from 'lodash';
 
@@ -71,11 +71,11 @@ class PatientDetail extends Component {
 					<Left style={{flex:1}} >
 						<Icon type="AntDesign" name="left" style={{ color: 'white' }} onPress={this._goBack} />
 					</Left>
-					<Body style={{flex: 7, alignItems: 'stretch'}}>
-						<Title style={{color: 'white'}}> DETALHES DO PACIENTE </Title>
+					<Body style={{flex: 7}}>
+						<Title style={{color: 'white'}}> Detalhes do Paciente </Title>
 					</Body>
 				</Header>
-				<Content padder>
+				<Content>
 					{ this.renderSelectedTab() }
 				</Content>
 				<Footer>
