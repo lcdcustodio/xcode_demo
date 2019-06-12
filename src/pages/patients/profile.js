@@ -6,9 +6,9 @@ import Line from '../../components/Line';
 import TitleScreen from '../../components/Title';
 import moment from 'moment';
 import uuidv4 from'uuid/v4';
-import ModalWeightAndHeight from '../../components/ModalWeightAndHeight';
 import data from '../../../data.json';
-import { Button, Paragraph, Dialog, Portal, RadioButton, Text, Divider, TextInput, Searchbar, List } from 'react-native-paper';
+import { Button, Dialog, Portal, RadioButton, Text, Divider, TextInput, Searchbar, List } from 'react-native-paper';
+import TextInputMask from 'react-native-text-input-mask';
 
 export default class Profile extends Component {
 
@@ -219,9 +219,22 @@ export default class Profile extends Component {
 							<Dialog.Title>Altura (m) e Peso (Kg)</Dialog.Title>
 							
 							<Dialog.Content>
-								<TextInput mode='outlined' label='Altura' value={this.props.patient.patientHeight} onChangeText={height => { this.handleHeight(height) }} />
+								<TextInput mode='outlined' label='Altura' value={this.props.patient.patientHeight} 
+									onChangeText={height => { this.handleHeight(height) }} 
+									render={props =>
+										<TextInputMask {...props} mask="[0]{,}[00]" />
+									}
+								/>
+
 								<Text> {'\n'} </Text>								
-								<TextInput mode='outlined' label='Peso' value={this.props.patient.patientWeight} onChangeText={weight => { this.handleWeight(weight) }} />
+
+								<TextInput mode='outlined' label='Peso' value={this.props.patient.patientWeight} 
+									onChangeText={weight => { this.handleWeight(weight) }} 
+									render={props =>
+										<TextInputMask {...props} mask="[999]{,}[000]" />
+									}
+								/>
+
 							</Dialog.Content>
 
 							<Divider />
