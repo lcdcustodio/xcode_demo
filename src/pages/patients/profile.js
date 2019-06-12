@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, Alert  } from 'react-native';
+import { StyleSheet, View, Alert, ScrollView, FlatList } from 'react-native';
 import TextLabel from '../../components/TextLabel';
 import TextValue from '../../components/TextValue';
 import Line from '../../components/Line';
@@ -14,12 +14,15 @@ import ModalListSearchable from '../../components/ModalListSearchable';
 
 import data from '../../../data.json';
 
+import { Button, Paragraph, Dialog, Portal, RadioButton, Text, Divider, TextInput, Searchbar, List } from 'react-native-paper';
+
 export default class Profile extends Component {
 
 	constructor(props) {
 		super(props);	
 		this.state = {
 			cid: data.cid,
+			auxCid: data.cid,
 			tuss: data.tuss,
 			modalAttendanceType: false,
 			modalHospitalizationType: false,
@@ -29,6 +32,11 @@ export default class Profile extends Component {
 			modalSecondaryCID: false,
 			modalMainProcedure: false,
 			modalSelected: null,
+			modalTeste1: false,
+			modalTeste3: false,
+			modalTeste4: false,
+			selectedRadio: null,
+			cidQuery: null,
 			listAttendanceType: [
 				{key: 1, value: 'ELECTIVE', label: 'ELETIVO'},
 				{key: 2, value: 'EMERGENCY', label: 'EMERGÊNCIA'}
@@ -45,12 +53,12 @@ export default class Profile extends Component {
 	}
 
 	handleAttendanceType = (attendanceType) => {
-		this.props.handleUpdatePatient('attendanceType', attendanceType.item.value)
+		this.props.handleUpdatePatient('attendanceType', attendanceType)
 		this.toggleModal('modalAttendanceType')
 	}
 
 	handleHospitalizationType = (hospitalizationType) => {
-		this.props.handleUpdatePatient('hospitalizationType', hospitalizationType.item.value)
+		this.props.handleUpdatePatient('hospitalizationType', hospitalizationType)
 		this.toggleModal('modalHospitalizationType')
 	}
 
@@ -86,7 +94,6 @@ export default class Profile extends Component {
 
 	handleCRM = (crm) => {
 		this.props.handleUpdatePatient('mainProcedureCRM', crm)
-		this.toggleModal('modalCRM')
 	}
 
 	handlePrimaryCID = (cid) => {
@@ -101,6 +108,10 @@ export default class Profile extends Component {
 
 		this.props.handleUpdatePatient('diagnosticHypothesisList', diagnosticHypothesisList)
 		this.toggleModal('modalPrimaryCID')
+		this.setState({
+			auxCid: data.cid,
+			cidQuery: null
+		})
 	}
 
 	handleSecondaryCID = (cid) => {
@@ -115,10 +126,18 @@ export default class Profile extends Component {
 			let cidList = this.props.patient.secondaryCIDList
 			cidList.push(secondaryCID)
 			this.props.handleUpdatePatient('secondaryCIDList', cidList)
+			this.setState({
+				auxCid: data.cid,
+				cidQuery: null
+			})
 		} else {
 			let cidList = [];
 			cidList.push(secondaryCID)
 			this.props.handleUpdatePatient('secondaryCIDList', cidList)
+			this.setState({
+				auxCid: data.cid,
+				cidQuery: null
+			})
 		}
 		this.toggleModal('modalSecondaryCID')
 	}
@@ -146,20 +165,165 @@ export default class Profile extends Component {
 		this.toggleModal('modalMainProcedure')
 	}
 
+	renderItemPrimary = (element) => {
+		return (
+			<List.Item title={`${element.item.code} - ${element.item.name}`} onPress={() => { this.handlePrimaryCID(element) }} />
+		);
+	}
+
+	renderItemSecondary = (element) => {
+		return (
+			<List.Item title={`${element.item.code} - ${element.item.name}`} onPress={() => { this.handleSecondaryCID(element) }} />
+		);
+	}
+
+	filterCID = (query) => {
+		const newListCid = this.state.cid.filter(item => {
+			return (
+				item.normalizedName.toUpperCase().includes(query.toUpperCase()) || 
+			  	item.code.toUpperCase().includes(query.toUpperCase())
+			)
+		});
+
+		this.setState({
+			auxCid: newListCid,
+			cidQuery: query
+		});
+	}
+
 	renderModalSelected() {
 		switch (this.state.modalSelected) {
 			case 'HeightAndWeight':
 				return ( <ModalWeightAndHeight paddingTop={50} height={70} visible={this.state.modalHeightAndWeight} patientHeight={this.props.patient.patientHeight} patientWeight={this.props.patient.patientWeight} action={ this.handleHeightAndWeight} /> );
 			case 'AttendanceType':
-				return ( <ModalList paddingTop={70} height={45} visible={this.state.modalAttendanceType} list={this.state.listAttendanceType} action={this.handleAttendanceType} /> );
+				return ( 
+					<Portal>
+						<Dialog visible={this.state.modalAttendanceType} onDismiss={ () => { this.toggleModal('modalAttendanceType') } }>
+							<Dialog.Title>Atendimento</Dialog.Title>
+							
+							<Divider />
+							
+							<Dialog.Content>
+								<RadioButton.Group onValueChange={ value => { this.handleAttendanceType(value) } } value={this.props.patient.attendanceType}>
+									<View style={{flexDirection: 'row', alignItems: 'center'}}>
+										<RadioButton value="ELECTIVE" />
+										<Text>Eletivo</Text>
+									</View>
+									<View style={{flexDirection: 'row', alignItems: 'center'}}>
+										<RadioButton value="EMERGENCY" />
+										<Text>Emergencial</Text>
+									</View>
+								</RadioButton.Group>
+							</Dialog.Content>
+
+							<Divider />
+
+							<Dialog.Actions>
+								<Button onPress={ () => { this.toggleModal('modalAttendanceType') } }>Fechar</Button>
+							</Dialog.Actions>
+						</Dialog>
+					</Portal>
+				);
 			case 'HospitalizationType':
-				return ( <ModalList paddingTop={70} height={45} visible={this.state.modalHospitalizationType} list={this.state.listHospitalizationType} action={this.handleHospitalizationType} /> );
+				return ( 
+					<Portal>
+						<Dialog visible={this.state.modalHospitalizationType} onDismiss={ () => { this.toggleModal('modalHospitalizationType') } }>
+							<Dialog.Title>Tipo</Dialog.Title>
+							
+							<Divider />
+							
+							<Dialog.Content>
+								<RadioButton.Group onValueChange={ value => { this.handleHospitalizationType(value) } } value={this.props.patient.hospitalizationType}>
+									<View style={{flexDirection: 'row', alignItems: 'center'}}>
+										<RadioButton value="CLINICAL" />
+										<Text>Clínico</Text>
+									</View>
+									<View style={{flexDirection: 'row', alignItems: 'center'}}>
+										<RadioButton value="SURGICAL" />
+										<Text>Cirúrgico</Text>
+									</View>
+								</RadioButton.Group>
+							</Dialog.Content>
+
+							<Divider />
+
+							<Dialog.Actions>
+								<Button onPress={ () => { this.toggleModal('modalHospitalizationType') } }>Fechar</Button>
+							</Dialog.Actions>
+						</Dialog>
+					</Portal>
+				);
 			case 'CRM':
-				return ( <ModalInput paddingTop={50} height={40} visible={this.state.modalCRM} label={'CRM'} value={this.props.patient.mainProcedureCRM ? this.props.patient.mainProcedureCRM : ''} action={ this.handleCRM} /> );
+				return ( 
+					<Portal>
+						<Dialog visible={this.state.modalCRM} onDismiss={ () => { this.toggleModal('modalCRM') } }>
+							<Dialog.Title>CRM</Dialog.Title>
+							
+							<Dialog.Content>
+								<TextInput mode='outlined' label='CRM' value={this.props.patient.mainProcedureCRM} onChangeText={text => { this.handleCRM(text) }} />	
+							</Dialog.Content>
+
+							<Divider />
+
+							<Dialog.Actions>
+								<Button onPress={ () => { this.toggleModal('modalCRM') } }>Fechar</Button>
+							</Dialog.Actions>
+
+						</Dialog>
+					</Portal>
+				);
 			case 'PrimaryCID':
-				return ( <ModalListSearchable paddingTop={20} height={80} visible={this.state.modalPrimaryCID} list={this.state.cid} action={this.handlePrimaryCID} /> );
+				return ( 
+					<Portal>
+						<Dialog style={{height: '70%'}} visible={this.state.modalPrimaryCID} onDismiss={ () => { this.toggleModal('modalPrimaryCID') } }>
+							<Dialog.ScrollArea>
+								<Dialog.Title>CID</Dialog.Title>
+								<Searchbar placeholder="Filtrar" onChangeText={query => { this.filterCID(query) }} value={this.state.cidQuery} />
+
+								<ScrollView style={{marginTop: 20}} contentContainerStyle={{ paddingHorizontal: 10 }}>
+									<List.Section>
+										<FlatList
+											data={this.state.auxCid}
+											keyExtractor={element => `${element.id}`}
+											renderItem={this.renderItemPrimary} />
+									</List.Section>
+								</ScrollView>
+							</Dialog.ScrollArea>
+
+							<Divider />
+
+							<Dialog.Actions>
+								<Button onPress={ () => { this.toggleModal('modalPrimaryCID') } }>Fechar</Button>
+							</Dialog.Actions>
+						</Dialog>
+					</Portal>
+				);
 			case 'SecondaryCID':
-				return ( <ModalListSearchable paddingTop={20} height={80} visible={this.state.modalSecondaryCID} list={this.state.cid} action={this.handleSecondaryCID} /> );
+				return ( 
+					<Portal>
+						<Dialog style={{height: '70%'}} visible={this.state.modalSecondaryCID} onDismiss={ () => { this.toggleModal('modalSecondaryCID') } }>
+							<Dialog.ScrollArea>
+								<Dialog.Title>CID</Dialog.Title>
+								<Searchbar placeholder="Filtrar" onChangeText={query => { this.filterCID(query) }} value={this.state.cidQuery} />
+
+								<ScrollView style={{marginTop: 20}} contentContainerStyle={{ paddingHorizontal: 10 }}>
+									<List.Section>
+										<FlatList
+											data={this.state.auxCid}
+											keyExtractor={element => `${element.id}`}
+											renderItem={this.renderItemSecondary} />
+									</List.Section>
+								</ScrollView>
+							</Dialog.ScrollArea>
+
+							<Divider />
+
+							<Dialog.Actions>
+								<Button onPress={ () => { this.toggleModal('modalSecondaryCID') } }>Fechar</Button>
+							</Dialog.Actions>
+						</Dialog>
+					</Portal>
+				);
 			case 'MainProcedure':
 				return ( <ModalListSearchable paddingTop={20} height={80} visible={this.state.modalMainProcedure} list={this.state.tuss} action={this.handleMainProcedure} /> );
 		}
@@ -173,6 +337,18 @@ export default class Profile extends Component {
 			<View style={ container }>
 
 				{ this.renderModalSelected() }
+
+				<Portal>
+					<Dialog visible={this.state.modalTeste1} onDismiss={ () => { this.toggleModal('modalTeste1') } }>
+						<Dialog.Title>Título</Dialog.Title>
+						<Dialog.Content>
+							<Paragraph>Descrição da modal</Paragraph>
+						</Dialog.Content>
+						<Dialog.Actions>
+							<Button onPress={ () => { this.toggleModal('modalTeste1') } }>OK</Button>
+						</Dialog.Actions>
+					</Dialog>
+				</Portal>
 
 				<TitleScreen marginTop={5} marginLeft={5} title={this.props.patient.patientName} />
 				<Line marginTop={3} marginBottom={3} marginLeft={5} width={90} size={2} />
