@@ -14,6 +14,8 @@ import ModalListSearchable from '../../components/ModalListSearchable';
 
 import data from '../../../data.json';
 
+import { Button, Paragraph, Dialog, Portal } from 'react-native-paper';
+
 export default class Profile extends Component {
 
 	constructor(props) {
@@ -29,6 +31,7 @@ export default class Profile extends Component {
 			modalSecondaryCID: false,
 			modalMainProcedure: false,
 			modalSelected: null,
+			modalTeste1: false,
 			listAttendanceType: [
 				{key: 1, value: 'ELECTIVE', label: 'ELETIVO'},
 				{key: 2, value: 'EMERGENCY', label: 'EMERGÊNCIA'}
@@ -174,10 +177,26 @@ export default class Profile extends Component {
 
 				{ this.renderModalSelected() }
 
+				<Portal>
+					<Dialog visible={this.state.modalTeste1} onDismiss={ () => { this.toggleModal('modalTeste1') } }>
+						<Dialog.Title>Título</Dialog.Title>
+						<Dialog.Content>
+						<Paragraph>Descrição da modal</Paragraph>
+						</Dialog.Content>
+						<Dialog.Actions>
+						<Button onPress={ () => { this.toggleModal('modalTeste1') } }>OK</Button>
+						</Dialog.Actions>
+					</Dialog>
+				</Portal>
+
 				<TitleScreen marginTop={5} marginLeft={5} title={this.props.patient.patientName} />
 				<Line marginTop={3} marginBottom={3} marginLeft={5} width={90} size={2} />
 				<TextLabel marginLeft="5" label='Prontuário' />
 				<TextValue marginLeft="5" value={this.props.patient.medicalRecordsNumber} />	
+
+				<Button mode="contained" onPress={ () => { this.toggleModal('modalTeste1') } }>
+					Press me
+				</Button>
 
 				<View style={ row }>
 					<View style={ column50 }>
