@@ -11,14 +11,16 @@ import ModalList from '../../components/ModalList';
 import ModalInput from '../../components/ModalInput';
 import ModalWeightAndHeight from '../../components/ModalWeightAndHeight';
 import ModalListSearchable from '../../components/ModalListSearchable';
-import AsyncStorage from '@react-native-community/async-storage';
+
+import data from '../../../data.json';
 
 export default class Profile extends Component {
 
 	constructor(props) {
 		super(props);	
 		this.state = {
-			baseDataSync: null,
+			cid: data.cid,
+			tuss: data.tuss,
 			modalAttendanceType: false,
 			modalHospitalizationType: false,
 			modalHeightAndWeight: false,
@@ -26,6 +28,7 @@ export default class Profile extends Component {
 			modalPrimaryCID: false,
 			modalSecondaryCID: false,
 			modalMainProcedure: false,
+			modalSelected: null,
 			listAttendanceType: [
 				{key: 1, value: 'ELECTIVE', label: 'ELETIVO'},
 				{key: 2, value: 'EMERGENCY', label: 'EMERGÊNCIA'}
@@ -35,21 +38,7 @@ export default class Profile extends Component {
 				{key: 2, value: 'SURGICAL', label: 'CIRÚRGICO'}
 			]
 		}
-
-		AsyncStorage.getItem('baseDataSync', (err, baseDataSync) => {
-			this.setState({
-				baseDataSync
-			});
-		});
 	}
-
-	/* didFocus = this.props.navigation.addListener('didFocus', (res) => {
-		AsyncStorage.getItem('baseDataSync', (err, baseDataSync) => {
-			this.setState({
-				dataBaseSync
-			});
-		});
-	}); */
 
 	toggleModal = (modalName) => {
 		this.setState({[modalName]: !this.state[modalName]})
@@ -157,21 +146,33 @@ export default class Profile extends Component {
 		this.toggleModal('modalMainProcedure')
 	}
 
+	renderModalSelected() {
+		switch (this.state.modalSelected) {
+			case 'HeightAndWeight':
+				return ( <ModalWeightAndHeight paddingTop={50} height={70} visible={this.state.modalHeightAndWeight} patientHeight={this.props.patient.patientHeight} patientWeight={this.props.patient.patientWeight} action={ this.handleHeightAndWeight} /> );
+			case 'AttendanceType':
+				return ( <ModalList paddingTop={70} height={45} visible={this.state.modalAttendanceType} list={this.state.listAttendanceType} action={this.handleAttendanceType} /> );
+			case 'HospitalizationType':
+				return ( <ModalList paddingTop={70} height={45} visible={this.state.modalHospitalizationType} list={this.state.listHospitalizationType} action={this.handleHospitalizationType} /> );
+			case 'CRM':
+				return ( <ModalInput paddingTop={50} height={40} visible={this.state.modalCRM} label={'CRM'} value={this.props.patient.mainProcedureCRM ? this.props.patient.mainProcedureCRM : ''} action={ this.handleCRM} /> );
+			case 'PrimaryCID':
+				return ( <ModalListSearchable paddingTop={20} height={80} visible={this.state.modalPrimaryCID} list={this.state.cid} action={this.handlePrimaryCID} /> );
+			case 'SecondaryCID':
+				return ( <ModalListSearchable paddingTop={20} height={80} visible={this.state.modalSecondaryCID} list={this.state.cid} action={this.handleSecondaryCID} /> );
+			case 'MainProcedure':
+				return ( <ModalListSearchable paddingTop={20} height={80} visible={this.state.modalMainProcedure} list={this.state.tuss} action={this.handleMainProcedure} /> );
+		}
+	}
+
 	render() {
-		console.log("baseDataSync", this.state.baseDataSync);
 		let CRM = this.props.patient.mainProcedureCRM !== null ? this.props.patient.mainProcedureCRM : 'INFORMAR';
 		const { container, row, column50, column100, overlay, item, textValue, trackingListItem, hospitalizationsListContainer } = styles;
 		
 		return (
 			<View style={ container }>
-				
-				<ModalList paddingTop={70} height={45} visible={this.state.modalAttendanceType} list={this.state.listAttendanceType} action={this.handleAttendanceType} />
-				<ModalList paddingTop={70} height={45} visible={this.state.modalHospitalizationType}  list={this.state.listHospitalizationType}  action={this.handleHospitalizationType} />
-				<ModalInput paddingTop={50} height={40} visible={this.state.modalCRM} label={'CRM'} value={this.props.patient.mainProcedureCRM ? this.props.patient.mainProcedureCRM : ''} action={ this.handleCRM} />
-				<ModalWeightAndHeight paddingTop={50} height={70} visible={this.state.modalHeightAndWeight} patientHeight={this.props.patient.patientHeight} patientWeight={this.props.patient.patientWeight} action={ this.handleHeightAndWeight} />
-				{/* <ModalListSearchable paddingTop={20} height={80} visible={this.state.modalPrimaryCID} list={this.props.baseDataSync.cid} action={this.handlePrimaryCID} />
-				<ModalListSearchable paddingTop={20} height={80} visible={this.state.modalSecondaryCID} list={this.props.baseDataSync.cid} action={this.handleSecondaryCID} />
-				<ModalListSearchable paddingTop={20} height={80} visible={this.state.modalMainProcedure} list={this.props.baseDataSync.tuss} action={this.handleMainProcedure} /> */}
+
+				{ this.renderModalSelected() }
 
 				<TitleScreen marginTop={5} marginLeft={5} title={this.props.patient.patientName} />
 				<Line marginTop={3} marginBottom={3} marginLeft={5} width={90} size={2} />
@@ -200,7 +201,7 @@ export default class Profile extends Component {
 					
 					<View style={ column50 }>
 						<TextLabel marginLeft="0" label='Altura/Peso' />
-						<TextValue marginLeft="0" color={'#0000FF'} value={ this.props.patient.patientHeight && this.props.patient.patientWeight ? `${this.props.patient.patientHeight}m / ${this.props.patient.patientWeight}kg` : '' } press={ () => { this.toggleModal('modalHeightAndWeight')} } />
+						<TextValue marginLeft="0" color={'#0000FF'} value={ this.props.patient.patientHeight && this.props.patient.patientWeight ? `${this.props.patient.patientHeight}m / ${this.props.patient.patientWeight}kg` : '' } press={ () => { this.setState({modalSelected: 'HeightAndWeight', modalHeightAndWeight: true}) }}/>
 						<TextValue marginLeft="0" size={13} value={ this.props.patient.patientHeight && this.props.patient.patientWeight ? 'IMC ' + (Number(this.props.patient.patientWeight) / Math.pow(Number(this.props.patient.patientHeight), 2)).toFixed(2) : '' }/>
 					</View>
 				</View>
@@ -208,12 +209,12 @@ export default class Profile extends Component {
 				<View style={ row }>
 					<View style={ column50 }>
 						<TextLabel marginLeft="10" label='Atendimento' />
-						<TextValue marginLeft="10" color={'#0000FF'} value={ this.attendanceType(this.props.patient.attendanceType) } press={ () => { this.toggleModal('modalAttendanceType')}} />
+						<TextValue marginLeft="10" color={'#0000FF'} value={ this.attendanceType(this.props.patient.attendanceType) } press={ () => { this.setState({modalSelected: 'AttendanceType', modalAttendanceType: true}) }}/>
 					</View>
 					
 					<View style={ column50 }>
 						<TextLabel marginLeft="0" label='Tipo' />
-						<TextValue marginLeft="0" color={'#0000FF'} value={ this.hospitalizationType(this.props.patient.hospitalizationType) } press={ () => { this.toggleModal('modalHospitalizationType')} } />
+						<TextValue marginLeft="0" color={'#0000FF'} value={ this.hospitalizationType(this.props.patient.hospitalizationType) } press={ () => { this.setState({modalSelected: 'HospitalizationType', modalHospitalizationType: true}) }}/>
 					</View>
 				</View>
 
@@ -272,9 +273,9 @@ export default class Profile extends Component {
 						<TextLabel marginLeft="5" label='Procedimento Principal' />
 						{
 							this.props.patient.mainProcedureTUSSDisplayName ? 
-							<TextValue marginLeft="5" color={'#0000FF'} value={this.props.patient.mainProcedureTUSSDisplayName} press={ () => { this.toggleModal('modalMainProcedure')} } />
+							<TextValue marginLeft="5" color={'#0000FF'} value={this.props.patient.mainProcedureTUSSDisplayName} press={ () => { this.setState({modalSelected: 'MainProcedure', modalMainProcedure: true}) }} />
 							:
-							<TextValue marginLeft="5" color={'#0000FF'} value={'ESCOLHER'} press={this.toggleModalSecondaryCID} press={ () => { this.toggleModal('modalMainProcedure')} } />	
+							<TextValue marginLeft="5" color={'#0000FF'} value={'ESCOLHER'} press={this.toggleModalSecondaryCID} press={ () => { this.setState({modalSelected: 'MainProcedure', modalMainProcedure: true}) }} />	
 						}
 					</View>
 				</View>
@@ -282,16 +283,18 @@ export default class Profile extends Component {
 				<View style={ row }>
 					<View style={ column100 }>
 						<TextLabel marginLeft="5" label='CRM do Responsável' />
-						<TextValue marginLeft="5" color={'#0000FF'} value={CRM} press={ () => { this.toggleModal('modalCRM')} } />
+						<TextValue marginLeft="5" color={'#0000FF'} value={CRM} press={ () => { this.setState({modalSelected: 'CRM', modalCRM: true}) }} />
 					</View>
 				</View>
 				
 				<View style={ row }>
 					<View style={ column100 }>
 						<TextLabel marginLeft="5" label='CID Primário' />
+						{ this.props.patient.diagnosticHypothesisList && this.props.patient.diagnosticHypothesisList.length === 0 ? <TextValue color={'#0000FF'} marginLeft="5" value={'ADICIONAR'} press={ () => { this.setState({modalSelected: 'PrimaryCID', modalPrimaryCID: true}) }} /> : null }
+
 						{this.props.patient.diagnosticHypothesisList && this.props.patient.diagnosticHypothesisList.map((prop) => {
 							return (
-								<TextValue color={'#0000FF'} key={prop.cidId} marginLeft="5" value={prop.cidDisplayName ? prop.cidDisplayName : 'Escolher'} press={ () => { this.toggleModal('modalPrimaryCID')} } />
+								<TextValue color={'#0000FF'} key={prop.cidId} marginLeft="5" value={prop.cidDisplayName ? prop.cidDisplayName : 'Escolher'} press={ () => { this.setState({modalSelected: 'PrimaryCID', modalPrimaryCID: true}) }} />
 							);
 						})}
 					</View>
@@ -300,7 +303,7 @@ export default class Profile extends Component {
 				<View style={ row }>
 					<View style={ column100 }>
 						<TextLabel marginLeft="5" label='CIDs Secundários' />
-						<TextValue color={'#0000FF'} marginLeft="5" value={'ADICIONAR'} press={ () => { this.toggleModal('modalSecondaryCID')} } />
+						<TextValue color={'#0000FF'} marginLeft="5" value={'ADICIONAR'} press={ () => { this.setState({modalSelected: 'SecondaryCID', modalSecondaryCID: true}) }} />
 						{ 
 							this.props.patient.secondaryCIDList.length ? 
 								this.props.patient.secondaryCIDList.map((cidItem) => {

@@ -31,7 +31,6 @@ class PatientDetail extends Component {
 	renderSelectedTab = () => {
 		switch (this.state.selectedTab) {
 			case 'profile':
-				console.log(this.state.patient)
 				return (<Profile patient={this.state.patient} handleUpdatePatient={this.handleUpdatePatient} />);
 			case 'events':
 				return <Events patient={this.state.patient} parent={this} navigation={this.props.navigation} />;
