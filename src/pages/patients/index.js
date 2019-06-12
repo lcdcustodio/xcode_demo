@@ -9,10 +9,21 @@ import AsyncStorage from '@react-native-community/async-storage';
 export default class Patients extends Component {
     
     constructor(props) {
+
         super(props);
+
         this.state = {
             hospital: {},
+            ICON: {
+                OLHO_CINZA_COM_CHECK: 2,
+                OLHO_AZUL: 0,
+                OLHO_CINZA_COM_EXCLAMACAO: 3,
+                CASA_AZUL: 1
+            }
         }
+
+        console.log(this.state.ICON);
+
     }
 
     componentDidMount() {
@@ -38,11 +49,10 @@ export default class Patients extends Component {
                 let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
 
                 if (
-                    (patient.exitDate == null && listOfOrderedPatientObservations.length == 0) || 
 
-                    (patient.exitDate == null && listOfOrderedPatientObservations.length > 0 && !listOfOrderedPatientObservations[0].endTracking) || 
+                    (listOfOrderedPatientObservations.length == 0) || 
 
-                    (patient.exitDate != null && listOfOrderedPatientObservations.length > 0 && !listOfOrderedPatientObservations[0].medicalRelease)
+                    (!listOfOrderedPatientObservations[0].endTracking && !listOfOrderedPatientObservations[0].medicalRelease)
                 )
                 {
                     patient.totalDaysOfHospitalization = this.calculateDaysOfHospitalization(patient);
@@ -152,11 +162,11 @@ export default class Patients extends Component {
     }
 
     getIconNumber(patient) {
-        
-        let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc'])
-        
+
         let lastVisit = null;
 
+        let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc'])
+        
         if (listOfOrderedPatientObservations.length > 0) {
             
             const today = moment();
@@ -166,33 +176,51 @@ export default class Patients extends Component {
             lastVisit = today.diff(lastVisit, 'days');
         }
 
-        if(patient.exitDate == null && lastVisit == 0)
+        console.log(lastVisit, patient.patientName);
+
+        if(lastVisit == 0 && patient.exitDate == null) // VISITADO HOJE E NÃO TEVE ALTA
         {
-            return 2; // OLHO CINZA COM CHECK
+            return this.state.ICON.OLHO_CINZA_COM_CHECK;
         }
-        else if(patient.exitDate == null && (lastVisit > 0 || patient.observationList.length == 0))
+
+        else if(lastVisit > 0 && patient.exitDate == null) // NÃO TEVE VISITA HOJE E NÃO TEVE ALTA
         {
-            return 0; // OLHO AZUL
+            return this.state.ICON.OLHO_AZUL;
         }
-        else
+
+        else if(patient.observationList.length == 0 && patient.exitDate == null) // NÃO TEVE VISITA E NÃO TEVE ALTA
         {
-            return 1; // CASA AZUL
+            return this.state.ICON.OLHO_AZUL;
+        }
+
+        else if (patient.exitDate != null) // TEVE ALTA
+        {
+            return this.state.ICON.CASA_AZUL;
+        }
+
+        else if(patient.observationList.length > 0 && listOfOrderedPatientObservations[0].alert) // TEVE VISITA E COM ALERTA
+        {
+            return this.state.ICON.OLHO_CINZA_COM_EXCLAMACAO;
         }
     }
 
     getIcon(iconNumber) {
-                
-        if(iconNumber == 2)
+        
+        if(iconNumber == this.state.ICON.OLHO_CINZA_COM_CHECK)
         {
-            return require('../../images/ic_visibility_green_24px.png'); // OLHO CINZA COM CHECK
+            return require('../../images/ic_visibility_green_24px.png');
         }
-        else if(iconNumber == 0)
+        else if(iconNumber == this.state.ICON.OLHO_AZUL)
         {
-            return require('../../images/ic_visibility_blue_24px.png'); // OLHO AZUL
+            return require('../../images/ic_visibility_blue_24px.png');
         }
-        else if(iconNumber == 1)
+        else if(iconNumber == this.state.ICON.CASA_AZUL)
         {
-            return require('../../images/ic_home_24px.png'); // OLHO AZUL
+            return require('../../images/ic_home_24px.png');
+        }
+        else if(iconNumber == this.state.ICON.OLHO_CINZA_COM_EXCLAMACAO)
+        {
+            return require('../../images/ic_visibility_exclamation_24px.png');
         }
     }
 

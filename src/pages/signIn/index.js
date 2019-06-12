@@ -21,6 +21,8 @@ export default class SignIn extends Component {
 			textContent: '',
 			loading: false
 		}
+
+		this.props.navigation.navigate("Hospitals");
 	}
 
 	/*componentDidMount() {
@@ -120,6 +122,8 @@ export default class SignIn extends Component {
 			)
 			.then(response => {
 
+				console.log(response);
+
 				let content = response.data.content;
 				
 				Session.current.user = new User(content.name, content.profile);
@@ -184,7 +188,7 @@ export default class SignIn extends Component {
 							onChangeText={this.handleEmailChange}
 							autoCapitalize="none"
 							autoCorrect={false}
-              placeholderTextColor="#FFFFFF"
+              				placeholderTextColor="#FFFFFF"
 							textAlign="auto"
 						/>
 						<Input
@@ -199,7 +203,7 @@ export default class SignIn extends Component {
 						/>
 						{this.state.error.length !== 0 && <ErrorMessage>{this.state.error}</ErrorMessage>}
 						<Button onPress={this.handleSignInPress}>
-							<ButtonText style={{backgroundColor: 'white'}}>ENTRAR</ButtonText>
+							<ButtonText>ENTRAR</ButtonText>
 						</Button>
 				</Container>
 			</ImageBackground>

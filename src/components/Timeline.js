@@ -128,7 +128,7 @@ export default class Timeline extends Component {
       <View style={timeWrapper}>
         <View style={[styles.timeContainer, this.props.timeContainerStyle]}>
           <Text style={[styles.time, this.props.timeStyle]}>{ moment(rowData.time).format('DD/MM/YYYY') }</Text>
-          <Text style={[styles.time, this.props.timeStyle]}>{ moment(rowData.time).format('HH:mm:ss') }</Text>
+          <Text style={[styles.time, this.props.timeStyle]}>{ moment(rowData.time).format('HH:mm') }</Text>
         </View>
       </View>
     );
