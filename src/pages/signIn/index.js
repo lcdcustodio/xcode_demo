@@ -21,8 +21,6 @@ export default class SignIn extends Component {
 			textContent: '',
 			loading: false
 		}
-
-		this.props.navigation.navigate("Hospitals");
 	}
 
 	/*componentDidMount() {
