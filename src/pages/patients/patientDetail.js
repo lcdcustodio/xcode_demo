@@ -2,6 +2,8 @@ import React, { Component } from "react";
 import { Container, Content, Header, Left, Right, Button, Body, Icon, Title, Footer, FooterTab, Text } from 'native-base';
 import { StyleSheet, BackHandler } from "react-native";
 import _ from 'lodash';
+import AsyncStorage from '@react-native-community/async-storage';
+import moment from 'moment';
 
 //Pages
 import Profile from "./profile";
@@ -20,12 +22,40 @@ class PatientDetail extends Component {
 	}
 
 	handleUpdatePatient = async (attribute, value) => {
+
+		console.log(attribute, value);
+
 		this.setState({
 			patient: {
 				...this.state.patient,
 				[attribute]: value
 			}
-		})
+		});
+
+		/*AsyncStorage.getItem('hospitalizationList', (err, res) => {
+
+			console.log(err, res);
+
+			if (res == null) {
+
+				let hospitalizationList = [];
+
+				hospitalizationList.id = this.state.patient.id;
+
+				hospitalizationList[attribute] = value;
+
+			}
+			else
+			{
+				let hospitalizationList = JSON.parse(res);
+
+			}
+
+			console.log(hospitalizationList);
+
+		});*/
+
+		AsyncStorage.setItem('require_sync_at', JSON.stringify(moment().format('YYYY-MM-DD')));
 	}
 
 	renderSelectedTab = () => {

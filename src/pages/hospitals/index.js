@@ -110,6 +110,8 @@ export default class Hospital extends Component {
 
 						console.log(response);
 
+						AsyncStorage.setItem('require_sync_at', null);
+
 						this.setState({loading: false});
 
 						if(response.status === 200) {
@@ -605,7 +607,7 @@ export default class Hospital extends Component {
 		return (
 			<View>
 				<List.Item title={`${element.item.patientName}`} onPress={() => { this.goToProfilePage(element.item) }} />
-				<TextValue size={13} marginLeft={4} marginTop={-6} value={element.item.hospitalName} />
+				<TextValue color={'#999'} size={13} marginLeft={4} marginTop={-6} value={element.item.hospitalName} />
 			</View>
 		);
 	}
@@ -639,9 +641,7 @@ export default class Hospital extends Component {
 					</Right>
 				</Header>
 
-				<View>
-		            { this.renderTimer() }
-		        </View>				
+				{ this.renderTimer() }			
 
 				<Line size={1} />
 

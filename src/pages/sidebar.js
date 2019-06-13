@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, Image, Text, Button, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Image, Text, Button, TouchableWithoutFeedback } from 'react-native';
 import { Icon } from 'native-base';
 import LinearGradient from 'react-native-linear-gradient';
 
@@ -39,16 +39,18 @@ export default class Sidebar extends Component {
 					<View style={styles.divider} />
 					<View style={styles.containerMenu}>
 						{this.items.map((item, key) => (
-							<View key={key} style={{ flexDirection: 'row', alignItems: 'center', paddingTop: 2, paddingBottom: 2, backgroundColor:'transparent', borderBottomColor: '#fff', borderBottomWidth: 1}} >
-								<View style={styles.itemIcon}>
-									<View style={styles.sideButtonRight}>
-										<Icon type="AntDesign" name="right" style={{ color: 'white', fontSize: 15}} />
+							<TouchableWithoutFeedback onPress={() => { global.currentScreenIndex = key; this.props.navigation.closeDrawer(); this.props.navigation.navigate(item.screenToNavigate); }}>
+								<View key={key} style={{ flexDirection: 'row', alignItems: 'center', paddingTop: 2, paddingBottom: 2, backgroundColor:'transparent', borderBottomColor: '#fff', borderBottomWidth: 1}} >
+									<View style={styles.itemIcon}>
+										<View style={styles.sideButtonRight}>
+											<Icon type="AntDesign" name="right" style={{ color: 'white', fontSize: 15}} />
+										</View>
 									</View>
+									<Text style={{ fontSize: 15, color: '#FFF', fontWeight: "bold" }} >
+										{item.navOptionName}
+									</Text>
 								</View>
-								<Text style={{ fontSize: 15, color: '#FFF', fontWeight: "bold" }} onPress={() => { global.currentScreenIndex = key; this.props.navigation.closeDrawer(); this.props.navigation.navigate(item.screenToNavigate); }} >
-									{item.navOptionName}
-								</Text>
-							</View>
+							</TouchableWithoutFeedback>
 						))}
 					</View>
 					<View style={styles.boxButton}>
