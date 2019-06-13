@@ -19,9 +19,6 @@ export default class Visitas extends React.Component {
 				observation: '',
 				alert: false,
 				observationDate: '',
-				endTracking: false,
-				medicalRelease: false,
-				removedAt: '',
 			},
 			update: false
 		}
@@ -51,7 +48,7 @@ export default class Visitas extends React.Component {
 			
 			if(!hasErrors){
 				this.state.patient.observationList.push(newVisit)
-				this.props.updatePatient(this.state.patient);
+				this.props.handleUpdatePatient("observationList", this.state.patient.observationList)
 				this.toggleModal()
 			} else {
 				Alert.alert('Atenção', 'Visita já cadastrada!',
@@ -113,9 +110,6 @@ export default class Visitas extends React.Component {
 			observation: '',
 			alert: false,
 			observationDate: moment().format(),
-			endTracking: false,
-			medicalRelease: false,
-			removedAt: '',
 			}
 		})
 	}
@@ -148,9 +142,9 @@ export default class Visitas extends React.Component {
 	);
 
 	remove(patient) {
-		const item = this.state.patient.observationList.filter(item => item.uuid !== patient.uuid);
-		this.state.patient.observationList = item;
-		this.props.updatePatient(this.state.patient);
+		const visits = this.state.patient.observationList.filter(item => item.uuid !== patient.uuid);
+		this.state.patient.observationList = visits;
+		this.props.handleUpdatePatient("observationList", this.state.patient.observationList);
 	}
 
 	isaSameVisit(newVisit, oldVisit) {

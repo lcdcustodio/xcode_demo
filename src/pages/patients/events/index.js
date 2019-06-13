@@ -1,17 +1,26 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, Dimensions, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, TouchableOpacity, Alert } from 'react-native';
 import { Icon } from 'native-base';
 import LinearGradient from 'react-native-linear-gradient';
 import Timeline from '../../../components/Timeline';
 import TimelineEvent, { TimelineEventEnum, TimelineEventEvaluation, timelineEventSorter } from '../../../model/TimelineEvent'
 
+
 export default class Events extends Component {
 	
 	constructor(props) {
 		super(props);
-		this.state = { eventos: this._loadEvents() };
+		this.state = { 
+			eventos: this._loadEvents() 
+		};
 	}
-	
+		
+	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
+		this.setState({
+			eventos: this._loadEvents() 
+		});
+	});
+
 	render() {
 		return (
 			<View style={styles.container}>
@@ -39,6 +48,9 @@ export default class Events extends Component {
 	_loadEvents = () => {
 		const patient = this.props.patient;
 		let events = [];
+		this._pushEvent(events, patient.recommendationWelcomeHomeIndication, this._createRecommendation);
+		this._pushEvent(events, patient.recommendationMedicineReintegration, this._createRecommendation);
+		this._pushEvent(events, patient.recommendationClinicalIndication, this._createRecommendation);
 		this._pushEvents(events, patient.examRequestList, this._createExamRequest);
 		this._pushEvents(events, patient.furtherOpinionList, this._createFurtherOpinion);
 		this._pushEvents(events, patient.medicalProceduresList, this._createMedicalProcedure);
@@ -50,6 +62,23 @@ export default class Events extends Component {
 	_pushEvents = (destination, source, formatter) => {
 		source.forEach((jsonItem) => { destination.push(formatter(jsonItem)) });
 	}
+
+	_pushEvent = (destination, source, formatter) => {
+		if (source) {
+			destination.push(formatter(source));
+		}
+	}
+
+	_createRecommendation = (json) => new TimelineEvent(
+		TimelineEventEnum.Recommendation,
+		json,
+		new Date(json.performedAt),
+		'Recomendação para alta',
+		json.observation,
+		json.specialty ? json.specialty: null,
+		null,
+		null,
+	);
 
 	_createExamRequest = (json) => new TimelineEvent(
 		TimelineEventEnum.ExamRequest,
@@ -100,37 +129,84 @@ export default class Events extends Component {
 		: null);
 
 	_create = () => {
-		this.props.navigation.navigate('Recommendation', {	patient: this.props.patient });
+		this.props.navigation.navigate('Recommendation', {	patient: this.props.patient, update: false });
+	}
+
+	isaRecommendation = typeEnum => typeEnum === 4;
+	
+	isaPatientWithDischarge = _ => { 
+		this.props.patient.iconNumber === 1 
 	}
 
 	_read = (event) => {
-		console.log ("READ");
 		const {patient, hospital, baseDataSync} = this.props.parent.state;
-		this.props.parent.props.navigation.navigate('EventDetail', {
-			event: event,
-			patient: patient,
-			hospital: hospital,
-			baseDataSync: baseDataSync,
-		});
+		if(this.isaRecommendation(event.typeEnum)){
+			if(this.isaPatientWithDischarge()){
+				Alert.alert('Atenção', "Paciente já está de alta",[{text: 'OK', onPress: () => {}}],{cancelable: false});
+			} else {
+				this.recommendationSelected(event, patient);
+				this.props.parent.props.navigation.navigate('Recommendation', {patient, update: true});
+			}
+		} else {
+			this.props.parent.props.navigation.navigate('EventDetail', {
+				event,
+				patient,
+				hospital,
+				baseDataSync,
+			});
+		}
 	}
 
 	_delete = (event) => {
-		console.log('DELETE');
-		this._read(event); // NÃO ESTÁ RESPONDENDO AO PRESS SEM SER LONG
+		console.log("_delete: ", event)
+		if(this.isaRecommendation(event.typeEnum)){
+			console.log("isaRecommendation", this.props.patient)
+			if(this.isaPatientWithDischarge()){
+				Alert.alert('Atenção', "Não é permitido excluir a recomendação selecioanada!",[{text: 'OK', onPress: () => {}}],{cancelable: false});
+			} else {
+				let uuid = event.data.uuid;
+				if(uuid === this.props.patient.recommendationClinicalIndication.uuid)	{
+					this.props.patient.recommendationClinicalIndication = null;
+				} else 
+				if(uuid === this.props.patient.recommendationMedicineReintegration.uuid) { 
+						this.props.patient.recommendationMedicineReintegration = null;
+				} else 
+				if(uuid === this.props.patient.recommendationWelcomeHomeIndication) {
+					this.props.patient.recommendationWelcomeHomeIndication.uuid = null;
+				}
+			}
+		} else {
+			this._read(event); 
+		}
+		
 	}
 
 	_renderEvent = (event) => {
 		const renderHighCost = (event.typeEnum === TimelineEventEnum.ExamRequest && event.data.examHighCost);
 		return (
-			<TouchableWithoutFeedback onPress={()=>this._read(event)} onLongPress={()=>this._delete(event)}>
+			<TouchableOpacity onPress={()=>this._read(event)} onLongPress={_=>this._delete(event)}>
 				<View style={styles.description}>
 					<Text style={styles.title}>{event.name}</Text>
 					{ renderHighCost && 
 						<Text style={styles.highlight}>Alto Custo</Text>
 					}
 				</View>
-			</TouchableWithoutFeedback>
+			</TouchableOpacity>
 		);
+	}
+
+	recommendationSelected(event, patient) {
+		let uuid = event.data.uuid;
+		if (patient.recommendationClinicalIndication && uuid === patient.recommendationClinicalIndication.uuid) {
+			patient.recommendationType = 'RECOMENDACAO_MEDICAMENTOSA';
+		}
+		else if (patient.recommendationMedicineReintegration && uuid === patient.recommendationMedicineReintegration.uuid) {
+			patient.recommendationType = 'INDICACAO_AMBULATORIO';
+
+		}
+		else if (patient.recommendationWelcomeHomeIndication && uuid === patient.recommendationWelcomeHomeIndication.uuid) {
+			patient.recommendationType = 'WELCOME_HOME';
+		}
 	}
 }
 

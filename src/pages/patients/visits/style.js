@@ -14,7 +14,8 @@ const ErrorMessage = styled.Text`
 
 export default StyleSheet.create({
 	container:{
-		height: screenHeight
+		height: screenHeight,
+		padding: 10
 	},
 	title: {
 		fontSize: 16,
@@ -79,10 +80,13 @@ export default StyleSheet.create({
  	},
  	textArea: {
 		width: "100%",
-		height: "100%",
-		borderColor: '#000',
+		height: 100,
+		borderColor: '#ccc',
 		borderWidth: 1, 
 		padding: 1,
+		textAlign: 'justify',
+    	lineHeight: 30,
+		padding: 10,
 	},
 	modal : {
 		backgroundColor: '#F8F8FF', 
