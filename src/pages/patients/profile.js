@@ -1,22 +1,12 @@
 import React, { Component } from 'react';
 import { StyleSheet, View, Alert, ScrollView, FlatList } from 'react-native';
-import TextLabel from '../../components/TextLabel';
 import TextValue from '../../components/TextValue';
-import Line from '../../components/Line';
-import TitleScreen from '../../components/Title';
 import moment from 'moment';
 import uuidv4 from'uuid/v4';
-
-import ModalList from '../../components/ModalList';
-import ModalInput from '../../components/ModalInput';
-import ModalWeightAndHeight from '../../components/ModalWeightAndHeight';
-import ModalListSearchable from '../../components/ModalListSearchable';
-
 import data from '../../../data.json';
-
-import { Button, Paragraph, Dialog, Portal, RadioButton, Divider, TextInput, Searchbar } from 'react-native-paper';
-
-import { Content, ListItem, Text, List, Left, Right, Icon, Body, Switch } from 'native-base';
+import { Button, Paragraph, Dialog, Portal, RadioButton, Divider, TextInput, Searchbar, List } from 'react-native-paper';
+import { Content, ListItem, Text, Right, Body } from 'native-base';
+import TextInputMask from 'react-native-text-input-mask';
 
 export default class Profile extends Component {
 
@@ -26,6 +16,7 @@ export default class Profile extends Component {
 			cid: data.cid,
 			auxCid: data.cid,
 			tuss: data.tuss,
+			auxTuss: data.tuss,
 			modalAttendanceType: false,
 			modalHospitalizationType: false,
 			modalHeightAndWeight: false,
@@ -34,11 +25,9 @@ export default class Profile extends Component {
 			modalSecondaryCID: false,
 			modalMainProcedure: false,
 			modalSelected: null,
-			modalTeste1: false,
-			modalTeste3: false,
-			modalTeste4: false,
 			selectedRadio: null,
 			cidQuery: null,
+			tussQuery: null,
 			listAttendanceType: [
 				{key: 1, value: 'ELECTIVE', label: 'ELETIVO'},
 				{key: 2, value: 'EMERGENCY', label: 'EMERGÊNCIA'}
@@ -64,10 +53,12 @@ export default class Profile extends Component {
 		this.toggleModal('modalHospitalizationType')
 	}
 
-	handleHeightAndWeight = async (patientHeight, patientWeight) => {
-		await this.props.handleUpdatePatient('patientHeight', patientHeight)
-		await this.props.handleUpdatePatient('patientWeight', patientWeight)
-		this.toggleModal('modalHeightAndWeight')
+	handleHeight = (patientHeight) => {
+		this.props.handleUpdatePatient('patientHeight', patientHeight)
+	}
+
+	handleWeight = (patientWeight) => {
+		this.props.handleUpdatePatient('patientWeight', patientWeight)
 	}
 
 	attendanceType(item) {
@@ -161,35 +152,13 @@ export default class Profile extends Component {
 		);
 	}
 
-	renderCIDprimario(){
-
-		console.log('renderCIDprimario');
-
-		this.props.patient.diagnosticHypothesisList && this.props.patient.diagnosticHypothesisList.map((prop) => {
-			return (
-				<TextValue color={'#0000FF'} key={prop.cidId} value={prop.cidDisplayName ? prop.cidDisplayName : 'Escolher'} press={ () => { this.setState({modalSelected: 'PrimaryCID', modalPrimaryCID: true}) }} />
-			);
-		});
-	}
-
-	renderCIDSecundario(){
-
-		console.log('renderCIDSecundario');
-
-		this.props.patient.secondaryCIDList.length ? 
-			this.props.patient.secondaryCIDList.map((cidItem) => {
-				return (
-					<Text style={textValue} key={cidItem.cidId} onPress={ () => this.removeSecondaryCID(cidItem) }> { cidItem.cidDisplayName } </Text>
-				);
-			})
-		: 
-		<Text/>;
-		
-	}
-
 	handleMainProcedure = async (procedure) => {
 		await this.props.handleUpdatePatient('mainProcedureTUSSDisplayName', `${procedure.item.code} - ${procedure.item.name}`)
 		await this.props.handleUpdatePatient('mainProcedureTUSSId', procedure.item.code)
+		this.setState({
+			auxTuss: data.tuss,
+			tussQuery: null
+		})
 		this.toggleModal('modalMainProcedure')
 	}
 
@@ -205,24 +174,77 @@ export default class Profile extends Component {
 		);
 	}
 
+	renderItemTuss = (element) => {
+		return (
+			<List.Item title={`${element.item.code} - ${element.item.name}`} onPress={() => { this.handleMainProcedure(element) }} />
+		);
+	}
+
 	filterCID = (query) => {
-		const newListCid = this.state.cid.filter(item => {
+		const newCidList = this.state.cid.filter(item => {
 			return (
-				item.normalizedName.toUpperCase().includes(query.toUpperCase()) || 
-			  	item.code.toUpperCase().includes(query.toUpperCase())
+				item.name.toUpperCase().includes(query.toUpperCase()) ||
+				item.normalizedName.toUpperCase().includes(query.toUpperCase()) ||
+				item.code.toUpperCase().includes(query.toUpperCase())
 			)
 		});
 
 		this.setState({
-			auxCid: newListCid,
+			auxCid: newCidList,
 			cidQuery: query
+		});
+	}
+
+	filterTuss = (query) => {
+		const newTussList = this.state.tuss.filter(item => {
+			return (
+				item.name.toUpperCase().includes(query.toUpperCase()) ||
+				item.normalizedName.toUpperCase().includes(query.toUpperCase()) ||
+				item.code.toUpperCase().includes(query.toUpperCase())
+			)
+		});
+
+		this.setState({
+			auxTuss: newTussList,
+			tussQuery: query
 		});
 	}
 
 	renderModalSelected() {
 		switch (this.state.modalSelected) {
 			case 'HeightAndWeight':
-				return ( <ModalWeightAndHeight paddingTop={50} height={70} visible={this.state.modalHeightAndWeight} patientHeight={this.props.patient.patientHeight} patientWeight={this.props.patient.patientWeight} action={ this.handleHeightAndWeight} /> );
+				return (
+					<Portal>
+						<Dialog visible={this.state.modalHeightAndWeight} onDismiss={ () => { this.toggleModal('modalHeightAndWeight') } }>
+							<Dialog.Title>Altura (m) e Peso (Kg)</Dialog.Title>
+							
+							<Dialog.Content>
+								<TextInput mode='outlined' keyboardType='number-pad' label='Altura' value={this.props.patient.patientHeight} 
+									onChangeText={height => { this.handleHeight(height) }}
+									render={props =>
+										<TextInputMask {...props} mask="[0]{,}[00]" />
+									}
+								/>
+
+								<Text> {'\n'} </Text>								
+
+								<TextInput mode='outlined' keyboardType='number-pad' label='Peso' value={this.props.patient.patientWeight} 
+									onChangeText={weight => { this.handleWeight(weight) }} 
+									render={props =>
+										<TextInputMask {...props} mask="[900]{,}[000]" />
+									}
+								/>
+							</Dialog.Content>
+
+							<Divider />
+
+							<Dialog.Actions>
+								<Button onPress={ () => { this.toggleModal('modalHeightAndWeight') } }>Fechar</Button>
+							</Dialog.Actions>
+
+						</Dialog>
+					</Portal>
+				);
 			case 'AttendanceType':
 				return ( 
 					<Portal>
@@ -305,7 +327,7 @@ export default class Profile extends Component {
 					<Portal>
 						<Dialog style={{height: '70%'}} visible={this.state.modalPrimaryCID} onDismiss={ () => { this.toggleModal('modalPrimaryCID') } }>
 							<Dialog.ScrollArea>
-								<Dialog.Title>CID</Dialog.Title>
+								<Dialog.Title>CID Primário</Dialog.Title>
 								<Searchbar placeholder="Filtrar" onChangeText={query => { this.filterCID(query) }} value={this.state.cidQuery} />
 
 								<ScrollView style={{marginTop: 20}} contentContainerStyle={{ paddingHorizontal: 10 }}>
@@ -331,7 +353,7 @@ export default class Profile extends Component {
 					<Portal>
 						<Dialog style={{height: '70%'}} visible={this.state.modalSecondaryCID} onDismiss={ () => { this.toggleModal('modalSecondaryCID') } }>
 							<Dialog.ScrollArea>
-								<Dialog.Title>CID</Dialog.Title>
+								<Dialog.Title>CID Secundário</Dialog.Title>
 								<Searchbar placeholder="Filtrar" onChangeText={query => { this.filterCID(query) }} value={this.state.cidQuery} />
 
 								<ScrollView style={{marginTop: 20}} contentContainerStyle={{ paddingHorizontal: 10 }}>
@@ -353,7 +375,31 @@ export default class Profile extends Component {
 					</Portal>
 				);
 			case 'MainProcedure':
-				return ( <ModalListSearchable paddingTop={20} height={80} visible={this.state.modalMainProcedure} list={this.state.tuss} action={this.handleMainProcedure} /> );
+				return ( 
+					<Portal>
+						<Dialog style={{height: '70%'}} visible={this.state.modalMainProcedure} onDismiss={ () => { this.toggleModal('modalMainProcedure') } }>
+							<Dialog.ScrollArea>
+								<Dialog.Title>Procedimento Principal</Dialog.Title>
+								<Searchbar placeholder="Filtrar" onChangeText={query => { this.filterTuss(query) }} value={this.state.tussQuery} />
+
+								<ScrollView style={{marginTop: 20}} contentContainerStyle={{ paddingHorizontal: 10 }}>
+									<List.Section>
+										<FlatList
+											data={this.state.auxTuss}
+											keyExtractor={element => `${element.id}`}
+											renderItem={this.renderItemTuss} />
+									</List.Section>
+								</ScrollView>
+							</Dialog.ScrollArea>
+
+							<Divider />
+
+							<Dialog.Actions>
+								<Button onPress={ () => { this.toggleModal('modalMainProcedure') } }>Fechar</Button>
+							</Dialog.Actions>
+						</Dialog>
+					</Portal>
+				);
 		}
 	}
 
@@ -492,15 +538,31 @@ export default class Profile extends Component {
 					<ListItem>
 						<Body>
 							<Text style={{fontWeight: 'bold'}}>CID Primário{"\n"}{ this.props.patient.diagnosticHypothesisList && this.props.patient.diagnosticHypothesisList.length === 0 ? <TextValue color={'#0000FF'} value={'ADICIONAR'} press={ () => { this.setState({modalSelected: 'PrimaryCID', modalPrimaryCID: true}) }} /> : null }
-							{ this.renderCIDprimario() }
+							{ 
+								this.props.patient.diagnosticHypothesisList && this.props.patient.diagnosticHypothesisList.map((prop) => {
+									return (
+										<TextValue color={'#0000FF'} key={prop.cidId} value={prop.cidDisplayName ? prop.cidDisplayName : 'Escolher'} press={ () => { this.setState({modalSelected: 'PrimaryCID', modalPrimaryCID: true}) }} />
+									);
+								})
+							}
 							</Text>
 						</Body>
 					</ListItem>
 
 					<ListItem>
 						<Body>
-							<Text style={{fontWeight: 'bold'}}>CIDs Secundários{"\n"}<TextValue color={'#0000FF'} value={'ADICIONAR'} press={ () => { this.setState({modalSelected: 'SecondaryCID', modalSecondaryCID: true}) }} />
-							{ this.renderCIDSecundario() }
+							<Text style={{fontWeight: 'bold'}}>CIDs Secundários{"\n"}<TextValue color={'#0000FF'} value={'ADICIONAR'} press={ () => { this.setState({modalSelected: 'SecondaryCID', modalSecondaryCID: true}) }} /> 
+								{"\n"}
+								{ 
+									this.props.patient.secondaryCIDList.length ? 
+										this.props.patient.secondaryCIDList.map((cidItem) => {
+											return (
+												<Text style={textValue} key={cidItem.cidId} onPress={ () => this.removeSecondaryCID(cidItem) }>{ cidItem.cidDisplayName }{"\n"}</Text>
+											);
+										})
+										: 
+										<Text/>
+								}
 							</Text>
 						</Body>
 					</ListItem>

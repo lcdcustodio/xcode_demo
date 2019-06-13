@@ -25,6 +25,7 @@
     "react-native-loading-spinner-overlay": "^1.0.1",
     "react-native-paper": "^2.16.0",
     "react-native-screens": "^1.0.0-alpha.22",
+    "react-native-text-input-mask": "^1.0.1",
     "react-native-ui-kitten": "^4.0.1",
     "react-native-vector-icons": "^6.4.2",
     "react-navigation": "^3.9.1",
