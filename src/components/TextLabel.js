@@ -26,15 +26,15 @@ TextLabel.defaultProps = {
   marginTop: 0,
   marginBottom: 0,
   marginLeft: 0,
-  size: 15,
+  size: 18,
 };
 
 const styles = StyleSheet.create({
   label: {
-    color: "#C2C2C2",
+    color: "#000",
     fontFamily: "Gotham Rounded", 
     fontSize: 15, 
-    fontWeight: "normal", 
+    fontWeight: "bold", 
     fontStyle: "normal", 
     lineHeight: 22, 
     letterSpacing: 0,
