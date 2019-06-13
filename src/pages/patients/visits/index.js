@@ -9,6 +9,7 @@ import uuid from 'uuid/v4';
 
 import Patient, { HospitalizationStatusEnum, StatusVisitEnum, FinalizationErrorEnum } from '../../../model/Patient';
 import { TrackingEndModeEnum } from '../../../model/Tracking';
+import { Avatar, Card, Title, Paragraph, List } from 'react-native-paper';
 
 export default class Visitas extends React.Component {
 	
@@ -159,15 +160,29 @@ export default class Visitas extends React.Component {
 		<TouchableOpacity
 			onPress={_=>this.showVisit(item)}
 			onLongPress={_=>this.alertToRemove(item)} >
-			<View>
+{/* 			<Card>
 				<Text style={[ styles.title, styles.niceBlue ]}> 
 					<Text>Visita </Text>
 					<Text style={[styles.description, styles.niceBlue]}> 
 						{this.isToday(item.observationDate) ? 'Hoje' : 	moment(item.observationDate).format('DD/MM/YYYY')}
 					 </Text>
 				</Text>
-				<Text style={ styles.description}>{item.observation}</Text>
-			</View>
+				<Paragraph>{item.observation}</Paragraph>
+			</Card> */}
+
+			{/* <Card>
+				<Card.Content>
+					<Title>Visita {this.isToday(item.observationDate) ? 'Hoje' : 	moment(item.observationDate).format('DD/MM/YYYY')}</Title>
+					<Paragraph>{item.observation}</Paragraph>
+				</Card.Content>
+			</Card> */}
+
+			<List.Section style={{backgroundColor: '#F8F8FF'}} title={this.isToday(item.observationDate) ? 'Hoje' : 	moment(item.observationDate).format('DD/MM/YYYY')}>
+				<List.Accordion title={item.observation}>
+					<Paragraph>{item.observation}</Paragraph>
+				</List.Accordion>
+			</List.Section>
+
 		</TouchableOpacity>
 	);
 
@@ -215,6 +230,9 @@ export default class Visitas extends React.Component {
 		console.log("listOfOrderedObservationDate", listOfOrderedObservationDate)
 		return (
 			<View style={ styles.container }>
+
+
+
 				<Modal
 					animationType="fade"
 					transparent={true}

@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Container, Content, Header, Left, Right, Button, Body, Icon, Title, Subtitle, Footer, FooterTab, Text } from 'native-base';
+import { Container, Content, Header, Left, Right, Button, Body, Icon, Title, Footer, FooterTab, Text } from 'native-base';
 import { StyleSheet, BackHandler } from "react-native";
 import _ from 'lodash';
 
@@ -39,6 +39,14 @@ class PatientDetail extends Component {
 		}
 	}
 
+	renderButtonAdd = () => {
+		if (this.state.selectedTab != 'profile') {
+			return (<Right style={{flex:1}} >
+				<Icon name="add" style={{ color: 'white' }} onPress={() => console.log('clique') } />
+			</Right>);
+		}
+	}
+
 	updatePatient = patient =>{
 		this.setState({patient})
 	}
@@ -74,6 +82,9 @@ class PatientDetail extends Component {
 					<Body style={{flex: 7}}>
 						<Title style={{color: 'white'}}> Detalhes do Paciente </Title>
 					</Body>
+
+                    { this.renderButtonAdd() }
+
 				</Header>
 				<Content>
 					{ this.renderSelectedTab() }
