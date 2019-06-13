@@ -10,9 +10,7 @@ export default class Events extends Component {
 	
 	constructor(props) {
 		super(props);
-		this.state = { 
-			eventos: this._loadEvents() 
-		};
+		this.state = {	eventos: this._loadEvents() };
 	}
 		
 	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
@@ -198,11 +196,10 @@ export default class Events extends Component {
 	recommendationSelected(event, patient) {
 		let uuid = event.data.uuid;
 		if (patient.recommendationClinicalIndication && uuid === patient.recommendationClinicalIndication.uuid) {
-			patient.recommendationType = 'RECOMENDACAO_MEDICAMENTOSA';
+			patient.recommendationType = 'INDICACAO_AMBULATORIO';
 		}
 		else if (patient.recommendationMedicineReintegration && uuid === patient.recommendationMedicineReintegration.uuid) {
-			patient.recommendationType = 'INDICACAO_AMBULATORIO';
-
+			patient.recommendationType = 'RECOMENDACAO_MEDICAMENTOSA';
 		}
 		else if (patient.recommendationWelcomeHomeIndication && uuid === patient.recommendationWelcomeHomeIndication.uuid) {
 			patient.recommendationType = 'WELCOME_HOME';

@@ -8,6 +8,7 @@ import moment from 'moment';
 import Uuid from 'uuid/v4';
 import data from '../../../../../data.json';
 
+
 export default class Recommendation extends React.Component {
 
 	constructor(props) {
@@ -57,6 +58,7 @@ export default class Recommendation extends React.Component {
 		let update = this.props.navigation.state.params.update;
 
 		if(update){
+			console.log("atualizando....")
 			let uuid = this.state.recommendation.uuid;
 			if(uuid === patient.recommendationClinicalIndication.uuid)	{
 				patient.recommendationClinicalIndication = this.state.recommendation.observation;
@@ -78,18 +80,21 @@ export default class Recommendation extends React.Component {
 				}  
 			} 
 		}
-
+		
 		this.clearState();
-
 	}
 
 	clearState = _ => {
 		this.setState({
 			...this.state,
-			recommendation: null,
-			recommendationType: 'Selecione',
+			recommendationType: 'Selecione', 
+			recommendation: {
+				uuid: null,
+				performedAt: null,
+				observation: ''
+			},
 			modalRecommendationTypeVisible: false,
-			modalSpecialtyVisible: false
+			modalSpecialtyVisible: false,
 		})
 	}
 
@@ -173,11 +178,11 @@ export default class Recommendation extends React.Component {
 
 	recommendationType (item) {
 		const recommendation = this.state.listRecommendationType
-		if (item == recommendation[0]){
+		if (item == recommendation[0].value){
 			return recommendation[0].label;
-		} else if(item == recommendation[1]){
+		} else if(item == recommendation[1].value){
 			return recommendation[1].label;
-		} else if (item == recommendation[2]){
+		} else if (item == recommendation[2].value){
 			return recommendation[2].label;
 		} else {
 			return item
@@ -189,7 +194,9 @@ export default class Recommendation extends React.Component {
 
 		if(update){
 			let patient = this.props.navigation.state.params.patient;
-			if(patient.recommendationType === this.state.listRecommendationType[1]){
+			let specialtyRecommendation = this.recommendationType(patient.recommendationType)
+			if( specialtyRecommendation === this.state.listRecommendationType[1].value){
+				console.log("showViewSpecialty", patient.recommendation)
 				return 	<View style={ [styles.column100] }>
 							<Text sytle={styles.textDisable}>{patient.recommendation.specialtyDisplayName}</Text>
 						</View>
@@ -209,7 +216,7 @@ export default class Recommendation extends React.Component {
 		
 		if(update){
 			let patient = this.props.navigation.state.params.patient;
-			return <Text sytle={styles.textDisable}>{patient.recommendationType}</Text>
+			return <Text sytle={styles.textDisable}>{this.recommendationType(patient.recommendationType)}</Text>
 		} else {
 			return <TextValue 	marginLeft="2" marginTop="2" marginBottom="2" press={ this.toggleModalRecommendationType } color={'#0000FF'} value={ this.state.recommendationType === 'Selecione' ? this.state.recommendationType : this.state.recommendationType.label  }  />
 		}
