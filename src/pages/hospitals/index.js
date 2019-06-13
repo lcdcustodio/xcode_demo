@@ -27,7 +27,8 @@ export default class Hospital extends Component {
 			dateSync: null,
 			page: 1,
 			loading: false,
-			errorSync: 0
+			errorSync: 0,
+			patientsAllHospital: []
 		}
 
 		console.log(data);
@@ -333,6 +334,7 @@ export default class Hospital extends Component {
 	}	
 
 	countTotalPatients = patients => {
+			let patientsAllHospital = [];
 
 		let totalPatients = patients.reduce((totalPatients, patient) => {
 
@@ -344,6 +346,7 @@ export default class Hospital extends Component {
                 (!listOfOrderedPatientObservations[0].endTracking && !listOfOrderedPatientObservations[0].medicalRelease)
             )
             {
+				patientsAllHospital.push(patient);
             	return totalPatients + 1;
             }
             else
@@ -352,6 +355,9 @@ export default class Hospital extends Component {
             }
 
 		}, 0);
+		this.setState({
+			patientsAllHospital
+		})
 
 		return totalPatients;
 	}
