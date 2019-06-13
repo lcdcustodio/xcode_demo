@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Dimensions, TouchableOpacity, Alert } from 'rea
 import { Icon } from 'native-base';
 import LinearGradient from 'react-native-linear-gradient';
 import Timeline from '../../../components/Timeline';
-import TimelineEvent, { TimelineEventEnum, TimelineEventEvaluation, timelineEventSorter } from '../../../model/TimelineEvent'
+import TimelineEvent, { TimelineEventEnum, TimelineEventEvaluation, timelineEventSorter } from '../../../util/TimelineEvent'
 
 
 export default class Events extends Component {

@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Container, Content, Header, Left, Right, Button, Body, Icon, Title, Footer, FooterTab, Text } from 'native-base';
+import { Container, Content, Header, Left, Right, Button, Body, Icon, Title, Subtitle, Footer, FooterTab, Text } from 'native-base';
 import { StyleSheet, BackHandler } from "react-native";
 import _ from 'lodash';
 
@@ -33,7 +33,6 @@ class PatientDetail extends Component {
 	renderSelectedTab = () => {
 		switch (this.state.selectedTab) {
 			case 'profile':
-				console.log(this.state.patient)
 				return (<Profile patient={this.state.patient} handleUpdatePatient={this.handleUpdatePatient} />);
 			case 'events':
 				return <Events patient={this.state.patient} parent={this} navigation={this.props.navigation} />;
@@ -73,11 +72,11 @@ class PatientDetail extends Component {
 					<Left style={{flex:1}} >
 						<Icon type="AntDesign" name="left" style={{ color: 'white' }} onPress={this._goBack} />
 					</Left>
-					<Body style={{flex: 7, alignItems: 'stretch'}}>
-						<Title style={{color: 'white'}}> DETALHES DO PACIENTE </Title>
+					<Body style={{flex: 7}}>
+						<Title style={{color: 'white'}}> Detalhes do Paciente </Title>
 					</Body>
 				</Header>
-				<Content padder>
+				<Content>
 					{ this.renderSelectedTab() }
 				</Content>
 				<Footer>

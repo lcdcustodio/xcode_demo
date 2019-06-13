@@ -27,7 +27,8 @@ export default class Hospital extends Component {
 			dateSync: null,
 			page: 1,
 			loading: false,
-			errorSync: 0
+			errorSync: 0,
+			patientsAllHospital: []
 		}
 
 		console.log(data);
@@ -111,6 +112,8 @@ export default class Hospital extends Component {
 						this.setState({loading: false});
 
 						if(response.status === 200) {
+
+							console.log('HOSPITAIS', JSON.stringify(response.data.content.hospitalList));
 
 							let hospitalListOrdered = _.orderBy(response.data.content.hospitalList, ['name'], ['asc']);
 							
@@ -294,47 +297,56 @@ export default class Hospital extends Component {
 
 		patients.forEach(patient => {
 
-			let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
+	        let lastVisit = null;
 
-			if (
+			let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc'])
+        	
+            if(
+                (listOfOrderedPatientObservations.length > 0) && 
 
-				(patient.exitDate == null && listOfOrderedPatientObservations.length > 0 && !listOfOrderedPatientObservations[0].endTracking) || 
+                (!listOfOrderedPatientObservations[0].endTracking && !listOfOrderedPatientObservations[0].medicalRelease)
+            )
+            {
+	            
+	            const today = moment();
+	            
+	            lastVisit = moment(moment(listOfOrderedPatientObservations[0].observationDate).format('YYYY-MM-DD'));
 
-            	(patient.exitDate != null && listOfOrderedPatientObservations.length > 0 && !listOfOrderedPatientObservations[0].medicalRelease)
-					
-			) {
+	            lastVisit = today.diff(lastVisit, 'days');
+	        }
 
-				patient.observationList.forEach( item =>{
+			console.log(lastVisit, patient.patientName, patient);
 
-					let observationDate = moment(item.observationDate).format('YYYY-MM-DD');
+			if (lastVisit == 0) {
 
-					if(today == observationDate)
-		            {
-		            	totalPatientsVisited = totalPatientsVisited + 1;
-		            }
+				console.log('CONTABILIZAR');
 
-				});
+				++totalPatientsVisited;
+
+				console.log(totalPatientsVisited);
 
 			}
 		});
+
+		console.log(totalPatientsVisited);
 
 		return totalPatientsVisited;
 	}	
 
 	countTotalPatients = patients => {
+			let patientsAllHospital = [];
 
 		let totalPatients = patients.reduce((totalPatients, patient) => {
 
 			let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
 
             if(
-                (patient.exitDate == null && listOfOrderedPatientObservations.length == 0) || 
+                (listOfOrderedPatientObservations.length == 0) || 
 
-                (patient.exitDate == null && listOfOrderedPatientObservations.length > 0 && !listOfOrderedPatientObservations[0].endTracking) || 
-
-                (patient.exitDate != null && listOfOrderedPatientObservations.length > 0 && !listOfOrderedPatientObservations[0].medicalRelease)
+                (!listOfOrderedPatientObservations[0].endTracking && !listOfOrderedPatientObservations[0].medicalRelease)
             )
             {
+				patientsAllHospital.push(patient);
             	return totalPatients + 1;
             }
             else
@@ -343,6 +355,9 @@ export default class Hospital extends Component {
             }
 
 		}, 0);
+		this.setState({
+			patientsAllHospital
+		})
 
 		return totalPatients;
 	}
@@ -541,7 +556,7 @@ export default class Hospital extends Component {
 					
 					<View style={{flexDirection: "row", alignItems: 'center'}}>
 						<Icon type="AntDesign" name="user" style={styles.userIcon}/>
-						<Text style={[styles.description, styles.niceBlue]}>Visitas: </Text><Text style={[styles.description]}>{item.totalPatientsVisitedToday}</Text>
+						<Text style={[styles.description, styles.niceBlue]}>Visitados: </Text><Text style={[styles.description]}>{item.totalPatientsVisitedToday}</Text>
 					</View>
 				</View>
 				<View style={[styles.sideButtonRight]}>

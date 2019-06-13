@@ -42,8 +42,6 @@ const Button = styled.TouchableHighlight`
   height: 52px;
   borderRadius: 5px;
   backgroundColor: #ffffff;
-  marginTop: 15px;
-  marginBottom: 15px;
 `;
 
 const ButtonText = styled.Text`
@@ -52,8 +50,9 @@ const ButtonText = styled.Text`
   fontFamily: "Roboto";
   textAlign: center;
   color: #005cd1;
-  marginTop: 15px;
-  marginBottom: 15px;
+  backgroundColor: #fff;
+  padding:15px;
+  height: 52px;
 `;
 
 const SignUpLink = styled.TouchableHighlight`
