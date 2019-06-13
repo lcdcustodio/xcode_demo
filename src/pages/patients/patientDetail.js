@@ -83,8 +83,6 @@ class PatientDetail extends Component {
 						<Title style={{color: 'white'}}> Detalhes do Paciente </Title>
 					</Body>
 
-                    { this.renderButtonAdd() }
-
 				</Header>
 				<Content>
 					{ this.renderSelectedTab() }

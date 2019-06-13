@@ -124,14 +124,14 @@ export default class Timeline extends Component {
         };
         break;
     }
-    return (
+/*     return (
       <View style={timeWrapper}>
         <View style={[styles.timeContainer, this.props.timeContainerStyle]}>
           <Text style={[styles.time, this.props.timeStyle]}>{ moment(rowData.time).format('DD/MM/YYYY') }</Text>
           <Text style={[styles.time, this.props.timeStyle]}>{ moment(rowData.time).format('HH:mm') }</Text>
         </View>
       </View>
-    );
+    ); */
   }
 
   _renderEvent(rowData, rowID) {
