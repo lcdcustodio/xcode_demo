@@ -185,8 +185,9 @@ export default class Profile extends Component {
 	filterCID = (query) => {
 		const newCidList = this.state.cid.filter(item => {
 			return (
-				item.normalizedName.toUpperCase().includes(query.toUpperCase()) || 
-			  	item.code.toUpperCase().includes(query.toUpperCase())
+				item.name.toUpperCase().includes(query.toUpperCase()) ||
+				item.normalizedName.toUpperCase().includes(query.toUpperCase()) ||
+				item.code.toUpperCase().includes(query.toUpperCase())
 			)
 		});
 
@@ -199,6 +200,7 @@ export default class Profile extends Component {
 	filterTuss = (query) => {
 		const newTussList = this.state.tuss.filter(item => {
 			return (
+				item.name.toUpperCase().includes(query.toUpperCase()) ||
 				item.normalizedName.toUpperCase().includes(query.toUpperCase()) ||
 				item.code.toUpperCase().includes(query.toUpperCase())
 			)
@@ -219,8 +221,8 @@ export default class Profile extends Component {
 							<Dialog.Title>Altura (m) e Peso (Kg)</Dialog.Title>
 							
 							<Dialog.Content>
-								<TextInput mode='outlined' label='Altura' value={this.props.patient.patientHeight} 
-									onChangeText={height => { this.handleHeight(height) }} 
+								<TextInput mode='outlined' keyboardType='number-pad' label='Altura' value={this.props.patient.patientHeight} 
+									onChangeText={height => { this.handleHeight(height) }}
 									render={props =>
 										<TextInputMask {...props} mask="[0]{,}[00]" />
 									}
@@ -228,13 +230,12 @@ export default class Profile extends Component {
 
 								<Text> {'\n'} </Text>								
 
-								<TextInput mode='outlined' label='Peso' value={this.props.patient.patientWeight} 
+								<TextInput mode='outlined' keyboardType='number-pad' label='Peso' value={this.props.patient.patientWeight} 
 									onChangeText={weight => { this.handleWeight(weight) }} 
 									render={props =>
-										<TextInputMask {...props} mask="[999]{,}[000]" />
+										<TextInputMask {...props} mask="[900]{,}[000]" />
 									}
 								/>
-
 							</Dialog.Content>
 
 							<Divider />
