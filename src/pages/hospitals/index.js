@@ -12,7 +12,8 @@ import moment from 'moment';
 import Session from '../../Session';
 import qs from "qs";
 import _ from 'lodash'
-import data from '../../../data.json';
+import { Searchbar, List } from 'react-native-paper';
+import TextValue from '../../components/TextValue';
 
 export default class Hospital extends Component {
 
@@ -28,10 +29,10 @@ export default class Hospital extends Component {
 			page: 1,
 			loading: false,
 			errorSync: 0,
-			patientsAllHospital: []
+			allPatients: [],
+			patientsFiltered: [],
+			patientQuery: null
 		}
-
-		console.log(data);
 	}
 
 	componentDidMount() {
@@ -250,7 +251,7 @@ export default class Hospital extends Component {
 		listHospital.forEach( hospital => {
 			hospital.logomarca = this.getLogomarca(hospital)
 			hospital.totalPatientsVisitedToday = this.countTotalPatientsVisited(hospital.hospitalizationList)
-			hospital.totalPatients = this.countTotalPatients(hospital.hospitalizationList)
+			hospital.totalPatients = this.countTotalPatients(hospital.hospitalizationList, hospital)
 			hospital.lastVisit = this.setLastVisit(hospital.hospitalizationList)
 		}); 
 
@@ -333,11 +334,11 @@ export default class Hospital extends Component {
 		return totalPatientsVisited;
 	}	
 
-	countTotalPatients = patients => {
-			let patientsAllHospital = [];
+	countTotalPatients = (patients, hospital) => {
+		let listPatients = this.state.allPatients;
 
 		let totalPatients = patients.reduce((totalPatients, patient) => {
-
+			patient.hospitalName = hospital.name;
 			let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
 
             if(
@@ -346,7 +347,7 @@ export default class Hospital extends Component {
                 (!listOfOrderedPatientObservations[0].endTracking && !listOfOrderedPatientObservations[0].medicalRelease)
             )
             {
-				patientsAllHospital.push(patient);
+				listPatients.push(patient);
             	return totalPatients + 1;
             }
             else
@@ -355,9 +356,8 @@ export default class Hospital extends Component {
             }
 
 		}, 0);
-		this.setState({
-			patientsAllHospital
-		})
+
+		this.setState({ allPatients: listPatients });
 
 		return totalPatients;
 	}
@@ -533,6 +533,11 @@ export default class Hospital extends Component {
 					AsyncStorage.setItem('hospital', JSON.stringify(item), () => {
 						this.props.navigation.navigate("Patients");
 					});
+
+					this.setState({
+						patientQuery: null,
+						patientsFiltered: []
+					});
 				}
 			}}>
 			
@@ -574,6 +579,45 @@ export default class Hospital extends Component {
 		return null;
 	}
 
+	filterPatients = (patientQuery) => {
+		if(patientQuery !== '') {
+
+			const patientsFiltered = this.state.allPatients.filter(item => {
+				return (
+					item.patientName.toUpperCase().includes(patientQuery.toUpperCase())
+				)
+			});
+	
+			this.setState({ 
+				patientsFiltered,
+				patientQuery
+			});
+		} else {
+			this.setState({ 
+				patientsFiltered: [],
+				patientQuery: null
+			});
+		}
+	}
+
+	renderItemPatient = (element) => {
+		console.log(element)
+		return (
+			<View>
+				<List.Item title={`${element.item.patientName}`} onPress={() => { this.goToProfilePage(element.item) }} />
+				<TextValue size={13} marginLeft={4} marginTop={-6} value={element.item.hospitalName} />
+			</View>
+		);
+	}
+
+	goToProfilePage(patient) {
+		this.setState({
+			patientQuery: null,
+			patientsFiltered: []
+		});
+		this.props.navigation.navigate("PatientDetail", { patient});
+	}
+
 	render(){
 		return (
 			<Container>
@@ -599,6 +643,17 @@ export default class Hospital extends Component {
 		            { this.renderTimer() }
 		        </View>				
 
+				<Line size={1} />
+
+				<Searchbar placeholder="Buscar paciente" onChangeText={patientQuery => { this.filterPatients(patientQuery) }} value={this.state.patientQuery} />
+				
+				<List.Section style={styles.listItemPatient}>
+					<FlatList
+						data={this.state.patientsFiltered}
+						keyExtractor={element => `${element.id}`}
+						renderItem={this.renderItemPatient} />
+				</List.Section>
+				
 				<Line size={1} />
 
 				<Content>
