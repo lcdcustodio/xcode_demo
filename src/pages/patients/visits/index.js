@@ -18,6 +18,7 @@ export default class Visitas extends React.Component {
 		this.state = {
 			patient: this.props.patient,
 			modalVisible: false,
+			isEditable: this.props.isEditable,
 			visit: {
 				uuid: null,
 				observation: '',

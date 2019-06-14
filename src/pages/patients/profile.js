@@ -28,7 +28,7 @@ export default class Profile extends Component {
 			selectedRadio: null,
 			cidQuery: null,
 			tussQuery: null,
-			isEditable: false,
+			isEditable: this.props.isEditable,
 			listAttendanceType: [
 				{key: 1, value: 'ELECTIVE', label: 'ELETIVO'},
 				{key: 2, value: 'EMERGENCY', label: 'EMERGÊNCIA'}

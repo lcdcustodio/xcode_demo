@@ -11,7 +11,10 @@ export default class Events extends Component {
 	
 	constructor(props) {
 		super(props);
-		this.state = { eventos: this._loadEvents() };
+		this.state = { 
+			eventos: this._loadEvents(),
+			isEditable: this.props.isEditable
+		};
 	}
 	
 	render() {
@@ -20,7 +23,7 @@ export default class Events extends Component {
 				
 				<Timeline 
 					data={this.state.eventos}
-/* 					renderEvent={this._renderEvent}
+					/*renderEvent={this._renderEvent}
 					lineColor={'#b1b1b1'} 
 					circleColor={'#005cd1'} 
 					innerCircle={'dot'} 

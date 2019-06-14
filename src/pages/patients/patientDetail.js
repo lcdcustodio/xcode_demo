@@ -17,7 +17,8 @@ class PatientDetail extends Component {
 		super(props);
 		this.state = {
 			patient: this.props.navigation.getParam('patient'),
-			selectedTab: 'profile'
+			selectedTab: 'profile',
+			isEditable: true
 		}
 	}
 
@@ -61,11 +62,11 @@ class PatientDetail extends Component {
 	renderSelectedTab = () => {
 		switch (this.state.selectedTab) {
 			case 'profile':
-				return (<Profile patient={this.state.patient} handleUpdatePatient={this.handleUpdatePatient} />);
+				return (<Profile patient={this.state.patient} handleUpdatePatient={this.handleUpdatePatient} isEditable={this.state.isEditable}/>);
 			case 'events':
-				return <Events patient={this.state.patient} parent={this} navigation={this.props.navigation} />;
+				return <Events patient={this.state.patient} parent={this} navigation={this.props.navigation} isEditable={this.state.isEditable}/>;
 			case 'visits':
-				return (<Visits patient={this.state.patient} updatePatient={this.updatePatient} navigation={this.props.navigation} />);
+				return (<Visits patient={this.state.patient} updatePatient={this.updatePatient} navigation={this.props.navigation} isEditable={this.state.isEditable}/>);
 		}
 	}
 
