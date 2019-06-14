@@ -241,7 +241,6 @@ export default class Visitas extends React.Component {
 		console.log("listOfOrderedObservationDate", listOfOrderedObservationDate)
 		return (
 			<View>
-
 				<Modal
 					animationType="fade"
 					transparent={true}

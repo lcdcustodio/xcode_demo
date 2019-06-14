@@ -21,6 +21,7 @@ class PatientDetail extends Component {
 			selectedTab: TabEnum.Profile,
 			isEditable: this.props.navigation.getParam('isEditable')
 		}
+		
 	}
 
 	handleUpdatePatient = async (attribute, value) => {

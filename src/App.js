@@ -11,6 +11,7 @@ import ReportScreen from './pages/report';
 import RecommendationScreen from './pages/patients/events/recommendation/';
 import FinalizeScreen from './pages/patients/visits/finalize';
 
+
 export default class App extends Component {
     render() {
         return  <AppContainer ref={nav => this.navigator = nav}/>
