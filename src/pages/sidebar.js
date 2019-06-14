@@ -39,8 +39,8 @@ export default class Sidebar extends Component {
 					<View style={styles.divider} />
 					<View style={styles.containerMenu}>
 						{this.items.map((item, key) => (
-							<TouchableWithoutFeedback onPress={() => { global.currentScreenIndex = key; this.props.navigation.closeDrawer(); this.props.navigation.navigate(item.screenToNavigate); }}>
-								<View key={key} style={{ flexDirection: 'row', alignItems: 'center', paddingTop: 2, paddingBottom: 2, backgroundColor:'transparent', borderBottomColor: '#fff', borderBottomWidth: 1}} >
+							<TouchableWithoutFeedback key={key} onPress={() => { global.currentScreenIndex = key; this.props.navigation.closeDrawer(); this.props.navigation.navigate(item.screenToNavigate); }}>
+								<View style={{ flexDirection: 'row', alignItems: 'center', paddingTop: 2, paddingBottom: 2, backgroundColor:'transparent', borderBottomColor: '#fff', borderBottomWidth: 1}} >
 									<View style={styles.itemIcon}>
 										<View style={styles.sideButtonRight}>
 											<Icon type="AntDesign" name="right" style={{ color: 'white', fontSize: 15}} />

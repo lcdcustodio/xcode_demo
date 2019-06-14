@@ -160,23 +160,7 @@ export default class Visitas extends React.Component {
 		<TouchableOpacity
 			onPress={_=>this.showVisit(item)}
 			onLongPress={_=>this.alertToRemove(item)} >
-{/* 			<Card>
-				<Text style={[ styles.title, styles.niceBlue ]}> 
-					<Text>Visita </Text>
-					<Text style={[styles.description, styles.niceBlue]}> 
-						{this.isToday(item.observationDate) ? 'Hoje' : 	moment(item.observationDate).format('DD/MM/YYYY')}
-					 </Text>
-				</Text>
-				<Paragraph>{item.observation}</Paragraph>
-			</Card> */}
-
-			{/* <Card>
-				<Card.Content>
-					<Title>Visita {this.isToday(item.observationDate) ? 'Hoje' : 	moment(item.observationDate).format('DD/MM/YYYY')}</Title>
-					<Paragraph>{item.observation}</Paragraph>
-				</Card.Content>
-			</Card> */}
-
+			
 			<List.Section style={{backgroundColor: '#F8F8FF'}} title={this.isToday(item.observationDate) ? 'Hoje' : 	moment(item.observationDate).format('DD/MM/YYYY')}>
 				<List.Accordion title={item.observation}>
 					<Paragraph>{item.observation}</Paragraph>

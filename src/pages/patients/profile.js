@@ -316,7 +316,7 @@ export default class Profile extends Component {
 							<Divider />
 
 							<Dialog.Actions>
-								<Button onPress={ () => { this.toggleModal('modalCRM') } }>Fechar</Button>
+								<Button onPress={ () => { this.toggleModal('modalCRM') } }>Salvar</Button>
 							</Dialog.Actions>
 
 						</Dialog>
