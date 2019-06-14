@@ -7,7 +7,9 @@ import SignInScreen from './pages/signIn';
 import PatientsScreen from './pages/patients';
 import PatientDetailScreen from './pages/patients/patientDetail';
 import EventDetailScreen from './pages/patients/events/detail';
+import RecommendationScreen from './pages/patients/events/recommendation/';
 import FinalizeScreen from './pages/patients/visits/finalize';
+
 
 export default class App extends Component {
     render() {
@@ -32,9 +34,13 @@ const AppNavigator = createDrawerNavigator(
 		EventDetail: {
 			screen: EventDetailScreen
 		},
+		Recommendation: {
+			screen: RecommendationScreen
+		},
 		Finalize: {
 			screen: FinalizeScreen
-		},
+		}
+		
 	}, {
 		contentComponent: Sidebar
 	}
