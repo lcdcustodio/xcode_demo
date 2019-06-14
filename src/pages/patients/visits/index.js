@@ -1,6 +1,6 @@
 import React from 'react';
-import { Text, View, FlatList, Modal, TextInput, Switch, TouchableOpacity, Alert } from 'react-native';
-import { Icon, Button } from 'native-base';
+import { Text, View, FlatList, Modal, TextInput, Switch, TouchableOpacity, Alert} from 'react-native';
+import { Icon } from 'native-base';
 import LinearGradient from 'react-native-linear-gradient';
 import styles from './style'
 import moment from 'moment';
@@ -10,6 +10,7 @@ import uuid from 'uuid/v4';
 import Patient, { HospitalizationStatusEnum, StatusVisitEnum, FinalizationErrorEnum } from '../../../model/Patient';
 import { TrackingEndModeEnum } from '../../../model/Tracking';
 import TabEnum from '../PatientDetailTabEnum'
+import { Card, Button, Paragraph, List } from 'react-native-paper';
 
 export default class Visitas extends React.Component {
 	
@@ -161,15 +162,20 @@ export default class Visitas extends React.Component {
 		<TouchableOpacity
 			onPress={_=>this.showVisit(item)}
 			onLongPress={_=>this.alertToRemove(item)} >
-			<View>
-				<Text style={[ styles.title, styles.niceBlue ]}> 
-					<Text>Visita </Text>
-					<Text style={[styles.description, styles.niceBlue]}> 
-						{this.isToday(item.observationDate) ? 'Hoje' : 	moment(item.observationDate).format('DD/MM/YYYY')}
-					 </Text>
-				</Text>
-				<Text style={ styles.description}>{item.observation}</Text>
-			</View>
+			
+			<List.Section style={{backgroundColor: '#F8F8FF'}} title={this.isToday(item.observationDate) ? 'Hoje' : 	moment(item.observationDate).format('DD/MM/YYYY')}>
+				<List.Accordion title={item.observation}>
+					<Paragraph>{item.observation}</Paragraph>
+				</List.Accordion>
+				 <Card.Actions>
+
+				<Button>Editar</Button>
+
+			    <Button>Excluir</Button>
+
+                </Card.Actions>
+			   </List.Section>
+
 		</TouchableOpacity>
 	);
 
@@ -217,6 +223,9 @@ export default class Visitas extends React.Component {
 		console.log("listOfOrderedObservationDate", listOfOrderedObservationDate)
 		return (
 			<View style={ styles.container }>
+
+
+
 				<Modal
 					animationType="fade"
 					transparent={true}

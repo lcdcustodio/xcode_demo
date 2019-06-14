@@ -1,7 +1,7 @@
 import React, { Component } from "react"
 import styles from './style'
-import { Container, Content, Header, Left, Right, Body, Icon, Title, Text } from 'native-base'
-import { Alert, View, FlatList, TouchableOpacity, Image, BackHandler } from "react-native"
+import { Container, Content, Header, Left, Body, Icon, Title, Text } from 'native-base'
+import { View, FlatList, TouchableOpacity, Image, BackHandler } from "react-native"
 import moment from 'moment'
 import _ from 'lodash'
 import AsyncStorage from '@react-native-community/async-storage';

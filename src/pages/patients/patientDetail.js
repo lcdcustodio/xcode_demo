@@ -1,8 +1,12 @@
 import React, { Component } from "react";
-import { Container, Content, Header, Left, Right, Button, Body, Icon, Title, Subtitle, Footer, FooterTab, Text } from 'native-base';
+import { Container, Content, Header, Left, Right, Button, Body, Icon, Title, Footer, FooterTab, Text } from 'native-base';
 import { StyleSheet, BackHandler } from "react-native";
 import _ from 'lodash';
 import TabEnum from './PatientDetailTabEnum';
+import AsyncStorage from '@react-native-community/async-storage';
+import moment from 'moment';
+
+//Pages
 import Profile from "./profile";
 import Events from "./events";
 import Visits from "./visits";
@@ -18,12 +22,40 @@ class PatientDetail extends Component {
 	}
 
 	handleUpdatePatient = async (attribute, value) => {
+
+		console.log(attribute, value);
+
 		this.setState({
 			patient: {
 				...this.state.patient,
 				[attribute]: value
 			}
-		})
+		});
+
+		/*AsyncStorage.getItem('hospitalizationList', (err, res) => {
+
+			console.log(err, res);
+
+			if (res == null) {
+
+				let hospitalizationList = [];
+
+				hospitalizationList.id = this.state.patient.id;
+
+				hospitalizationList[attribute] = value;
+
+			}
+			else
+			{
+				let hospitalizationList = JSON.parse(res);
+
+			}
+
+			console.log(hospitalizationList);
+
+		});*/
+
+		AsyncStorage.setItem('require_sync_at', JSON.stringify(moment().format('YYYY-MM-DD')));
 	}
 
 	renderSelectedTab = () => {
@@ -34,6 +66,14 @@ class PatientDetail extends Component {
 				return <Events patient={this.state.patient} parent={this} navigation={this.props.navigation} />;
 			case TabEnum.Visits:
 				return <Visits patient={this.state.patient} parent={this} navigation={this.props.navigation} />;
+		}
+	}
+
+	renderButtonAdd = () => {
+		if (this.state.selectedTab != 'profile') {
+			return (<Right style={{flex:1}} >
+				<Icon name="add" style={{ color: 'white' }} onPress={() => console.log('clique') } />
+			</Right>);
 		}
 	}
 
@@ -72,6 +112,7 @@ class PatientDetail extends Component {
 					<Body style={{flex: 7}}>
 						<Title style={{color: 'white'}}> Detalhes do Paciente </Title>
 					</Body>
+
 				</Header>
 				<Content>
 					{ this.renderSelectedTab() }
