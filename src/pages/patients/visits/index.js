@@ -1,6 +1,6 @@
 import React from 'react';
-import { Text, View, FlatList, Modal, TextInput, Switch, TouchableOpacity, Alert } from 'react-native';
-import { Icon, Button } from 'native-base';
+import { Text, View, FlatList, Modal, TextInput, Switch, TouchableOpacity, Alert} from 'react-native';
+import { Icon } from 'native-base';
 import LinearGradient from 'react-native-linear-gradient';
 import styles from './style'
 import moment from 'moment';
@@ -9,7 +9,7 @@ import uuid from 'uuid/v4';
 
 import Patient, { HospitalizationStatusEnum, StatusVisitEnum, FinalizationErrorEnum } from '../../../model/Patient';
 import { TrackingEndModeEnum } from '../../../model/Tracking';
-import { Avatar, Card, Title, Paragraph, List } from 'react-native-paper';
+import { Card, Button, Paragraph, List } from 'react-native-paper';
 
 export default class Visitas extends React.Component {
 	
@@ -181,7 +181,14 @@ export default class Visitas extends React.Component {
 				<List.Accordion title={item.observation}>
 					<Paragraph>{item.observation}</Paragraph>
 				</List.Accordion>
-			</List.Section>
+				 <Card.Actions>
+
+				<Button>Editar</Button>
+
+			    <Button>Excluir</Button>
+
+                </Card.Actions>
+			   </List.Section>
 
 		</TouchableOpacity>
 	);
