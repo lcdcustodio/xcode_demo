@@ -27,6 +27,7 @@ export default class Hospital extends Component {
 			isConnected: null,
 			dateSync: null,
 			page: 1,
+			isEditable: true,
 			loading: false,
 			timerTextColor: "#005cd1",
 			timerBackgroundColor: "#fff",
@@ -35,6 +36,8 @@ export default class Hospital extends Component {
 			patientsFiltered: [],
 			patientQuery: null
 		}
+
+		console.log(this.state.isEditable);
 	}
 
 	componentDidMount() {
@@ -642,7 +645,7 @@ export default class Hospital extends Component {
 			patientQuery: null,
 			patientsFiltered: []
 		});
-		this.props.navigation.navigate("PatientDetail", { patient});
+		this.props.navigation.navigate("PatientDetail", { patient, isEditable: this.state.isEditable });
 	}
 
 	render(){

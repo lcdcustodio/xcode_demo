@@ -8,16 +8,21 @@ import Session from '../Session';
 export default class Sidebar extends Component {
 	
 	constructor(props) {
+	
 		super(props);
-		this.items = [ {
-			navOptionThumb: 'home',
-			navOptionName: 'HOSPITAIS',
-			screenToNavigate: 'Hospitals',
-		}, {
-			navOptionThumb: 'home',
-			navOptionName: 'SAIR',
-			screenToNavigate: 'SignIn',
-		} ];
+	
+		this.items = [
+			{
+				navOptionName: 'HOSPITAIS',
+				screenToNavigate: 'Hospitals',
+			}, {
+				navOptionName: 'RELATÓRIO',
+				screenToNavigate: 'Report',
+			}, {
+				navOptionName: 'SAIR',
+				screenToNavigate: 'SignIn',
+			}
+		];
 	}
 
 	render() {
@@ -26,7 +31,7 @@ export default class Sidebar extends Component {
 			return null;
 		}
 		return (
-			<LinearGradient colors={['#005cd1', '#35d8a6']} style={styles.linearGradient}>
+				<LinearGradient colors={['#005cd1', '#35d8a6']} style={styles.linearGradient}>
 
 				<View style={styles.sideMenuContainer}>
 					<Image source={require('../images/logo-mc-branca.png')} style={styles.sideMenuLogoIcon} />

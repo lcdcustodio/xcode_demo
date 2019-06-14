@@ -18,7 +18,7 @@ class PatientDetail extends Component {
 		this.state = {
 			patient: this.props.navigation.getParam('patient'),
 			selectedTab: 'profile',
-			isEditable: true
+			isEditable: this.props.navigation.getParam('isEditable')
 		}
 	}
 
