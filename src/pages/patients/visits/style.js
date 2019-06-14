@@ -30,9 +30,9 @@ export default StyleSheet.create({
 		paddingLeft: 2
 	},
 	description : {
-		width: '100%',
-		paddingTop: '3%',
-		paddingBottom: '5%',
+	width: '100%',
+	paddingTop: '3%',
+	paddingBottom: '5%',
     fontFamily: "Verdana",
     fontSize: 14,
     fontWeight: "normal",
@@ -78,14 +78,68 @@ export default StyleSheet.create({
 		padding: '13%',
 		backgroundColor: 'rgba(0, 0, 0, 0.3)',
 		flexDirection: "row"
- },
+ 	},
  	textArea: {
 		width: "100%",
 		height: 100,
 		borderColor: '#ccc',
 		borderWidth: 1, 
+		padding: 1,
 		textAlign: 'justify',
     	lineHeight: 30,
 		padding: 10,
+	},
+	modal : {
+		backgroundColor: '#F8F8FF', 
+		borderRadius: 4, 
+		flexDirection: "row", 
+		flexWrap: 'wrap', 
+		height: '75%', 
+		marginTop: '25%', 
+		padding: 1
+	},
+	observation: {
+		flexDirection: "row", 
+		width: '100%', 
+		flexWrap: 'wrap', 
+		paddingTop: '15%'
+	},
+	textVisit: {
+		fontWeight: "bold", 
+		fontSize: 18, 
+		color: 'white'
+	},
+	alertInformation : {
+		flexDirection: "row", 
+		width: '100%', 
+		flexWrap: 'wrap', 
+		alignItems:'center', 
+		paddingTop: '10%'
+	},
+	textObservation : {
+		fontWeight: "bold", 
+		width: '100%',
+		 fontSize: 17
+	},
+	close : {
+		color: 'white', 
+		fontSize: 18, 
+		marginTop: 1, 
+		marginBottom: 1, 
+		marginLeft: '12%'
+	},
+	viewVisit : {
+		flexDirection: "row", 
+		width: '100%', 
+		justifyContent: 'space-between', 
+		backgroundColor: "#005cd1", 
+		alignItems: 'center'
+	},
+	save : {
+		color: 'white', 
+		fontSize: 18, 
+		marginTop: 1, 
+		marginBottom: 1, 
+		marginRight: '12%'
 	}
 });

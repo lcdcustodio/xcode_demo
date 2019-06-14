@@ -5,6 +5,7 @@ export enum TimelineEventEnum {
     FurtherOpinion,
     MedicalProcedure,
     MedicineUsage,
+    Recommendation
 }
 
 export default class TimelineEvent implements Comparable<TimelineEvent> {

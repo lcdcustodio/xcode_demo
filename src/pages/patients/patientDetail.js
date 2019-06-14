@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Container, Content, Header, Left, Right, Button, Body, Icon, Title, Footer, FooterTab, Text } from 'native-base';
+import { Container, Content, Header, Left, Right, Button, Body, Icon, Title, Subtitle, Footer, FooterTab, Text } from 'native-base';
 import { StyleSheet, BackHandler } from "react-native";
 import _ from 'lodash';
 import TabEnum from './PatientDetailTabEnum';
@@ -15,13 +15,12 @@ class PatientDetail extends Component {
     
 	constructor(props) {
 		super(props);
+
 		this.state = {
 			patient: this.props.navigation.getParam('patient'),
 			selectedTab: TabEnum.Profile,
 			isEditable: this.props.navigation.getParam('isEditable')
 		}
-
-		console.log(this.state.isEditable);
 	}
 
 	handleUpdatePatient = async (attribute, value) => {
@@ -60,7 +59,7 @@ class PatientDetail extends Component {
 
 		AsyncStorage.setItem('require_sync_at', JSON.stringify(moment().format('YYYY-MM-DD')));
 	}
-
+	
 	renderSelectedTab = () => {
 		switch (this.state.selectedTab) {
 			case TabEnum.Profile:
@@ -68,7 +67,7 @@ class PatientDetail extends Component {
 			case TabEnum.Events:
 				return <Events patient={this.state.patient} parent={this} navigation={this.props.navigation} isEditable={this.state.isEditable} />;
 			case TabEnum.Visits:
-				return <Visits patient={this.state.patient} parent={this} navigation={this.props.navigation} isEditable={this.state.isEditable} />;
+				return <Visits patient={this.state.patient} parent={this} handleUpdatePatient={this.handleUpdatePatient} navigation={this.props.navigation} isEditable={this.state.isEditable} />;
 		}
 	}
 
@@ -80,20 +79,19 @@ class PatientDetail extends Component {
 		}
 	}
 
-	updatePatient = patient =>{
-		this.setState({patient})
-	}
-
 	handleBackPress = () => {
 		this.props.navigation.navigate('Patients');
 		return true;
 	}
 
 	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
+		let selectedTab  = !this.props.navigation.getParam('selectedTab') ? 'profile' : this.props.navigation.getParam('selectedTab')
+
 		this.setState({
 			patient: this.props.navigation.getParam('patient'),
-			selectedTab: TabEnum.Profile,
+			selectedTab: selectedTab
 		});
+		
 		this.backHandler = BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
 	});
 

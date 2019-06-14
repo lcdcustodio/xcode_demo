@@ -26,9 +26,6 @@ export default class Visitas extends React.Component {
 				observation: '',
 				alert: false,
 				observationDate: '',
-				endTracking: false,
-				medicalRelease: false,
-				removedAt: '',
 			},
 			update: false
 		}
@@ -58,7 +55,7 @@ export default class Visitas extends React.Component {
 			
 			if(!hasErrors){
 				this.state.patient.observationList.push(newVisit)
-				this.props.parent.updatePatient(this.state.patient);
+				this.props.handleUpdatePatient("observationList", this.state.patient.observationList)
 				this.toggleModal()
 			} else {
 				Alert.alert('Atenção', 'Visita já cadastrada!',
@@ -107,6 +104,7 @@ export default class Visitas extends React.Component {
 	}
 
 	toggleModal = _ => {
+		debugger;
 	    this.setState({modalVisible: !this.state.modalVisible})
 	}
 
@@ -119,9 +117,6 @@ export default class Visitas extends React.Component {
 			observation: '',
 			alert: false,
 			observationDate: moment().format(),
-			endTracking: false,
-			medicalRelease: false,
-			removedAt: '',
 			}
 		})
 	}
@@ -160,10 +155,11 @@ export default class Visitas extends React.Component {
 		return diffDays === 0 ? true : false
 	}
 
-	renderItem = ({ item }) => {
-		
-		return (
-
+	renderItem = ({ item }) => (
+		<TouchableOpacity
+			onPress={_=>this.showVisit(item)}
+			onLongPress={_=>this.alertToRemove(item)} >
+			
 			<Container>
 				<Content padder>
 					<Card>
@@ -198,13 +194,14 @@ export default class Visitas extends React.Component {
 				</Content>
 			</Container>
 
+			</TouchableOpacity>
 		);
 	};
 
 	remove(patient) {
-		const item = this.state.patient.observationList.filter(item => item.uuid !== patient.uuid);
-		this.state.patient.observationList = item;
-		this.props.parent.updatePatient(this.state.patient);
+		const visits = this.state.patient.observationList.filter(item => item.uuid !== patient.uuid);
+		this.state.patient.observationList = visits;
+		this.props.handleUpdatePatient("observationList", this.state.patient.observationList);
 	}
 
 	isaSameVisit(newVisit, oldVisit) {
@@ -254,17 +251,17 @@ export default class Visitas extends React.Component {
 						<View style={styles.overlay}>
 						<View style={{backgroundColor: '#F8F8FF', borderRadius: 4, flexDirection: "row", flexWrap: 'wrap', height: '60%', marginTop: '25%', padding: 10}}>
 							
-								<View style={{flexDirection: "row", width: '100%', justifyContent: 'space-between', backgroundColor: "#005cd1", alignItems: 'center'}}>
+								<View style={styles.viewVisit}>
 										<Button backgroundColor={'#005cd1'} onPress={this.toggleModal}>
-											<Icon type="AntDesign" name="close" style={{color: 'white', fontSize: 18, marginTop: 1, marginBottom: 1, marginLeft: '5%'}} />
+											<Icon type="AntDesign" name="close" style={styles.close} />
 										</Button>
-										<Text style={{fontWeight: "bold", fontSize: 18, color: 'white'}}>Visita</Text>
+										<Text style={styles.textVisit}>Visita</Text>
 										<Button backgroundColor={'#005cd1'} onPress={this.save}>
-											<Icon type="AntDesign" name="save" style={{color: 'white', fontSize: 18, marginTop: 1, marginBottom: 1, marginRight: '5%'}} />
+											<Icon type="AntDesign" name="save" style={styles.save} />
 										</Button>
 								</View>
 
-								<View style={{flexDirection: "row", width: '100%', flexWrap: 'wrap', alignItems:'center', paddingTop: '10%'}}>
+								<View style={styles.alertInformation}>
 									<View style={{order: 1 , width:'10%', paddingLeft: 2}} >
 										<Icon type="Feather" name="alert-circle" style={{color: 'red', fontSize: 25}} />
 									</View>
@@ -275,11 +272,9 @@ export default class Visitas extends React.Component {
 										<Switch onValueChange={this.toggleSwitch} value={this.state.visit.alert} style={{ transform: [{ scaleX: 1.3 }, { scaleY: 1.3 } ]}}/>
 									</View>	
 								</View>
-
-								<View style={{flexDirection: "row", width: '100%', flexWrap: 'wrap', paddingTop: '15%'}}>
-									<Text style={{fontWeight: "bold", width: '100%', fontSize: 17}}>Observação:</Text>
-									<TextInput multiline={true}	
-									numberOfLines={5} maxHeight={'70%'} style={styles.textArea} value={this.state.visit.observation} onChangeText = {observation => this.addObservation(observation)} />
+								<View style={styles.observation}>
+									<Text style={styles.textObservation}>Observação</Text>
+									<TextInput multiline={true}	 numberOfLines={8} maxHeight={'80%'} style={styles.textArea} value={this.state.visit.observation} onChangeText = {observation => this.addObservation(observation)} />
 								</View>
 							</View>
 						</View>
