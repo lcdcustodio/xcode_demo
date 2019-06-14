@@ -1,6 +1,6 @@
 import React from 'react';
-import { Text, View, FlatList, Modal, TextInput, Switch, TouchableOpacity, Alert } from 'react-native';
-import { Icon, Button } from 'native-base';
+import { Text, View, FlatList, Modal, TextInput, Switch, TouchableOpacity, Alert} from 'react-native';
+import { Icon } from 'native-base';
 import LinearGradient from 'react-native-linear-gradient';
 import styles from './style'
 import moment from 'moment';
@@ -9,6 +9,8 @@ import uuid from 'uuid/v4';
 
 import Patient, { HospitalizationStatusEnum, StatusVisitEnum, FinalizationErrorEnum } from '../../../model/Patient';
 import { TrackingEndModeEnum } from '../../../model/Tracking';
+import TabEnum from '../PatientDetailTabEnum'
+import { Card, Button, Paragraph, List } from 'react-native-paper';
 
 export default class Visitas extends React.Component {
 	
@@ -121,7 +123,7 @@ export default class Visitas extends React.Component {
 		const patient = new Patient(this.state.patient);
 		const errors = patient.validateFinalization();
 		if (!errors.length) {
-			Alert.alert('...', 'Em desenvolvimento.', [{text: 'OK'}], {cancelable: false})
+			this.props.navigation.navigate('Finalize', { patient: patient.json });
 		} else {
 			let fields = FINALIZE_ERROR_FIELDS[errors[0]];
 			let msg = '';
@@ -136,6 +138,7 @@ export default class Visitas extends React.Component {
 				msg = 'Os campos ' + fields + ' precisam ser preenchidos.';
 			}
 			Alert.alert('Atenção', msg, [{text: 'OK'}], {cancelable: false});
+			this.props.parent.selectTab(TabEnum.Profile);
 		}
 	}
 	
@@ -163,6 +166,20 @@ export default class Visitas extends React.Component {
 				</Text>
 				<Text style={ styles.description}>{item.observation}</Text>
 			</View>
+			
+			<List.Section style={{backgroundColor: '#F8F8FF'}} title={this.isToday(item.observationDate) ? 'Hoje' : 	moment(item.observationDate).format('DD/MM/YYYY')}>
+				<List.Accordion title={item.observation}>
+					<Paragraph>{item.observation}</Paragraph>
+				</List.Accordion>
+				 <Card.Actions>
+
+				<Button>Editar</Button>
+
+			    <Button>Excluir</Button>
+
+                </Card.Actions>
+			   </List.Section>
+
 		</TouchableOpacity>
 	);
 
@@ -216,7 +233,7 @@ export default class Visitas extends React.Component {
 					visible={this.state.modalVisible}
 					onRequestClose={() =>{ console.log("Modal has been closed.") } }>
 						<View style={styles.overlay}>
-							<View style={styles.modal}>
+						<View style={{backgroundColor: '#F8F8FF', borderRadius: 4, flexDirection: "row", flexWrap: 'wrap', height: '60%', marginTop: '25%', padding: 10}}>
 							
 								<View style={styles.viewVisit}>
 										<Button backgroundColor={'#005cd1'} onPress={this.toggleModal}>

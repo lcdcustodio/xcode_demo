@@ -4,7 +4,7 @@ import { Icon } from 'native-base';
 import LinearGradient from 'react-native-linear-gradient';
 import Timeline from '../../../components/Timeline';
 import TimelineEvent, { TimelineEventEnum, TimelineEventEvaluation, timelineEventSorter } from '../../../util/TimelineEvent'
-
+import { List } from 'react-native-paper';
 
 export default class Events extends Component {
 	
@@ -22,23 +22,26 @@ export default class Events extends Component {
 	render() {
 		return (
 			<View style={styles.container}>
+				
 				<Timeline 
 					data={this.state.eventos}
-					renderEvent={this._renderEvent}
+/* 					renderEvent={this._renderEvent}
 					lineColor={'#b1b1b1'} 
 					circleColor={'#005cd1'} 
 					innerCircle={'dot'} 
 					circleSize={20}
 					renderFullLine={true} 
-					lineWidth={4}
-					timeStyle={styles.date}
-					renderDetail={this._renderEvent} />
+					lineWidth={4} 
+					timeStyle={styles.date}   */
+					renderDetail={this._renderEvent}  />
+
 				<View style={ styles.rowButtonCircle }>
 					<LinearGradient colors={['#035fcc', '#023066']} style={ [styles.circle, styles.borderCircle ]} >
 						<Icon type='Entypo' name='sound-mix' style={ styles.iconCircle } onPress={this._create} />
 						<Text style={ styles.textCircle }>APONTAR</Text>
 					</LinearGradient>
 				</View>
+
 			</View>
 		);
 	}
@@ -190,7 +193,13 @@ export default class Events extends Component {
 					{ renderHighCost && 
 						<Text style={styles.highlight}>Alto Custo</Text>
 					}
-				</View>
+				</View> 
+				<List.Section style={{backgroundColor: '#F8F8FF'}} title={event.name}>
+					<List.Accordion title={event.name}>
+					<List.Item title={event.name} />
+					<List.Item title="Alto Custo" />
+					</List.Accordion>
+				</List.Section>
 			</TouchableOpacity>
 		);
 	}

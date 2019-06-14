@@ -58,4 +58,8 @@ export default StyleSheet.create({
   spinnerTextStyle: {
       color: '#FFF'
   },
+  listItemPatient: {
+    marginTop: 0, 
+    marginBottom: 0
+  },
 });
