@@ -534,7 +534,7 @@ export default class Profile extends Component {
 							</Text>
 						</Body>
 						<Right>
-							<TextValue size={13} value={ this.props.patient.patientHeight && this.props.patient.patientWeight ? 'IMC ' + (Number(this.props.patient.patientWeight) / Math.pow(Number(this.props.patient.patientHeight), 2)).toFixed(2) : '' }/>
+							<TextValue size={13} value={ this.props.patient.patientHeight && this.props.patient.patientWeight ? 'IMC ' + (Number(this.props.patient.patientWeight.replace(',', '.')) / Math.pow(Number(this.props.patient.patientHeight.replace(',', '.')), 2)).toFixed(2) : '' }/>
 			            </Right>
 					</ListItem>
 
