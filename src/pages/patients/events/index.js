@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, Dimensions, TouchableOpacity, Alert } from 'react-native';
-import { Icon } from 'native-base';
+import { View, Text, StyleSheet, Dimensions, TouchableOpacity, Alert, FlatList } from 'react-native';
+import { Container, Header, Content, Card, CardItem, Body, Right, Left } from 'native-base';
 import LinearGradient from 'react-native-linear-gradient';
 import Timeline from '../../../components/Timeline';
 import TimelineEvent, { TimelineEventEnum, TimelineEventEvaluation, timelineEventSorter } from '../../../util/TimelineEvent'
-import { List } from 'react-native-paper';
+import { List, Button} from 'react-native-paper';
+
 
 export default class Events extends Component {
 	
@@ -26,7 +27,7 @@ export default class Events extends Component {
 		return (
 			<View style={styles.container}>
 				
-				<Timeline 
+				<FlatList 
 					data={this.state.eventos}
 					/*renderEvent={this._renderEvent}
 					lineColor={'#b1b1b1'} 
@@ -36,13 +37,17 @@ export default class Events extends Component {
 					renderFullLine={true} 
 					lineWidth={4} 
 					timeStyle={styles.date}   */
-					renderDetail={this._renderEvent}  />
+					renderItem={this._renderEvent}  />
 
-				<View style={ styles.rowButtonCircle }>
-					<LinearGradient colors={['#035fcc', '#023066']} style={ [styles.circle, styles.borderCircle ]} >
+				<View style={{marginTop:10, marginBottom: 10, marginLeft: 10, marginRight: 10}}>
+
+				<Button mode="contained" onPress={this._create}> APONTAR </Button>
+
+{/* 					<LinearGradient colors={['#035fcc', '#023066']} style={ [styles.circle, styles.borderCircle ]} >
 						<Icon type='Entypo' name='sound-mix' style={ styles.iconCircle } onPress={this._create} />
 						<Text style={ styles.textCircle }>APONTAR</Text>
-					</LinearGradient>
+					</LinearGradient> */}
+
 				</View>
 
 			</View>
@@ -141,6 +146,7 @@ export default class Events extends Component {
 	isaPatientWithDischarge = _ =>  this.props.patient.iconNumber === 1; 
 	
 	_read = (event) => {
+		console.log("event", event)
 		const {patient, hospital, baseDataSync} = this.props.parent.state;
 		if(this.isaRecommendation(event.typeEnum)){
 			if(this.isaPatientWithDischarge()){
@@ -187,25 +193,42 @@ export default class Events extends Component {
 		
 	}
 
-	_renderEvent = (event) => {
-		const renderHighCost = (event.typeEnum === TimelineEventEnum.ExamRequest && event.data.examHighCost);
+	_renderEvent = (event, index) => {
+		console.log("event", event)
 		return (
-			<TouchableOpacity onPress={()=>this._read(event)} onLongPress={_=>this._delete(event)}>
-				<View style={styles.description}>
-					<Text style={styles.title}>{event.name}</Text>
-					{ renderHighCost && 
-						<Text style={styles.highlight}>Alto Custo</Text>
-					}
-				</View> 
-				<List.Section style={{backgroundColor: '#F8F8FF'}} title={event.name}>
-					<List.Accordion title={event.name}>
-					<List.Item title={event.name} />
-					<List.Item title="Alto Custo" />
-					</List.Accordion>
-				</List.Section>
-			</TouchableOpacity>
-		);
-	}
+		<View key={index} style={{ paddingTop: 10, paddingLeft: 10, paddingRight: 10, backgroundColor: '#fefefe'}}>
+		<Card>
+			<CardItem header bordered style={{ flex: 1, backgroundColor: '#cce5ff', height: 40}}>
+				<Left>
+					<Text style={{ fontSize: 16, fontWeight: 'bold'}}>{event.name}</Text>
+				</Left>
+				<Right>
+					<Text>01/01/2018</Text>
+				</Right>
+			</CardItem>
+			
+			<CardItem bordered>
+				<Body>
+					<Text>
+						uma oobservacao aqui
+					</Text>
+				</Body>
+			</CardItem>
+
+			<CardItem footer bordered style={{ alignItems: 'center', justifyContent: 'center', height: 40}}>							
+				<View>
+					<Button color='#00dda2' icon="add" onPress={_=>this.showVisit(item)}>Editar</Button>
+				</View>
+				<View  style={{borderRightColor: '#ffffff', borderWidth: 1, height: '80%', borderBottomColor: '#ffffff', borderTopColor: '#ffffff', borderLeftColor: '#ebeff2'}}></View>
+				<View>
+					<Button color='#f73655' icon="remove" onPress={_=>this.alertToRemove(item)}>Excluir</Button>
+				</View>
+			</CardItem>
+
+		</Card>
+		</View>
+	);
+}
 
 	recommendationSelected(event, patient) {
 		let uuid = event.data.uuid;

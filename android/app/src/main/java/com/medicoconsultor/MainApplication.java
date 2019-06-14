@@ -2,8 +2,7 @@ package com.medicoconsultor;
 
 import android.app.Application;
 
-import com.facebook.react.ReactApplication;
-import com.horcrux.svg.SvgPackage;
+import com.facebook.react.ReactApplication;
 import com.RNTextInputMask.RNTextInputMaskPackage;
 import com.reactnativecommunity.asyncstorage.AsyncStoragePackage;
 import com.BV.LinearGradient.LinearGradientPackage;
