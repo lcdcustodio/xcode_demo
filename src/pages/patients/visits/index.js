@@ -104,7 +104,6 @@ export default class Visitas extends React.Component {
 	}
 
 	toggleModal = _ => {
-		debugger;
 	    this.setState({modalVisible: !this.state.modalVisible})
 	}
 
@@ -156,45 +155,39 @@ export default class Visitas extends React.Component {
 	}
 
 	renderItem = ({ item }) => (
-		<TouchableOpacity
-			onPress={_=>this.showVisit(item)}
-			onLongPress={_=>this.alertToRemove(item)} >
-			
-			<Container>
-				<Content padder>
-					<Card>
-						<CardItem header bordered style={{ flex: 1}}>
-							<Left>
-								<Text style={{ fontSize: 16, fontWeight: 'bold'}}>VISITA</Text>
-							</Left>
-							<Right>
-								<Text>{this.isToday(item.observationDate) ? 'Hoje' : 	moment(item.observationDate).format('DD/MM/YYYY')}</Text>
-							</Right>
-						</CardItem>
-					    
-			            <CardItem bordered>
-							<Body>
-								<Text>
-									{item.observation}
-								</Text>
-							</Body>
-			            </CardItem>
 
-						<CardItem footer bordered style={{ alignItems: 'center', justifyContent: 'center'}}>							
-							<View>
-								<Button color='#00dda2' icon="add">Editar</Button>
-							</View>
-							<View  style={{borderRightColor: '#ffffff', borderWidth: 1, height: '80%', borderBottomColor: '#ffffff', borderTopColor: '#ffffff', borderLeftColor: '#ebeff2'}}></View>
-							<View>
-								<Button color='#f73655' icon="remove">Excluir</Button>
-							</View>
-						</CardItem>
+		<View style={{ paddingTop: 10, paddingLeft: 10, paddingRight: 10, backgroundColor: '#fefefe'}}>
+				<Card>
+					<CardItem header bordered style={{ flex: 1, backgroundColor: '#cce5ff', height: 40}}>
+						<Left>
+							<Text style={{ fontSize: 16, fontWeight: 'bold'}}>VISITA</Text>
+						</Left>
+						<Right>
+							<Text>{this.isToday(item.observationDate) ? 'Hoje' : 	moment(item.observationDate).format('DD/MM/YYYY')}</Text>
+						</Right>
+					</CardItem>
+				    
+		            <CardItem bordered>
+						<Body>
+							<Text>
+								{item.observation}
+							</Text>
+						</Body>
+		            </CardItem>
 
-					</Card>
-				</Content>
-			</Container>
+					<CardItem footer bordered style={{ alignItems: 'center', justifyContent: 'center', height: 40}}>							
+						<View>
+							<Button color='#00dda2' icon="add" onPress={_=>this.showVisit(item)}>Editar</Button>
+						</View>
+						<View  style={{borderRightColor: '#ffffff', borderWidth: 1, height: '80%', borderBottomColor: '#ffffff', borderTopColor: '#ffffff', borderLeftColor: '#ebeff2'}}></View>
+						<View>
+							<Button color='#f73655' icon="remove" onPress={_=>this.alertToRemove(item)}>Excluir</Button>
+						</View>
+					</CardItem>
 
-			</TouchableOpacity>
+				</Card>
+			</View>
+
 		);
 	
 	remove(patient) {
