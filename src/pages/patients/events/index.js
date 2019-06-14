@@ -156,22 +156,26 @@ export default class Events extends Component {
 	}
 
 	_delete = (event) => {
-		console.log("_delete: ", event)
+
 		if(this.isaRecommendation(event.typeEnum)){
-			console.log("isaRecommendation", this.props.patient)
+			
 			if(this.isaPatientWithDischarge()){
 				Alert.alert('Atenção', "Não é permitido excluir a recomendação selecioanada!",[{text: 'OK', onPress: () => {}}],{cancelable: false});
 			} else {
 				let uuid = event.data.uuid;
-				if(uuid === this.props.patient.recommendationClinicalIndication.uuid)	{
+				if(this.props.patient.recommendationClinicalIndication && uuid === this.props.patient.recommendationClinicalIndication.uuid)	{
 					this.props.patient.recommendationClinicalIndication = null;
 				} else 
-				if(uuid === this.props.patient.recommendationMedicineReintegration.uuid) { 
+				if(this.props.patient.recommendationMedicineReintegration && uuid === this.props.patient.recommendationMedicineReintegration.uuid) { 
 						this.props.patient.recommendationMedicineReintegration = null;
 				} else 
-				if(uuid === this.props.patient.recommendationWelcomeHomeIndication) {
-					this.props.patient.recommendationWelcomeHomeIndication.uuid = null;
+				if(this.props.patient.recommendationWelcomeHomeIndication && uuid === this.props.patient.recommendationWelcomeHomeIndication.uuid) {
+					this.props.patient.recommendationWelcomeHomeIndication = null;
 				}
+				
+				this.setState({
+					eventos: this._loadEvents() 
+				});
 			}
 		} else {
 			this._read(event); 
@@ -197,12 +201,15 @@ export default class Events extends Component {
 		let uuid = event.data.uuid;
 		if (patient.recommendationClinicalIndication && uuid === patient.recommendationClinicalIndication.uuid) {
 			patient.recommendationType = 'INDICACAO_AMBULATORIO';
+			patient.recommendation = patient.recommendationClinicalIndication;
 		}
 		else if (patient.recommendationMedicineReintegration && uuid === patient.recommendationMedicineReintegration.uuid) {
 			patient.recommendationType = 'RECOMENDACAO_MEDICAMENTOSA';
+			patient.recommendation = patient.recommendationMedicineReintegration;
 		}
 		else if (patient.recommendationWelcomeHomeIndication && uuid === patient.recommendationWelcomeHomeIndication.uuid) {
 			patient.recommendationType = 'WELCOME_HOME';
+			patient.recommendation = patient.recommendationWelcomeHomeIndication;
 		}
 	}
 }

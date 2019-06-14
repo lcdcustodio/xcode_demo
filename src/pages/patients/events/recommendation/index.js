@@ -8,7 +8,6 @@ import moment from 'moment';
 import Uuid from 'uuid/v4';
 import data from '../../../../../data.json';
 
-
 export default class Recommendation extends React.Component {
 
 	constructor(props) {
@@ -27,17 +26,18 @@ export default class Recommendation extends React.Component {
 				uuid: null,
 				performedAt: null,
 				observation: ''
-			}
+			},
+			update: false
 		}
 	}
 	
-	didFocus = this.props.navigation.addListener('didFocus', (res) => {
+	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
 		let update = this.props.navigation.state.params.update;
 		let uuid, date;
 		
 		if(update){
-			uuid =  this.state.recommendation.uuid;
-			date = this.state.recommendation.performedAt;
+			uuid =  this.props.navigation.state.params.patient.uuid;
+			date = this.props.navigation.state.params.patient.performedAt;
 		} else {
 			uuid =  Uuid();
 			date = moment();
@@ -48,40 +48,23 @@ export default class Recommendation extends React.Component {
 				...this.state.recommendation, 
 				uuid: uuid, 
 				performedAt: date 
-			}
+			},
+			update: update
 		});
-
-	}); 
+	});
 
 	save = _ => {
 		let patient = this.props.navigation.state.params.patient;
-		let update = this.props.navigation.state.params.update;
+		let update = this.state.update;
 
-		if(update){
-			console.log("atualizando....")
-			let uuid = this.state.recommendation.uuid;
-			if(uuid === patient.recommendationClinicalIndication.uuid)	{
-				patient.recommendationClinicalIndication = this.state.recommendation.observation;
-			} else 
-			if(uuid === patient.recommendationMedicineReintegration.uuid) { 
-				patient.recommendationMedicineReintegration = this.state.recommendation.observation;
-			} else 
-			if(uuid === patient.recommendationWelcomeHomeIndication) {
-				patient.recommendationWelcomeHomeIndication.uuid = this.state.recommendation.observation;
-			}
-
+		if(!update && this.state.recommendationType === 'Selecione'){
+			this.showAlertMsg("Selecione uma recomendação")
 		} else {
-			if(this.state.recommendationType === 'Selecione'){
-				this.showAlertMsg("Selecione uma recomendação")
-			} else {
-			
-				if(this.saveRecommendation(patient)){
-					this.props.navigation.navigate("PatientDetail", { patient, selectedTab: 'events'});
-				}  
-			} 
+			if(this.saveRecommendation(patient)){
+				this.props.navigation.navigate("PatientDetail", { patient, selectedTab: 'events'});
+			}  
 		}
 		
-		this.clearState();
 	}
 
 	clearState = _ => {
@@ -134,7 +117,7 @@ export default class Recommendation extends React.Component {
 	selectedRecommendationWelcomeHomeIndication = patient =>{
 		const indicationItem = this.state.listRecommendationType[0]
 		if (this.state.recommendationType === indicationItem ) {
-			if(patient.recommendationWelcomeHomeIndication){
+			if(patient.recommendationWelcomeHomeIndication && !this.state.update){
 				this.showAlertMsg(indicationItem.label + " já cadastrado!")
 			} else {
 				patient.recommendationWelcomeHomeIndication = this.state.recommendation;
@@ -146,7 +129,7 @@ export default class Recommendation extends React.Component {
 	selectedRecommendationClinicalIndication = patient =>{
 		const clinicalIndicationItem = this.state.listRecommendationType[1]
 		if (this.state.recommendationType === clinicalIndicationItem) {
-			if(patient.recommendationClinicalIndication){
+			if(patient.recommendationClinicalIndication && !this.state.update){
 				this.showAlertMsg(clinicalIndicationItem.label + " já cadastrado!")
 			} else{
 				if(!this.state.recommendation.specialtyId){
@@ -163,7 +146,7 @@ export default class Recommendation extends React.Component {
 	selectedRecommendationMedicineReintegration = patient =>{
 		const reintegrationItem = this.state.listRecommendationType[2]
 		if (this.state.recommendationType === reintegrationItem ) {
-			if(patient.recommendationMedicineReintegration){
+			if(patient.recommendationMedicineReintegration && !this.state.update){
 				this.showAlertMsg(reintegrationItem.label + " já cadastrado!")
 			} else {
 				patient.recommendationMedicineReintegration =  this.state.recommendation;
@@ -190,15 +173,14 @@ export default class Recommendation extends React.Component {
 	}
 
 	showViewSpecialty =_=>{
+
 		let update = this.props.navigation.state.params.update;
 
 		if(update){
 			let patient = this.props.navigation.state.params.patient;
-			let specialtyRecommendation = this.recommendationType(patient.recommendationType)
-			if( specialtyRecommendation === this.state.listRecommendationType[1].value){
-				console.log("showViewSpecialty", patient.recommendation)
+			if( patient.recommendationType === this.state.listRecommendationType[1].value){
 				return 	<View style={ [styles.column100] }>
-							<Text sytle={styles.textDisable}>{patient.recommendation.specialtyDisplayName}</Text>
+							<Text sytle={styles.textDisable}>{patient.recommendationClinicalIndication.specialtyDisplayName}</Text>
 						</View>
 			}
 		} else {
@@ -250,6 +232,38 @@ export default class Recommendation extends React.Component {
 				</Header>
 				<Content>
 				<View style={ styles.container }>
+
+					{/* <Portal>
+						<Dialog visible={this.state.modalRecommendationTypeVisible} onDismiss={ () => { this.addRecommendation } }>
+							<Dialog.Title>Atendimento</Dialog.Title>
+							
+							<Divider />
+							
+							<Dialog.Content>
+								<RadioButton.Group onValueChange={ value => { this.handleAttendanceType(value) } } value={this.attendanceType(this.props.patien)}>
+									<View style={{flexDirection: 'row', alignItems: 'center'}}>
+										<RadioButton value="WELCOME_HOME" />
+										<Text>WELCOME_HOME</Text>
+									</View>
+									<View style={{flexDirection: 'row', alignItems: 'center'}}>
+										<RadioButton value="RECOMENDACAO_MEDICAMENTOSA" />
+										<Text>RECOMENDACAO_MEDICAMENTOSA</Text>
+									</View>
+									<View style={{flexDirection: 'row', alignItems: 'center'}}>
+										<RadioButton value="INDICACAO_AMBULATORIO" />
+										<Text>INDICACAO_AMBULATORIO</Text>
+									</View>
+								</RadioButton.Group>
+							</Dialog.Content>
+
+							<Divider />
+
+							<Dialog.Actions>
+								<Button onPress={ () => { this.addRecommendation } }>Fechar</Button>
+							</Dialog.Actions>
+						</Dialog>
+					</Portal> */}
+
 					<ModalList paddingTop={50} height={50} visible={this.state.modalRecommendationTypeVisible} 	list={this.state.listRecommendationType} action={this.addRecommendation} />
 					<ModalListSearchable paddingTop={30} height={100} visible={this.state.modalSpecialtyVisible} list={this.state.specialty} action={this.handleSpecialtyId} />
 					<View style={styles.row}>
