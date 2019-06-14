@@ -5,12 +5,7 @@ import { Content, ListItem, Text, Right, Body } from 'native-base';
 
 export default class Report extends Component {
 
-	constructor(props) {
-
-		super(props);	
-		
-		this.state = {};
-
+	constructor() {
 		console.log('Ok');
 	}
 

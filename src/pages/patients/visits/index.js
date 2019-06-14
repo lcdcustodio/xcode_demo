@@ -1,6 +1,5 @@
 import React from 'react';
-import { Text, View, FlatList, Modal, TextInput, Switch, TouchableOpacity, Alert } from 'react-native';
-import { Icon } from 'native-base';
+import { View, FlatList, Modal, TextInput, Switch, TouchableOpacity, Alert } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import styles from './style'
 import moment from 'moment';
@@ -9,7 +8,10 @@ import uuid from 'uuid/v4';
 
 import Patient, { HospitalizationStatusEnum, StatusVisitEnum, FinalizationErrorEnum } from '../../../model/Patient';
 import { TrackingEndModeEnum } from '../../../model/Tracking';
-import { Card, Button, Paragraph, List, Divider } from 'react-native-paper';
+import { Container, Header, Content, Card, CardItem, Text, Body, Right, Left } from "native-base";
+import { Button, Paragraph, List, Divider } from 'react-native-paper';
+
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 export default class Visitas extends React.Component {
 	
@@ -159,47 +161,44 @@ export default class Visitas extends React.Component {
 	}
 
 	renderItem = ({ item }) => {
-		{/* <TouchableOpacity style={{backgroundColor: '#ebeff2'}}
-			onPress={_=>this.showVisit(item)}
-			onLongPress={_=>this.alertToRemove(item)} >
- 			<Card>
-				<Text style={[ styles.title, styles.niceBlue ]}> 
-					<Text>Visita </Text>
-					<Text style={[styles.description, styles.niceBlue]}> 
-						{this.isToday(item.observationDate) ? 'Hoje' : 	moment(item.observationDate).format('DD/MM/YYYY')}
-					 </Text>
-				</Text>
-				<Paragraph>{item.observation}</Paragraph>
-			</Card>
+		
+		return (
 
-			 <Card>
-				<Card.Content>
-					<Title>Visita {this.isToday(item.observationDate) ? 'Hoje' : 	moment(item.observationDate).format('DD/MM/YYYY')}</Title>
-					<Paragraph>{item.observation}</Paragraph>
-				</Card.Content>
-			</Card> */}
-			return (
-            <Card style={{backgroundColor: '#FFFFFF', marginBottom: 20, borderRadius: 10}}>
-				<Card.Content>
-					<List.Section style={{color: '#ffffff'}}>
-						<List.Accordion title={this.isToday(item.observationDate) ? 'Hoje' : 	moment(item.observationDate).format('DD/MM/YYYY')}>
-							<Paragraph style={{marginLeft: 20}}>{item.observation}</Paragraph>
-						</List.Accordion>
-					</List.Section>
-				</Card.Content>
-				<Divider />
-				<Card.Actions style={{justifyContent:"space-around"}}>
-					<View>
-						<Button color='#00dda2' icon="add">Editar</Button>
-					</View>
-					<View  style={{borderRightColor: '#ffffff', borderWidth: 1, height: '80%', borderBottomColor: '#ffffff', borderTopColor: '#ffffff', borderLeftColor: '#ebeff2'}}></View>
-					<View>
-						<Button color='#f73655' icon="remove">Excluir</Button>
-					</View>
-				</Card.Actions>
-			</Card>
-			);
-		/* </TouchableOpacity> */
+			<Container>
+				<Content padder>
+					<Card>
+						<CardItem header bordered style={{ flex: 1}}>
+							<Left>
+								<Text style={{ fontSize: 16, fontWeight: 'bold'}}>VISITA</Text>
+							</Left>
+							<Right>
+								<Text>{this.isToday(item.observationDate) ? 'Hoje' : 	moment(item.observationDate).format('DD/MM/YYYY')}</Text>
+							</Right>
+						</CardItem>
+					    
+			            <CardItem bordered>
+							<Body>
+								<Text>
+									{item.observation}
+								</Text>
+							</Body>
+			            </CardItem>
+
+						<CardItem footer bordered style={{ alignItems: 'center', justifyContent: 'center'}}>							
+							<View>
+								<Button color='#00dda2' icon="add">Editar</Button>
+							</View>
+							<View  style={{borderRightColor: '#ffffff', borderWidth: 1, height: '80%', borderBottomColor: '#ffffff', borderTopColor: '#ffffff', borderLeftColor: '#ebeff2'}}></View>
+							<View>
+								<Button color='#f73655' icon="remove">Excluir</Button>
+							</View>
+						</CardItem>
+
+					</Card>
+				</Content>
+			</Container>
+
+		);
 	};
 
 	remove(patient) {
@@ -245,9 +244,7 @@ export default class Visitas extends React.Component {
 		}
 		console.log("listOfOrderedObservationDate", listOfOrderedObservationDate)
 		return (
-			<View style={ styles.container }>
-
-
+			<View>
 
 				<Modal
 					animationType="fade"

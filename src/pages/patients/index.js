@@ -254,7 +254,7 @@ export default class Patients extends Component {
                     <Left style={{flex:1}} >
                         <Icon type="AntDesign" name="left" style={{ color: 'white' }} onPress={() => this.props.navigation.navigate('Hospitals') } />
                     </Left>
-                    <Body style={{flex: 3, flexDirection: 'row'}}>
+                    <Body style={{flex: 7}}>
                         <Title style={{color: 'white'}}>{this.state.hospital.name}</Title>
                     </Body>
                 </Header> 

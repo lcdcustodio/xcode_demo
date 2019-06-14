@@ -661,8 +661,8 @@ export default class Hospital extends Component {
 					<Left style={{flex:1}} >
 						<Icon name="md-menu" style={{ color: 'white' }} onPress={() => this.props.navigation.openDrawer() } />
 					</Left>
-					<Body style={{flex:8, alignItems: 'stretch'}}>
-						<Title style={{color: 'white'}}>HOSPITAIS</Title>
+					<Body style={{flex: 7}}>
+						<Title style={{color: 'white'}}>Hospitais</Title>
 					</Body>
 					<Right style={{flex:1}} >
 						<Icon name="sync" style={{ color: 'white' }} onPress={() => this.sincronizar(true) } />

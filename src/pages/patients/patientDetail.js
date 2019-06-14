@@ -20,6 +20,8 @@ class PatientDetail extends Component {
 			selectedTab: TabEnum.Profile,
 			isEditable: this.props.navigation.getParam('isEditable')
 		}
+
+		console.log(this.state.isEditable);
 	}
 
 	handleUpdatePatient = async (attribute, value) => {
@@ -61,21 +63,12 @@ class PatientDetail extends Component {
 
 	renderSelectedTab = () => {
 		switch (this.state.selectedTab) {
-<<<<<<< HEAD
-			case 'profile':
-				return (<Profile patient={this.state.patient} handleUpdatePatient={this.handleUpdatePatient} isEditable={this.state.isEditable}/>);
-			case 'events':
-				return <Events patient={this.state.patient} parent={this} navigation={this.props.navigation} isEditable={this.state.isEditable}/>;
-			case 'visits':
-				return (<Visits patient={this.state.patient} updatePatient={this.updatePatient} navigation={this.props.navigation} isEditable={this.state.isEditable}/>);
-=======
 			case TabEnum.Profile:
-				return <Profile patient={this.state.patient} handleUpdatePatient={this.handleUpdatePatient} />;
+				return <Profile patient={this.state.patient} handleUpdatePatient={this.handleUpdatePatient} isEditable={this.state.isEditable} />;
 			case TabEnum.Events:
-				return <Events patient={this.state.patient} parent={this} navigation={this.props.navigation} />;
+				return <Events patient={this.state.patient} parent={this} navigation={this.props.navigation} isEditable={this.state.isEditable} />;
 			case TabEnum.Visits:
-				return <Visits patient={this.state.patient} parent={this} navigation={this.props.navigation} />;
->>>>>>> aacb996d1cf616e0e26d1d8df94e4dee91e707d9
+				return <Visits patient={this.state.patient} parent={this} navigation={this.props.navigation} isEditable={this.state.isEditable} />;
 		}
 	}
 
@@ -122,7 +115,6 @@ class PatientDetail extends Component {
 					<Body style={{flex: 7}}>
 						<Title style={{color: 'white'}}> Detalhes do Paciente </Title>
 					</Body>
-
 				</Header>
 				<Content>
 					{ this.renderSelectedTab() }
