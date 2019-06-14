@@ -1,12 +1,12 @@
 import React from 'react';
-import { View, StyleSheet, TextInput, Alert} from 'react-native';
+import { View, StyleSheet, Alert, ScrollView, FlatList} from 'react-native';
 import { Container, Content, Header, Left, Body, Icon, Text, Title, Right } from 'native-base';
 import TextValue from '../../../../components/TextValue'
-import ModalList from '../../../../components/ModalList'
-import ModalListSearchable from '../../../../components/ModalListSearchable'
 import moment from 'moment';
 import Uuid from 'uuid/v4';
 import data from '../../../../../data.json';
+
+import { Button, Paragraph, Dialog, Portal, RadioButton, Divider, TextInput, Searchbar, List } from 'react-native-paper';
 
 export default class Recommendation extends React.Component {
 
@@ -14,12 +14,13 @@ export default class Recommendation extends React.Component {
 		super(props);
 		this.state = {	
 			specialty: data.specialty, 
+			auxSpecialty: data.specialty, 
 			recommendationType: 'Selecione',
 			modalRecommendationTypeVisible: false,
 			modalSpecialtyVisible: false,
 			listRecommendationType: [
 				{key: 1, value: 'WELCOME_HOME', label: 'WELCOME HOME'},
-				{key: 2, value: 'INDICACAO_AMBULATORIO', label: 'INDICAÇÃO AMBULATORIO'},
+				{key: 2, value: 'INDICACAO_AMBULATORIO', label: 'INDICAÇÃO AMBULATÓRIO'},
 				{key: 3, value: 'RECOMENDACAO_MEDICAMENTOSA', label: 'RECOMENDAÇÃO MEDICAMENTOSA'}
 			],
 			recommendation: {
@@ -27,7 +28,8 @@ export default class Recommendation extends React.Component {
 				performedAt: null,
 				observation: ''
 			},
-			update: false
+			update: false,
+			specialtyQuery: null
 		}
 	}
 	
@@ -63,13 +65,14 @@ export default class Recommendation extends React.Component {
 			if(this.saveRecommendation(patient)){
 				this.props.navigation.navigate("PatientDetail", { patient, selectedTab: 'events'});
 			}  
+			
+			//this.clearState();
 		}
 		
 	}
 
 	clearState = _ => {
 		this.setState({
-			...this.state,
 			recommendationType: 'Selecione', 
 			recommendation: {
 				uuid: null,
@@ -94,8 +97,9 @@ export default class Recommendation extends React.Component {
 	}
 
 	addRecommendation = recommendationType => {
+		const recommendationSelected = this.getRecommendationTypeLabel(recommendationType);
 		this.setState({
-			recommendationType: recommendationType.item,
+			recommendationType: recommendationSelected,
 			recommendation: {
 				...this.state.recommendation, 
 			}
@@ -155,18 +159,18 @@ export default class Recommendation extends React.Component {
 		} 
 	}
 
-	saveRecommendation(patient) {
+	saveRecommendation = patient => {
 		return this.selectedRecommendationMedicineReintegration(patient) || this.selectedRecommendationWelcomeHomeIndication(patient) || this.selectedRecommendationClinicalIndication(patient);
 	}
 
-	recommendationType (item) {
-		const recommendation = this.state.listRecommendationType
-		if (item == recommendation[0].value){
-			return recommendation[0].label;
-		} else if(item == recommendation[1].value){
-			return recommendation[1].label;
-		} else if (item == recommendation[2].value){
-			return recommendation[2].label;
+	getRecommendationTypeLabel = item => {
+		const recommendations = this.state.listRecommendationType
+		if (item == recommendations[0].value){
+			return recommendations[0].label;
+		} else if(item == recommendations[1].value){
+			return recommendations[1].label;
+		} else if (item == recommendations[2].value){
+			return recommendations[2].label;
 		} else {
 			return item
 		}
@@ -174,47 +178,76 @@ export default class Recommendation extends React.Component {
 
 	showViewSpecialty =_=>{
 
-		let update = this.props.navigation.state.params.update;
+		const update = this.props.navigation.state.params.update;
 
 		if(update){
 			let patient = this.props.navigation.state.params.patient;
-			if( patient.recommendationType === this.state.listRecommendationType[1].value){
+			if( patient.recommendationType === this.state.listRecommendationType[1].label){
 				return 	<View style={ [styles.column100] }>
 							<Text sytle={styles.textDisable}>{patient.recommendationClinicalIndication.specialtyDisplayName}</Text>
 						</View>
 			}
 		} else {
-			if(this.state.recommendationType === this.state.listRecommendationType[1]){	
-				return 	<View style={ [styles.column100] }>
+			if(this.state.recommendationType === this.state.listRecommendationType[1].label){	
+				return 	(
+					<View style={ [styles.column100] }>
 							<TextValue 	marginLeft="5" marginTop="2" marginBottom="2" press={ this.toggleModalSpecialty } color={'#0000FF'} value={ this.state.recommendation.specialtyDisplayName ? this.state.recommendation.specialtyDisplayName : 'Selecione' }  />
-						</View>
+					</View>
+				);
 			}
 		}
 		
 	}
 	
 	showRecommendationType = _ =>{
-		let update = this.props.navigation.state.params.update;
+		const update = this.props.navigation.state.params.update;
 		
 		if(update){
 			let patient = this.props.navigation.state.params.patient;
-			return <Text sytle={styles.textDisable}>{this.recommendationType(patient.recommendationType)}</Text>
+			return <Text sytle={styles.textDisable}>{this.getRecommendationTypeLabel(patient.recommendationType)}</Text>
 		} else {
-			return <TextValue 	marginLeft="2" marginTop="2" marginBottom="2" press={ this.toggleModalRecommendationType } color={'#0000FF'} value={ this.state.recommendationType === 'Selecione' ? this.state.recommendationType : this.state.recommendationType.label  }  />
+			return <TextValue 	marginLeft="2" marginTop="2" marginBottom="2" press={ this.toggleModalRecommendationType } color={'#0000FF'} value={ this.state.recommendationType  }  />
 		}
 	}
 
 	handleSpecialtyId = (specialty) => {
 
+		console.log("handleSpecialtyId", specialty)
+		
 		this.setState({
 			recommendation: {
 				...this.state.recommendation,
 				specialtyId: specialty.item.id,
-				specialtyDisplayName: specialty.item.normalizedName
-			}
+				specialtyDisplayName: specialty.item.normalizedName,
+			},
+			auxSpecialty: data.specialty,
+			specialtyQuery: null
 		})
 
 		this.toggleModalSpecialty()
+	}
+
+	filterSpecialty = (query) => {
+		console.log("query", query)
+		console.log("this.state.specialty", this.state.specialty)
+
+		const newSpecialtyList = this.state.specialty.filter(item => {
+			return (
+				item.name.toUpperCase().includes(query.toUpperCase()) ||
+				item.normalizedName.toUpperCase().includes(query.toUpperCase())
+			)
+		});
+
+		this.setState({
+			auxSpecialty: newSpecialtyList,
+			specialtyQuery: query
+		});
+	}
+
+	renderItemPrimary = (element) => {
+		return (
+			<List.Item title={`${element.item.name}`} onPress={() => { this.handleSpecialtyId(element) }} />
+		);
 	}
 
 	render() {
@@ -224,7 +257,7 @@ export default class Recommendation extends React.Component {
 						<Icon type="AntDesign" name="left" style={{ color: 'white' }} onPress = { () =>this.props.navigation.navigate("PatientDetail", { selectedTab: 'events'})} />
 					</Left>
 					<Body style={{flex: 7, alignItems: 'stretch'}}>
-						<Title>Recomendação para alta</Title>
+						<Title>Recomendação para Alta</Title>
 					</Body>
 					<Right>
 						<Text style={styles.textButton} onPress={ () => this.save() }>Salvar</Text>
@@ -233,25 +266,25 @@ export default class Recommendation extends React.Component {
 				<Content>
 				<View style={ styles.container }>
 
-					{/* <Portal>
-						<Dialog visible={this.state.modalRecommendationTypeVisible} onDismiss={ () => { this.addRecommendation } }>
-							<Dialog.Title>Atendimento</Dialog.Title>
+					<Portal>
+						<Dialog visible={this.state.modalRecommendationTypeVisible} onDismiss={ () => { this.toggleModalRecommendationType() } }>
+							<Dialog.Title>Recomendação</Dialog.Title>
 							
 							<Divider />
 							
 							<Dialog.Content>
-								<RadioButton.Group onValueChange={ value => { this.handleAttendanceType(value) } } value={this.attendanceType(this.props.patien)}>
-									<View style={{flexDirection: 'row', alignItems: 'center'}}>
+								<RadioButton.Group onValueChange={ value => { this.addRecommendation(value) } } value={() => this.getRecommendationTypeLabel(this.props.navigation.state.params.patient.recommendationType)}>
+									<View style={styles.recommendationItem}>
 										<RadioButton value="WELCOME_HOME" />
-										<Text>WELCOME_HOME</Text>
+										<Text>{this.state.listRecommendationType[0].label}</Text>
 									</View>
-									<View style={{flexDirection: 'row', alignItems: 'center'}}>
-										<RadioButton value="RECOMENDACAO_MEDICAMENTOSA" />
-										<Text>RECOMENDACAO_MEDICAMENTOSA</Text>
-									</View>
-									<View style={{flexDirection: 'row', alignItems: 'center'}}>
+									<View style={styles.recommendationItem}>
 										<RadioButton value="INDICACAO_AMBULATORIO" />
-										<Text>INDICACAO_AMBULATORIO</Text>
+										<Text>{this.state.listRecommendationType[1].label}</Text>
+									</View>
+									<View style={styles.recommendationItem}>
+										<RadioButton value="RECOMENDACAO_MEDICAMENTOSA" />
+										<Text>{this.state.listRecommendationType[2].label}</Text>
 									</View>
 								</RadioButton.Group>
 							</Dialog.Content>
@@ -259,13 +292,36 @@ export default class Recommendation extends React.Component {
 							<Divider />
 
 							<Dialog.Actions>
-								<Button onPress={ () => { this.addRecommendation } }>Fechar</Button>
+								<Button onPress={ () => { this.toggleModalRecommendationType() } }>Fechar</Button>
 							</Dialog.Actions>
 						</Dialog>
-					</Portal> */}
+					</Portal> 
 
-					<ModalList paddingTop={50} height={50} visible={this.state.modalRecommendationTypeVisible} 	list={this.state.listRecommendationType} action={this.addRecommendation} />
-					<ModalListSearchable paddingTop={30} height={100} visible={this.state.modalSpecialtyVisible} list={this.state.specialty} action={this.handleSpecialtyId} />
+					<Portal>
+						<Dialog style={{height: '70%'}} visible={this.state.modalSpecialtyVisible} onDismiss={ () => {  this.toggleModalSpecialty() } }>
+							<Dialog.ScrollArea>
+								<Dialog.Title>Especialidade</Dialog.Title>
+								<Searchbar placeholder="Filtrar" onChangeText={query => { this.filterSpecialty(query) }} value={this.state.specialtyQuery} />
+
+								<ScrollView style={{marginTop: 20}} contentContainerStyle={{ paddingHorizontal: 10 }}>
+									<List.Section>
+										<FlatList
+											data={this.state.auxSpecialty}
+											keyExtractor={element => `${element.id}`}
+											renderItem={this.renderItemPrimary} />
+									</List.Section>
+								</ScrollView>
+
+							</Dialog.ScrollArea>
+
+							<Divider />
+
+							<Dialog.Actions>
+								<Button onPress={ () => { this.toggleModalSpecialty() } }>Fechar</Button>
+							</Dialog.Actions>
+						</Dialog>
+					</Portal>
+
 					<View style={styles.row}>
 						<Text style={styles.title}>Recomendação</Text>
 						<View style={ styles.column100 }>
@@ -327,10 +383,11 @@ const styles = StyleSheet.create({
 		marginTop: 8
 	},
 	textArea: {
-		width: "100%",
-		height: "45%",
+		width: "97%",
+		height: "50%",
 		borderColor: '#000',
 		borderWidth: 1, 
+		margin: 5
 	},
 	styleButton:{
 		flexDirection: 'row',
@@ -345,6 +402,11 @@ const styles = StyleSheet.create({
 	  column100: {
 		justifyContent: 'flex-start', 
 		width: '100%',
+		padding: 2
+	},
+	recommendationItem: {
+		flexDirection: 'row', 
+		alignItems: 'center',
 		padding: 2
 	}
 });

@@ -132,10 +132,8 @@ export default class Events extends Component {
 
 	isaRecommendation = typeEnum => typeEnum === 4;
 	
-	isaPatientWithDischarge = _ => { 
-		this.props.patient.iconNumber === 1 
-	}
-
+	isaPatientWithDischarge = _ =>  this.props.patient.iconNumber === 1; 
+	
 	_read = (event) => {
 		const {patient, hospital, baseDataSync} = this.props.parent.state;
 		if(this.isaRecommendation(event.typeEnum)){
