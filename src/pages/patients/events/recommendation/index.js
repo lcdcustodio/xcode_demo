@@ -1,12 +1,12 @@
 import React from 'react';
 import { View, StyleSheet, Alert, ScrollView, FlatList} from 'react-native';
-import { Container, Content, Header, Left, Body, Icon, Text, Title, Right } from 'native-base';
+import { Container, Content, Header, Left, Body, Icon, Text, Title } from 'native-base';
 import TextValue from '../../../../components/TextValue'
 import moment from 'moment';
 import Uuid from 'uuid/v4';
 import data from '../../../../../data.json';
 
-import { Button, Paragraph, Dialog, Portal, RadioButton, Divider, TextInput, Searchbar, List } from 'react-native-paper';
+import { Button, Dialog, Portal, RadioButton, Divider, TextInput, Searchbar, List } from 'react-native-paper';
 
 export default class Recommendation extends React.Component {
 
@@ -119,10 +119,10 @@ export default class Recommendation extends React.Component {
 	showAlertMsg= item =>{Alert.alert('Atenção', item,[{text: 'OK', onPress: () => {}}],{cancelable: false});}
 
 	selectedRecommendationWelcomeHomeIndication = patient =>{
-		const indicationItem = this.state.listRecommendationType[0]
+		const indicationItem = this.state.listRecommendationType[0].label
 		if (this.state.recommendationType === indicationItem ) {
 			if(patient.recommendationWelcomeHomeIndication && !this.state.update){
-				this.showAlertMsg(indicationItem.label + " já cadastrado!")
+				this.showAlertMsg(indicationItem + " já cadastrado!")
 			} else {
 				patient.recommendationWelcomeHomeIndication = this.state.recommendation;
 				return true;
@@ -131,10 +131,10 @@ export default class Recommendation extends React.Component {
 	}
 
 	selectedRecommendationClinicalIndication = patient =>{
-		const clinicalIndicationItem = this.state.listRecommendationType[1]
+		const clinicalIndicationItem = this.state.listRecommendationType[1].label
 		if (this.state.recommendationType === clinicalIndicationItem) {
 			if(patient.recommendationClinicalIndication && !this.state.update){
-				this.showAlertMsg(clinicalIndicationItem.label + " já cadastrado!")
+				this.showAlertMsg(clinicalIndicationItem + " já cadastrado!")
 			} else{
 				if(!this.state.recommendation.specialtyId){
 					this.showAlertMsg("Selecione uma especialidade")
@@ -148,10 +148,10 @@ export default class Recommendation extends React.Component {
 	}
 
 	selectedRecommendationMedicineReintegration = patient =>{
-		const reintegrationItem = this.state.listRecommendationType[2]
+		const reintegrationItem = this.state.listRecommendationType[2].label
 		if (this.state.recommendationType === reintegrationItem ) {
 			if(patient.recommendationMedicineReintegration && !this.state.update){
-				this.showAlertMsg(reintegrationItem.label + " já cadastrado!")
+				this.showAlertMsg(reintegrationItem + " já cadastrado!")
 			} else {
 				patient.recommendationMedicineReintegration =  this.state.recommendation;
 				return true;
@@ -182,7 +182,7 @@ export default class Recommendation extends React.Component {
 
 		if(update){
 			let patient = this.props.navigation.state.params.patient;
-			if( patient.recommendationType === this.state.listRecommendationType[1].label){
+			if( this.getRecommendationTypeLabel(patient.recommendationType) === this.state.listRecommendationType[1].label){
 				return 	<View style={ [styles.column100] }>
 							<Text sytle={styles.textDisable}>{patient.recommendationClinicalIndication.specialtyDisplayName}</Text>
 						</View>
@@ -228,9 +228,6 @@ export default class Recommendation extends React.Component {
 	}
 
 	filterSpecialty = (query) => {
-		console.log("query", query)
-		console.log("this.state.specialty", this.state.specialty)
-
 		const newSpecialtyList = this.state.specialty.filter(item => {
 			return (
 				item.name.toUpperCase().includes(query.toUpperCase()) ||
@@ -259,9 +256,6 @@ export default class Recommendation extends React.Component {
 					<Body style={{flex: 7, alignItems: 'stretch'}}>
 						<Title>Recomendação para Alta</Title>
 					</Body>
-					<Right>
-						<Text style={styles.textButton} onPress={ () => this.save() }>Salvar</Text>
-					</Right>
 				</Header>
 				<Content>
 				<View style={ styles.container }>
@@ -331,11 +325,16 @@ export default class Recommendation extends React.Component {
 					
 					{ this.showViewSpecialty() }
 
-					<View>
-						<Text style={styles.label }>Observação</Text>
-						<TextInput multiline={true} numberOfLines={5} style={styles.textArea} 
-						value={this.state.recommendation.observation} onChangeText = {observation => this.addObservation(observation)} />
+					<View style={styles.row}>
+						<TextInput  multiline={true} label='Observação' value={this.state.recommendation.observation} onChangeText = {observation => this.addObservation(observation)} />
 					</View>
+
+					<View style={styles.button}>
+						<Button  mode="contained" onPress={ () => this.save() }>Salvar</Button>
+					</View>
+
+				</View>
+				<View >
 				</View>
 				</Content>
 				</Container>
@@ -347,11 +346,16 @@ const styles = StyleSheet.create({
 		backgroundColor: "#005cd1"
 	},
 	container: {
-		display: 'flex'
+		marginLeft: 20, 
+		marginRight: 20 
 	},
 	row: {
 		marginTop: '5%',
 		width: '100%'
+	},
+	button: {
+		width: '100%',
+		marginTop: 10
 	},
 	title:{
 		fontSize: 20,
@@ -372,10 +376,6 @@ const styles = StyleSheet.create({
 		marginLeft: 5,
 		marginTop: 2
 	},
-	textButton: {
-		color: '#FFF',
-		fontSize: 15
-	}, 
 	label: {
 		fontSize: 17,
 		color:  "#A9A9A9", 
@@ -383,23 +383,16 @@ const styles = StyleSheet.create({
 		marginTop: 8
 	},
 	textArea: {
-		width: "97%",
-		height: "50%",
-		borderColor: '#000',
+		width: "100%",
+		height: 100,
+		borderColor: '#ccc',
 		borderWidth: 1, 
-		margin: 5
+		padding: 1,
+		textAlign: 'justify',
+    	lineHeight: 30,
+		padding: 10,
 	},
-	styleButton:{
-		flexDirection: 'row',
-		backgroundColor:'#19769F',
-		borderColor: '#fff',
-		width: '100%', 
-		height: "15%",
-		justifyContent: 'center',
-		alignItems: 'center',
-		borderRadius: 4,
-	  },
-	  column100: {
+	column100: {
 		justifyContent: 'flex-start', 
 		width: '100%',
 		padding: 2
