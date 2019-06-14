@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text, View, FlatList, Modal, TextInput, Switch, TouchableOpacity, Alert } from 'react-native';
-import { Icon, Button } from 'native-base';
+import { Icon } from 'native-base';
 import LinearGradient from 'react-native-linear-gradient';
 import styles from './style'
 import moment from 'moment';
@@ -9,7 +9,7 @@ import uuid from 'uuid/v4';
 
 import Patient, { HospitalizationStatusEnum, StatusVisitEnum, FinalizationErrorEnum } from '../../../model/Patient';
 import { TrackingEndModeEnum } from '../../../model/Tracking';
-import { Avatar, Card, Title, Paragraph, List } from 'react-native-paper';
+import { Card, Button, Paragraph, List, Divider } from 'react-native-paper';
 
 export default class Visitas extends React.Component {
 	
@@ -156,11 +156,11 @@ export default class Visitas extends React.Component {
 		return diffDays === 0 ? true : false
 	}
 
-	renderItem = ({ item }) => (
-		<TouchableOpacity
+	renderItem = ({ item }) => {
+		{/* <TouchableOpacity style={{backgroundColor: '#ebeff2'}}
 			onPress={_=>this.showVisit(item)}
 			onLongPress={_=>this.alertToRemove(item)} >
-{/* 			<Card>
+ 			<Card>
 				<Text style={[ styles.title, styles.niceBlue ]}> 
 					<Text>Visita </Text>
 					<Text style={[styles.description, styles.niceBlue]}> 
@@ -168,23 +168,37 @@ export default class Visitas extends React.Component {
 					 </Text>
 				</Text>
 				<Paragraph>{item.observation}</Paragraph>
-			</Card> */}
+			</Card>
 
-			{/* <Card>
+			 <Card>
 				<Card.Content>
 					<Title>Visita {this.isToday(item.observationDate) ? 'Hoje' : 	moment(item.observationDate).format('DD/MM/YYYY')}</Title>
 					<Paragraph>{item.observation}</Paragraph>
 				</Card.Content>
 			</Card> */}
-
-			<List.Section style={{backgroundColor: '#F8F8FF'}} title={this.isToday(item.observationDate) ? 'Hoje' : 	moment(item.observationDate).format('DD/MM/YYYY')}>
-				<List.Accordion title={item.observation}>
-					<Paragraph>{item.observation}</Paragraph>
-				</List.Accordion>
-			</List.Section>
-
-		</TouchableOpacity>
-	);
+			return (
+            <Card style={{backgroundColor: '#FFFFFF', marginBottom: 20, borderRadius: 10}}>
+				<Card.Content>
+					<List.Section style={{color: '#ffffff'}}>
+						<List.Accordion title={this.isToday(item.observationDate) ? 'Hoje' : 	moment(item.observationDate).format('DD/MM/YYYY')}>
+							<Paragraph style={{marginLeft: 20}}>{item.observation}</Paragraph>
+						</List.Accordion>
+					</List.Section>
+				</Card.Content>
+				<Divider />
+				<Card.Actions style={{justifyContent:"space-around"}}>
+					<View>
+						<Button color='#00dda2' icon="add">Editar</Button>
+					</View>
+					<View  style={{borderRightColor: '#ffffff', borderWidth: 1, height: '80%', borderBottomColor: '#ffffff', borderTopColor: '#ffffff', borderLeftColor: '#ebeff2'}}></View>
+					<View>
+						<Button color='#f73655' icon="remove">Excluir</Button>
+					</View>
+				</Card.Actions>
+			</Card>
+			);
+		/* </TouchableOpacity> */
+	};
 
 	remove(patient) {
 		const item = this.state.patient.observationList.filter(item => item.uuid !== patient.uuid);
