@@ -301,11 +301,18 @@ const COLORS_ENABLED = ['#035fcc', '#023066'];
 const COLORS_DISABLED = ['#808080', '#696969'];
 
 const GradientButton = (props) => (
-	<View style={ styles.rowButtonCircle }>
-		<LinearGradient colors={ props.colors } style={ [styles.circle, styles.borderCircle ]} >
+	<View>
+
+	<Button mode="contained" onPress={ props.onPress }>
+		<Text style={ styles.textCircle } >{ props.children }</Text>
+	</Button>
+
+
+{/*     <LinearGradient colors={ props.colors } style={ [styles.circle, styles.borderCircle ]} >
 			<Icon type="FontAwesome5" name={ props.iconName } style={ styles.iconCircle } onPress={ props.onPress }/>
 			<Text style={ styles.textCircle } >{ props.children }</Text>
-		</LinearGradient>
+		</LinearGradient>  */}
+
 	</View>
 );
 
