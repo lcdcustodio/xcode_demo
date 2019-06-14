@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { Container, Content, Header, Left, Right, Button, Body, Icon, Title, Footer, FooterTab, Text } from 'native-base';
 import { StyleSheet, BackHandler } from "react-native";
 import _ from 'lodash';
+import TabEnum from './PatientDetailTabEnum';
 import AsyncStorage from '@react-native-community/async-storage';
 import moment from 'moment';
 
@@ -10,14 +11,13 @@ import Profile from "./profile";
 import Events from "./events";
 import Visits from "./visits";
 
-
 class PatientDetail extends Component {
     
 	constructor(props) {
 		super(props);
 		this.state = {
 			patient: this.props.navigation.getParam('patient'),
-			selectedTab: 'profile'
+			selectedTab: TabEnum.Profile
 		}
 	}
 
@@ -60,12 +60,12 @@ class PatientDetail extends Component {
 
 	renderSelectedTab = () => {
 		switch (this.state.selectedTab) {
-			case 'profile':
-				return (<Profile patient={this.state.patient} handleUpdatePatient={this.handleUpdatePatient} />);
-			case 'events':
+			case TabEnum.Profile:
+				return <Profile patient={this.state.patient} handleUpdatePatient={this.handleUpdatePatient} />;
+			case TabEnum.Events:
 				return <Events patient={this.state.patient} parent={this} navigation={this.props.navigation} />;
-			case 'visits':
-				return (<Visits patient={this.state.patient} updatePatient={this.updatePatient} navigation={this.props.navigation} />);
+			case TabEnum.Visits:
+				return <Visits patient={this.state.patient} parent={this} navigation={this.props.navigation} />;
 		}
 	}
 
@@ -89,17 +89,17 @@ class PatientDetail extends Component {
 	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
 		this.setState({
 			patient: this.props.navigation.getParam('patient'),
-			selectedTab: 'profile',
+			selectedTab: TabEnum.Profile,
 		});
 		this.backHandler = BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
 	});
 
-	isSelected(screen) {
-		return (screen === this.state.selectedTab);
+	isSelected(tab) {
+		return (tab === this.state.selectedTab);
 	}
 
-	selectScreen(screen) {
-		this.setState({ selectedTab: screen });
+	selectTab(tab) {
+		this.setState({ selectedTab: tab });
 	}
 
 	render() {
@@ -119,9 +119,9 @@ class PatientDetail extends Component {
 				</Content>
 				<Footer>
 					<FooterTab>
-						<Tab name='profile' displayName='Perfil' iconName='person' parent={this} />
-						<Tab name='events' displayName='Timeline' iconName='book' parent={this} />
-						<Tab name='visits' displayName='Visitas' iconName='calendar' parent={this} />
+						<Tab name={ TabEnum.Profile } displayName='Perfil' iconName='person' parent={this} />
+						<Tab name={ TabEnum.Events } displayName='Timeline' iconName='book' parent={this} />
+						<Tab name={ TabEnum.Visits } displayName='Visitas' iconName='calendar' parent={this} />
 					</FooterTab>
 				</Footer>
 			</Container>
@@ -140,7 +140,7 @@ const backgroundColor = '#005cd1';
 const Tab = (props) => (
 	<Button backgroundColor={backgroundColor} vertical
 			active={props.parent.isSelected(props.name)}
-			onPress={() => props.parent.selectScreen(props.name)}>
+			onPress={() => props.parent.selectTab(props.name)}>
 		<Icon name={props.iconName} />
 		<Text>{props.displayName}</Text>
 	</Button>
