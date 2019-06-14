@@ -29,21 +29,15 @@ export default class SignIn extends Component {
 
         AsyncStorage.getItem('hospitalList', (err, hospitalList) => {
 
-			console.log(hospitalList);
-
 			if (hospitalList != null) {
 
 				AsyncStorage.getItem('userData', async (err, userData) => {
-
-					console.log(userData);
 
 					if (userData != null) {
 
 						let user = JSON.parse(userData);
 
 						Session.current.user = new User(user.name, user.profile);
-
-						console.log(Session.current.user);
 
 						this.setState({loading: false});
 						
@@ -106,17 +100,13 @@ export default class SignIn extends Component {
 			)
 			.then(response => {
 
-				console.log(response);
-
 				let content = response.data.content;
 				
 				Session.current.user = new User(content.name, content.profile);
 				
-				if(response.data.success) {
+				if(response && response.data.success) {
 
 					//this.setState({ textContent: 'Sincronizando...' });
-
-					console.log('ERRRO');
 
 					AsyncStorage.multiSet([
 					    ["auth", JSON.stringify(params)],
@@ -134,7 +124,7 @@ export default class SignIn extends Component {
 			        });	
 		        }	
 		        else
-		        {		        	
+		        {		    	
 					this.setState({loading: false});
 		        }	
 
