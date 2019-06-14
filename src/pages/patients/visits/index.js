@@ -196,8 +196,7 @@ export default class Visitas extends React.Component {
 
 			</TouchableOpacity>
 		);
-	};
-
+	
 	remove(patient) {
 		const visits = this.state.patient.observationList.filter(item => item.uuid !== patient.uuid);
 		this.state.patient.observationList = visits;
