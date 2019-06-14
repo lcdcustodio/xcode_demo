@@ -28,6 +28,7 @@ export default class Profile extends Component {
 			selectedRadio: null,
 			cidQuery: null,
 			tussQuery: null,
+			isEditable: false,
 			listAttendanceType: [
 				{key: 1, value: 'ELECTIVE', label: 'ELETIVO'},
 				{key: 2, value: 'EMERGENCY', label: 'EMERGÊNCIA'}
@@ -316,7 +317,7 @@ export default class Profile extends Component {
 							<Divider />
 
 							<Dialog.Actions>
-								<Button onPress={ () => { this.toggleModal('modalCRM') } }>Fechar</Button>
+								<Button onPress={ () => { this.toggleModal('modalCRM') } }>Salvar</Button>
 							</Dialog.Actions>
 
 						</Dialog>
@@ -403,26 +404,87 @@ export default class Profile extends Component {
 		}
 	}
 
+	renderHeightAndWeight() {
+		return (
+			this.state.isEditable ?
+				<TextValue color={'#0000FF'} value={ this.props.patient.patientHeight && this.props.patient.patientWeight ? `${this.props.patient.patientHeight}m / ${this.props.patient.patientWeight}kg` : 'INFORMAR' } press={ () => { this.setState({modalSelected: 'HeightAndWeight', modalHeightAndWeight: true}) }}/>
+			:
+				<TextValue value={ this.props.patient.patientHeight && this.props.patient.patientWeight ? `${this.props.patient.patientHeight}m / ${this.props.patient.patientWeight}kg` : 'NÃO INFORMADO' } />
+		);
+	}
+
+	renderAtendencyType() {
+		return (
+			this.state.isEditable ?
+				<TextValue color={'#0000FF'} value={this.props.patient.attendanceType ? this.props.patient.attendanceType : 'INFORMAR'} press={ () => { this.setState({modalSelected: 'AttendanceType', modalAttendanceType: true}) }}/>
+			:
+				<TextValue value={this.props.patient.attendanceType ? this.props.patient.attendanceType : 'NÃO INFORMADO'} />
+		);
+	}
+
+	renderHospitalizationType() {
+		return (
+			this.state.isEditable ?
+				<TextValue color={'#0000FF'} value={this.props.patient.hospitalizationType ? this.props.patient.hospitalizationType : 'INFORMAR'} press={ () => { this.setState({modalSelected: 'HospitalizationType', modalHospitalizationType: true}) }}/>
+			:
+				<TextValue value={this.props.patient.hospitalizationType ? this.props.patient.hospitalizationType : 'NÃO INFORMADO'} />
+		);
+	}
+
+	renderMainProcedure() {
+		return (
+			this.state.isEditable ?
+				<TextValue color={'#0000FF'} value={this.props.patient.mainProcedureTUSSDisplayName ? this.props.patient.mainProcedureTUSSDisplayName : 'ESCOLHER'} press={ () => { this.setState({modalSelected: 'MainProcedure', modalMainProcedure: true}) }} />
+			:
+				<TextValue value={this.props.patient.mainProcedureTUSSDisplayName ? this.props.patient.mainProcedureTUSSDisplayName : 'NÃO INFORMADO'} />
+		);
+	}
+
+	renderPrimaryCID() {
+		return (
+			this.state.isEditable ?
+				this.props.patient.diagnosticHypothesisList.length === 0 ? 
+					<TextValue color={'#0000FF'} value={'ESCOLHER'} press={ () => { this.setState({modalSelected: 'PrimaryCID', modalPrimaryCID: true}) }} />
+				:
+					this.props.patient.diagnosticHypothesisList.map((prop) => {
+						return ( <TextValue color={'#0000FF'} key={prop.cidId} value={prop.cidDisplayName} press={ () => { this.setState({modalSelected: 'PrimaryCID', modalPrimaryCID: true}) }} /> )
+					})
+			:
+			<TextValue value={this.props.patient.diagnosticHypothesisList.length > 0 ? this.props.patient.diagnosticHypothesisList[0].cidDisplayName : 'NÃO INFORMADO'} />
+		);
+	}
+
+	renderSecondaryCID() {
+		return (
+			this.state.isEditable ?
+				this.props.patient.secondaryCIDList.map((prop) => {
+					return ( <TextValue color={'#0000FF'} key={prop.cidId} value={`${prop.cidDisplayName} \n`} press={ () => { this.removeSecondaryCID(prop) }} /> )
+				})
+			:
+				this.props.patient.secondaryCIDList.length === 0 ? 
+					<TextValue value={'NÃO INFORMADO'} />
+				:
+					this.props.patient.secondaryCIDList.map((prop) => {
+						return ( <TextValue key={prop.cidId} value={prop.cidDisplayName} /> )
+					})
+		);
+	}
+
+	renderCRM() {
+		return (
+			this.state.isEditable ?
+				<TextValue color={'#0000FF'} value={this.props.patient.mainProcedureCRM !== null ? this.props.patient.mainProcedureCRM : 'INFORMAR'} press={ () => { this.setState({modalSelected: 'CRM', modalCRM: true}) }} />
+			:
+				<TextValue value={'NÃO INFORMADO'} />
+		);
+	}
+
 	render() {
-		let CRM = this.props.patient.mainProcedureCRM !== null ? this.props.patient.mainProcedureCRM : 'INFORMAR';
-		const { container, row, column50, column100, overlay, item, textValue, trackingListItem, hospitalizationsListContainer } = styles;
 		
 		return (
-			<View style={ container }>
+			<View>
 
 				{ this.renderModalSelected() }
-
-				<Portal>
-					<Dialog visible={this.state.modalTeste1} onDismiss={ () => { this.toggleModal('modalTeste1') } }>
-						<Dialog.Title>Título</Dialog.Title>
-						<Dialog.Content>
-							<Paragraph>Descrição da modal</Paragraph>
-						</Dialog.Content>
-						<Dialog.Actions>
-							<Button onPress={ () => { this.toggleModal('modalTeste1') } }>OK</Button>
-						</Dialog.Actions>
-					</Dialog>
-				</Portal>
 
 				<Content>
 
@@ -468,7 +530,7 @@ export default class Profile extends Component {
 					<ListItem>
 						<Body>
 							<Text style={{fontWeight: 'bold'}}>Altura/Peso{"\n"}
-								<TextValue color={'#0000FF'} value={ this.props.patient.patientHeight && this.props.patient.patientWeight ? `${this.props.patient.patientHeight}m / ${this.props.patient.patientWeight}kg` : '' } press={ () => { this.setState({modalSelected: 'HeightAndWeight', modalHeightAndWeight: true}) }}/>{"\n"}
+								{ this.renderHeightAndWeight() }
 							</Text>
 						</Body>
 						<Right>
@@ -482,7 +544,9 @@ export default class Profile extends Component {
 
 					<ListItem>
 						<Body>
-							<Text style={{fontWeight: 'bold'}}>Atendimento{"\n"}<TextValue value={this.props.patient.attendanceType} press={ () => { this.setState({modalSelected: 'AttendanceType', modalAttendanceType: true}) }}/></Text>
+							<Text style={{fontWeight: 'bold'}}>Atendimento{"\n"}
+								{ this.renderAtendencyType() }
+							</Text>
 						</Body>
 					</ListItem>
 
@@ -512,57 +576,45 @@ export default class Profile extends Component {
 
 					<ListItem>
 						<Body>
-							<Text style={{fontWeight: 'bold'}}>Tipo da Internação{"\n"}<TextValue color={'#0000FF'} value={ this.hospitalizationType(this.props.patient.hospitalizationType) } press={ () => { this.setState({modalSelected: 'HospitalizationType', modalHospitalizationType: true}) }}/></Text>
+							<Text style={{fontWeight: 'bold'}}>Tipo da Internação{"\n"}
+								{ this.renderHospitalizationType() }
+							</Text> 
 						</Body>
 					</ListItem>
 
 					<ListItem>
 						<Body>
 							<Text style={{fontWeight: 'bold'}}>Procedimento Principal{"\n"}
-								{
-									this.props.patient.mainProcedureTUSSDisplayName ? 
-									<TextValue color={'#0000FF'} value={this.props.patient.mainProcedureTUSSDisplayName} press={ () => { this.setState({modalSelected: 'MainProcedure', modalMainProcedure: true}) }} />
+								{ this.renderMainProcedure() }
+							</Text>
+						</Body>
+					</ListItem>
+
+					<ListItem>
+						<Body>
+							<Text style={{fontWeight: 'bold'}}>CRM do Responsável{"\n"}
+								{ this.renderCRM() }
+							</Text>
+						</Body>
+					</ListItem>
+
+					<ListItem>
+						<Body>
+							<Text style={{fontWeight: 'bold'}}>CID Primário{"\n"}
+								{ this.renderPrimaryCID() }
+							</Text>
+						</Body>
+					</ListItem>
+
+					<ListItem>
+						<Body>
+							<Text style={{fontWeight: 'bold'}}>CIDs Secundários{"\n"}
+								{ this.state.isEditable ? 
+										<TextValue color={'#0000FF'} value={'ADICIONAR \n'} press={ () => { this.setState({modalSelected: 'SecondaryCID', modalSecondaryCID: true}) }} />
 									:
-									<TextValue color={'#0000FF'} value={'ESCOLHER'} press={this.toggleModalSecondaryCID} press={ () => { this.setState({modalSelected: 'MainProcedure', modalMainProcedure: true}) }} />	
+									<Text />
 								}
-							</Text>
-						</Body>
-					</ListItem>
-
-					<ListItem>
-						<Body>
-							<Text style={{fontWeight: 'bold'}}>CRM do Responsável{"\n"}<TextValue color={'#0000FF'} value={CRM} press={ () => { this.setState({modalSelected: 'CRM', modalCRM: true}) }} /></Text>
-						</Body>
-					</ListItem>
-
-					<ListItem>
-						<Body>
-							<Text style={{fontWeight: 'bold'}}>CID Primário{"\n"}{ this.props.patient.diagnosticHypothesisList && this.props.patient.diagnosticHypothesisList.length === 0 ? <TextValue color={'#0000FF'} value={'ADICIONAR'} press={ () => { this.setState({modalSelected: 'PrimaryCID', modalPrimaryCID: true}) }} /> : null }
-							{ 
-								this.props.patient.diagnosticHypothesisList && this.props.patient.diagnosticHypothesisList.map((prop) => {
-									return (
-										<TextValue color={'#0000FF'} key={prop.cidId} value={prop.cidDisplayName ? prop.cidDisplayName : 'Escolher'} press={ () => { this.setState({modalSelected: 'PrimaryCID', modalPrimaryCID: true}) }} />
-									);
-								})
-							}
-							</Text>
-						</Body>
-					</ListItem>
-
-					<ListItem>
-						<Body>
-							<Text style={{fontWeight: 'bold'}}>CIDs Secundários{"\n"}<TextValue color={'#0000FF'} value={'ADICIONAR'} press={ () => { this.setState({modalSelected: 'SecondaryCID', modalSecondaryCID: true}) }} /> 
-								{"\n"}
-								{ 
-									this.props.patient.secondaryCIDList.length ? 
-										this.props.patient.secondaryCIDList.map((cidItem) => {
-											return (
-												<Text style={textValue} key={cidItem.cidId} onPress={ () => this.removeSecondaryCID(cidItem) }>{ cidItem.cidDisplayName }{"\n"}</Text>
-											);
-										})
-										: 
-										<Text/>
-								}
+								{ this.renderSecondaryCID() }
 							</Text>
 						</Body>
 					</ListItem>
@@ -593,7 +645,3 @@ export default class Profile extends Component {
 		);
 	}
 }
-
-const styles = StyleSheet.create({
-
-});

@@ -55,7 +55,7 @@ export default class Visitas extends React.Component {
 			
 			if(!hasErrors){
 				this.state.patient.observationList.push(newVisit)
-				this.props.updatePatient(this.state.patient);
+				this.props.parent.updatePatient(this.state.patient);
 				this.toggleModal()
 			} else {
 				Alert.alert('Atenção', 'Visita já cadastrada!',
@@ -127,7 +127,7 @@ export default class Visitas extends React.Component {
 		const patient = new Patient(this.state.patient);
 		const errors = patient.validateFinalization();
 		if (!errors.length) {
-			Alert.alert('...', 'Em desenvolvimento.', [{text: 'OK'}], {cancelable: false})
+			this.props.navigation.navigate('Finalize', { patient: patient.json });
 		} else {
 			let fields = FINALIZE_ERROR_FIELDS[errors[0]];
 			let msg = '';
@@ -142,6 +142,7 @@ export default class Visitas extends React.Component {
 				msg = 'Os campos ' + fields + ' precisam ser preenchidos.';
 			}
 			Alert.alert('Atenção', msg, [{text: 'OK'}], {cancelable: false});
+			this.props.parent.selectTab(TabEnum.Profile);
 		}
 	}
 	
@@ -203,7 +204,7 @@ export default class Visitas extends React.Component {
 	remove(patient) {
 		const item = this.state.patient.observationList.filter(item => item.uuid !== patient.uuid);
 		this.state.patient.observationList = item;
-		this.props.updatePatient(this.state.patient);
+		this.props.parent.updatePatient(this.state.patient);
 	}
 
 	isaSameVisit(newVisit, oldVisit) {
@@ -253,7 +254,7 @@ export default class Visitas extends React.Component {
 					visible={this.state.modalVisible}
 					onRequestClose={() =>{ console.log("Modal has been closed.") } }>
 						<View style={styles.overlay}>
-							<View style={{backgroundColor: '#F8F8FF', borderRadius: 4, flexDirection: "row", flexWrap: 'wrap', height: '60%', marginTop: '25%', padding: 10}}>
+						<View style={{backgroundColor: '#F8F8FF', borderRadius: 4, flexDirection: "row", flexWrap: 'wrap', height: '60%', marginTop: '25%', padding: 10}}>
 							
 								<View style={{flexDirection: "row", width: '100%', justifyContent: 'space-between', backgroundColor: "#005cd1", alignItems: 'center'}}>
 										<Button backgroundColor={'#005cd1'} onPress={this.toggleModal}>

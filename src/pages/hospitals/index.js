@@ -28,6 +28,8 @@ export default class Hospital extends Component {
 			dateSync: null,
 			page: 1,
 			loading: false,
+			timerTextColor: "#005cd1",
+			timerBackgroundColor: "#fff",
 			errorSync: 0,
 			allPatients: [],
 			patientsFiltered: [],
@@ -65,6 +67,13 @@ export default class Hospital extends Component {
 		AsyncStorage.getItem('dateSync', (err, dateSync) => {
             this.setState({dateSync: dateSync});
         });
+
+		AsyncStorage.getItem('require_sync_at', (err, res) => {
+
+			console.log('require_sync_at', res);
+
+			this.setRequireSyncTimer(res);
+		});
 
 	});
 
@@ -108,13 +117,11 @@ export default class Hospital extends Component {
 
 					}).then(response => {
 
-						console.log(response);
+						this.setRequireSyncTimer(null);
 
 						this.setState({loading: false});
 
 						if(response.status === 200) {
-
-							console.log('HOSPITAIS', JSON.stringify(response.data.content.hospitalList));
 
 							let hospitalListOrdered = _.orderBy(response.data.content.hospitalList, ['name'], ['asc']);
 							
@@ -316,11 +323,7 @@ export default class Hospital extends Component {
 	            lastVisit = today.diff(lastVisit, 'days');
 	        }
 
-			console.log(lastVisit, patient.patientName, patient);
-
 			if (lastVisit == 0) {
-
-				console.log('CONTABILIZAR');
 
 				++totalPatientsVisited;
 
@@ -328,8 +331,6 @@ export default class Hospital extends Component {
 
 			}
 		});
-
-		console.log(totalPatientsVisited);
 
 		return totalPatientsVisited;
 	}	
@@ -573,10 +574,36 @@ export default class Hospital extends Component {
 		</TouchableOpacity>
 	);
 
+	setRequireSyncTimer(timer){
+
+		console.log(timer);
+
+		let today =  moment().format('YYYY-MM-DD');
+
+		if (timer == null) 
+		{
+			AsyncStorage.removeItem('require_sync_at');
+
+			this.setState({ timerTextColor: "#005cd1", timerBackgroundColor: "#fff" });
+		}
+		else
+		{
+			let require_sync_at = JSON.parse(timer);
+			
+			if (require_sync_at == today) {
+				this.setState({ timerTextColor: "#856404", timerBackgroundColor: "#fff3cd" });
+			}
+
+			if (require_sync_at < today) {
+				this.setState({ timerTextColor: "#721c24", timerBackgroundColor: "#f8d7da" });
+			}
+		}
+
+	}
+
 	renderTimer(){
-		if(this.state.hospitals)
-			return <Timer dateSync={this.state.dateSync}/>;
-		return null;
+		return <Timer dateSync={this.state.dateSync} timerTextColor={this.state.timerTextColor} timerBackgroundColor={this.state.timerBackgroundColor}/>;
+
 	}
 
 	filterPatients = (patientQuery) => {
@@ -605,7 +632,7 @@ export default class Hospital extends Component {
 		return (
 			<View>
 				<List.Item title={`${element.item.patientName}`} onPress={() => { this.goToProfilePage(element.item) }} />
-				<TextValue size={13} marginLeft={4} marginTop={-6} value={element.item.hospitalName} />
+				<TextValue color={'#999'} size={13} marginLeft={4} marginTop={-6} value={element.item.hospitalName} />
 			</View>
 		);
 	}
@@ -639,9 +666,7 @@ export default class Hospital extends Component {
 					</Right>
 				</Header>
 
-				<View>
-		            { this.renderTimer() }
-		        </View>				
+				{ this.renderTimer() }			
 
 				<Line size={1} />
 
