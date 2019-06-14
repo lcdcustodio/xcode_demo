@@ -1,10 +1,11 @@
 import React, { Component } from "react"
 import styles from './style'
-import { Container, Content, Header, Left, Right, Body, Icon, Title, Text } from 'native-base'
+import { Container, Content, Header, Left, Right, Body, Title, Text, Card, CardItem } from 'native-base'
 import { Alert, View, FlatList, TouchableOpacity, Image, BackHandler } from "react-native"
 import moment from 'moment'
 import _ from 'lodash'
 import AsyncStorage from '@react-native-community/async-storage';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 export default class Patients extends Component {
     
@@ -58,6 +59,7 @@ export default class Patients extends Component {
                     patient.totalDaysOfHospitalization = this.calculateDaysOfHospitalization(patient);
                     patient.colorNumber = this.getColorNumber(patient);
                     patient.colorName = this.getColor(patient.colorNumber);
+                    patient.backgroundColor = this.getBackgroundColor(patient.colorNumber);
                     patient.lastVisit = this.getLastVisit(patient);
                     patient.iconNumber = this.getIconNumber(patient);
                     patient.icon = this.getIcon(patient.iconNumber);
@@ -120,14 +122,25 @@ export default class Patients extends Component {
         }
     }
 
+    getBackgroundColor(colorNumber) {
+
+        if(colorNumber == 0) {
+            return '#f8d7da'
+        } else if(colorNumber == 1) {
+            return '#fff3cd'
+        } else {
+            return '#fff'
+        }
+    }
+
     getLastVisit(patient) {
         let listOfOrderedPatientVisits = _.orderBy(patient.observationList, ['observationDate'], ['desc'])
         if(patient.observationList.length === 0 || listOfOrderedPatientVisits[0].observationDate === null) {
-            return 'SEM VISITAS'
+            return 'Sem visita'
         } else if(this.isToday(listOfOrderedPatientVisits[0].observationDate)) {
-            return 'HOJE'
+            return 'Hoje'
         } else if(this.isYesterday(listOfOrderedPatientVisits[0].observationDate)) {
-            return 'ONTEM'
+            return 'Ontem'
         } else {
             return this.totalDaysAgo(listOfOrderedPatientVisits[0].observationDate)
         }
@@ -229,21 +242,58 @@ export default class Patients extends Component {
     }
 
     renderItem = ({ item }) => (
-        <TouchableOpacity
-            onPress={() => {
+        
+            <View style={{ paddingTop: 10, paddingLeft: 10, paddingRight: 10, backgroundColor: '#fafafa'}} onPress={() => {
                 this.props.navigation.navigate("PatientDetail", { patient: item});
             }}>
-            <View style={[styles.productContainer]}>
-                <View>
-                    <Text style={[styles.patientTitle, {color: `${item.colorName}`} ]}> {item.patientName} </Text>
-                    <Text style={styles.hospitalizationDescription}> INTERNADO: {item.totalDaysOfHospitalization} Dias | SETOR: {item.locationSession} | LEITO: {item.locationBed} </Text>  
-                    <Text style={styles.lastVisit}> Última visita: {item.lastVisit} </Text>
-                </View>
-                <View >
-                    <Image source={item.icon} style={{width: 25, height: 25}} />
-                </View>
+                <Card>
+                    <CardItem header bordered style={{ flex: 1, height: 50}}>
+                        <View style={{width: '90%'}}>
+                            <Text style={[styles.patientTitle, {color: `${item.colorName}`, fontSize: 16, marginLeft: -10} ]}> {item.patientName} </Text>
+                        </View>
+                        <Right>
+                            <Image source={item.icon} style={{width: 25, height: 25}} />
+                        </Right>
+                    </CardItem>
+                    
+                    <CardItem footer bordered style={{ justifyContent: 'center', height: 40, paddingTop: 0, paddingRight: 0, paddingBottom: 0, paddingLeft: 0}}>                            
+                        
+                        <View style={{ width: '7%'}}>
+                            <Text style={{paddingLeft: 10}}><Icon name="calendar" style={{color: '#666', fontSize: 12}} /></Text>
+                        </View>
+
+                        <View style={{ width: '18%', justifyContent: 'center', borderRightWidth: 1, borderRightColor: '#ccc', height: 40}}>
+                            <Text style={{fontSize: 12}}>{item.totalDaysOfHospitalization} dias</Text>
+                        </View>
+                        
+                        <View style={{ width: '7%', justifyContent: 'center'}}>
+                            <Text style={{paddingLeft: 10}}><Icon name="tag" style={{color: '#666', fontSize: 12}} /></Text>
+                        </View>
+                        
+                        <View style={{ width: '18%', justifyContent: 'center', borderRightWidth: 1, borderRightColor: '#ccc', height: 40}}>
+                            <Text style={{fontSize: 12}}>{item.locationSession}</Text>
+                        </View>
+                        
+                        <View style={{ width: '7%', justifyContent: 'center'}}>
+                            <Text style={{paddingLeft: 10}}><Icon name="bed" style={{color: '#666', fontSize: 12}} /></Text>
+                        </View>
+                        
+                        <View style={{ width: '18%', justifyContent: 'center', borderRightWidth: 1, borderRightColor: '#ccc', height: 40}}>
+                            <Text style={{fontSize: 12}}>{item.locationBed}</Text>
+                        </View>
+                        
+                        <View style={{ width: '7%', justifyContent: 'center'}}>
+                            <Text style={{paddingLeft: 10}}><Icon name="eye" style={{color: '#666', fontSize: 12}} /></Text>
+                        </View>
+                        
+                        <View style={{ width: '18%', justifyContent: 'center'}}>
+                            <Text style={{fontSize: 12}}>{item.lastVisit}</Text>
+                        </View>
+                        
+                    
+                    </CardItem>
+                </Card>
             </View>
-        </TouchableOpacity>
     );
 
     render(){
