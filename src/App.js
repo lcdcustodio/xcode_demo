@@ -8,6 +8,7 @@ import PatientsScreen from './pages/patients';
 import PatientDetailScreen from './pages/patients/patientDetail';
 import EventDetailScreen from './pages/patients/events/detail';
 import ReportScreen from './pages/report';
+import FinalizeScreen from './pages/patients/visits/finalize';
 
 export default class App extends Component {
     render() {
@@ -34,6 +35,9 @@ const AppNavigator = createDrawerNavigator(
 		},
 		Report: {
 			screen: ReportScreen
+		},
+		Finalize: {
+			screen: FinalizeScreen
 		},
 	}, {
 		contentComponent: Sidebar
