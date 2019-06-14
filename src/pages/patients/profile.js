@@ -255,7 +255,7 @@ export default class Profile extends Component {
 							<Divider />
 							
 							<Dialog.Content>
-								<RadioButton.Group onValueChange={ value => { this.handleAttendanceType(value) } } value={this.attendanceType(this.props.patient.attendanceType)}>
+								<RadioButton.Group onValueChange={ value => { this.handleAttendanceType(value) } } value={this.props.patient.attendanceType}>
 									<View style={{flexDirection: 'row', alignItems: 'center'}}>
 										<RadioButton value="ELECTIVE" />
 										<Text>Eletivo</Text>
