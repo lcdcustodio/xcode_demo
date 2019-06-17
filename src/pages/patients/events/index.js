@@ -58,9 +58,9 @@ export default class Events extends Component {
 	_loadEvents = () => {
 		const patient = this.props.patient;
 		let events = [];
-		this._pushEvent(events, patient.recommendationWelcomeHomeIndication, this._createRecommendation);
-		this._pushEvent(events, patient.recommendationMedicineReintegration, this._createRecommendation);
-		this._pushEvent(events, patient.recommendationClinicalIndication, this._createRecommendation);
+		this._pushRecommendation(events, patient.recommendationWelcomeHomeIndication, 'WELCOME HOME');
+		this._pushRecommendation(events, patient.recommendationMedicineReintegration, 'REC. MEDICAMENTOSA');
+		this._pushRecommendation(events, patient.recommendationClinicalIndication, 'INDICAÇÃO AMBULATÓRIO');
 		this._pushEvents(events, patient.examRequestList, this._createExamRequest);
 		this._pushEvents(events, patient.furtherOpinionList, this._createFurtherOpinion);
 		this._pushEvents(events, patient.medicalProceduresList, this._createMedicalProcedure);
@@ -73,22 +73,21 @@ export default class Events extends Component {
 		source.forEach((jsonItem) => { destination.push(formatter(jsonItem)) });
 	}
 
-	_pushEvent = (destination, source, formatter) => {
+	_pushRecommendation = (destination, source, name) => {
+		console.log('rec', source)
 		if (source) {
-			destination.push(formatter(source));
+			destination.push(new TimelineEvent(
+				TimelineEventEnum.Recommendation,
+				source,
+				new Date(source.performedAt),
+				'Recomendação para alta',
+				name + (source.specialtyDisplayName ? (': ' + source.specialtyDisplayName) : ''),
+				source.observation,
+				null,
+				null,
+			));
 		}
 	}
-
-	_createRecommendation = (json) => new TimelineEvent(
-		TimelineEventEnum.Recommendation,
-		json,
-		new Date(json.performedAt),
-		'Recomendação para alta',
-		json.observation,
-		json.specialty ? json.specialty: null,
-		null,
-		null,
-	);
 
 	_createExamRequest = (json) => new TimelineEvent(
 		TimelineEventEnum.ExamRequest,
