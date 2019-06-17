@@ -58,9 +58,9 @@ export default class Events extends Component {
 	_loadEvents = () => {
 		const patient = this.props.patient;
 		let events = [];
-		this._pushEvent(events, patient.recommendationWelcomeHomeIndication, this._createRecommendation);
-		this._pushEvent(events, patient.recommendationMedicineReintegration, this._createRecommendation);
-		this._pushEvent(events, patient.recommendationClinicalIndication, this._createRecommendation);
+		this._pushRecommendation(events, patient.recommendationWelcomeHomeIndication, 'WELCOME HOME');
+		this._pushRecommendation(events, patient.recommendationMedicineReintegration, 'REC. MEDICAMENTOSA');
+		this._pushRecommendation(events, patient.recommendationClinicalIndication, 'INDICAÇÃO AMBULATÓRIO');
 		this._pushEvents(events, patient.examRequestList, this._createExamRequest);
 		this._pushEvents(events, patient.furtherOpinionList, this._createFurtherOpinion);
 		this._pushEvents(events, patient.medicalProceduresList, this._createMedicalProcedure);
@@ -73,22 +73,21 @@ export default class Events extends Component {
 		source.forEach((jsonItem) => { destination.push(formatter(jsonItem)) });
 	}
 
-	_pushEvent = (destination, source, formatter) => {
+	_pushRecommendation = (destination, source, name) => {
+		console.log('rec', source)
 		if (source) {
-			destination.push(formatter(source));
+			destination.push(new TimelineEvent(
+				TimelineEventEnum.Recommendation,
+				source,
+				new Date(source.performedAt),
+				'Recomendação para alta',
+				name + (source.specialtyDisplayName ? (': ' + source.specialtyDisplayName) : ''),
+				source.observation,
+				null,
+				null,
+			));
 		}
 	}
-
-	_createRecommendation = (json) => new TimelineEvent(
-		TimelineEventEnum.Recommendation,
-		json,
-		new Date(json.performedAt),
-		'Recomendação para alta',
-		json.observation,
-		json.specialty ? json.specialty: null,
-		null,
-		null,
-	);
 
 	_createExamRequest = (json) => new TimelineEvent(
 		TimelineEventEnum.ExamRequest,
@@ -149,12 +148,16 @@ export default class Events extends Component {
 	_read = (event) => {
 		console.log("event", event)
 		const {patient, hospital, baseDataSync} = this.props.parent.state;
-		if(this.isaRecommendation(event.typeEnum)){
-			if(this.isaPatientWithDischarge()){
-				Alert.alert('Atenção', "Paciente já está de alta",[{text: 'OK', onPress: () => {}}],{cancelable: false});
+		if (this.isaRecommendation(event.typeEnum)) {
+			if (this.isaPatientWithDischarge()) {
+				Alert.alert('Atenção', "Paciente já está de alta", [{text:'OK',onPress:()=>{}}],{cancelable: false});
 			} else {
 				this.recommendationSelected(event, patient);
-				this.props.parent.props.navigation.navigate('Recommendation', {patient, update: true});
+				this.props.parent.props.navigation.navigate('Recommendation', {
+					patient: patient,
+					event: event,
+					update: true,
+				});
 			}
 		} else {
 			this.props.parent.props.navigation.navigate('EventDetail', {
@@ -196,39 +199,40 @@ export default class Events extends Component {
 
 	_renderEvent = (event, index) => {
 		console.log("event", event)
+		const eventInfo = event.item;
 		return (
 		<View key={index} style={{ paddingTop: 10, paddingLeft: 10, paddingRight: 10, backgroundColor: '#fefefe'}}>
 		<Card>
-			<CardItem header bordered style={{ flex: 1, backgroundColor: ITEM_COLOR[event.item.typeEnum], height: 40}}>
+			<CardItem header bordered style={{ flex: 1, backgroundColor: ITEM_COLOR[eventInfo.typeEnum], height: 40}}>
 				<Left>
-					<Text style={{ fontSize: 16, fontWeight: 'bold'}}>{event.item.type}</Text>
+					<Text style={{ fontSize: 16, fontWeight: 'bold'}}>{eventInfo.type}</Text>
 				</Left>
 				<Right>
-					<Text>{moment(event.item.time).format('DD/MM/YYYY')}</Text>
+					<Text>{moment(eventInfo.time).format('DD/MM/YYYY')}</Text>
 				</Right>
 			</CardItem>
 			
 			<CardItem bordered>
 				<Body>
 					<Text>
-						{event.item.name}
+						{eventInfo.name}
 					</Text>
-					{ event.item.comments !== null &&
+					{ eventInfo.comments !== null &&
 						<Text>
-							{event.item.comments}
+							{eventInfo.comments}
 						</Text>
 					}
 				</Body>
 			</CardItem>
 
-			{ event.item.typeEnum === TimelineEventEnum.Recommendation &&
+			{ eventInfo.typeEnum === TimelineEventEnum.Recommendation &&
 				<CardItem footer bordered style={{ alignItems: 'center', justifyContent: 'center', height: 40}}>							
 					<View>
-						<Button color='#00dda2' icon="add" onPress={_=>this.showVisit(item)}>Editar</Button>
+						<Button color='#00dda2' icon="add" onPress={ () => this._read(eventInfo) }>Editar</Button>
 					</View>
 					<View  style={{borderRightColor: '#ffffff', borderWidth: 1, height: '80%', borderBottomColor: '#ffffff', borderTopColor: '#ffffff', borderLeftColor: '#ebeff2'}}></View>
 					<View>
-						<Button color='#f73655' icon="remove" onPress={_=>this.alertToRemove(item)}>Excluir</Button>
+						<Button color='#f73655' icon="remove" onPress={ () => this._delete(eventInfo) }>Excluir</Button>
 					</View>
 				</CardItem>
 			}
