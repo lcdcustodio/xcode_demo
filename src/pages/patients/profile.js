@@ -413,6 +413,23 @@ export default class Profile extends Component {
 		);
 	}
 
+	renderIMC() {
+		let patientHeight = '';
+		let patientWeight = '';
+
+		if (this.props.patient.patientHeight) {
+			patientHeight = this.props.patient.patientHeight.toString().replace(',', '.');
+		}
+		
+		if (this.props.patient.patientWeight) {
+			patientWeight = this.props.patient.patientWeight.toString().replace(',', '.');
+		}
+
+		return (
+			<TextValue size={13} value={ 'IMC ' + (Number(patientWeight) / Math.pow(Number(patientHeight), 2)).toFixed(2) } />
+		);
+	}
+
 	renderAtendencyType() {
 		return (
 			this.state.isEditable ?
@@ -534,7 +551,7 @@ export default class Profile extends Component {
 							</Text>
 						</Body>
 						<Right>
-							<TextValue size={13} value={ this.props.patient.patientHeight && this.props.patient.patientWeight ? 'IMC ' + (Number(this.props.patient.patientWeight.replace(',', '.')) / Math.pow(Number(this.props.patient.patientHeight.replace(',', '.')), 2)).toFixed(2) : '' }/>
+							{ this.renderIMC() }
 			            </Right>
 					</ListItem>
 
