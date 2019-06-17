@@ -37,7 +37,6 @@ export default class Hospital extends Component {
 			patientQuery: null
 		}
 
-		console.log(this.state.isEditable);
 	}
 
 	componentDidMount() {
