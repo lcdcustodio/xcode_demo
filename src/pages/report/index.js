@@ -13,7 +13,7 @@ export default class Report extends Component {
 		
 		return (
 			<View>
-				<Text>Dados Básicos</Text>
+				<Text>Relatório consolidado</Text>
 			</View>
 		);
 	}

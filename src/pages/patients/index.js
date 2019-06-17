@@ -28,6 +28,7 @@ export default class Patients extends Component {
     }
 
     componentDidMount() {
+        console.log('back press');
         this.backHandler = BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
     }
 
@@ -307,7 +308,7 @@ export default class Patients extends Component {
                 <Header style={styles.headerMenu}>
                     
                     <Left style={{flex:1}} >
-                        <Icon type="back" name="left" style={{ color: 'white' }} onPress={() => this.props.navigation.navigate('Hospitals') } />
+                        <Icon name="angle-left" style={{color: '#FFF', fontSize: 40}} onPress={() => this.props.navigation.navigate('Hospitals') } />
                     </Left>
                     <Body style={{flex: 7}}>
                         <Title style={{color: 'white'}}>{this.state.hospital.name}</Title>

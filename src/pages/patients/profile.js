@@ -240,7 +240,7 @@ export default class Profile extends Component {
 							<Divider />
 
 							<Dialog.Actions>
-								<Button onPress={ () => { this.toggleModal('modalHeightAndWeight') } }>Fechar</Button>
+								<Button onPress={ () => { this.toggleModal('modalHeightAndWeight') } }>Salvar</Button>
 							</Dialog.Actions>
 
 						</Dialog>
@@ -270,7 +270,7 @@ export default class Profile extends Component {
 							<Divider />
 
 							<Dialog.Actions>
-								<Button onPress={ () => { this.toggleModal('modalAttendanceType') } }>Fechar</Button>
+								<Button onPress={ () => { this.toggleModal('modalAttendanceType') } }>Salvar</Button>
 							</Dialog.Actions>
 						</Dialog>
 					</Portal>
@@ -299,7 +299,7 @@ export default class Profile extends Component {
 							<Divider />
 
 							<Dialog.Actions>
-								<Button onPress={ () => { this.toggleModal('modalHospitalizationType') } }>Fechar</Button>
+								<Button onPress={ () => { this.toggleModal('modalHospitalizationType') } }>Salvar</Button>
 							</Dialog.Actions>
 						</Dialog>
 					</Portal>
@@ -396,7 +396,7 @@ export default class Profile extends Component {
 							<Divider />
 
 							<Dialog.Actions>
-								<Button onPress={ () => { this.toggleModal('modalMainProcedure') } }>Fechar</Button>
+								<Button onPress={ () => { this.toggleModal('modalMainProcedure') } }>Salvar</Button>
 							</Dialog.Actions>
 						</Dialog>
 					</Portal>
@@ -416,18 +416,18 @@ export default class Profile extends Component {
 	renderAtendencyType() {
 		return (
 			this.state.isEditable ?
-				<TextValue color={'#0000FF'} value={this.props.patient.attendanceType ? this.props.patient.attendanceType : 'INFORMAR'} press={ () => { this.setState({modalSelected: 'AttendanceType', modalAttendanceType: true}) }}/>
+				<TextValue color={'#0000FF'} value={this.props.patient.attendanceType ? this.attendanceType(this.props.patient.attendanceType) : 'INFORMAR'} press={ () => { this.setState({modalSelected: 'AttendanceType', modalAttendanceType: true}) }}/>
 			:
-				<TextValue value={this.props.patient.attendanceType ? this.props.patient.attendanceType : 'NÃO INFORMADO'} />
+				<TextValue value={this.props.patient.attendanceType ? this.attendanceType(this.props.patient.attendanceType) : 'NÃO INFORMADO'} />
 		);
 	}
 
 	renderHospitalizationType() {
 		return (
 			this.state.isEditable ?
-				<TextValue color={'#0000FF'} value={this.props.patient.hospitalizationType ? this.props.patient.hospitalizationType : 'INFORMAR'} press={ () => { this.setState({modalSelected: 'HospitalizationType', modalHospitalizationType: true}) }}/>
+				<TextValue color={'#0000FF'} value={this.props.patient.hospitalizationType ? this.hospitalizationType(this.props.patient.hospitalizationType) : 'INFORMAR'} press={ () => { this.setState({modalSelected: 'HospitalizationType', modalHospitalizationType: true}) }}/>
 			:
-				<TextValue value={this.props.patient.hospitalizationType ? this.props.patient.hospitalizationType : 'NÃO INFORMADO'} />
+				<TextValue value={this.props.patient.hospitalizationType ? this.hospitalizationType(this.props.patient.hospitalizationType) : 'NÃO INFORMADO'} />
 		);
 	}
 
