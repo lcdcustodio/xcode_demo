@@ -414,8 +414,8 @@ export default class Profile extends Component {
 	}
 
 	renderIMC() {
-		let patientHeight = '';
-		let patientWeight = '';
+		let patientHeight = null;
+		let patientWeight = null;
 
 		if (this.props.patient.patientHeight) {
 			patientHeight = this.props.patient.patientHeight.toString().replace(',', '.');
@@ -425,9 +425,12 @@ export default class Profile extends Component {
 			patientWeight = this.props.patient.patientWeight.toString().replace(',', '.');
 		}
 
-		return (
-			<TextValue size={13} value={ 'IMC ' + (Number(patientWeight) / Math.pow(Number(patientHeight), 2)).toFixed(2) } />
-		);
+		if (patientHeight && patientWeight) {
+			return (
+				<TextValue size={13} value={ 'IMC ' + (Number(patientWeight) / Math.pow(Number(patientHeight), 2)).toFixed(2) } />
+			);
+		}
+		return <Text />
 	}
 
 	renderAtendencyType() {
