@@ -23,10 +23,9 @@ export default StyleSheet.create({
 	hospitalIcon: {
     height: 60,
     width: 140,
-    marginTop: 10,
-    marginLeft: 18,
-    marginRight: 18,
-    marginBottom: 10,
+    alignItems: 'center', 
+    textAlign: "center", 
+    justifyContent: 'center'
   },
    
   niceBlue: {color:  "#19769F"}, 
@@ -39,7 +38,7 @@ export default StyleSheet.create({
     color: "#51565f" ,
     marginTop: 7, 
     marginLeft: 5, 
-    marginBottom: 5, 
+    marginBottom: 5
   }, 
 
     sideButtonRight : {

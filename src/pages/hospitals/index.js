@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import api from '../../services/api';
-import { Container, Content, Header, Left, Right, Body, Icon, Title, Text, Thumbnail } from 'native-base';
+import { Container, Content, Header, Left, Right, Body, Title, Text, Thumbnail, Card, CardItem } from 'native-base';
+
 import { Alert, View, FlatList, TouchableOpacity, Image, BackHandler } from "react-native";
 import AsyncStorage from '@react-native-community/async-storage';
 import NetInfo from "@react-native-community/netinfo";
@@ -14,6 +15,7 @@ import qs from "qs";
 import _ from 'lodash'
 import { Searchbar, List } from 'react-native-paper';
 import TextValue from '../../components/TextValue';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 
 export default class Hospital extends Component {
 
@@ -544,34 +546,44 @@ export default class Hospital extends Component {
 				}
 			}}>
 			
-			<View style={[styles.container, {alignItems: 'center', textAlign: 'center'}]}>
+            <View style={{ width: '100%', paddingTop: 10, paddingLeft: 10, paddingRight: 10, backgroundColor: '#fafafa'}}>
+                
+                <Card>
 
-				<View style={{width: '43%', alignItems: 'center', textAlign: "center", justifyContent: 'center'}}>
-					{ this.renderImageOrName(item) }
-				</View>
-			
-				<View style={{flexDirection: "column", width: '53%'}}>
-					
-					<View style={{flexDirection: "row", alignItems: 'center'}}>
-						<Icon type="AntDesign" name="calendar" style={styles.calendarIcon} />
-						<Text style={[styles.description, styles.niceBlue]}>Última Visita: </Text><Text style={[styles.description]}>{item.lastVisit}</Text>
-					</View>
+                    <View style={{alignItems: 'center', textAlign: "center", justifyContent: 'center', height: 80}}>
+                    	{ this.renderImageOrName(item) }
+                    </View>
+                    
+                    <CardItem footer bordered style={{ justifyContent: 'center', height: 40, paddingTop: 0, paddingRight: 0, paddingBottom: 0, paddingLeft: 0}}>                            
+                        
+                        <View style={{ width: '10%'}}>
+                            <Text style={{paddingLeft: 10}}><Icon name="briefcase-medical" style={{color: '#666', fontSize: 20}} /></Text>
+                        </View>
 
-					<View style={{flexDirection: "row", alignItems: 'center'}}>
-						<Icon type="AntDesign" name="book" style={styles.calendarIcon} />
-						<Text style={[styles.description, styles.niceBlue]}>Internados: </Text><Text style={[styles.description]}>{item.totalPatients}</Text>
-					</View>
-					
-					<View style={{flexDirection: "row", alignItems: 'center'}}>
-						<Icon type="AntDesign" name="user" style={styles.userIcon}/>
-						<Text style={[styles.description, styles.niceBlue]}>Visitados: </Text><Text style={[styles.description]}>{item.totalPatientsVisitedToday}</Text>
-					</View>
-				</View>
-				<View style={[styles.sideButtonRight]}>
-					<Icon type="AntDesign" name="right" style={{ color: 'white', fontSize: 20}} />
-				</View> 
-				
-			</View>
+                        <View style={{ width: '24%', justifyContent: 'center', borderRightWidth: 1, borderRightColor: '#ccc', height: 40}}>
+                            <Text style={{fontSize: 12}}> {item.lastVisit} </Text>
+                        </View>
+                        
+                        <View style={{ width: '10%', justifyContent: 'center'}}>
+                            <Text style={{paddingLeft: 10}}><Icon name="bed" style={{color: '#666', fontSize: 20}} /></Text>
+                        </View>
+                        
+                        <View style={{ width: '23%', justifyContent: 'center', borderRightWidth: 1, borderRightColor: '#ccc', height: 40}}>
+                            <Text style={{fontSize: 12}}> {item.totalPatients} Internados </Text>
+                        </View>
+                        
+                        <View style={{ width: '10%', justifyContent: 'center'}}>
+                            <Text style={{paddingLeft: 10}}><Icon name="eye" style={{color: '#666', fontSize: 20}} /></Text>
+                        </View>
+                        
+                        <View style={{ width: '23%', justifyContent: 'center'}}>
+                            <Text style={{fontSize: 12}}> {item.totalPatientsVisitedToday} Visitados </Text>
+                        </View>
+                        
+                    
+                    </CardItem>
+                </Card>
+            </View>
 			
 		</TouchableOpacity>
 	);
@@ -658,13 +670,13 @@ export default class Hospital extends Component {
 
 				<Header style={styles.headerMenu}>
 					<Left style={{flex:1}} >
-						<Icon name="md-menu" style={{ color: 'white' }} onPress={() => this.props.navigation.openDrawer() } />
+						<Icon name="bars" style={{color: '#FFF', fontSize: 30}} onPress={() => this.props.navigation.openDrawer() } />
 					</Left>
 					<Body style={{flex: 7}}>
 						<Title style={{color: 'white'}}>Hospitais</Title>
 					</Body>
 					<Right style={{flex:1}} >
-						<Icon name="sync" style={{ color: 'white' }} onPress={() => this.sincronizar(true) } />
+						<Icon name="sync" style={{color: '#FFF', fontSize: 25}} onPress={() => this.sincronizar(true) } />
 					</Right>
 				</Header>
 
