@@ -240,7 +240,7 @@ export default class Profile extends Component {
 							<Divider />
 
 							<Dialog.Actions>
-								<Button onPress={ () => { this.toggleModal('modalHeightAndWeight') } }>Fechar</Button>
+								<Button onPress={ () => { this.toggleModal('modalHeightAndWeight') } }>Salvar</Button>
 							</Dialog.Actions>
 
 						</Dialog>
@@ -255,7 +255,7 @@ export default class Profile extends Component {
 							<Divider />
 							
 							<Dialog.Content>
-								<RadioButton.Group onValueChange={ value => { this.handleAttendanceType(value) } } value={this.attendanceType(this.props.patient.attendanceType)}>
+								<RadioButton.Group onValueChange={ value => { this.handleAttendanceType(value) } } value={this.props.patient.attendanceType}>
 									<View style={{flexDirection: 'row', alignItems: 'center'}}>
 										<RadioButton value="ELECTIVE" />
 										<Text>Eletivo</Text>
@@ -270,7 +270,7 @@ export default class Profile extends Component {
 							<Divider />
 
 							<Dialog.Actions>
-								<Button onPress={ () => { this.toggleModal('modalAttendanceType') } }>Fechar</Button>
+								<Button onPress={ () => { this.toggleModal('modalAttendanceType') } }>Salvar</Button>
 							</Dialog.Actions>
 						</Dialog>
 					</Portal>
@@ -299,7 +299,7 @@ export default class Profile extends Component {
 							<Divider />
 
 							<Dialog.Actions>
-								<Button onPress={ () => { this.toggleModal('modalHospitalizationType') } }>Fechar</Button>
+								<Button onPress={ () => { this.toggleModal('modalHospitalizationType') } }>Salvar</Button>
 							</Dialog.Actions>
 						</Dialog>
 					</Portal>
@@ -396,7 +396,7 @@ export default class Profile extends Component {
 							<Divider />
 
 							<Dialog.Actions>
-								<Button onPress={ () => { this.toggleModal('modalMainProcedure') } }>Fechar</Button>
+								<Button onPress={ () => { this.toggleModal('modalMainProcedure') } }>Salvar</Button>
 							</Dialog.Actions>
 						</Dialog>
 					</Portal>
@@ -413,21 +413,41 @@ export default class Profile extends Component {
 		);
 	}
 
+	renderIMC() {
+		let patientHeight = null;
+		let patientWeight = null;
+
+		if (this.props.patient.patientHeight) {
+			patientHeight = this.props.patient.patientHeight.toString().replace(',', '.');
+		}
+		
+		if (this.props.patient.patientWeight) {
+			patientWeight = this.props.patient.patientWeight.toString().replace(',', '.');
+		}
+
+		if (patientHeight && patientWeight) {
+			return (
+				<TextValue size={13} value={ 'IMC ' + (Number(patientWeight) / Math.pow(Number(patientHeight), 2)).toFixed(2) } />
+			);
+		}
+		return <Text />
+	}
+
 	renderAtendencyType() {
 		return (
 			this.state.isEditable ?
-				<TextValue color={'#0000FF'} value={this.props.patient.attendanceType ? this.props.patient.attendanceType : 'INFORMAR'} press={ () => { this.setState({modalSelected: 'AttendanceType', modalAttendanceType: true}) }}/>
+				<TextValue color={'#0000FF'} value={this.props.patient.attendanceType ? this.attendanceType(this.props.patient.attendanceType) : 'INFORMAR'} press={ () => { this.setState({modalSelected: 'AttendanceType', modalAttendanceType: true}) }}/>
 			:
-				<TextValue value={this.props.patient.attendanceType ? this.props.patient.attendanceType : 'NÃO INFORMADO'} />
+				<TextValue value={this.props.patient.attendanceType ? this.attendanceType(this.props.patient.attendanceType) : 'NÃO INFORMADO'} />
 		);
 	}
 
 	renderHospitalizationType() {
 		return (
 			this.state.isEditable ?
-				<TextValue color={'#0000FF'} value={this.props.patient.hospitalizationType ? this.props.patient.hospitalizationType : 'INFORMAR'} press={ () => { this.setState({modalSelected: 'HospitalizationType', modalHospitalizationType: true}) }}/>
+				<TextValue color={'#0000FF'} value={this.props.patient.hospitalizationType ? this.hospitalizationType(this.props.patient.hospitalizationType) : 'INFORMAR'} press={ () => { this.setState({modalSelected: 'HospitalizationType', modalHospitalizationType: true}) }}/>
 			:
-				<TextValue value={this.props.patient.hospitalizationType ? this.props.patient.hospitalizationType : 'NÃO INFORMADO'} />
+				<TextValue value={this.props.patient.hospitalizationType ? this.hospitalizationType(this.props.patient.hospitalizationType) : 'NÃO INFORMADO'} />
 		);
 	}
 
@@ -534,7 +554,7 @@ export default class Profile extends Component {
 							</Text>
 						</Body>
 						<Right>
-							<TextValue size={13} value={ this.props.patient.patientHeight && this.props.patient.patientWeight ? 'IMC ' + (Number(this.props.patient.patientWeight) / Math.pow(Number(this.props.patient.patientHeight), 2)).toFixed(2) : '' }/>
+							{ this.renderIMC() }
 			            </Right>
 					</ListItem>
 
