@@ -11,6 +11,8 @@ import Profile from "./profile";
 import Events from "./events";
 import Visits from "./visits";
 
+import Session from '../../Session';
+
 class PatientDetail extends Component {
     
 	constructor(props) {
@@ -19,9 +21,8 @@ class PatientDetail extends Component {
 		this.state = {
 			patient: this.props.navigation.getParam('patient'),
 			selectedTab: TabEnum.Profile,
-			isEditable: this.props.navigation.getParam('isEditable')
+			isEditable: Session.current.user._profile === 'ADMIN' ? false : true
 		}
-		
 	}
 
 	handleUpdatePatient = async (attribute, value) => {
@@ -90,7 +91,8 @@ class PatientDetail extends Component {
 
 		this.setState({
 			patient: this.props.navigation.getParam('patient'),
-			selectedTab: selectedTab
+			selectedTab: selectedTab,
+			isEditable: Session.current.user._profile === 'ADMIN' ? false : true
 		});
 		
 		this.backHandler = BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);

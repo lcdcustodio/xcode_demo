@@ -255,7 +255,7 @@ export default class Profile extends Component {
 							<Divider />
 							
 							<Dialog.Content>
-								<RadioButton.Group onValueChange={ value => { this.handleAttendanceType(value) } } value={this.attendanceType(this.props.patient.attendanceType)}>
+								<RadioButton.Group onValueChange={ value => { this.handleAttendanceType(value) } } value={this.props.patient.attendanceType}>
 									<View style={{flexDirection: 'row', alignItems: 'center'}}>
 										<RadioButton value="ELECTIVE" />
 										<Text>Eletivo</Text>
@@ -534,7 +534,7 @@ export default class Profile extends Component {
 							</Text>
 						</Body>
 						<Right>
-							<TextValue size={13} value={ this.props.patient.patientHeight && this.props.patient.patientWeight ? 'IMC ' + (Number(this.props.patient.patientWeight) / Math.pow(Number(this.props.patient.patientHeight), 2)).toFixed(2) : '' }/>
+							<TextValue size={13} value={ this.props.patient.patientHeight && this.props.patient.patientWeight ? 'IMC ' + (Number(this.props.patient.patientWeight.replace(',', '.')) / Math.pow(Number(this.props.patient.patientHeight.replace(',', '.')), 2)).toFixed(2) : '' }/>
 			            </Right>
 					</ListItem>
 
