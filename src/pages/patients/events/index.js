@@ -3,8 +3,9 @@ import { View, Text, StyleSheet, Dimensions, TouchableOpacity, Alert, FlatList }
 import { Container, Header, Content, Card, CardItem, Body, Right, Left } from 'native-base';
 import LinearGradient from 'react-native-linear-gradient';
 import Timeline from '../../../components/Timeline';
-import TimelineEvent, { TimelineEventEnum, TimelineEventEvaluation, timelineEventSorter } from '../../../util/TimelineEvent'
 import { List, Button} from 'react-native-paper';
+import TimelineEvent, { TimelineEventEnum, TimelineEventEvaluation, timelineEventSorter } from '../../../util/TimelineEvent'
+import moment from 'moment';
 
 
 export default class Events extends Component {
@@ -198,32 +199,39 @@ export default class Events extends Component {
 		return (
 		<View key={index} style={{ paddingTop: 10, paddingLeft: 10, paddingRight: 10, backgroundColor: '#fefefe'}}>
 		<Card>
-			<CardItem header bordered style={{ flex: 1, backgroundColor: '#cce5ff', height: 40}}>
+			<CardItem header bordered style={{ flex: 1, backgroundColor: ITEM_COLOR[event.item.typeEnum], height: 40}}>
 				<Left>
-					<Text style={{ fontSize: 16, fontWeight: 'bold'}}>{event.name}</Text>
+					<Text style={{ fontSize: 16, fontWeight: 'bold'}}>{event.item.type}</Text>
 				</Left>
 				<Right>
-					<Text>01/01/2018</Text>
+					<Text>{moment(event.item.time).format('DD/MM/YYYY')}</Text>
 				</Right>
 			</CardItem>
 			
 			<CardItem bordered>
 				<Body>
 					<Text>
-						uma oobservacao aqui
+						{event.item.name}
 					</Text>
+					{ event.item.comments !== null &&
+						<Text>
+							{event.item.comments}
+						</Text>
+					}
 				</Body>
 			</CardItem>
 
-			<CardItem footer bordered style={{ alignItems: 'center', justifyContent: 'center', height: 40}}>							
-				<View>
-					<Button color='#00dda2' icon="add" onPress={_=>this.showVisit(item)}>Editar</Button>
-				</View>
-				<View  style={{borderRightColor: '#ffffff', borderWidth: 1, height: '80%', borderBottomColor: '#ffffff', borderTopColor: '#ffffff', borderLeftColor: '#ebeff2'}}></View>
-				<View>
-					<Button color='#f73655' icon="remove" onPress={_=>this.alertToRemove(item)}>Excluir</Button>
-				</View>
-			</CardItem>
+			{ event.item.typeEnum === TimelineEventEnum.Recommendation &&
+				<CardItem footer bordered style={{ alignItems: 'center', justifyContent: 'center', height: 40}}>							
+					<View>
+						<Button color='#00dda2' icon="add" onPress={_=>this.showVisit(item)}>Editar</Button>
+					</View>
+					<View  style={{borderRightColor: '#ffffff', borderWidth: 1, height: '80%', borderBottomColor: '#ffffff', borderTopColor: '#ffffff', borderLeftColor: '#ebeff2'}}></View>
+					<View>
+						<Button color='#f73655' icon="remove" onPress={_=>this.alertToRemove(item)}>Excluir</Button>
+					</View>
+				</CardItem>
+			}
 
 		</Card>
 		</View>
@@ -246,6 +254,13 @@ export default class Events extends Component {
 		}
 	}
 }
+
+const ITEM_COLOR = {};
+ITEM_COLOR[TimelineEventEnum.ExamRequest] = '#CCE5FF';
+ITEM_COLOR[TimelineEventEnum.FurtherOpinion] = '#89CBE8';
+ITEM_COLOR[TimelineEventEnum.MedicalProcedure] = '#A3F6FF';
+ITEM_COLOR[TimelineEventEnum.MedicineUsage] = '#89E8DD';
+ITEM_COLOR[TimelineEventEnum.Recommendation] = '#96FFDB';
 
 const styles = StyleSheet.create({
 	container: {
