@@ -243,9 +243,12 @@ export default class Patients extends Component {
 
     renderItem = ({ item }) => (
         
-            <View style={{ paddingTop: 10, paddingLeft: 10, paddingRight: 10, backgroundColor: '#fafafa'}} onPress={() => {
-                this.props.navigation.navigate("PatientDetail", { patient: item});
-            }}>
+             <TouchableOpacity
+                onPress={() => {
+                    this.props.navigation.navigate("PatientDetail", { patient: item});
+                }}>
+
+            <View style={{ paddingTop: 10, paddingLeft: 10, paddingRight: 10, backgroundColor: '#fafafa'}}>
                 <Card>
                     <CardItem header bordered style={{ flex: 1, height: 50}}>
                         <View style={{width: '90%'}}>
@@ -294,6 +297,8 @@ export default class Patients extends Component {
                     </CardItem>
                 </Card>
             </View>
+
+            </TouchableOpacity>
     );
 
     render(){
@@ -302,7 +307,7 @@ export default class Patients extends Component {
                 <Header style={styles.headerMenu}>
                     
                     <Left style={{flex:1}} >
-                        <Icon type="AntDesign" name="left" style={{ color: 'white' }} onPress={() => this.props.navigation.navigate('Hospitals') } />
+                        <Icon type="back" name="left" style={{ color: 'white' }} onPress={() => this.props.navigation.navigate('Hospitals') } />
                     </Left>
                     <Body style={{flex: 7}}>
                         <Title style={{color: 'white'}}>{this.state.hospital.name}</Title>
