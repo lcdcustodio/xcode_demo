@@ -34,25 +34,23 @@ export default class Recommendation extends React.Component {
 	}
 	
 	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
-		let update = this.props.navigation.state.params.update;
-		let uuid, date;
-		
-		if(update){
-			uuid =  this.props.navigation.state.params.patient.uuid;
-			date = this.props.navigation.state.params.patient.performedAt;
+		const { params } = this.props.navigation.state;
+		const update = params.update;
+		if (update) {
+			this.setState({
+				recommendation: params.event.data,
+				update: update
+			});
 		} else {
-			uuid =  Uuid();
-			date = moment();
+			this.setState({
+				recommendation: {
+					...this.state.recommendation, 
+					uuid: Uuid(), 
+					performedAt: moment(), 
+				},
+				update: update
+			});
 		}
-
-		this.setState({
-			recommendation: {
-				...this.state.recommendation, 
-				uuid: uuid, 
-				performedAt: date 
-			},
-			update: update
-		});
 	});
 
 	save = _ => {
@@ -64,11 +62,9 @@ export default class Recommendation extends React.Component {
 		} else {
 			if(this.saveRecommendation(patient)){
 				this.props.navigation.navigate("PatientDetail", { patient, selectedTab: 'events'});
-			}  
-			
+			}  			
 			//this.clearState();
-		}
-		
+		}		
 	}
 
 	clearState = _ => {
