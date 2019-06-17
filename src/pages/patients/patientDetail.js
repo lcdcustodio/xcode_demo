@@ -150,7 +150,7 @@ class PatientDetail extends Component {
 					{ this.renderSelectedTab() }
 				</Content>
 				<Footer>
-					<FooterTab>
+					<FooterTab style={{backgroundColor: '#005cd1'}}>
 						<Tab name={ TabEnum.Profile } displayName='Perfil' iconName='user' parent={this} />
 						<Tab name={ TabEnum.Events } displayName='Timeline' iconName='book' parent={this} />
 						<Tab name={ TabEnum.Visits } displayName='Visitas' iconName='calendar' parent={this} />
