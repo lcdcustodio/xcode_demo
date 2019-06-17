@@ -1,10 +1,11 @@
 import React, { Component } from "react";
-import { Container, Content, Header, Left, Right, Button, Body, Icon, Title, Subtitle, Footer, FooterTab, Text } from 'native-base';
+import { Container, Content, Header, Left, Right, Button, Body, Title, Subtitle, Footer, FooterTab, Text } from 'native-base';
 import { StyleSheet, BackHandler } from "react-native";
 import _ from 'lodash';
 import TabEnum from './PatientDetailTabEnum';
 import AsyncStorage from '@react-native-community/async-storage';
 import moment from 'moment';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 //Pages
 import Profile from "./profile";
@@ -25,6 +26,11 @@ class PatientDetail extends Component {
 		}
 	}
 
+	componentDidMount() {
+		console.log('back press');
+		this.backHandler = BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
+	}
+
 	handleUpdatePatient = async (attribute, value) => {
 
 		console.log(attribute, value);
@@ -34,6 +40,12 @@ class PatientDetail extends Component {
 				...this.state.patient,
 				[attribute]: value
 			}
+		});
+
+		console.log(this.state.patient.id.toString());
+
+		AsyncStorage.setItem(this.state.patient.id.toString(), JSON.stringify(this.state.patient), () => {
+			console.log(this.state.patient);
 		});
 
 		/*AsyncStorage.getItem('hospitalizationList', (err, res) => {
@@ -73,28 +85,44 @@ class PatientDetail extends Component {
 		}
 	}
 
-	renderButtonAdd = () => {
-		if (this.state.selectedTab != 'profile') {
-			return (<Right style={{flex:1}} >
-				<Icon name="add" style={{ color: 'white' }} onPress={() => console.log('clique') } />
-			</Right>);
-		}
-	}
-
 	handleBackPress = () => {
 		this.props.navigation.navigate('Patients');
 		return true;
 	}
 
 	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
+		
 		let selectedTab  = !this.props.navigation.getParam('selectedTab') ? 'profile' : this.props.navigation.getParam('selectedTab')
 
-		this.setState({
-			patient: this.props.navigation.getParam('patient'),
-			selectedTab: selectedTab,
-			isEditable: Session.current.user._profile === 'ADMIN' ? false : true
-		});
+		let patient = this.props.navigation.getParam('patient');
 		
+		AsyncStorage.getItem(patient.id.toString(), (err, res) => {
+
+			console.log(res);
+
+			if (res == null) {
+
+				this.setState({
+					patient: patient,
+					selectedTab: selectedTab,
+					isEditable: Session.current.user._profile === 'ADMIN' ? false : true
+				});
+
+			}
+			else
+			{
+				res = JSON.parse(res);
+
+				this.setState({
+					patient: res,
+					selectedTab: selectedTab,
+					isEditable: Session.current.user._profile === 'ADMIN' ? false : true
+				});
+			}
+
+
+		});
+
 		this.backHandler = BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
 	});
 
@@ -111,7 +139,8 @@ class PatientDetail extends Component {
 			<Container>
 				<Header style={ styles.header }>
 					<Left style={{flex:1}} >
-						<Icon type="AntDesign" name="left" style={{ color: 'white' }} onPress={this._goBack} />
+						<Icon name="angle-left" style={{color: '#FFF', fontSize: 40}} onPress={this._goBack} />
+
 					</Left>
 					<Body style={{flex: 7}}>
 						<Title style={{color: 'white'}}> Detalhes do Paciente </Title>
@@ -122,7 +151,7 @@ class PatientDetail extends Component {
 				</Content>
 				<Footer>
 					<FooterTab>
-						<Tab name={ TabEnum.Profile } displayName='Perfil' iconName='person' parent={this} />
+						<Tab name={ TabEnum.Profile } displayName='Perfil' iconName='user' parent={this} />
 						<Tab name={ TabEnum.Events } displayName='Timeline' iconName='book' parent={this} />
 						<Tab name={ TabEnum.Visits } displayName='Visitas' iconName='calendar' parent={this} />
 					</FooterTab>
@@ -144,7 +173,7 @@ const Tab = (props) => (
 	<Button backgroundColor={backgroundColor} vertical
 			active={props.parent.isSelected(props.name)}
 			onPress={() => props.parent.selectTab(props.name)}>
-		<Icon name={props.iconName} />
+		<Icon name={props.iconName} style={{color: '#FFF', fontSize: 20}} />
 		<Text>{props.displayName}</Text>
 	</Button>
 );
