@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, Dimensions, TouchableOpacity, Alert, FlatList } from 'react-native';
-import { Container, Header, Content, Card, CardItem, Body, Right, Left } from 'native-base';
-import LinearGradient from 'react-native-linear-gradient';
-import Timeline from '../../../components/Timeline';
-import { List, Button} from 'react-native-paper';
+import { View, Text, StyleSheet, Dimensions, Alert, FlatList } from 'react-native';
+import { Card, CardItem, Body, Right, Left } from 'native-base';
+import { Button} from 'react-native-paper';
 import TimelineEvent, { TimelineEventEnum, TimelineEventEvaluation, timelineEventSorter } from '../../../util/TimelineEvent'
 import moment from 'moment';
 
@@ -27,30 +25,13 @@ export default class Events extends Component {
 	render() {
 		return (
 			<View style={styles.container}>
-				
 				<FlatList 
 					data={this.state.eventos}
-					/*renderEvent={this._renderEvent}
-					lineColor={'#b1b1b1'} 
-					circleColor={'#005cd1'} 
-					innerCircle={'dot'} 
-					circleSize={20}
-					renderFullLine={true} 
-					lineWidth={4} 
-					timeStyle={styles.date}   */
+					keyExtractor={ (event) => { return event.data.uuid; } }
 					renderItem={this._renderEvent}  />
-
 				<View style={{marginTop:10, marginBottom: 10, marginLeft: 10, marginRight: 10}}>
-
-				<Button mode="contained" onPress={this._create}> APONTAR </Button>
-
-{/* 					<LinearGradient colors={['#035fcc', '#023066']} style={ [styles.circle, styles.borderCircle ]} >
-						<Icon type='Entypo' name='sound-mix' style={ styles.iconCircle } onPress={this._create} />
-						<Text style={ styles.textCircle }>APONTAR</Text>
-					</LinearGradient> */}
-
+					<Button mode="contained" onPress={this._create}> APONTAR </Button>
 				</View>
-
 			</View>
 		);
 	}
@@ -74,7 +55,6 @@ export default class Events extends Component {
 	}
 
 	_pushRecommendation = (destination, source, name) => {
-		console.log('rec', source)
 		if (source) {
 			destination.push(new TimelineEvent(
 				TimelineEventEnum.Recommendation,
@@ -146,7 +126,6 @@ export default class Events extends Component {
 	isaPatientWithDischarge = _ =>  this.props.patient.iconNumber === 1; 
 	
 	_read = (event) => {
-		console.log("event", event)
 		const {patient, hospital, baseDataSync} = this.props.parent.state;
 		if (this.isaRecommendation(event.typeEnum)) {
 			if (this.isaPatientWithDischarge()) {
@@ -198,7 +177,6 @@ export default class Events extends Component {
 	}
 
 	_renderEvent = (event, index) => {
-		console.log("event", event)
 		const eventInfo = event.item;
 		return (
 		<View key={index} style={{ paddingTop: 10, paddingLeft: 10, paddingRight: 10, backgroundColor: '#fefefe'}}>
@@ -211,7 +189,6 @@ export default class Events extends Component {
 					<Text>{moment(eventInfo.time).format('DD/MM/YYYY')}</Text>
 				</Right>
 			</CardItem>
-			
 			<CardItem bordered>
 				<Body>
 					<Text>
@@ -224,7 +201,6 @@ export default class Events extends Component {
 					}
 				</Body>
 			</CardItem>
-
 			{ eventInfo.typeEnum === TimelineEventEnum.Recommendation &&
 				<CardItem footer bordered style={{ alignItems: 'center', justifyContent: 'center', height: 40}}>							
 					<View>
