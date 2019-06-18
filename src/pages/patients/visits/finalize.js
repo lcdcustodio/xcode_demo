@@ -1,85 +1,125 @@
 import React, { Component } from 'react';
 import { Container, Content } from 'native-base';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 import { Card } from 'react-native-paper';
+import moment from 'moment';
+import uuidv4 from'uuid/v4';
 
 import { RdIf, RdHeader } from '../../../components/rededor-base';
 import Modal from '../../../components/Modal';
 import FormItem from '../../../components/FormItem';
 import RecommendationCard from '../../../components/RecommendationCard';
 import RecommendationCardToggle from '../../../components/RecommendationCardToggle';
+import data from '../../../../data.json';
 
+const MEDICINE_REINTEGRATION_ACTION_STATE = 'complementaryInfoHospitalizationAPI';
+const MORBITY_COMORBITY_ACTION_STATE = 'morbidityComorbityList';
 const WELCOME_HOME_STATE = 'welcomeHomeIndication';
 const MEDICINE_REINTEGRATION_STATE = 'medicineReintegration';
 const CLINICAL_ACTION_STATE = 'clinicalIndication';
-const INPUT_CID_MODAL_VISIBLE_STATE = 'isInputCidModalVisible';
 
 export default class Finalize extends Component {
 
-	willFocus = this.props.navigation.addListener('willFocus', (payload) => {
-		const { params } = payload.action;
-		const patient = params && params.patient;
-		if (patient) {
-			this.setState(this._loadState(patient));
-		}
-	});
-	
-	_loadState = (patient) => {
-		return {
-			patient: patient,
-			complementaryInfo: {},
-			morbityComorbity: {},
-			[WELCOME_HOME_STATE]: {
-				isSet: !!patient.recommendationWelcomeHomeIndication,
-			},
-			[MEDICINE_REINTEGRATION_STATE]: {
-				isSet: !!patient.recommendationMedicineReintegration,
-			},
-			[CLINICAL_ACTION_STATE]: {
-				isSet: !!patient.recommendationClinicalIndication,
-				specialty: 1,
-			},
-		}
+	constructor(props) {
+		super(props);
+		this.state = { 
+			patient: this.props.navigation.getParam('patient'),
+			cid: data.cid,
+			modalExitCID: false,
+			exitCID: null,
+			accordionComplementaryInfoHospitalizationAPI: false,
+			accordionMorbidityComorbityList: false,
+			accordionRecommendationWelcomeHomeIndication: false,
+			accordionRecommendationMedicineReintegration: false,
+			accordionRecommendationClinicalIndication: false,
+		};
+
+		handleUpdatePatient = this.props.navigation.getParam('handleUpdatePatient');
 	}
 
-	_onToggleRecommendation = (stateName) => {
-		const currentState = this.state[stateName];
-		this.setState({
-			[stateName]: {
-				...currentState,
-				isSet: !currentState.isSet	
-			}
-		});
-	}
+	willFocus = this.props.navigation.addListener('willFocus', (payload) => {
+		this.setState({ patient: payload.action.params.patient });
+		handleUpdatePatient = payload.action.params.handleUpdatePatient;
+	});
 
 	_goBack = () => {
 		this.props.navigation.navigate('PatientDetail');
 	}
+	
+	toggleModal = (modalName) => {
+		this.setState({[modalName]: !this.state[modalName]})
+	}
+
+	toggleAccordion = (accordionName) => {
+		console.log("entrou");
+		this.setState({[accordionName]: !this.state[accordionName]})
+	}
+
+	handleExitCID = (cid) => {
+		let exitCID = {
+			beginDate: moment(),
+			cidDisplayName: `${cid.item.code} - ${cid.item.name}`,
+			cidId: cid.item.id,
+			uuid: uuidv4(),
+		}
+
+		this.setState({
+			...this.state,
+			exitCID
+		})
+		
+		this.toggleModal('modalExitCID');
+	}
 
 	render() {
-		if (!this.state) return null;
 		const { patient } = this.state;
 		return (
 			<Container>
 				<RdHeader title={ patient.death ? 'Óbito' : 'Alta' } goBack={ this._goBack } style={ styles.header }/>
-				<Modal stateName={INPUT_CID_MODAL_VISIBLE_STATE} stateHolder={this} onSelect={ (item) => { console.log("AKIIIIIIII", item) } }/>
+				<Modal title="CID Primário" visible={this.state.modalExitCID} list={data.cid} onSelect={this.handleExitCID} close={() => {this.toggleModal('modalExitCID')} } />
 
 				<Content padder style={ styles.body }>
 					<Card elevation={10} style={ styles.card }>
 						<Card.Content>
-							<FormItem label='CID de Entrada' value='[a implementar]'/>
-							<FormItem label='CID de Saída' value='[a implementar]' onPress={
-								() => { this.setState({	[INPUT_CID_MODAL_VISIBLE_STATE]: true }) }
-							}/>
+							<FormItem label='CID de Entrada' value={patient.diagnosticHypothesisList[0].cidDisplayName}/>
+							<FormItem label='CID de Saída' value={this.state.exitCID ? this.state.exitCID.cidDisplayName : 'ESCOLHER'} onPress={ () => {this.toggleModal('modalExitCID')} }/>
 						</Card.Content>
 					</Card>
+
 					<RdIf condition={!patient.death}>
-						<RecommendationCard number='1' title='Risco de Reinternação' onPress={ () => this.props.navigation.navigate('PatientDetail', { patient: patient}) }/>
-						<RecommendationCard number='2' title='Morbidades e Comorbidades' description='Adulto'/>
-						<RecommendationCardToggle number='3' title='Welcome Home' stateName={WELCOME_HOME_STATE} stateHolder={this}/>
-						<RecommendationCardToggle number='4' title='Reconciliação Medicamentosa' stateName={MEDICINE_REINTEGRATION_STATE} stateHolder={this}/>
-						<RecommendationCardToggle number='5' title='Indicação para Ambulatório' stateName={CLINICAL_ACTION_STATE} stateHolder={this}>
-							<FormItem label='Especialidade'/>
+						<RecommendationCardToggle 
+							number='1' title='Risco de Reinternação' 
+							visible={this.state.accordionComplementaryInfoHospitalizationAPI} 
+							onPress={ () => {this.toggleAccordion('accordionComplementaryInfoHospitalizationAPI')} }> 
+								<FormItem label='Risco de Reinternação' value='Teste 1' />
+						</RecommendationCardToggle>
+
+						<RecommendationCardToggle 
+							number='2' title='Morbidades e Comorbidades' 
+							visible={this.state.accordionMorbidityComorbityList}
+							onPress={ () => {this.toggleAccordion('accordionMorbidityComorbityList')} }> 
+								<FormItem label='Morbidades e Comorbidades' value='Teste 1' />
+						</RecommendationCardToggle>
+
+						<RecommendationCardToggle 
+							number='3' title='Welcome Home' 
+							visible={this.state.accordionRecommendationWelcomeHomeIndication}
+							onPress={ () => {this.toggleAccordion('accordionRecommendationWelcomeHomeIndication')} }> 
+								<FormItem label='Welcome Home' value='Teste 1' />
+						</RecommendationCardToggle>
+						
+						<RecommendationCardToggle 
+							number='4' title='Reconciliação Medicamentosa' 
+							visible={this.state.accordionRecommendationMedicineReintegration}
+							onPress={ () => {this.toggleAccordion('accordionRecommendationMedicineReintegration')} }> 
+								<FormItem label='Reconciliação Medicamentosa' value='Teste 1' />
+						</RecommendationCardToggle>
+
+						<RecommendationCardToggle 
+							number='5' title='Indicação para Ambulatório' 
+							visible={this.state.accordionRecommendationClinicalIndication}
+							onPress={ () => {this.toggleAccordion('accordionRecommendationClinicalIndication')} }> 
+								<FormItem label='Indicação para Ambulatório' value='Teste 1' />
 						</RecommendationCardToggle>
 					</RdIf>
 				</Content>
@@ -96,6 +136,9 @@ const styles = StyleSheet.create({
 	body: {
 		backgroundColor: '#eee',
 	},
+	card: {
+		marginBottom: 10,
+    },
 	finalizeItemCircle: {
 		width: 30,
 		height: 30,

@@ -20,7 +20,7 @@ const RecommendationCard = (props) => (
 const styles = {
 	card: {
 		marginBottom: 10,
-    },
+	},
 };
 
 export default RecommendationCard;
