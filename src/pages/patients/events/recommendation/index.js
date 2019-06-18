@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Alert, ScrollView, FlatList} from 'react-native';
 import { Container, Content, Header, Left, Body, Icon, Text, Title } from 'native-base';
+import { RdHeader } from '../../../../components/rededor-base';
 import TextValue from '../../../../components/TextValue'
 import moment from 'moment';
 import Uuid from 'uuid/v4';
@@ -245,14 +246,7 @@ export default class Recommendation extends React.Component {
 
 	render() {
 		return (<Container>
-				<Header style={ styles.header }>
-					<Left style={{flex:1}} >
-						<Icon type="AntDesign" name="left" style={{ color: 'white' }} onPress = { () =>this.props.navigation.navigate("PatientDetail", { selectedTab: 'events'})} />
-					</Left>
-					<Body style={{flex: 7, alignItems: 'stretch'}}>
-						<Title>Recomendação para Alta</Title>
-					</Body>
-				</Header>
+				<RdHeader title='Recomendação para Alta' goBack={() =>this.props.navigation.navigate("PatientDetail", { selectedTab: 'events'})} />
 				<Content>
 				<View style={ styles.container }>
 
