@@ -81,13 +81,9 @@ export default StyleSheet.create({
  	},
  	textArea: {
 		width: "100%",
-		height: 100,
 		borderColor: '#ccc',
-		borderWidth: 1, 
-		padding: 1,
-		textAlign: 'justify',
-    	lineHeight: 30,
-		padding: 10,
+		borderWidth: 1,
+		padding: 0
 	},
 	modal : {
 		backgroundColor: '#F8F8FF', 
@@ -102,7 +98,7 @@ export default StyleSheet.create({
 		flexDirection: "row", 
 		width: '100%', 
 		flexWrap: 'wrap', 
-		paddingTop: '15%'
+		paddingTop: '5%'
 	},
 	textVisit: {
 		fontWeight: "bold", 
@@ -113,8 +109,7 @@ export default StyleSheet.create({
 		flexDirection: "row", 
 		width: '100%', 
 		flexWrap: 'wrap', 
-		alignItems:'center', 
-		paddingTop: '10%'
+		alignItems:'center'
 	},
 	textObservation : {
 		fontWeight: "bold", 

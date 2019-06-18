@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, FlatList, Modal, TextInput, Switch, TouchableOpacity, Alert } from 'react-native';
+import { View, FlatList, Modal, TextInput, TouchableOpacity, Alert } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import styles from './style'
 import moment from 'moment';
@@ -8,8 +8,10 @@ import uuid from 'uuid/v4';
 
 import Patient, { HospitalizationStatusEnum, StatusVisitEnum, FinalizationErrorEnum } from '../../../model/Patient';
 import { TrackingEndModeEnum } from '../../../model/Tracking';
-import { Container, Header, Content, Card, CardItem, Text, Body, Right, Left } from "native-base";
-import { Button, Paragraph, List, Divider } from 'react-native-paper';
+import TabEnum from '../PatientDetailTabEnum';
+
+import { Card, CardItem, Text, Body, Right, Left } from "native-base";
+import { Button, Switch, Divider, Portal, Dialog } from 'react-native-paper';
 
 import Icon from 'react-native-vector-icons/FontAwesome';
 
@@ -139,7 +141,7 @@ export default class Visitas extends React.Component {
 				msg = 'Os campos ' + fields + ' precisam ser preenchidos.';
 			}
 			Alert.alert('Atenção', msg, [{text: 'OK'}], {cancelable: false});
-			this.props.parent.selectTab(TabEnum.Profile);
+			this.props.selectTab(TabEnum.Profile);
 		}
 	}
 	
@@ -226,50 +228,50 @@ export default class Visitas extends React.Component {
 		return null;
 	}
 	
+	renderModal() {
+		return(
+			<Portal>
+				<Dialog visible={this.state.modalVisible} onDismiss={ () => { this.toggleModal() } }>
+					<Dialog.Title>Visita</Dialog.Title>
+					<Dialog.Content>
+						<View style={styles.alertInformation}>
+							<View style={{order: 1 , width:'10%', paddingLeft: 2}} >
+								<Icon name="exclamation" style={{color: 'red', fontSize: 25}} />
+							</View>
+							<View style={{order: 2, width:'70%'}}>
+								<Text style={{fontSize: 19, fontWeight: "bold"}}>Alerta</Text>
+							</View>
+							<View style={{order: 3, width:'20%', paddingLeft: 2}}>
+								<Switch value={this.state.visit.alert} onValueChange={this.toggleSwitch} />
+							</View>	
+						</View>
+						<View style={styles.observation}>
+							<Text style={styles.textObservation}>Observação</Text>
+							<TextInput multiline={true}	 numberOfLines={3} style={styles.textArea} value={this.state.visit.observation} onChangeText = {observation => this.addObservation(observation)} />
+						</View>	
+					</Dialog.Content>
+
+					<Divider />
+					
+					<Dialog.Actions>
+						<Button onPress={ () => { this.toggleModal() } }>Fechar</Button>
+						<Button onPress={ () => { this.save() } }>Salvar</Button>
+					</Dialog.Actions>
+				</Dialog>
+			</Portal>
+		);
+	}
 	render() {
 		let listOfOrderedObservationDate =[]
+
 		if(this.props.patient.observationList){
 			listOfOrderedObservationDate = _.orderBy(this.props.patient.observationList, ['observationDate'], ['desc'])
 		}
-		console.log("listOfOrderedObservationDate", listOfOrderedObservationDate)
-		return (
-			<View>
-				<Modal
-					animationType="fade"
-					transparent={true}
-					visible={this.state.modalVisible}
-					onRequestClose={() =>{ console.log("Modal has been closed.") } }>
-						<View style={styles.overlay}>
-						<View style={{backgroundColor: '#F8F8FF', borderRadius: 4, flexDirection: "row", flexWrap: 'wrap', height: '60%', marginTop: '25%', padding: 10}}>
-							
-								<View style={styles.viewVisit}>
-										<Button backgroundColor={'#005cd1'} onPress={this.toggleModal}>
-											<Icon type="AntDesign" name="close" style={styles.close} />
-										</Button>
-										<Text style={styles.textVisit}>Visita</Text>
-										<Button backgroundColor={'#005cd1'} onPress={this.save}>
-											<Icon type="AntDesign" name="save" style={styles.save} />
-										</Button>
-								</View>
 
-								<View style={styles.alertInformation}>
-									<View style={{order: 1 , width:'10%', paddingLeft: 2}} >
-										<Icon type="Feather" name="alert-circle" style={{color: 'red', fontSize: 25}} />
-									</View>
-									<View style={{order: 2, width:'70%'}}>
-										<Text style={{fontSize: 19, fontWeight: "bold"}}>Alerta</Text>
-									</View>
-									<View style={{order: 3, width:'20%', paddingLeft: 2}}>
-										<Switch onValueChange={this.toggleSwitch} value={this.state.visit.alert} style={{ transform: [{ scaleX: 1.3 }, { scaleY: 1.3 } ]}}/>
-									</View>	
-								</View>
-								<View style={styles.observation}>
-									<Text style={styles.textObservation}>Observação</Text>
-									<TextInput multiline={true}	 numberOfLines={8} maxHeight={'80%'} style={styles.textArea} value={this.state.visit.observation} onChangeText = {observation => this.addObservation(observation)} />
-								</View>
-							</View>
-						</View>
-					</Modal>	
+		
+		return (
+			<View>	
+				{ this.renderModal() }
 
 				<FlatList
 					data={listOfOrderedObservationDate}
@@ -294,12 +296,18 @@ const COLORS_ENABLED = ['#035fcc', '#023066'];
 const COLORS_DISABLED = ['#808080', '#696969'];
 
 const GradientButton = (props) => (
-	<View style={ styles.rowButtonCircle }>
-		<LinearGradient colors={ props.colors } style={ [styles.circle, styles.borderCircle ]} >
+	<View style={{marginTop:10, marginBottom: 10, marginLeft: 10, marginRight: 10}}>
+
+	<Button mode="contained" onPress={ props.onPress }> { props.children } </Button>
+
+
+{/*         <LinearGradient colors={ props.colors } style={ [styles.circle, styles.borderCircle ]} >
 			<Icon type="FontAwesome5" name={ props.iconName } style={ styles.iconCircle } onPress={ props.onPress }/>
 			<Text style={ styles.textCircle } >{ props.children }</Text>
-		</LinearGradient>
-	</View>
+		</LinearGradient>  */}
+
+    </View>
+
 );
 
 const VisitButton = (props) =>

@@ -15,10 +15,12 @@ export default class Sidebar extends Component {
 			{
 				navOptionName: 'HOSPITAIS',
 				screenToNavigate: 'Hospitals',
-			}, {
-				navOptionName: 'RELATÓRIO',
-				screenToNavigate: 'Report',
-			}, {
+			}, 
+			//{
+			//	navOptionName: 'RELATÓRIO',
+			//	screenToNavigate: 'Report',
+			//}, 
+			{
 				navOptionName: 'SAIR',
 				screenToNavigate: 'SignIn',
 			}
