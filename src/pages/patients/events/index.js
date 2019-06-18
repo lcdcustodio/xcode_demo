@@ -126,25 +126,17 @@ export default class Events extends Component {
 	isaPatientWithDischarge = _ =>  this.props.patient.iconNumber === 1; 
 	
 	_read = (event) => {
-		const {patient, hospital, baseDataSync} = this.props.parent.state;
 		if (this.isaRecommendation(event.typeEnum)) {
 			if (this.isaPatientWithDischarge()) {
 				Alert.alert('Atenção', "Paciente já está de alta", [{text:'OK',onPress:()=>{}}],{cancelable: false});
 			} else {
-				this.recommendationSelected(event, patient);
-				this.props.parent.props.navigation.navigate('Recommendation', {
-					patient: patient,
+				this.recommendationSelected(event, this.props.patient);
+				this.props.navigation.navigate('Recommendation', {
+					patient: this.props.patient,
 					event: event,
 					update: true,
 				});
 			}
-		} else {
-			this.props.parent.props.navigation.navigate('EventDetail', {
-				event,
-				patient,
-				hospital,
-				baseDataSync,
-			});
 		}
 	}
 
