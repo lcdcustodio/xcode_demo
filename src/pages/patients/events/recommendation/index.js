@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Alert, ScrollView, FlatList} from 'react-native';
 import { Container, Content, Header, Left, Body, Icon, Text, Title } from 'native-base';
+import { RdHeader } from '../../../../components/rededor-base';
 import TextValue from '../../../../components/TextValue'
 import moment from 'moment';
 import Uuid from 'uuid/v4';
@@ -34,25 +35,38 @@ export default class Recommendation extends React.Component {
 	}
 	
 	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
-		let update = this.props.navigation.state.params.update;
-		let uuid, date;
-		
-		if(update){
-			uuid =  this.props.navigation.state.params.patient.uuid;
-			date = this.props.navigation.state.params.patient.performedAt;
-		} else {
-			uuid =  Uuid();
-			date = moment();
-		}
+		const { params } = this.props.navigation.state;
+		const update = params.update;
 
-		this.setState({
-			recommendation: {
-				...this.state.recommendation, 
-				uuid: uuid, 
-				performedAt: date 
-			},
-			update: update
-		});
+		if (update) {
+			let {patient} = params;
+	
+			if(this.isaRecommendationWelcomeHome(patient.recommendationType)){
+				recommendationType = this.state.listRecommendationType[0].label;
+			} else 
+			if (this.isaRecommendationClinicalIndication(patient.recommendationType)){
+				recommendationType = this.state.listRecommendationType[1].label
+			} else 
+			if(this.isaRecommendationMedicineReintegration(patient.recommendationType)){
+				recommendationType = this.state.listRecommendationType[2].label;
+			}
+			
+			this.setState({
+				recommendationType: recommendationType,
+				recommendation: params.event.data,
+				performedAt: moment(), 
+				update: update
+			});
+		} else {
+			this.setState({
+				recommendationType: 'Selecione',
+				recommendation: {
+					uuid: Uuid(), 
+					performedAt: moment(), 
+				},
+				update: update
+			});
+		}
 	});
 
 	save = _ => {
@@ -60,28 +74,12 @@ export default class Recommendation extends React.Component {
 		let update = this.state.update;
 
 		if(!update && this.state.recommendationType === 'Selecione'){
-			this.showAlertMsg("Selecione uma recomendação")
+			this.showAlertMsg("Selecione uma recomendação.")
 		} else {
 			if(this.saveRecommendation(patient)){
 				this.props.navigation.navigate("PatientDetail", { patient, selectedTab: 'events'});
-			}  
-			
-			//this.clearState();
-		}
-		
-	}
-
-	clearState = _ => {
-		this.setState({
-			recommendationType: 'Selecione', 
-			recommendation: {
-				uuid: null,
-				performedAt: null,
-				observation: ''
-			},
-			modalRecommendationTypeVisible: false,
-			modalSpecialtyVisible: false,
-		})
+			}  			
+		}		
 	}
 
 	toggleModalRecommendationType = () => {
@@ -119,7 +117,7 @@ export default class Recommendation extends React.Component {
 	showAlertMsg= item =>{Alert.alert('Atenção', item,[{text: 'OK', onPress: () => {}}],{cancelable: false});}
 
 	selectedRecommendationWelcomeHomeIndication = patient =>{
-		const indicationItem = this.state.listRecommendationType[0].label
+		const indicationItem = this.state.listRecommendationType[0].label;
 		if (this.state.recommendationType === indicationItem ) {
 			if(patient.recommendationWelcomeHomeIndication && !this.state.update){
 				this.showAlertMsg(indicationItem + " já cadastrado!")
@@ -131,7 +129,7 @@ export default class Recommendation extends React.Component {
 	}
 
 	selectedRecommendationClinicalIndication = patient =>{
-		const clinicalIndicationItem = this.state.listRecommendationType[1].label
+		const clinicalIndicationItem = this.state.listRecommendationType[1].label;
 		if (this.state.recommendationType === clinicalIndicationItem) {
 			if(patient.recommendationClinicalIndication && !this.state.update){
 				this.showAlertMsg(clinicalIndicationItem + " já cadastrado!")
@@ -148,7 +146,7 @@ export default class Recommendation extends React.Component {
 	}
 
 	selectedRecommendationMedicineReintegration = patient =>{
-		const reintegrationItem = this.state.listRecommendationType[2].label
+		const reintegrationItem = this.state.listRecommendationType[2].label;
 		if (this.state.recommendationType === reintegrationItem ) {
 			if(patient.recommendationMedicineReintegration && !this.state.update){
 				this.showAlertMsg(reintegrationItem + " já cadastrado!")
@@ -165,11 +163,11 @@ export default class Recommendation extends React.Component {
 
 	getRecommendationTypeLabel = item => {
 		const recommendations = this.state.listRecommendationType
-		if (item == recommendations[0].value){
+		if (this.isaRecommendationWelcomeHome(item)){
 			return recommendations[0].label;
-		} else if(item == recommendations[1].value){
+		} else if(this.isaRecommendationClinicalIndication(item)){
 			return recommendations[1].label;
-		} else if (item == recommendations[2].value){
+		} else if (this.isaRecommendationMedicineReintegration(item)){
 			return recommendations[2].label;
 		} else {
 			return item
@@ -211,9 +209,6 @@ export default class Recommendation extends React.Component {
 	}
 
 	handleSpecialtyId = (specialty) => {
-
-		console.log("handleSpecialtyId", specialty)
-		
 		this.setState({
 			recommendation: {
 				...this.state.recommendation,
@@ -247,16 +242,21 @@ export default class Recommendation extends React.Component {
 		);
 	}
 
+	isaRecommendationClinicalIndication = (recommendationType) => {
+		return recommendationType === this.state.listRecommendationType[1].value;
+	}
+
+	isaRecommendationMedicineReintegration = (recommendationType) =>{
+		return recommendationType === this.state.listRecommendationType[2].value;
+	}
+
+	isaRecommendationWelcomeHome = (recommendationType) =>{
+		return recommendationType === this.state.listRecommendationType[0].value;
+	}
+
 	render() {
 		return (<Container>
-				<Header style={ styles.header }>
-					<Left style={{flex:1}} >
-						<Icon type="AntDesign" name="left" style={{ color: 'white' }} onPress = { () =>this.props.navigation.navigate("PatientDetail", { selectedTab: 'events'})} />
-					</Left>
-					<Body style={{flex: 7, alignItems: 'stretch'}}>
-						<Title>Recomendação para Alta</Title>
-					</Body>
-				</Header>
+				<RdHeader title='Recomendação para Alta' goBack={() =>this.props.navigation.navigate("PatientDetail", { selectedTab: 'events'})} />
 				<Content>
 				<View style={ styles.container }>
 

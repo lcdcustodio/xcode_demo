@@ -79,9 +79,9 @@ class PatientDetail extends Component {
 			case TabEnum.Profile:
 				return <Profile patient={this.state.patient} handleUpdatePatient={this.handleUpdatePatient} isEditable={this.state.isEditable} />;
 			case TabEnum.Events:
-				return <Events patient={this.state.patient} parent={this} navigation={this.props.navigation} isEditable={this.state.isEditable} />;
+				return <Events patient={this.state.patient} navigation={this.props.navigation} isEditable={this.state.isEditable} />;
 			case TabEnum.Visits:
-				return <Visits patient={this.state.patient} parent={this} handleUpdatePatient={this.handleUpdatePatient} navigation={this.props.navigation} isEditable={this.state.isEditable} />;
+				return <Visits patient={this.state.patient} selectTab={this.selectTab} handleUpdatePatient={this.handleUpdatePatient} navigation={this.props.navigation} isEditable={this.state.isEditable} />;
 		}
 	}
 
@@ -126,11 +126,11 @@ class PatientDetail extends Component {
 		this.backHandler = BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
 	});
 
-	isSelected(tab) {
+	isSelected = (tab) => {
 		return (tab === this.state.selectedTab);
 	}
 
-	selectTab(tab) {
+	selectTab = (tab) => {
 		this.setState({ selectedTab: tab });
 	}
 
@@ -150,10 +150,10 @@ class PatientDetail extends Component {
 					{ this.renderSelectedTab() }
 				</Content>
 				<Footer>
-					<FooterTab style={{backgroundColor: '#005cd1'}}>
-						<Tab name={ TabEnum.Profile } displayName='Perfil' iconName='user' parent={this} />
-						<Tab name={ TabEnum.Events } displayName='Timeline' iconName='book' parent={this} />
-						<Tab name={ TabEnum.Visits } displayName='Visitas' iconName='calendar' parent={this} />
+					<FooterTab>
+						<Tab name={ TabEnum.Profile } displayName='Perfil' iconName='user' isSelected={this.isSelected} selectTab={this.selectTab} />
+						<Tab name={ TabEnum.Events } displayName='Timeline' iconName='book' isSelected={this.isSelected} selectTab={this.selectTab} />
+						<Tab name={ TabEnum.Visits } displayName='Visitas' iconName='calendar' isSelected={this.isSelected} selectTab={this.selectTab} />
 					</FooterTab>
 				</Footer>
 			</Container>
@@ -171,8 +171,8 @@ const backgroundColor = '#005cd1';
 
 const Tab = (props) => (
 	<Button backgroundColor={backgroundColor} vertical
-			active={props.parent.isSelected(props.name)}
-			onPress={() => props.parent.selectTab(props.name)}>
+			active={props.isSelected(props.name)}
+			onPress={() => props.selectTab(props.name)}>
 		<Icon name={props.iconName} style={{color: '#FFF', fontSize: 20}} />
 		<Text>{props.displayName}</Text>
 	</Button>

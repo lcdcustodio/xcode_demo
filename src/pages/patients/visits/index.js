@@ -8,6 +8,8 @@ import uuid from 'uuid/v4';
 
 import Patient, { HospitalizationStatusEnum, StatusVisitEnum, FinalizationErrorEnum } from '../../../model/Patient';
 import { TrackingEndModeEnum } from '../../../model/Tracking';
+import TabEnum from '../PatientDetailTabEnum';
+
 import { Card, CardItem, Text, Body, Right, Left } from "native-base";
 import { Button, Switch, Divider, Portal, Dialog } from 'react-native-paper';
 
@@ -139,7 +141,7 @@ export default class Visitas extends React.Component {
 				msg = 'Os campos ' + fields + ' precisam ser preenchidos.';
 			}
 			Alert.alert('Atenção', msg, [{text: 'OK'}], {cancelable: false});
-			this.props.parent.selectTab(TabEnum.Profile);
+			this.props.selectTab(TabEnum.Profile);
 		}
 	}
 	
