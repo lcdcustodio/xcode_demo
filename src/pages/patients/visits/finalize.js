@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Body, Container, Content, Header, Icon, Left, ListItem, Text, Title } from 'native-base';
 import { StyleSheet } from 'react-native';
 import { Avatar, Card, List } from 'react-native-paper';
-import { RdIf } from '../../../components/rededor-base';
+import { RdIf, RdHeader } from '../../../components/rededor-base';
 import Modal from '../../../components/Modal';
 import TextValue from '../../../components/TextValue';
 
@@ -26,7 +26,7 @@ export default class Finalize extends Component {
 		const { patient } = this.state;
 		return (
 			<Container>
-				<GoBackHeader title={ patient.death ? 'Óbito' : 'Alta' } goBack={ this._goBack } style={ styles.header }/>
+				<RdHeader title={ patient.death ? 'Óbito' : 'Alta' } goBack={ this._goBack } style={ styles.header }/>
 				<Modal stateName={INPUT_CID_MODAL_VISIBLE_STATE} stateHolder={this} onSelect={ (item) => { console.log("AKIIIIIIII", item) } }/>
 
 				<Content padder style={ styles.body }>
@@ -190,16 +190,3 @@ const styles = StyleSheet.create({
 		flex: 1,
 	}
 });
-
-//--- avaliar componentização externa:
-
-const GoBackHeader = (props) => (
-	<Header style={ props.style }>
-		<Left style={{ flex: 1 }} >
-			<Icon type='AntDesign' name='left' onPress={ props.goBack } style={ props.style }/>
-		</Left>
-		<Body style={{ flex: 7, alignItems: 'stretch' }}>
-			<Title style={ props.style }>{ props.title }</Title>
-		</Body>
-	</Header>
-);
