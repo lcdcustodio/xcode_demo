@@ -502,7 +502,7 @@ export default class Hospital extends Component {
 	renderImageOrName(item) {
 
 		if ( item.logomarca ) {
-			return <Image source={item.logomarca} style={[styles.hospitalIcon, {width: 140, height: 60 }]}/>;
+			return <Image source={item.logomarca} style={{width: 140, height: 60 }}/>;
 		}
 		else
 		{
@@ -642,12 +642,14 @@ export default class Hospital extends Component {
 	}
 
 	renderItemPatient = (element) => {
-		console.log(element)
+		
+		console.log(element);
+
 		return (
-			<View>
-				<List.Item title={`${element.item.patientName}`} onPress={() => { this.goToProfilePage(element.item) }} />
-				<TextValue color={'#999'} size={13} marginLeft={4} marginTop={-6} value={element.item.hospitalName} />
-			</View>
+			<TouchableOpacity onPress={() => { console.log('clicou'); this.goToProfilePage(element.item) }}>
+					<List.Item title={`${element.item.patientName}`} />
+					<TextValue color={'#999'} size={13} marginLeft={4} marginTop={-6} value={element.item.hospitalName} />
+							</TouchableOpacity>
 		);
 	}
 
