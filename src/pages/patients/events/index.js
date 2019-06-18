@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { View, Text, StyleSheet, Dimensions, Alert, FlatList } from 'react-native';
 import { Card, CardItem, Body, Right, Left } from 'native-base';
 import { Button} from 'react-native-paper';
+import baseStyles from '../../../styles';
 import TimelineEvent, { TimelineEventEnum, TimelineEventEvaluation, timelineEventSorter } from '../../../util/TimelineEvent'
 import moment from 'moment';
 
@@ -24,8 +25,9 @@ export default class Events extends Component {
 
 	render() {
 		return (
-			<View style={styles.container}>
+			<View style={{...baseStyles.container, ...styles.container}}>
 				<FlatList 
+					contentContainerStyle={baseStyles.container}
 					data={this.state.eventos}
 					keyExtractor={ (event) => { return event.data.uuid; } }
 					renderItem={this._renderEvent}  />
@@ -171,7 +173,7 @@ export default class Events extends Component {
 	_renderEvent = (event, index) => {
 		const eventInfo = event.item;
 		return (
-		<View key={index} style={{ paddingTop: 10, paddingLeft: 10, paddingRight: 10, backgroundColor: '#fefefe'}}>
+		<View key={index} style={{ paddingTop: 10, paddingLeft: 10, paddingRight: 10, backgroundColor: baseStyles.container.backgroundColor}}>
 		<Card>
 			<CardItem header bordered style={{ flex: 1, backgroundColor: ITEM_COLOR[eventInfo.typeEnum], height: 40}}>
 				<Left>
@@ -236,7 +238,7 @@ ITEM_COLOR[TimelineEventEnum.Recommendation] = '#96FFDB';
 
 const styles = StyleSheet.create({
 	container: {
-		height: Math.round(Dimensions.get('window').height - 130 ),
+		height: Math.round(Dimensions.get('window').height - 110 ),
 	},
 	date: {
 		fontFamily:'Segoe UI', 

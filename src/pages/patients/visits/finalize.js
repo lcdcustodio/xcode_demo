@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Body, Container, Content, Header, Icon, Left, ListItem, Text, Title } from 'native-base';
 import { StyleSheet } from 'react-native';
 import { Avatar, Card, List } from 'react-native-paper';
+import baseStyles from '../../../styles';
 import { RdIf, RdHeader } from '../../../components/rededor-base';
 import Modal from '../../../components/Modal';
 import TextValue from '../../../components/TextValue';
@@ -29,7 +30,7 @@ export default class Finalize extends Component {
 				<RdHeader title={ patient.death ? 'Óbito' : 'Alta' } goBack={ this._goBack } style={ styles.header }/>
 				<Modal stateName={INPUT_CID_MODAL_VISIBLE_STATE} stateHolder={this} onSelect={ (item) => { console.log("AKIIIIIIII", item) } }/>
 
-				<Content padder style={ styles.body }>
+				<Content padder style={ baseStyles.container }>
 					<Card elevation={10} style={ styles.card }>
 						<Card.Content>
 							<FormItem label='CID de Entrada'/>
@@ -153,9 +154,6 @@ const styles = StyleSheet.create({
 	header: {
 		color: 'white',
 		backgroundColor: '#005cd1',
-	},
-	body: {
-		backgroundColor: '#eee',
 	},
 	card: {
 		marginBottom: 10,
