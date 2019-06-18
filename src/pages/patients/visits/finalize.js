@@ -1,13 +1,15 @@
 import React, { Component } from 'react';
-import { Body, Container, Content, Header, Icon, Left, ListItem, Text, Title, View } from 'native-base';
-import { StyleSheet, Switch } from 'react-native';
+import { Body, Container, Content, Header, Icon, Left, ListItem, Text, Title } from 'native-base';
+import { StyleSheet } from 'react-native';
 import { Avatar, Card, List } from 'react-native-paper';
-import { RdIf } from '../../../components/rededor-base';
+import { RdIf, RdHeader } from '../../../components/rededor-base';
+import Modal from '../../../components/Modal';
 import TextValue from '../../../components/TextValue';
 
 const WELCOME_HOME_STATE = 'welcomeHomeIndication';
 const MEDICINE_REINTEGRATION_STATE = 'medicineReintegration';
 const CLINICAL_ACTION_STATE = 'clinicalIndication';
+const INPUT_CID_MODAL_VISIBLE_STATE = 'isInputCidModalVisible';
 
 export default class Finalize extends Component {
 
@@ -24,12 +26,16 @@ export default class Finalize extends Component {
 		const { patient } = this.state;
 		return (
 			<Container>
-				<GoBackHeader title={ patient.death ? 'Óbito' : 'Alta' } goBack={ this._goBack } style={ styles.header }/>
+				<RdHeader title={ patient.death ? 'Óbito' : 'Alta' } goBack={ this._goBack } style={ styles.header }/>
+				<Modal stateName={INPUT_CID_MODAL_VISIBLE_STATE} stateHolder={this} onSelect={ (item) => { console.log("AKIIIIIIII", item) } }/>
+
 				<Content padder style={ styles.body }>
 					<Card elevation={10} style={ styles.card }>
 						<Card.Content>
 							<FormItem label='CID de Entrada'/>
-							<FormItem label='CID de Saída'/>
+							<FormItem label='CID de Saída' onPress={
+								() => { this.setState({	[INPUT_CID_MODAL_VISIBLE_STATE]: true }) }
+							}/>
 						</Card.Content>
 					</Card>
 					<RdIf condition={!patient.death}>
@@ -38,8 +44,7 @@ export default class Finalize extends Component {
 						<RecommendationCardToggle number='3' title='Welcome Home' stateName={WELCOME_HOME_STATE} stateHolder={this}/>
 						<RecommendationCardToggle number='4' title='Reconciliação Medicamentosa' stateName={MEDICINE_REINTEGRATION_STATE} stateHolder={this}/>
 						<RecommendationCardToggle number='5' title='Indicação para Ambulatório' stateName={CLINICAL_ACTION_STATE} stateHolder={this}>
-							<List.Item title="First item" />
-							<List.Item title="Second item" />
+							<FormItem label='Especialidade'/>
 						</RecommendationCardToggle>
 					</RdIf>
 				</Content>
@@ -48,32 +53,31 @@ export default class Finalize extends Component {
 	}
 
 	_loadState = (patient) => {
-		const state = {
+		return {
 			patient: patient,
 			complementaryInfo: {},
 			morbityComorbity: {},
+			[WELCOME_HOME_STATE]: {
+				isSet: !!patient.recommendationWelcomeHomeIndication,
+			},
+			[MEDICINE_REINTEGRATION_STATE]: {
+				isSet: !!patient.recommendationMedicineReintegration,
+			},
+			[CLINICAL_ACTION_STATE]: {
+				isSet: !!patient.recommendationClinicalIndication,
+				specialty: 1,
+			},
 		}
-		state[WELCOME_HOME_STATE] = {
-			isSet: !!patient.recommendationWelcomeHomeIndication,
-		};
-		state[MEDICINE_REINTEGRATION_STATE] = {
-			isSet: !!patient.recommendationMedicineReintegration,
-		};
-		state[CLINICAL_ACTION_STATE] = {
-			isSet: !!patient.recommendationClinicalIndication,
-			specialty: 1,
-		};
-		return state;
 	}
 
 	_onToggleRecommendation = (stateName) => {
-		const recommendationState = this.state[stateName];
-		const newState = {};
-		newState[stateName] = {
-			...recommendationState,
-			isSet: !recommendationState.isSet
-		};
-		this.setState(newState);
+		const currentState = this.state[stateName];
+		this.setState({
+			[stateName]: {
+				...currentState,
+				isSet: !currentState.isSet	
+			}
+		});
 	}
 
 	_goBack = () => {
@@ -85,7 +89,7 @@ const FormItem = (props) => (
 	<ListItem>
 		<Text style={{fontWeight: 'bold'}}>
 			{ props.label + '\n'}
-			<TextValue color={'#0000FF'} value='[a implementar...]' press={ () => { console.log('OI!') }} />
+			<TextValue color={'#0000FF'} value='[a implementar...]' press={ props.onPress } />
 		</Text>
 	</ListItem>
 );
@@ -186,16 +190,3 @@ const styles = StyleSheet.create({
 		flex: 1,
 	}
 });
-
-//--- avaliar componentização externa:
-
-const GoBackHeader = (props) => (
-	<Header style={ props.style }>
-		<Left style={{ flex: 1 }} >
-			<Icon type='AntDesign' name='left' onPress={ props.goBack } style={ props.style }/>
-		</Left>
-		<Body style={{ flex: 7, alignItems: 'stretch' }}>
-			<Title style={ props.style }>{ props.title }</Title>
-		</Body>
-	</Header>
-);
