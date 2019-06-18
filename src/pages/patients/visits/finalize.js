@@ -1,10 +1,13 @@
 import React, { Component } from 'react';
-import { Body, Container, Content, Header, Icon, Left, ListItem, Text, Title } from 'native-base';
+import { Container, Content } from 'native-base';
 import { StyleSheet } from 'react-native';
-import { Avatar, Card, List } from 'react-native-paper';
+import { Card } from 'react-native-paper';
+
 import { RdIf, RdHeader } from '../../../components/rededor-base';
 import Modal from '../../../components/Modal';
-import TextValue from '../../../components/TextValue';
+import FormItem from '../../../components/FormItem';
+import RecommendationCard from '../../../components/RecommendationCard';
+import RecommendationCardToggle from '../../../components/RecommendationCardToggle';
 
 const WELCOME_HOME_STATE = 'welcomeHomeIndication';
 const MEDICINE_REINTEGRATION_STATE = 'medicineReintegration';
@@ -21,37 +24,6 @@ export default class Finalize extends Component {
 		}
 	});
 	
-	render() {
-		if (!this.state) return null;
-		const { patient } = this.state;
-		return (
-			<Container>
-				<RdHeader title={ patient.death ? 'Óbito' : 'Alta' } goBack={ this._goBack } style={ styles.header }/>
-				<Modal stateName={INPUT_CID_MODAL_VISIBLE_STATE} stateHolder={this} onSelect={ (item) => { console.log("AKIIIIIIII", item) } }/>
-
-				<Content padder style={ styles.body }>
-					<Card elevation={10} style={ styles.card }>
-						<Card.Content>
-							<FormItem label='CID de Entrada'/>
-							<FormItem label='CID de Saída' onPress={
-								() => { this.setState({	[INPUT_CID_MODAL_VISIBLE_STATE]: true }) }
-							}/>
-						</Card.Content>
-					</Card>
-					<RdIf condition={!patient.death}>
-						<RecommendationCard number='1' title='Risco de Reinternação' onPress={ () => this.props.navigation.navigate('PatientDetail', { patient: patient}) }/>
-						<RecommendationCard number='2' title='Morbidades e Comorbidades' description='Adulto'/>
-						<RecommendationCardToggle number='3' title='Welcome Home' stateName={WELCOME_HOME_STATE} stateHolder={this}/>
-						<RecommendationCardToggle number='4' title='Reconciliação Medicamentosa' stateName={MEDICINE_REINTEGRATION_STATE} stateHolder={this}/>
-						<RecommendationCardToggle number='5' title='Indicação para Ambulatório' stateName={CLINICAL_ACTION_STATE} stateHolder={this}>
-							<FormItem label='Especialidade'/>
-						</RecommendationCardToggle>
-					</RdIf>
-				</Content>
-			</Container>
-		);
-	}
-
 	_loadState = (patient) => {
 		return {
 			patient: patient,
@@ -83,68 +55,35 @@ export default class Finalize extends Component {
 	_goBack = () => {
 		this.props.navigation.navigate('PatientDetail');
 	}
-}
-
-const FormItem = (props) => (
-	<ListItem>
-		<Text style={{fontWeight: 'bold'}}>
-			{ props.label + '\n'}
-			<TextValue color={'#0000FF'} value='[a implementar...]' press={ props.onPress } />
-		</Text>
-	</ListItem>
-);
-
-const RecommendationCard = (props) => (
-	<Card elevation={10} style={ styles.card } onPress={ props.onPress }>
-		<List.Item
-			title={ props.title }
-			description={ props.description }
-			left={ (innerProps) => (
-				<Avatar.Text
-					size={ 20 }
-					style={{ marginTop: 10 }}
-					label={ props.number }
-				/>
-			)}
-		/>
-	</Card>
-);
-
-class RecommendationCardToggle extends Component {
-
-	_handlePress = () => {
-		const { stateHolder, stateName } = this.props;
-		const currentState = stateHolder.state[stateName];
-		const newState = {};
-		newState[stateName] = {
-			...currentState,
-			isSet: !currentState.isSet
-		};
-		stateHolder.setState(newState);
-	}
 
 	render() {
-		const { stateHolder, stateName } = this.props;
-		const currentState = stateHolder.state[stateName];
-		const style = (currentState.isSet ? {} : styles.disabledCard);
+		if (!this.state) return null;
+		const { patient } = this.state;
 		return (
-			<Card elevation={10} style={ styles.card }>
-				<List.Accordion
-					title={ this.props.title }
-					description='Requisitado pelo médico'
-					left={ (innerProps) => (
-						<Avatar.Text
-							size={ 20 }
-							label={ this.props.number }
-							style={ style }
-						/>
-					)}
-					expanded={currentState.isSet}
-					onPress={this._handlePress}
-				>
-					{ this.props.children }
-				</List.Accordion>
-			</Card>
+			<Container>
+				<RdHeader title={ patient.death ? 'Óbito' : 'Alta' } goBack={ this._goBack } style={ styles.header }/>
+				<Modal stateName={INPUT_CID_MODAL_VISIBLE_STATE} stateHolder={this} onSelect={ (item) => { console.log("AKIIIIIIII", item) } }/>
+
+				<Content padder style={ styles.body }>
+					<Card elevation={10} style={ styles.card }>
+						<Card.Content>
+							<FormItem label='CID de Entrada' value='[a implementar]'/>
+							<FormItem label='CID de Saída' value='[a implementar]' onPress={
+								() => { this.setState({	[INPUT_CID_MODAL_VISIBLE_STATE]: true }) }
+							}/>
+						</Card.Content>
+					</Card>
+					<RdIf condition={!patient.death}>
+						<RecommendationCard number='1' title='Risco de Reinternação' onPress={ () => this.props.navigation.navigate('PatientDetail', { patient: patient}) }/>
+						<RecommendationCard number='2' title='Morbidades e Comorbidades' description='Adulto'/>
+						<RecommendationCardToggle number='3' title='Welcome Home' stateName={WELCOME_HOME_STATE} stateHolder={this}/>
+						<RecommendationCardToggle number='4' title='Reconciliação Medicamentosa' stateName={MEDICINE_REINTEGRATION_STATE} stateHolder={this}/>
+						<RecommendationCardToggle number='5' title='Indicação para Ambulatório' stateName={CLINICAL_ACTION_STATE} stateHolder={this}>
+							<FormItem label='Especialidade'/>
+						</RecommendationCardToggle>
+					</RdIf>
+				</Content>
+			</Container>
 		);
 	}
 }
@@ -155,12 +94,6 @@ const styles = StyleSheet.create({
 		backgroundColor: '#005cd1',
 	},
 	body: {
-		backgroundColor: '#eee',
-	},
-	card: {
-		marginBottom: 10,
-	},
-	disabledCard: {
 		backgroundColor: '#eee',
 	},
 	finalizeItemCircle: {
