@@ -6,6 +6,7 @@ import { Alert, View, FlatList, TouchableOpacity, Image, BackHandler } from "rea
 import AsyncStorage from '@react-native-community/async-storage';
 import NetInfo from "@react-native-community/netinfo";
 import Spinner from 'react-native-loading-spinner-overlay';
+import baseStyles from '../../styles'
 import styles from './style'
 import Line from '../../components/Line'
 import Timer from '../../components/Timer'
@@ -546,7 +547,7 @@ export default class Hospital extends Component {
 				}
 			}}>
 			
-            <View style={{ width: '100%', paddingTop: 10, paddingLeft: 10, paddingRight: 10, backgroundColor: '#fafafa'}}>
+            <View style={{ width: '100%', paddingTop: 10, paddingLeft: 10, paddingRight: 10, backgroundColor: baseStyles.container.backgroundColor}}>
                 
                 <Card>
 
@@ -701,7 +702,7 @@ export default class Hospital extends Component {
 					<View style={styles.container}>
 
 						<FlatList
-							contentContainerStyle={styles.list}
+							contentContainerStyle={baseStyles.container}
 							data={this.state.hospitals}
 							keyExtractor={item => item.id + '_'}
 							renderItem={this.renderItem} />
