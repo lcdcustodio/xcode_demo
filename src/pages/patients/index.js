@@ -274,7 +274,7 @@ export default class Patients extends Component {
                             <Text style={{paddingLeft: 10}}><Icon name="tag" style={{color: '#666', fontSize: 12}} /></Text>
                         </View>
                         
-                        <View style={{ width: '18%', justifyContent: 'center', borderRightWidth: 1, borderRightColor: '#ccc', height: 40}}>
+                        <View style={{ width: '15%', justifyContent: 'center', borderRightWidth: 1, borderRightColor: '#ccc', height: 40}}>
                             <Text style={{fontSize: 12}}>{item.locationSession}</Text>
                         </View>
                         
@@ -286,8 +286,8 @@ export default class Patients extends Component {
                             <Text style={{fontSize: 12}}>{item.locationBed}</Text>
                         </View>
                         
-                        <View style={{ width: '7%', justifyContent: 'center'}}>
-                            <Text style={{paddingLeft: 10}}><Icon name="eye" style={{color: '#666', fontSize: 12}} /></Text>
+                        <View style={{ width: '10%', justifyContent: 'center'}}>
+                            <Text style={{paddingLeft: 10}}><Icon name="eye" style={{color: '#666', fontSize: 20}} /></Text>
                         </View>
                         
                         <View style={{ width: '18%', justifyContent: 'center'}}>

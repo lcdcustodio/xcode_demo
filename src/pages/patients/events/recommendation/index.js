@@ -326,7 +326,7 @@ export default class Recommendation extends React.Component {
 					{ this.showViewSpecialty() }
 
 					<View style={styles.row}>
-						<TextInput  multiline={true} label='Observação' value={this.state.recommendation.observation} onChangeText = {observation => this.addObservation(observation)} />
+						<TextInput  style={styles.textObservation} multiline={true} label='Observação' value={this.state.recommendation.observation} onChangeText = {observation => this.addObservation(observation)} />
 					</View>
 
 					<View style={styles.button}>
@@ -401,5 +401,8 @@ const styles = StyleSheet.create({
 		flexDirection: 'row', 
 		alignItems: 'center',
 		padding: 2
+	},
+	textObservation: {
+		backgroundColor: 'white',
 	}
 });
