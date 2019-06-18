@@ -36,15 +36,30 @@ export default class Recommendation extends React.Component {
 	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
 		const { params } = this.props.navigation.state;
 		const update = params.update;
+
 		if (update) {
+			let {patient} = params;
+	
+			if(this.isaRecommendationWelcomeHome(patient.recommendationType)){
+				recommendationType = this.state.listRecommendationType[0].label;
+			} else 
+			if (this.isaRecommendationClinicalIndication(patient.recommendationType)){
+				recommendationType = this.state.listRecommendationType[1].label
+			} else 
+			if(this.isaRecommendationMedicineReintegration(patient.recommendationType)){
+				recommendationType = this.state.listRecommendationType[2].label;
+			}
+			
 			this.setState({
+				recommendationType: recommendationType,
 				recommendation: params.event.data,
+				performedAt: moment(), 
 				update: update
 			});
 		} else {
 			this.setState({
+				recommendationType: 'Selecione',
 				recommendation: {
-					...this.state.recommendation, 
 					uuid: Uuid(), 
 					performedAt: moment(), 
 				},
@@ -58,26 +73,12 @@ export default class Recommendation extends React.Component {
 		let update = this.state.update;
 
 		if(!update && this.state.recommendationType === 'Selecione'){
-			this.showAlertMsg("Selecione uma recomendação")
+			this.showAlertMsg("Selecione uma recomendação.")
 		} else {
 			if(this.saveRecommendation(patient)){
 				this.props.navigation.navigate("PatientDetail", { patient, selectedTab: 'events'});
 			}  			
-			//this.clearState();
 		}		
-	}
-
-	clearState = _ => {
-		this.setState({
-			recommendationType: 'Selecione', 
-			recommendation: {
-				uuid: null,
-				performedAt: null,
-				observation: ''
-			},
-			modalRecommendationTypeVisible: false,
-			modalSpecialtyVisible: false,
-		})
 	}
 
 	toggleModalRecommendationType = () => {
@@ -115,7 +116,7 @@ export default class Recommendation extends React.Component {
 	showAlertMsg= item =>{Alert.alert('Atenção', item,[{text: 'OK', onPress: () => {}}],{cancelable: false});}
 
 	selectedRecommendationWelcomeHomeIndication = patient =>{
-		const indicationItem = this.state.listRecommendationType[0].label
+		const indicationItem = this.state.listRecommendationType[0].label;
 		if (this.state.recommendationType === indicationItem ) {
 			if(patient.recommendationWelcomeHomeIndication && !this.state.update){
 				this.showAlertMsg(indicationItem + " já cadastrado!")
@@ -127,7 +128,7 @@ export default class Recommendation extends React.Component {
 	}
 
 	selectedRecommendationClinicalIndication = patient =>{
-		const clinicalIndicationItem = this.state.listRecommendationType[1].label
+		const clinicalIndicationItem = this.state.listRecommendationType[1].label;
 		if (this.state.recommendationType === clinicalIndicationItem) {
 			if(patient.recommendationClinicalIndication && !this.state.update){
 				this.showAlertMsg(clinicalIndicationItem + " já cadastrado!")
@@ -144,7 +145,7 @@ export default class Recommendation extends React.Component {
 	}
 
 	selectedRecommendationMedicineReintegration = patient =>{
-		const reintegrationItem = this.state.listRecommendationType[2].label
+		const reintegrationItem = this.state.listRecommendationType[2].label;
 		if (this.state.recommendationType === reintegrationItem ) {
 			if(patient.recommendationMedicineReintegration && !this.state.update){
 				this.showAlertMsg(reintegrationItem + " já cadastrado!")
@@ -161,11 +162,11 @@ export default class Recommendation extends React.Component {
 
 	getRecommendationTypeLabel = item => {
 		const recommendations = this.state.listRecommendationType
-		if (item == recommendations[0].value){
+		if (this.isaRecommendationWelcomeHome(item)){
 			return recommendations[0].label;
-		} else if(item == recommendations[1].value){
+		} else if(this.isaRecommendationClinicalIndication(item)){
 			return recommendations[1].label;
-		} else if (item == recommendations[2].value){
+		} else if (this.isaRecommendationMedicineReintegration(item)){
 			return recommendations[2].label;
 		} else {
 			return item
@@ -207,9 +208,6 @@ export default class Recommendation extends React.Component {
 	}
 
 	handleSpecialtyId = (specialty) => {
-
-		console.log("handleSpecialtyId", specialty)
-		
 		this.setState({
 			recommendation: {
 				...this.state.recommendation,
@@ -241,6 +239,18 @@ export default class Recommendation extends React.Component {
 		return (
 			<List.Item title={`${element.item.name}`} onPress={() => { this.handleSpecialtyId(element) }} />
 		);
+	}
+
+	isaRecommendationClinicalIndication = (recommendationType) => {
+		return recommendationType === this.state.listRecommendationType[1].value;
+	}
+
+	isaRecommendationMedicineReintegration = (recommendationType) =>{
+		return recommendationType === this.state.listRecommendationType[2].value;
+	}
+
+	isaRecommendationWelcomeHome = (recommendationType) =>{
+		return recommendationType === this.state.listRecommendationType[0].value;
 	}
 
 	render() {
