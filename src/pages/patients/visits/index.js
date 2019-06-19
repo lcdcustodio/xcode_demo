@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, FlatList, Modal, TextInput, TouchableOpacity, Alert } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
+import { Dimensions, View, FlatList, TextInput, Alert } from 'react-native';
+import baseStyles from '../../../styles'
 import styles from './style'
 import moment from 'moment';
 import _ from 'lodash'
@@ -158,7 +158,7 @@ export default class Visitas extends React.Component {
 
 	renderItem = ({ item }) => (
 
-		<View style={{ paddingTop: 10, paddingLeft: 10, paddingRight: 10, backgroundColor: '#fefefe'}}>
+		<View style={{ paddingTop: 10, paddingLeft: 10, paddingRight: 10, backgroundColor: baseStyles.container.backgroundColor}}>
 				<Card>
 					<CardItem header bordered style={{ flex: 1, backgroundColor: '#cce5ff', height: 40}}>
 						<Left>
@@ -261,25 +261,22 @@ export default class Visitas extends React.Component {
 			</Portal>
 		);
 	}
+
 	render() {
 		let listOfOrderedObservationDate =[]
-
-		if(this.props.patient.observationList){
+		if (this.props.patient.observationList){
 			listOfOrderedObservationDate = _.orderBy(this.props.patient.observationList, ['observationDate'], ['desc'])
 		}
-
-		
 		return (
-			<View style={styles.container}>
-				{ this.renderModal() }
 
+			<View style={{ ...baseStyles.container, height: Math.round(Dimensions.get('window').height - 110) }}>	
+				{ this.renderModal() }
 				<FlatList
 					data={listOfOrderedObservationDate}
 					keyExtractor={item => item.uuid}
 					extraData={this.props}
 					renderItem={this.renderItem}/>
-
-				{this.showButton()}
+				{ this.showButton() }
 			</View>
 		);
 	}
@@ -297,17 +294,12 @@ const COLORS_DISABLED = ['#808080', '#696969'];
 
 const GradientButton = (props) => (
 	<View style={{marginTop:10, marginBottom: 10, marginLeft: 10, marginRight: 10}}>
-
-	<Button mode="contained" onPress={ props.onPress }> { props.children } </Button>
-
-
-{/*         <LinearGradient colors={ props.colors } style={ [styles.circle, styles.borderCircle ]} >
-			<Icon type="FontAwesome5" name={ props.iconName } style={ styles.iconCircle } onPress={ props.onPress }/>
-			<Text style={ styles.textCircle } >{ props.children }</Text>
-		</LinearGradient>  */}
-
+		<Button mode="contained" onPress={ props.onPress }> { props.children } </Button>
+		{/* <LinearGradient colors={ props.colors } style={ [styles.circle, styles.borderCircle ]} >
+				<Icon type="FontAwesome5" name={ props.iconName } style={ styles.iconCircle } onPress={ props.onPress }/>
+				<Text style={ styles.textCircle } >{ props.children }</Text>
+			</LinearGradient>  */}
     </View>
-
 );
 
 const VisitButton = (props) =>

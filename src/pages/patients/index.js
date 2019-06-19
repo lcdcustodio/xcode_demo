@@ -1,7 +1,8 @@
 import React, { Component } from "react"
+import baseStyles from '../../styles';
 import styles from './style'
 import { Container, Content, Header, Left, Right, Body, Title, Text, Card, CardItem } from 'native-base'
-import { Alert, View, FlatList, TouchableOpacity, Image, BackHandler } from "react-native"
+import { View, FlatList, TouchableOpacity, Image, BackHandler } from "react-native"
 import moment from 'moment'
 import _ from 'lodash'
 import AsyncStorage from '@react-native-community/async-storage';
@@ -238,7 +239,7 @@ export default class Patients extends Component {
                     this.props.navigation.navigate("PatientDetail", { patient: item});
                 }}>
 
-            <View style={{ paddingTop: 10, paddingLeft: 10, paddingRight: 10, backgroundColor: '#fafafa'}}>
+            <View style={{ paddingTop: 10, paddingLeft: 10, paddingRight: 10, backgroundColor: baseStyles.container.backgroundColor}}>
                 <Card>
                     <CardItem header bordered style={{ flex: 1, height: 50}}>
                         <View style={{width: '90%'}}>
@@ -303,10 +304,10 @@ export default class Patients extends Component {
                         <Title style={{color: 'white'}}>{this.state.hospital.name}</Title>
                     </Body>
                 </Header> 
-                <Content>
+                <Content style={baseStyles.container}>
                     <View style={styles.container}>
                         <FlatList
-                            contentContainerStyle={styles.list}
+                            contentContainerStyle={baseStyles.container}
                             data={this.state.hospital.hospitalizationList}
                             keyExtractor={item => `${item.id}`}
                             renderItem={this.renderItem}
