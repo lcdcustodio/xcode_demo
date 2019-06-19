@@ -17,6 +17,7 @@ import Session from '../../Session';
 class PatientDetail extends Component {
     
 	constructor(props) {
+
 		super(props);
 
 		this.state = {
@@ -35,18 +36,19 @@ class PatientDetail extends Component {
 
 		console.log(attribute, value);
 
-		this.setState({
-			patient: {
-				...this.state.patient,
-				[attribute]: value
-			}
-		});
+		let patient = this.state.patient;
 
-		console.log(this.state.patient.id.toString());
+		patient[attribute] = value;
 
-		AsyncStorage.setItem(this.state.patient.id.toString(), JSON.stringify(this.state.patient), () => {
-			console.log(this.state.patient);
-		});
+		console.log(patient);
+
+		this.setState({patient});
+
+		console.log(this.state.patient);
+
+		AsyncStorage.setItem(this.state.patient.id.toString(), JSON.stringify(this.state.patient));
+
+		AsyncStorage.setItem('require_sync_at', JSON.stringify(moment().format('YYYY-MM-DD')));
 
 		/*AsyncStorage.getItem('hospitalizationList', (err, res) => {
 
@@ -70,8 +72,6 @@ class PatientDetail extends Component {
 			console.log(hospitalizationList);
 
 		});*/
-
-		AsyncStorage.setItem('require_sync_at', JSON.stringify(moment().format('YYYY-MM-DD')));
 	}
 	
 	renderSelectedTab = () => {
@@ -79,9 +79,9 @@ class PatientDetail extends Component {
 			case TabEnum.Profile:
 				return <Profile patient={this.state.patient} handleUpdatePatient={this.handleUpdatePatient} isEditable={this.state.isEditable} />;
 			case TabEnum.Events:
-				return <Events patient={this.state.patient} navigation={this.props.navigation} isEditable={this.state.isEditable} />;
+				return <Events  patient={this.state.patient} handleUpdatePatient={this.handleUpdatePatient} isEditable={this.state.isEditable} navigation={this.props.navigation} />;
 			case TabEnum.Visits:
-				return <Visits patient={this.state.patient} selectTab={this.selectTab} handleUpdatePatient={this.handleUpdatePatient} navigation={this.props.navigation} isEditable={this.state.isEditable} />;
+				return <Visits  patient={this.state.patient} handleUpdatePatient={this.handleUpdatePatient} isEditable={this.state.isEditable} navigation={this.props.navigation} selectTab={this.selectTab} />;
 		}
 	}
 
@@ -92,35 +92,34 @@ class PatientDetail extends Component {
 
 	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
 		
-		let selectedTab  = !this.props.navigation.getParam('selectedTab') ? 'profile' : this.props.navigation.getParam('selectedTab')
-
 		let patient = this.props.navigation.getParam('patient');
-		
-		AsyncStorage.getItem(patient.id.toString(), (err, res) => {
 
-			console.log(res);
+		console.log(patient.id.toString(), patient);
+
+		AsyncStorage.getItem(patient.id.toString(), (err, res) => {
 
 			if (res == null) {
 
+				console.log('NAO TEM NO STORAGE');
+
 				this.setState({
 					patient: patient,
-					selectedTab: selectedTab,
 					isEditable: Session.current.user._profile === 'ADMIN' ? false : true
 				});
 
+				AsyncStorage.setItem(this.state.patient.id.toString(), JSON.stringify(this.state.patient));
 			}
 			else
 			{
 				res = JSON.parse(res);
 
+				console.log('TEM NO STORAGE', res);
+
 				this.setState({
 					patient: res,
-					selectedTab: selectedTab,
 					isEditable: Session.current.user._profile === 'ADMIN' ? false : true
 				});
 			}
-
-
 		});
 
 		this.backHandler = BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
@@ -150,7 +149,7 @@ class PatientDetail extends Component {
 					{ this.renderSelectedTab() }
 				</Content>
 				<Footer>
-					<FooterTab>
+					<FooterTab style={{backgroundColor: '#005cd1'}}>
 						<Tab name={ TabEnum.Profile } displayName='Perfil' iconName='user' isSelected={this.isSelected} selectTab={this.selectTab} />
 						<Tab name={ TabEnum.Events } displayName='Timeline' iconName='book' isSelected={this.isSelected} selectTab={this.selectTab} />
 						<Tab name={ TabEnum.Visits } displayName='Visitas' iconName='calendar' isSelected={this.isSelected} selectTab={this.selectTab} />
@@ -161,6 +160,7 @@ class PatientDetail extends Component {
 	}
 
 	_goBack = () => {
+		console.log(this.state.patient.id, this.state.patient);
 		this.props.navigation.navigate('Patients',  {hospital: this.state.hospital});
 	}
 }

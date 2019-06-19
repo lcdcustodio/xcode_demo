@@ -6,7 +6,7 @@ import { View, FlatList, TouchableOpacity, Image, BackHandler } from "react-nati
 import moment from 'moment'
 import _ from 'lodash'
 import AsyncStorage from '@react-native-community/async-storage';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 
 export default class Patients extends Component {
     
@@ -23,9 +23,6 @@ export default class Patients extends Component {
                 CASA_AZUL: 1
             }
         }
-
-        console.log(this.state.ICON);
-
     }
 
     componentDidMount() {
@@ -34,7 +31,7 @@ export default class Patients extends Component {
     }
 
     handleBackPress = () => {
-        console.log('go back');
+        console.log('ok');
         this.props.navigation.navigate('Hospitals');
         return true;
     }
@@ -68,18 +65,19 @@ export default class Patients extends Component {
                     patient.orderField = this.getOrderField(patient);
                     patients.push(patient);
                 }
-
-                console.log(patients);
             });
 
             patients = _.orderBy(patients, ['orderField'], ['asc']);
 
             hospital.hospitalizationList = patients;
 
-            console.log(patients);
-
             this.setState({hospital: hospital});
         });
+
+        console.log('hardwareBackPress');
+        
+        this.backHandler = BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
+
     });
     
     exitDateBelow48Hours(date) {
@@ -191,8 +189,6 @@ export default class Patients extends Component {
             lastVisit = today.diff(lastVisit, 'days');
         }
 
-        console.log(lastVisit, patient.patientName);
-
         if(lastVisit == 0 && patient.exitDate == null) // VISITADO HOJE E NÃO TEVE ALTA
         {
             return this.state.ICON.OLHO_CINZA_COM_CHECK;
@@ -263,36 +259,50 @@ export default class Patients extends Component {
                     
                     <CardItem footer bordered style={{ justifyContent: 'center', height: 40, paddingTop: 0, paddingRight: 0, paddingBottom: 0, paddingLeft: 0}}>                            
                         
-                        <View style={{ width: '7%'}}>
-                            <Text style={{paddingLeft: 10}}><Icon name="calendar" style={{color: '#666', fontSize: 12}} /></Text>
+                        <View style={{ width: '8%'}}>
+                            <Text style={{paddingLeft: 10}}><Icon name="calendar" style={{color: '#666', fontSize: 20}} /></Text>
                         </View>
 
+                        <View style={{ width: '19%', justifyContent: 'center', borderRightWidth: 1, borderRightColor: '#ccc', height: 40}}>
+                            <Text style={{fontSize: 16}}>{item.totalDaysOfHospitalization}0 dias</Text>
+                        </View>
+
+
+
+
+
+
+                        
+                        <View style={{ width: '8%', justifyContent: 'center'}}>
+                            <Text style={{paddingLeft: 5}}><Icon name="tag" style={{color: '#666', fontSize: 20}} /></Text>
+                        </View>
+                        
+                        <View style={{ width: '10%', justifyContent: 'center', borderRightWidth: 1, borderRightColor: '#ccc', height: 40}}>
+                            <Text style={{fontSize: 16}}>{item.locationSession}</Text>
+                        </View>
+
+
+                        
+                        <View style={{ width: '8%', justifyContent: 'center'}}>
+                            <Text style={{paddingLeft: 5}}><Icon name="bed" style={{color: '#666', fontSize: 20}} /></Text>
+                        </View>
+                        
                         <View style={{ width: '18%', justifyContent: 'center', borderRightWidth: 1, borderRightColor: '#ccc', height: 40}}>
-                            <Text style={{fontSize: 12}}>{item.totalDaysOfHospitalization} dias</Text>
+                            <Text style={{fontSize: 16, paddingLeft: 5}}>{item.locationBed}</Text>
                         </View>
                         
-                        <View style={{ width: '7%', justifyContent: 'center'}}>
-                            <Text style={{paddingLeft: 10}}><Icon name="tag" style={{color: '#666', fontSize: 12}} /></Text>
+
+
+
+
+
+
+                        <View style={{ width: '8%', justifyContent: 'center'}}>
+                            <Text style={{paddingLeft: 5}}><Icon name="eye" style={{color: '#666', fontSize: 20}} /></Text>
                         </View>
                         
-                        <View style={{ width: '15%', justifyContent: 'center', borderRightWidth: 1, borderRightColor: '#ccc', height: 40}}>
-                            <Text style={{fontSize: 12}}>{item.locationSession}</Text>
-                        </View>
-                        
-                        <View style={{ width: '7%', justifyContent: 'center'}}>
-                            <Text style={{paddingLeft: 10}}><Icon name="bed" style={{color: '#666', fontSize: 12}} /></Text>
-                        </View>
-                        
-                        <View style={{ width: '18%', justifyContent: 'center', borderRightWidth: 1, borderRightColor: '#ccc', height: 40}}>
-                            <Text style={{fontSize: 12}}>{item.locationBed}</Text>
-                        </View>
-                        
-                        <View style={{ width: '10%', justifyContent: 'center'}}>
-                            <Text style={{paddingLeft: 10}}><Icon name="eye" style={{color: '#666', fontSize: 20}} /></Text>
-                        </View>
-                        
-                        <View style={{ width: '18%', justifyContent: 'center'}}>
-                            <Text style={{fontSize: 12}}>{item.lastVisit}</Text>
+                        <View style={{ width: '23%', justifyContent: 'center'}}>
+                            <Text style={{fontSize: 16}}>{item.lastVisit}</Text>
                         </View>
                         
                     

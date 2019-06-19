@@ -31,9 +31,10 @@ export default class Events extends Component {
 					data={this.state.eventos}
 					keyExtractor={ (event) => { return event.data.uuid; } }
 					renderItem={this._renderEvent}  />
-				<View style={{marginTop:10, marginBottom: 10, marginLeft: 10, marginRight: 10}}>
-					<Button mode="contained" onPress={this._create}> APONTAR </Button>
-				</View>
+					
+					<View style={{marginTop:10, marginBottom: 10, marginLeft: 10, marginRight: 10}}>
+						<Button mode="contained" onPress={this._create}> APONTAR </Button>
+					</View>
 			</View>
 		);
 	}

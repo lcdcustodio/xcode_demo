@@ -268,6 +268,7 @@ export default class Visitas extends React.Component {
 			listOfOrderedObservationDate = _.orderBy(this.props.patient.observationList, ['observationDate'], ['desc'])
 		}
 		return (
+
 			<View style={{ ...baseStyles.container, height: Math.round(Dimensions.get('window').height - 110) }}>	
 				{ this.renderModal() }
 				<FlatList
