@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Text } from 'react-native';
 import { Avatar, Card, List } from 'react-native-paper';
 
 class RecommendationCardToggle extends Component {
@@ -10,7 +11,8 @@ class RecommendationCardToggle extends Component {
 			<Card elevation={10} style={ styles.card }>
 				<List.Accordion
 					title={ this.props.title }
-					description='Requisitado pelo médico'
+					description={ this.props.subtitle }
+					style={styles.item}
 					left={ () => (
 						<Avatar.Text
 							size={ 20 }
@@ -30,7 +32,7 @@ class RecommendationCardToggle extends Component {
 
 const styles = {
 	card: {
-		marginBottom: 10,
+		marginBottom: 10
 	},
 	disabledCard: {
 		backgroundColor: '#eee',

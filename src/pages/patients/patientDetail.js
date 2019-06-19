@@ -32,7 +32,6 @@ class PatientDetail extends Component {
 	}
 
 	handleUpdatePatient = async (attribute, value) => {
-
 		console.log(attribute, value);
 
 		this.setState({
@@ -40,37 +39,13 @@ class PatientDetail extends Component {
 				...this.state.patient,
 				[attribute]: value
 			}
+		}, () => {
+			AsyncStorage.setItem(this.state.patient.id.toString(), JSON.stringify(this.state.patient), () => {
+				console.log(this.state.patient);
+			});
 		});
 
-		console.log(this.state.patient.id.toString());
-
-		AsyncStorage.setItem(this.state.patient.id.toString(), JSON.stringify(this.state.patient), () => {
-			console.log(this.state.patient);
-		});
-
-		/*AsyncStorage.getItem('hospitalizationList', (err, res) => {
-
-			console.log(err, res);
-
-			if (res == null) {
-
-				let hospitalizationList = [];
-
-				hospitalizationList.id = this.state.patient.id;
-
-				hospitalizationList[attribute] = value;
-
-			}
-			else
-			{
-				let hospitalizationList = JSON.parse(res);
-
-			}
-
-			console.log(hospitalizationList);
-
-		});*/
-
+		console.log(this.state.patient);
 		AsyncStorage.setItem('require_sync_at', JSON.stringify(moment().format('YYYY-MM-DD')));
 	}
 	
