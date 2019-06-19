@@ -270,7 +270,7 @@ export default class Visitas extends React.Component {
 
 		
 		return (
-			<View>	
+			<View style={styles.container}>
 				{ this.renderModal() }
 
 				<FlatList

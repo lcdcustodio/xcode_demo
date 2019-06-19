@@ -647,9 +647,9 @@ export default class Hospital extends Component {
 
 		return (
 			<TouchableOpacity onPress={() => { console.log('clicou'); this.goToProfilePage(element.item) }}>
-					<List.Item title={`${element.item.patientName}`} />
-					<TextValue color={'#999'} size={13} marginLeft={4} marginTop={-6} value={element.item.hospitalName} />
-							</TouchableOpacity>
+				<List.Item title={`${element.item.patientName}`} />
+				<TextValue color={'#999'} size={13} marginLeft={4} marginTop={-6} value={element.item.hospitalName} />
+			</TouchableOpacity>
 		);
 	}
 

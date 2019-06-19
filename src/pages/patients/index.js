@@ -22,18 +22,13 @@ export default class Patients extends Component {
                 CASA_AZUL: 1
             }
         }
-
-        console.log(this.state.ICON);
-
     }
 
     componentDidMount() {
-        console.log('back press');
         this.backHandler = BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
     }
 
     handleBackPress = () => {
-        console.log('go back');
         this.props.navigation.navigate('Hospitals');
         return true;
     }
@@ -67,15 +62,11 @@ export default class Patients extends Component {
                     patient.orderField = this.getOrderField(patient);
                     patients.push(patient);
                 }
-
-                console.log(patients);
             });
 
             patients = _.orderBy(patients, ['orderField'], ['asc']);
 
             hospital.hospitalizationList = patients;
-
-            console.log(patients);
 
             this.setState({hospital: hospital});
         });
@@ -189,8 +180,6 @@ export default class Patients extends Component {
 
             lastVisit = today.diff(lastVisit, 'days');
         }
-
-        console.log(lastVisit, patient.patientName);
 
         if(lastVisit == 0 && patient.exitDate == null) // VISITADO HOJE E NÃO TEVE ALTA
         {

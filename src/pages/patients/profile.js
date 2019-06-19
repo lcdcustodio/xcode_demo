@@ -109,6 +109,7 @@ export default class Profile extends Component {
 	}
 
 	handleSecondaryCID = (cid) => {
+
 		let secondaryCID = {
 			beginDate: moment(),
 			cidDisplayName: `${cid.item.code} - ${cid.item.name}`,
@@ -117,13 +118,29 @@ export default class Profile extends Component {
 		}
 
 		if(this.props.patient.secondaryCIDList && this.props.patient.secondaryCIDList.length > 0) {
-			let cidList = this.props.patient.secondaryCIDList
-			cidList.push(secondaryCID)
-			this.props.handleUpdatePatient('secondaryCIDList', cidList)
-			this.setState({
-				auxCid: data.cid,
-				cidQuery: null
-			})
+			
+			let cidList = this.props.patient.secondaryCIDList;
+
+			let push = true;
+
+			for (var i = 0; i < cidList.length; i++) {
+				if (cidList[i].cidId == cid.item.id) {
+					push = false;
+				}
+			}
+
+			if (push) {
+
+				cidList.push(secondaryCID);
+				
+				this.props.handleUpdatePatient('secondaryCIDList', cidList)
+				
+				this.setState({
+					auxCid: data.cid,
+					cidQuery: null
+				});
+			}
+
 		} else {
 			let cidList = [];
 			cidList.push(secondaryCID)
@@ -144,7 +161,10 @@ export default class Profile extends Component {
 				{text: 'Cancelar', onPress: () => console.log('Remocao de CID secundário cancelado'), style: 'cancel', },
 				{text: 'OK', onPress: () => 
 					{
-						let newCidList = this.props.patient.secondaryCIDList.filter(item => item.cidId !== cidToRemove.cidId)
+						let newCidList = this.props.patient.secondaryCIDList.filter(item => item.cidId !== cidToRemove.cidId);
+						
+						console.log(newCidList);
+
 						this.props.handleUpdatePatient("secondaryCIDList", newCidList)
 					},
 				}
@@ -475,7 +495,11 @@ export default class Profile extends Component {
 	}
 
 	renderSecondaryCID() {
+		
+		console.log(this.props.patient.secondaryCIDList);
+		
 		return (
+
 			this.state.isEditable ?
 				this.props.patient.secondaryCIDList.map((prop) => {
 					return ( <TextValue color={'#0000FF'} key={prop.cidId} value={`${prop.cidDisplayName} \n`} press={ () => { this.removeSecondaryCID(prop) }} /> )

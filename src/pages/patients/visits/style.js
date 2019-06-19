@@ -14,9 +14,7 @@ const ErrorMessage = styled.Text`
 
 export default StyleSheet.create({
 	container:{
-		height: screenHeight,
-		padding: 10,
-		backgroundColor: "#ebeff2",
+		height: Math.round(Dimensions.get('window').height - 130 ),
 	},
 	title: {
 		fontSize: 16,
