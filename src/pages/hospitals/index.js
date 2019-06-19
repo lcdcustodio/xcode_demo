@@ -407,7 +407,7 @@ export default class Hospital extends Component {
 
 			var month = ((visit.getMonth() + 1) < 10 ? '0' : '') + (visit.getMonth() + 1);
 
-			lastVisit = day + "/" + month + "/" + visit.getFullYear();
+			lastVisit = day + "/" + month + "/" + (visit.getYear() - 100);
 		}
 		
 		return lastVisit;
@@ -557,28 +557,28 @@ export default class Hospital extends Component {
                     
                     <CardItem footer bordered style={{ justifyContent: 'center', height: 40, paddingTop: 0, paddingRight: 0, paddingBottom: 0, paddingLeft: 0}}>                            
                         
-                        <View style={{ width: '10%'}}>
-                            <Text style={{paddingLeft: 10}}><Icon name="briefcase-medical" style={{color: '#666', fontSize: 20}} /></Text>
+                        <View style={{ width: '8%'}}>
+                            <Text style={{paddingLeft: 5}}><Icon name="briefcase-medical" style={{color: '#666', fontSize: 20}} /></Text>
                         </View>
 
-                        <View style={{ width: '24%', justifyContent: 'center', borderRightWidth: 1, borderRightColor: '#ccc', height: 40}}>
-                            <Text style={{fontSize: 12}}> {item.lastVisit} </Text>
+                        <View style={{ width: '22%', justifyContent: 'center', borderRightWidth: 1, borderRightColor: '#ccc', height: 40}}>
+                            <Text style={{fontSize: 16}}> {item.lastVisit} </Text>
                         </View>
                         
-                        <View style={{ width: '10%', justifyContent: 'center'}}>
-                            <Text style={{paddingLeft: 10}}><Icon name="bed" style={{color: '#666', fontSize: 20}} /></Text>
+                        <View style={{ width: '8%', justifyContent: 'center'}}>
+                            <Text style={{paddingLeft: 5}}><Icon name="bed" style={{color: '#666', fontSize: 20}} /></Text>
                         </View>
                         
-                        <View style={{ width: '23%', justifyContent: 'center', borderRightWidth: 1, borderRightColor: '#ccc', height: 40}}>
-                            <Text style={{fontSize: 12}}> {item.totalPatients} Internados </Text>
+                        <View style={{ width: '28%', justifyContent: 'center', borderRightWidth: 1, borderRightColor: '#ccc', height: 40}}>
+                            <Text style={{fontSize: 16}}> {item.totalPatients} Internados </Text>
                         </View>
                         
-                        <View style={{ width: '10%', justifyContent: 'center'}}>
-                            <Text style={{paddingLeft: 10}}><Icon name="eye" style={{color: '#666', fontSize: 20}} /></Text>
+                        <View style={{ width: '8%', justifyContent: 'center'}}>
+                            <Text style={{paddingLeft: 5}}><Icon name="eye" style={{color: '#666', fontSize: 20}} /></Text>
                         </View>
                         
-                        <View style={{ width: '23%', justifyContent: 'center'}}>
-                            <Text style={{fontSize: 12}}> {item.totalPatientsVisitedToday} Visitados </Text>
+                        <View style={{ width: '26%', justifyContent: 'center'}}>
+                            <Text style={{fontSize: 16}}> {item.totalPatientsVisitedToday} Visitados </Text>
                         </View>
                         
                     

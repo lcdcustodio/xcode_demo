@@ -6,7 +6,6 @@ import { Alert, View, FlatList, TouchableOpacity, Image, BackHandler } from "rea
 import AsyncStorage from '@react-native-community/async-storage';
 import NetInfo from "@react-native-community/netinfo";
 import Spinner from 'react-native-loading-spinner-overlay';
-import styles from './style'
 import Line from '../../components/Line'
 import Timer from '../../components/Timer'
 import moment from 'moment';
@@ -32,6 +31,7 @@ export default class Report extends Component {
 			isConnected: null,
 			dateSync: null,
 			page: 1,
+			loading: false,
 			isEditable: true,
 			loading: false,
 			timerTextColor: "#005cd1",
@@ -39,6 +39,7 @@ export default class Report extends Component {
 			errorSync: 0,
 			allPatients: [],
 			patientsFiltered: [],
+			hospital_report: [],
 			patientQuery: null
 		}
 
@@ -151,7 +152,10 @@ export default class Report extends Component {
 
 								AsyncStorage.setItem('dateSync', dateSync);
 
-								AsyncStorage.setItem('hospitalList', JSON.stringify(listHospital));						
+								AsyncStorage.setItem('hospitalList', JSON.stringify(listHospital));	
+
+								this.report(listHospital);
+
 							});
 						
 						} else {
@@ -265,6 +269,101 @@ export default class Report extends Component {
 		});
 	}
 
+	calculateDaysOfHospitalization = async (patient) => {
+
+        const today = moment();
+
+        let admissionDate = moment(moment(patient.admissionDate).format('YYYY-MM-DD'));
+
+        let totalHospitalizationHours = today.diff(admissionDate, 'hours');
+
+        totalHospitalizationHours = Math.round((totalHospitalizationHours / 24));
+
+        return totalHospitalizationHours;
+    }
+
+	report = async (hospitalList) => {
+
+		let report = {
+			'hospital_report': [],
+			'patients': 0,
+			'attendanceType_emergency': 0,
+			'attendanceType_elective': 0,
+			'attendanceType_other': 0,
+			'attendanceType_time_until_five': 0,
+			'attendanceType_time_between_five_and_fortynine': 0,
+			'attendanceType_time_other': 0,
+			'locationType_room_ctiuti': 0,
+			'locationType_room_usi': 0,
+			'locationType_room_other': 0
+		};
+
+		for (var i = 0; i < hospitalList.length; i++) {
+			
+			report.hospital_report.push({
+				name: hospitalList[i].name,
+				patients: hospitalList[i].hospitalizationList.length
+			});
+
+			report.patients += hospitalList[i].hospitalizationList.length;
+
+			if (hospitalList[i].hospitalizationList.length > 0) {
+
+				for (var x = 0; x < hospitalList[i].hospitalizationList.length; x++) 
+				{
+					let patient = hospitalList[i].hospitalizationList[x];
+
+					if (patient.attendanceType == "EMERGENCY") 
+					{
+						report.attendanceType_emergency += 1;
+					}
+					else if (patient.attendanceType == "ELECTIVE") 
+					{
+						report.attendanceType_elective += 1;
+					}
+					else 
+					{
+						report.attendanceType_other += 1;
+					}
+
+					if (patient.locationType == "CTI" || patient.locationType == "UTI") 
+					{
+						report.locationType_room_ctiuti += 1;
+					}
+					else if (patient.locationType == "USI") 
+					{
+						report.locationType_room_usi += 1;
+					}
+					else 
+					{
+						report.locationType_room_other += 1;
+					}
+
+					let days = await this.calculateDaysOfHospitalization(patient);
+
+					console.log(days);
+
+					if (days <= 5) 
+					{
+						report.attendanceType_time_until_five += 1;
+					}
+					else if (days > 5 && days <= 49) 
+					{
+						report.attendanceType_time_between_five_and_fortynine += 1;
+					}
+					else 
+					{
+						report.attendanceType_time_other += 1;
+					}
+				}
+			}
+		}
+
+		this.setState({hospital_report: report});
+
+		console.log(this.state.hospital_report);
+	}
+
 	loadHospitalsStorage = async () => {
 
 		this.setState({loading: true});
@@ -293,6 +392,8 @@ export default class Report extends Component {
 				let hospitalList = JSON.parse(res);
 
 				this.getInformationHospital(hospitalList);
+
+				this.report(hospitalList);
 			}
 
 			this.setState({loading: false});
@@ -386,86 +487,51 @@ export default class Report extends Component {
 
 	render() {
 		return (
+
 			<Container>
-				{/* <RdHeader title='Relatório Consolidado' goBack={() => {console.log("BACK")}}/>  */}
-					<Header style={styles.headerMenu}>
-						<Left style={{flex:1}} >
-							<Icon name="bars" style={{color: '#FFF', fontSize: 30}} onPress={() => this.props.navigation.openDrawer() } />
-						</Left>
-						<Body style={{flex: 7}}>
-							<Title style={{color: 'white'}}> Relatório Consolidado</Title>
-						</Body>
-						<Right style={{flex:1}} >
-							<Icon name="sync" style={{color: '#FFF', fontSize: 25}} onPress={() => this.sincronizar(true) } />
-						</Right>
-					</Header>
+
+				<Spinner
+		            visible={this.state.loading}
+		            textContent={this.state.textContent}
+		            textStyle={{color: '#FFF'}} />
+
+				<Header>
+					<Left style={{flex:1}} >
+						<Icon name="bars" style={{color: '#FFF', fontSize: 30}} onPress={() => this.props.navigation.openDrawer() } />
+					</Left>
+					<Body style={{flex: 7}}>
+						<Title style={{color: 'white'}}> Relatório Consolidado</Title>
+					</Body>
+					<Right style={{flex:1}} >
+						<Icon name="sync" style={{color: '#FFF', fontSize: 25}} onPress={() => this.sincronizar(true) } />
+					</Right>
+				</Header>
 
 				{ this.renderTimer() }			
 
-					<Line size={1} />
+				<Line size={1} />
 
-				<Content style={{paddingTop: 10, paddingLeft: 10, paddingRight: 10, paddingBottom: 10}}>
+				<Content style={{paddingTop: 10, paddingLeft: 10, paddingRight: 10, paddingBottom: 10, marginBottom: 20}}>
+		        
 		         <Card>
+					
 					<CardItem style={{backgroundColor: '#CCE5FF', minHeight: 20, height: 40}}>
 						<Left>
 							<Text>Pacientes Internados</Text>
 						</Left>
 					</CardItem>
+
 					<DataTable>
-						<DataTable.Row style={{backgroundColor:'#ffffff', minHeight: 20, height: 32}}>
-							<DataTable.Cell>Hospital Bangu</DataTable.Cell>
-							<DataTable.Cell numeric>1</DataTable.Cell>
-						</DataTable.Row>
-				
-						<DataTable.Row style={{backgroundColor:'#ededed', minHeight: 20, height: 32}}>
-							<DataTable.Cell>Hospital Barra D'or</DataTable.Cell>
-							<DataTable.Cell numeric>3</DataTable.Cell>
-						</DataTable.Row>
+						
+						{this.state.hospital_report.hospital_report && this.state.hospital_report.hospital_report.map((prop) => {
+							return ( 
+								<DataTable.Row key={prop.name} style={{backgroundColor:'#ffffff', minHeight: 20, height: 32}}>
+									<DataTable.Cell style={{width: '90%'}}>{prop.name}</DataTable.Cell>
+									<DataTable.Cell numeric style={{width: '10%'}}>{prop.patients}</DataTable.Cell>
+								</DataTable.Row> 
+							)
+						})}
 
-						<DataTable.Row style={{backgroundColor:'#ffffff', minHeight: 20, height: 32}}>
-							<DataTable.Cell>Hospital Caxias D'or</DataTable.Cell>
-							<DataTable.Cell numeric>10</DataTable.Cell>
-						</DataTable.Row>
-
-						<DataTable.Row style={{backgroundColor:'#ededed', minHeight: 20, height: 32}}>
-							<DataTable.Cell>Hospital Copa D'or</DataTable.Cell>
-							<DataTable.Cell numeric>0</DataTable.Cell>
-						</DataTable.Row>
-
-						<DataTable.Row style={{backgroundColor:'#ffffff', minHeight: 20, height: 32}}>
-							<DataTable.Cell>Hospital Niterói D'or</DataTable.Cell>
-							<DataTable.Cell numeric>3</DataTable.Cell>
-						</DataTable.Row>
-
-						<DataTable.Row style={{backgroundColor:'#ededed', minHeight: 20, height: 32}}>
-							<DataTable.Cell>Hospital Norte D'or</DataTable.Cell>
-							<DataTable.Cell numeric>5</DataTable.Cell>
-						</DataTable.Row>
-
-						<DataTable.Row style={{backgroundColor:'#ffffff', minHeight: 20, height: 32}}>
-							<DataTable.Cell>Hospital Oeste D'or</DataTable.Cell>
-							<DataTable.Cell numeric>1</DataTable.Cell>
-						</DataTable.Row>
-
-						<DataTable.Row style={{backgroundColor:'#ededed', minHeight: 20, height: 32}}>
-							<DataTable.Cell>Hospital Quinta D'or</DataTable.Cell>
-							<DataTable.Cell numeric>9</DataTable.Cell>
-						</DataTable.Row>
-
-						<DataTable.Row style={{backgroundColor:'#ffffff', minHeight: 20, height: 32}}>
-							<DataTable.Cell>Hospital Rios D'or</DataTable.Cell>
-							<DataTable.Cell numeric>4</DataTable.Cell>
-						</DataTable.Row>
-
-						<DataTable.Row style={{backgroundColor:'#ededed', minHeight: 20, height: 32}}>
-							<DataTable.Cell>Hospital Real D'or</DataTable.Cell>
-							<DataTable.Cell numeric>1</DataTable.Cell>
-						</DataTable.Row>
-
-						<DataTable.Row style={{backgroundColor:'#cfd7e4', minHeight: 20, height: 40}}>
-							<DataTable.Cell>Total de Pacientes</DataTable.Cell>
-							<DataTable.Cell numeric>30</DataTable.Cell>
-						</DataTable.Row>
 					</DataTable>
 				 </Card>
 
@@ -478,17 +544,17 @@ export default class Report extends Component {
 					<DataTable>
 						<DataTable.Row style={{backgroundColor:'#ffffff', minHeight: 20, height: 32}}>
 							<DataTable.Cell>Eletivo</DataTable.Cell>
-							<DataTable.Cell numeric>0</DataTable.Cell>
+							<DataTable.Cell numeric>{this.state.hospital_report.attendanceType_elective}</DataTable.Cell>
 						</DataTable.Row>
 				
 						<DataTable.Row style={{backgroundColor:'#ededed', minHeight: 20, height: 32}}>
 							<DataTable.Cell>Urgência</DataTable.Cell>
-							<DataTable.Cell numeric>17</DataTable.Cell>
+							<DataTable.Cell numeric>{this.state.hospital_report.attendanceType_emergency}</DataTable.Cell>
 						</DataTable.Row>
 
 						<DataTable.Row style={{backgroundColor:'#ffffff', minHeight: 20, height: 32}}>
 							<DataTable.Cell>Sem Informação</DataTable.Cell>
-							<DataTable.Cell numeric>20</DataTable.Cell>
+							<DataTable.Cell numeric>{this.state.hospital_report.attendanceType_other}</DataTable.Cell>
 						</DataTable.Row>
 					</DataTable>
 				 </Card>
@@ -502,17 +568,17 @@ export default class Report extends Component {
 					<DataTable>
 						<DataTable.Row style={{backgroundColor:'#ffffff', minHeight: 20, height: 32}}>
 							<DataTable.Cell>Até 5 dias internado</DataTable.Cell>
-							<DataTable.Cell numeric>0</DataTable.Cell>
+							<DataTable.Cell numeric>{this.state.hospital_report.attendanceType_time_until_five}</DataTable.Cell>
 						</DataTable.Row>
 				
 						<DataTable.Row style={{backgroundColor:'#ededed', minHeight: 20, height: 32}}>
 							<DataTable.Cell>Entre 5 e 49 dias internado</DataTable.Cell>
-							<DataTable.Cell numeric>20</DataTable.Cell>
+							<DataTable.Cell numeric>{this.state.hospital_report.attendanceType_time_between_five_and_fortynine}</DataTable.Cell>
 						</DataTable.Row>
 
 						<DataTable.Row style={{backgroundColor:'#ffffff', minHeight: 20, height: 32}}>
 							<DataTable.Cell>Com 50 ou mais dias internado</DataTable.Cell>
-							<DataTable.Cell numeric>2</DataTable.Cell>
+							<DataTable.Cell numeric>{this.state.hospital_report.attendanceType_time_other}</DataTable.Cell>
 						</DataTable.Row>
 					</DataTable>
 				 </Card>
@@ -526,17 +592,17 @@ export default class Report extends Component {
 					<DataTable>
 						<DataTable.Row style={{backgroundColor:'#ffffff', minHeight: 20, height: 32}}>
 							<DataTable.Cell>CTI/UTI</DataTable.Cell>
-							<DataTable.Cell numeric>10</DataTable.Cell>
+							<DataTable.Cell numeric>{this.state.hospital_report.locationType_room_ctiuti}</DataTable.Cell>
 						</DataTable.Row>
 				
 						<DataTable.Row style={{backgroundColor:'#ededed', minHeight: 20, height: 32}}>
 							<DataTable.Cell>USI</DataTable.Cell>
-							<DataTable.Cell numeric>2</DataTable.Cell>
+							<DataTable.Cell numeric>{this.state.hospital_report.locationType_room_usi}</DataTable.Cell>
 						</DataTable.Row>
 
 						<DataTable.Row style={{backgroundColor:'#ffffff', minHeight: 20, height: 32}}>
 							<DataTable.Cell>Quarto/Enfermaria</DataTable.Cell>
-							<DataTable.Cell numeric>25</DataTable.Cell>
+							<DataTable.Cell numeric>{this.state.hospital_report.locationType_room_other}</DataTable.Cell>
 						</DataTable.Row>
 					</DataTable>
 				 </Card>

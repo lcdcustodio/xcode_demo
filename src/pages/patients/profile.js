@@ -596,6 +596,14 @@ export default class Profile extends Component {
 
 					<ListItem>
 						<Body>
+							<Text style={{fontWeight: 'bold'}}>Tipo da Internação{"\n"}
+								{ this.renderHospitalizationType() }
+							</Text> 
+						</Body>
+					</ListItem>
+
+					<ListItem>
+						<Body>
 							<Text style={{fontWeight: 'bold'}}>Data de Internação{"\n"}<TextValue value={ this.props.patient.admissionDate ? moment(this.props.patient.admissionDate).format('DD/MM/YYYY HH:mm') : ''} /></Text>
 						</Body>
 					</ListItem>
@@ -615,14 +623,6 @@ export default class Profile extends Component {
 					<ListItem>
 						<Body>
 							<Text style={{fontWeight: 'bold'}}>Motivo da Alta Administrativa{"\n"}<TextValue value={this.props.patient.exitDescription} /></Text>
-						</Body>
-					</ListItem>
-
-					<ListItem>
-						<Body>
-							<Text style={{fontWeight: 'bold'}}>Tipo da Internação{"\n"}
-								{ this.renderHospitalizationType() }
-							</Text> 
 						</Body>
 					</ListItem>
 
