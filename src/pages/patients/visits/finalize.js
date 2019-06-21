@@ -13,6 +13,7 @@ import TextValue from '../../../components/TextValue';
 import FormItem from '../../../components/FormItem';
 import Modal from '../../../components/Modal';
 import data from '../../../../data.json';
+import baseStyles from '../../../styles';
 
 const PEDIATRIC_PATIENT = 'Pediátrico';
 const GENERAL_PATIENT = 'Geral';
@@ -671,9 +672,6 @@ const styles = StyleSheet.create({
 	header: {
 		color: 'white',
 		backgroundColor: '#005cd1',
-	},
-	body: {
-		backgroundColor: '#eee',
 	},
 	card: {
 		marginBottom: 10,

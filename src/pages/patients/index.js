@@ -1,11 +1,13 @@
 import React, { Component } from "react"
-import styles from './style'
-import { Container, Content, Header, Left, Right, Body, Title, Text, Card, CardItem } from 'native-base'
-import { Alert, View, FlatList, TouchableOpacity, Image, BackHandler } from "react-native"
-import moment from 'moment'
-import _ from 'lodash'
+import baseStyles from '../../styles';
+import styles from './style';
+import { Container, Content, Header, Left, Right, Body, Title, Text, Card, CardItem } from 'native-base';
+import { View, FlatList, TouchableOpacity, Image, BackHandler } from "react-native";
+import Spinner from 'react-native-loading-spinner-overlay';
+import moment from 'moment';
+import _ from 'lodash';
 import AsyncStorage from '@react-native-community/async-storage';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 
 export default class Patients extends Component {
     
@@ -15,70 +17,87 @@ export default class Patients extends Component {
 
         this.state = {
             hospital: {},
+            loading: false,
+            timerTextColor: "#005cd1",
+            timerBackgroundColor: "#fff",
             ICON: {
-                OLHO_CINZA_COM_CHECK: 2,
-                OLHO_AZUL: 0,
-                OLHO_CINZA_COM_EXCLAMACAO: 3,
-                CASA_AZUL: 1
+                OLHO_CINZA_COM_CHECK: 3,
+                OLHO_AZUL: 1,
+                OLHO_CINZA_COM_EXCLAMACAO: 0,
+                CASA_AZUL: 2
             }
         }
-
-        console.log(this.state.ICON);
-
-    }
-
-    componentDidMount() {
-        console.log('back press');
-        this.backHandler = BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
-    }
-
-    handleBackPress = () => {
-        console.log('go back');
-        this.props.navigation.navigate('Hospitals');
-        return true;
     }
 
     didFocus = this.props.navigation.addListener('didFocus', (res) => {
 
-        AsyncStorage.getItem('hospital', (err, hospital) => {
-            
-            let patients = [];
+        this.setState({ loading: true });
 
-            hospital = JSON.parse(hospital);
+        const hospitalId = this.props.navigation.getParam('hospitalId');
 
-            hospital.hospitalizationList.forEach( patient => {
+        AsyncStorage.getItem('hospitalList', (err, res) => {
 
-                let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
+            let hospitalList = JSON.parse(res);
 
-                if (
+            let hospital = [];
 
-                    (listOfOrderedPatientObservations.length == 0) || 
+            for (var h = 0; h < hospitalList.length; h++) {
+                
+                if (hospitalId == hospitalList[h].id) {
 
-                    (!listOfOrderedPatientObservations[0].endTracking && !listOfOrderedPatientObservations[0].medicalRelease)
-                )
-                {
-                    patient.totalDaysOfHospitalization = this.calculateDaysOfHospitalization(patient);
-                    patient.colorNumber = this.getColorNumber(patient);
-                    patient.colorName = this.getColor(patient.colorNumber);
-                    patient.backgroundColor = this.getBackgroundColor(patient.colorNumber);
-                    patient.lastVisit = this.getLastVisit(patient);
-                    patient.iconNumber = this.getIconNumber(patient);
-                    patient.icon = this.getIcon(patient.iconNumber);
-                    patient.orderField = this.getOrderField(patient);
-                    patients.push(patient);
+                    hospital = hospitalList[h];
+
+                    let patients = [];
+
+                    hospital.hospitalizationList.forEach( patient => {
+
+                        let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
+
+                        if (
+
+                            (listOfOrderedPatientObservations.length == 0) || 
+
+                            (!listOfOrderedPatientObservations[0].endTracking && !listOfOrderedPatientObservations[0].medicalRelease)
+                        )
+                        {
+                            patient.totalDaysOfHospitalization = this.calculateDaysOfHospitalization(patient);
+                            patient.colorNumber = this.getColorNumber(patient);
+                            patient.colorName = this.getColor(patient.colorNumber);
+                            patient.backgroundColor = this.getBackgroundColor(patient.colorNumber);
+                            patient.lastVisit = this.getLastVisit(patient);
+                            patient.iconNumber = this.getIconNumber(patient);
+                            patient.icon = this.getIcon(patient.iconNumber);
+                            patient.orderField = this.getOrderField(patient);
+                            patients.push(patient);
+                        }
+
+                    });
+
+                    patients = _.orderBy(patients, ['orderField'], ['asc']);
+
+                    hospital.hospitalizationList = patients;
+
+                    console.log(patients);
+
+                    this.setState({hospital: hospital});
+
+                    this.setState({ loading: false });
+
+                    console.log('SETOU', hospital);
+
+                    break;
+
                 }
-
-                console.log(patients);
-            });
-
-            patients = _.orderBy(patients, ['orderField'], ['asc']);
-
-            hospital.hospitalizationList = patients;
-
-            console.log(patients);
-
-            this.setState({hospital: hospital});
+            }            
         });
+
+        BackHandler.removeEventListener ('hardwareBackPress', () => {});
+        
+        BackHandler.addEventListener('hardwareBackPress', () => {
+            this.props.navigation.navigate('Hospitals');
+            return true;
+        });
+
     });
     
     exitDateBelow48Hours(date) {
@@ -190,9 +209,11 @@ export default class Patients extends Component {
             lastVisit = today.diff(lastVisit, 'days');
         }
 
-        console.log(lastVisit, patient.patientName);
-
-        if(lastVisit == 0 && patient.exitDate == null) // VISITADO HOJE E NÃO TEVE ALTA
+        if(patient.observationList.length > 0 && listOfOrderedPatientObservations[0].alert) // TEVE VISITA E COM ALERTA
+        {
+            return this.state.ICON.OLHO_CINZA_COM_EXCLAMACAO;
+        }
+        else if(lastVisit == 0 && patient.exitDate == null) // VISITADO HOJE E NÃO TEVE ALTA
         {
             return this.state.ICON.OLHO_CINZA_COM_CHECK;
         }
@@ -210,11 +231,6 @@ export default class Patients extends Component {
         else if (patient.exitDate != null) // TEVE ALTA
         {
             return this.state.ICON.CASA_AZUL;
-        }
-
-        else if(patient.observationList.length > 0 && listOfOrderedPatientObservations[0].alert) // TEVE VISITA E COM ALERTA
-        {
-            return this.state.ICON.OLHO_CINZA_COM_EXCLAMACAO;
         }
     }
 
@@ -246,10 +262,10 @@ export default class Patients extends Component {
         
              <TouchableOpacity
                 onPress={() => {
-                    this.props.navigation.navigate("PatientDetail", { patient: item});
+                    this.props.navigation.navigate("PatientDetail", { hospitalId: this.state.hospital.id, patientId: item.id, patient: item});
                 }}>
 
-            <View style={{ paddingTop: 10, paddingLeft: 10, paddingRight: 10, backgroundColor: '#fafafa'}}>
+            <View style={{ paddingTop: 10, paddingLeft: 10, paddingRight: 10, backgroundColor: baseStyles.container.backgroundColor}}>
                 <Card>
                     <CardItem header bordered style={{ flex: 1, height: 50}}>
                         <View style={{width: '90%'}}>
@@ -262,38 +278,37 @@ export default class Patients extends Component {
                     
                     <CardItem footer bordered style={{ justifyContent: 'center', height: 40, paddingTop: 0, paddingRight: 0, paddingBottom: 0, paddingLeft: 0}}>                            
                         
-                        <View style={{ width: '7%'}}>
-                            <Text style={{paddingLeft: 10}}><Icon name="calendar" style={{color: '#666', fontSize: 12}} /></Text>
+                        <View style={{ width: '8%'}}>
+                            <Text style={{paddingLeft: 10}}><Icon name="calendar" style={{color: '#666', fontSize: 20}} /></Text>
                         </View>
 
+                        <View style={{ width: '19%', justifyContent: 'center', borderRightWidth: 1, borderRightColor: '#ccc', height: 40}}>
+                            <Text style={{fontSize: 16}}>{item.totalDaysOfHospitalization}0 dias</Text>
+                        </View>
+
+                        <View style={{ width: '8%', justifyContent: 'center'}}>
+                            <Text style={{paddingLeft: 5}}><Icon name="tag" style={{color: '#666', fontSize: 20}} /></Text>
+                        </View>
+                        
+                        <View style={{ width: '10%', justifyContent: 'center', borderRightWidth: 1, borderRightColor: '#ccc', height: 40}}>
+                            <Text style={{fontSize: 16}}>{item.locationSession}</Text>
+                        </View>
+
+                        <View style={{ width: '8%', justifyContent: 'center'}}>
+                            <Text style={{paddingLeft: 5}}><Icon name="bed" style={{color: '#666', fontSize: 20}} /></Text>
+                        </View>
+                        
                         <View style={{ width: '18%', justifyContent: 'center', borderRightWidth: 1, borderRightColor: '#ccc', height: 40}}>
-                            <Text style={{fontSize: 12}}>{item.totalDaysOfHospitalization} dias</Text>
+                            <Text style={{fontSize: 16, paddingLeft: 5}}>{item.locationBed}</Text>
                         </View>
                         
-                        <View style={{ width: '7%', justifyContent: 'center'}}>
-                            <Text style={{paddingLeft: 10}}><Icon name="tag" style={{color: '#666', fontSize: 12}} /></Text>
+                        <View style={{ width: '8%', justifyContent: 'center'}}>
+                            <Text style={{paddingLeft: 5}}><Icon name="eye" style={{color: '#666', fontSize: 20}} /></Text>
                         </View>
                         
-                        <View style={{ width: '15%', justifyContent: 'center', borderRightWidth: 1, borderRightColor: '#ccc', height: 40}}>
-                            <Text style={{fontSize: 12}}>{item.locationSession}</Text>
+                        <View style={{ width: '23%', justifyContent: 'center'}}>
+                            <Text style={{fontSize: 16}}>{item.lastVisit}</Text>
                         </View>
-                        
-                        <View style={{ width: '7%', justifyContent: 'center'}}>
-                            <Text style={{paddingLeft: 10}}><Icon name="bed" style={{color: '#666', fontSize: 12}} /></Text>
-                        </View>
-                        
-                        <View style={{ width: '18%', justifyContent: 'center', borderRightWidth: 1, borderRightColor: '#ccc', height: 40}}>
-                            <Text style={{fontSize: 12}}>{item.locationBed}</Text>
-                        </View>
-                        
-                        <View style={{ width: '10%', justifyContent: 'center'}}>
-                            <Text style={{paddingLeft: 10}}><Icon name="eye" style={{color: '#666', fontSize: 20}} /></Text>
-                        </View>
-                        
-                        <View style={{ width: '18%', justifyContent: 'center'}}>
-                            <Text style={{fontSize: 12}}>{item.lastVisit}</Text>
-                        </View>
-                        
                     
                     </CardItem>
                 </Card>
@@ -304,7 +319,14 @@ export default class Patients extends Component {
 
     render(){
         return (
+
             <Container>
+                
+                <Spinner
+                    visible={this.state.loading}
+                    textContent={this.state.textContent}
+                    textStyle={styles.spinnerTextStyle} />
+
                 <Header style={styles.headerMenu}>
                     
                     <Left style={{flex:1}} >
@@ -314,10 +336,10 @@ export default class Patients extends Component {
                         <Title style={{color: 'white'}}>{this.state.hospital.name}</Title>
                     </Body>
                 </Header> 
-                <Content>
+                <Content style={baseStyles.container}>
                     <View style={styles.container}>
                         <FlatList
-                            contentContainerStyle={styles.list}
+                            contentContainerStyle={baseStyles.container}
                             data={this.state.hospital.hospitalizationList}
                             keyExtractor={item => `${item.id}`}
                             renderItem={this.renderItem}

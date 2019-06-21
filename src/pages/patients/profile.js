@@ -6,7 +6,6 @@ import uuidv4 from'uuid/v4';
 import data from '../../../data.json';
 import { Button, Paragraph, Dialog, Portal, RadioButton, Divider, TextInput, Searchbar, List } from 'react-native-paper';
 import { Content, ListItem, Text, Right, Body } from 'native-base';
-import TextInputMask from 'react-native-text-input-mask';
 
 export default class Profile extends Component {
 
@@ -109,6 +108,7 @@ export default class Profile extends Component {
 	}
 
 	handleSecondaryCID = (cid) => {
+
 		let secondaryCID = {
 			beginDate: moment(),
 			cidDisplayName: `${cid.item.code} - ${cid.item.name}`,
@@ -117,13 +117,29 @@ export default class Profile extends Component {
 		}
 
 		if(this.props.patient.secondaryCIDList && this.props.patient.secondaryCIDList.length > 0) {
-			let cidList = this.props.patient.secondaryCIDList
-			cidList.push(secondaryCID)
-			this.props.handleUpdatePatient('secondaryCIDList', cidList)
-			this.setState({
-				auxCid: data.cid,
-				cidQuery: null
-			})
+			
+			let cidList = this.props.patient.secondaryCIDList;
+
+			let push = true;
+
+			for (var i = 0; i < cidList.length; i++) {
+				if (cidList[i].cidId == cid.item.id) {
+					push = false;
+				}
+			}
+
+			if (push) {
+
+				cidList.push(secondaryCID);
+				
+				this.props.handleUpdatePatient('secondaryCIDList', cidList)
+				
+				this.setState({
+					auxCid: data.cid,
+					cidQuery: null
+				});
+			}
+
 		} else {
 			let cidList = [];
 			cidList.push(secondaryCID)
@@ -144,7 +160,10 @@ export default class Profile extends Component {
 				{text: 'Cancelar', onPress: () => console.log('Remocao de CID secundário cancelado'), style: 'cancel', },
 				{text: 'OK', onPress: () => 
 					{
-						let newCidList = this.props.patient.secondaryCIDList.filter(item => item.cidId !== cidToRemove.cidId)
+						let newCidList = this.props.patient.secondaryCIDList.filter(item => item.cidId !== cidToRemove.cidId);
+						
+						console.log(newCidList);
+
 						this.props.handleUpdatePatient("secondaryCIDList", newCidList)
 					},
 				}
@@ -220,21 +239,11 @@ export default class Profile extends Component {
 							<Dialog.Title>Altura (m) e Peso (Kg)</Dialog.Title>
 							
 							<Dialog.Content>
-								<TextInput mode='outlined' keyboardType='number-pad' label='Altura' value={this.props.patient.patientHeight} 
-									onChangeText={height => { this.handleHeight(height) }}
-									render={props =>
-										<TextInputMask {...props} mask="[0]{,}[00]" />
-									}
-								/>
+								<TextInput mode='outlined' keyboardType='number-pad' label='Altura' value={this.props.patient.patientHeight ? this.props.patient.patientHeight.toString() : this.props.patient.patientHeight} onChangeText={height => { this.handleHeight(height) }}/>
 
 								<Text> {'\n'} </Text>								
 
-								<TextInput mode='outlined' keyboardType='number-pad' label='Peso' value={this.props.patient.patientWeight} 
-									onChangeText={weight => { this.handleWeight(weight) }} 
-									render={props =>
-										<TextInputMask {...props} mask="[900]{,}[000]" />
-									}
-								/>
+								<TextInput mode='outlined' keyboardType='number-pad' label='Peso' value={this.props.patient.patientWeight ? this.props.patient.patientWeight.toString() : this.props.patient.patientWeight} onChangeText={weight => { this.handleWeight(weight) }} />
 							</Dialog.Content>
 
 							<Divider />
@@ -405,7 +414,12 @@ export default class Profile extends Component {
 	}
 
 	renderHeightAndWeight() {
+
+			console.log(this.props.patient.patientHeight);
+			console.log(this.props.patient.patientWeight);
+			
 		return (
+
 			this.state.isEditable ?
 				<TextValue color={'#0000FF'} value={ this.props.patient.patientHeight && this.props.patient.patientWeight ? `${this.props.patient.patientHeight}m / ${this.props.patient.patientWeight}kg` : 'INFORMAR' } press={ () => { this.setState({modalSelected: 'HeightAndWeight', modalHeightAndWeight: true}) }}/>
 			:
@@ -475,7 +489,11 @@ export default class Profile extends Component {
 	}
 
 	renderSecondaryCID() {
+		
+		console.log(this.props.patient.secondaryCIDList);
+		
 		return (
+
 			this.state.isEditable ?
 				this.props.patient.secondaryCIDList.map((prop) => {
 					return ( <TextValue color={'#0000FF'} key={prop.cidId} value={`${prop.cidDisplayName} \n`} press={ () => { this.removeSecondaryCID(prop) }} /> )
@@ -572,6 +590,14 @@ export default class Profile extends Component {
 
 					<ListItem>
 						<Body>
+							<Text style={{fontWeight: 'bold'}}>Tipo da Internação{"\n"}
+								{ this.renderHospitalizationType() }
+							</Text> 
+						</Body>
+					</ListItem>
+
+					<ListItem>
+						<Body>
 							<Text style={{fontWeight: 'bold'}}>Data de Internação{"\n"}<TextValue value={ this.props.patient.admissionDate ? moment(this.props.patient.admissionDate).format('DD/MM/YYYY HH:mm') : ''} /></Text>
 						</Body>
 					</ListItem>
@@ -591,14 +617,6 @@ export default class Profile extends Component {
 					<ListItem>
 						<Body>
 							<Text style={{fontWeight: 'bold'}}>Motivo da Alta Administrativa{"\n"}<TextValue value={this.props.patient.exitDescription} /></Text>
-						</Body>
-					</ListItem>
-
-					<ListItem>
-						<Body>
-							<Text style={{fontWeight: 'bold'}}>Tipo da Internação{"\n"}
-								{ this.renderHospitalizationType() }
-							</Text> 
 						</Body>
 					</ListItem>
 

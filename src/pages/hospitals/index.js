@@ -6,6 +6,7 @@ import { Alert, View, FlatList, TouchableOpacity, Image, BackHandler } from "rea
 import AsyncStorage from '@react-native-community/async-storage';
 import NetInfo from "@react-native-community/netinfo";
 import Spinner from 'react-native-loading-spinner-overlay';
+import baseStyles from '../../styles'
 import styles from './style'
 import Line from '../../components/Line'
 import Timer from '../../components/Timer'
@@ -40,17 +41,6 @@ export default class Hospital extends Component {
 		}
 
 	}
-
-	componentDidMount() {
-		console.log('back press');
-		this.backHandler = BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
-	}
-
-	handleBackPress = () => {
-		console.log('go back');
-		this.props.navigation.navigate('Hospitals');
-		return true;
-	}
 	
 	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
 
@@ -62,22 +52,38 @@ export default class Hospital extends Component {
 
 			this.setState({isConnected: state.isConnected});
 
-			if (this.state.hospitals == null) {
-				this.sincronizar();
-			}
+			this.sincronizar();
 
 		});
 
-		AsyncStorage.getItem('dateSync', (err, dateSync) => {
-            this.setState({dateSync: dateSync});
+		AsyncStorage.getItem('dateSync', (err, res) => {
+			
+			if (res !== null) {
+
+				let today =  moment().format('DD/MM/YYYY');
+
+				let dateSync = res.substring(0, 10);
+
+				if (today > dateSync) {
+					this.setState({ timerTextColor: "#721c24", timerBackgroundColor: "#f8d7da" });
+				}				
+			}
+
+            this.setState({dateSync: res});
         });
 
 		AsyncStorage.getItem('require_sync_at', (err, res) => {
-
-			console.log('require_sync_at', res);
-
-			this.setRequireSyncTimer(res);
+			if (res != null) {
+				this.setRequireSyncTimer(res);
+			}
 		});
+
+		BackHandler.removeEventListener ('hardwareBackPress', () => {});
+        
+        BackHandler.addEventListener('hardwareBackPress', () => {
+            this.props.navigation.navigate('Hospitals');
+            return true;
+        });
 
 	});
 
@@ -87,7 +93,7 @@ export default class Hospital extends Component {
 
 			this.setState({ textContent: 'Carregando informações...' });
 
-			this.setState({loading: true});
+			this.setState({ loading: true });
 
 			AsyncStorage.getItem('userData', (err, res) => {
 
@@ -104,8 +110,6 @@ export default class Hospital extends Component {
 		            if (Session.current.user == null) {
 		            	Session.current.user = parse;
 		            }
-
-					console.log(Session.current.user);
 
 		            let token = parse.token;
 				
@@ -127,11 +131,14 @@ export default class Hospital extends Component {
 
 						if(response.status === 200) {
 
+							AsyncStorage.setItem('hospitalizationList', JSON.stringify([]));
+							AsyncStorage.setItem('morbidityComorbityList', JSON.stringify(response.data.content.morbidityComorbityList));
+
 							let hospitalListOrdered = _.orderBy(response.data.content.hospitalList, ['name'], ['asc']);
 							
 							let user = Session.current.user;
 
-							let listHospital = []
+							let listHospital = [];
 							
 							if (user.profile == 'CONSULTANT') {
 
@@ -297,7 +304,6 @@ export default class Hospital extends Component {
 			return require('../../images/logo_hospital/rj/quintaDor.png');
         }  
 
-		
 		return null;
 	}
 
@@ -328,11 +334,7 @@ export default class Hospital extends Component {
 	        }
 
 			if (lastVisit == 0) {
-
 				++totalPatientsVisited;
-
-				console.log(totalPatientsVisited);
-
 			}
 		});
 
@@ -406,7 +408,7 @@ export default class Hospital extends Component {
 
 			var month = ((visit.getMonth() + 1) < 10 ? '0' : '') + (visit.getMonth() + 1);
 
-			lastVisit = day + "/" + month + "/" + visit.getFullYear();
+			lastVisit = day + "/" + month + "/" + (visit.getYear() - 100);
 		}
 		
 		return lastVisit;
@@ -515,9 +517,7 @@ export default class Hospital extends Component {
 		<TouchableOpacity
 			onPress={() => {
 
-				console.log(item);
-
-				if(item.hospitalizationList.length === 0) {
+				if(item.totalPatients === 0) {
 
 					Alert.alert(
 						item.name,
@@ -535,9 +535,7 @@ export default class Hospital extends Component {
 				}
 				else
 				{
-					AsyncStorage.setItem('hospital', JSON.stringify(item), () => {
-						this.props.navigation.navigate("Patients");
-					});
+					this.props.navigation.navigate("Patients", {hospitalId: item.id});
 
 					this.setState({
 						patientQuery: null,
@@ -546,7 +544,7 @@ export default class Hospital extends Component {
 				}
 			}}>
 			
-            <View style={{ width: '100%', paddingTop: 10, paddingLeft: 10, paddingRight: 10, backgroundColor: '#fafafa'}}>
+            <View style={{ width: '100%', paddingTop: 10, paddingLeft: 10, paddingRight: 10, backgroundColor: baseStyles.container.backgroundColor}}>
                 
                 <Card>
 
@@ -556,28 +554,28 @@ export default class Hospital extends Component {
                     
                     <CardItem footer bordered style={{ justifyContent: 'center', height: 40, paddingTop: 0, paddingRight: 0, paddingBottom: 0, paddingLeft: 0}}>                            
                         
-                        <View style={{ width: '10%'}}>
-                            <Text style={{paddingLeft: 10}}><Icon name="briefcase-medical" style={{color: '#666', fontSize: 20}} /></Text>
+                        <View style={{ width: '8%'}}>
+                            <Text style={{paddingLeft: 5}}><Icon name="briefcase-medical" style={{color: '#666', fontSize: 20}} /></Text>
                         </View>
 
-                        <View style={{ width: '24%', justifyContent: 'center', borderRightWidth: 1, borderRightColor: '#ccc', height: 40}}>
-                            <Text style={{fontSize: 12}}> {item.lastVisit} </Text>
+                        <View style={{ width: '22%', justifyContent: 'center', borderRightWidth: 1, borderRightColor: '#ccc', height: 40}}>
+                            <Text style={{fontSize: 16}}> {item.lastVisit} </Text>
                         </View>
                         
-                        <View style={{ width: '10%', justifyContent: 'center'}}>
-                            <Text style={{paddingLeft: 10}}><Icon name="bed" style={{color: '#666', fontSize: 20}} /></Text>
+                        <View style={{ width: '8%', justifyContent: 'center'}}>
+                            <Text style={{paddingLeft: 5}}><Icon name="bed" style={{color: '#666', fontSize: 20}} /></Text>
                         </View>
                         
-                        <View style={{ width: '23%', justifyContent: 'center', borderRightWidth: 1, borderRightColor: '#ccc', height: 40}}>
-                            <Text style={{fontSize: 12}}> {item.totalPatients} Internados </Text>
+                        <View style={{ width: '28%', justifyContent: 'center', borderRightWidth: 1, borderRightColor: '#ccc', height: 40}}>
+                            <Text style={{fontSize: 16}}> {item.totalPatients} Internados </Text>
                         </View>
                         
-                        <View style={{ width: '10%', justifyContent: 'center'}}>
-                            <Text style={{paddingLeft: 10}}><Icon name="eye" style={{color: '#666', fontSize: 20}} /></Text>
+                        <View style={{ width: '8%', justifyContent: 'center'}}>
+                            <Text style={{paddingLeft: 5}}><Icon name="eye" style={{color: '#666', fontSize: 20}} /></Text>
                         </View>
                         
-                        <View style={{ width: '23%', justifyContent: 'center'}}>
-                            <Text style={{fontSize: 12}}> {item.totalPatientsVisitedToday} Visitados </Text>
+                        <View style={{ width: '26%', justifyContent: 'center'}}>
+                            <Text style={{fontSize: 16}}> {item.totalPatientsVisitedToday} Visitados </Text>
                         </View>
                         
                     
@@ -646,10 +644,12 @@ export default class Hospital extends Component {
 		console.log(element);
 
 		return (
-			<TouchableOpacity onPress={() => { console.log('clicou'); this.goToProfilePage(element.item) }}>
-					<List.Item title={`${element.item.patientName}`} />
-					<TextValue color={'#999'} size={13} marginLeft={4} marginTop={-6} value={element.item.hospitalName} />
-							</TouchableOpacity>
+			<TouchableOpacity onPress={() => { 
+				this.goToProfilePage(element.item) 
+			}}>
+				<List.Item title={`${element.item.patientName}`} />
+				<TextValue color={'#999'} size={13} marginLeft={4} marginTop={-6} value={element.item.hospitalName} />
+			</TouchableOpacity>
 		);
 	}
 
@@ -701,7 +701,7 @@ export default class Hospital extends Component {
 					<View style={styles.container}>
 
 						<FlatList
-							contentContainerStyle={styles.list}
+							contentContainerStyle={baseStyles.container}
 							data={this.state.hospitals}
 							keyExtractor={item => item.id + '_'}
 							renderItem={this.renderItem} />
