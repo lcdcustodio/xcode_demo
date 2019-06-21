@@ -5,7 +5,7 @@ import _ from 'lodash';
 import TabEnum from './PatientDetailTabEnum';
 import AsyncStorage from '@react-native-community/async-storage';
 import moment from 'moment';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 
 //Pages
 import Profile from "./profile";

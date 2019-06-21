@@ -6,7 +6,6 @@ import uuidv4 from'uuid/v4';
 import data from '../../../data.json';
 import { Button, Paragraph, Dialog, Portal, RadioButton, Divider, TextInput, Searchbar, List } from 'react-native-paper';
 import { Content, ListItem, Text, Right, Body } from 'native-base';
-import TextInputMask from 'react-native-text-input-mask';
 
 export default class Profile extends Component {
 
@@ -240,21 +239,11 @@ export default class Profile extends Component {
 							<Dialog.Title>Altura (m) e Peso (Kg)</Dialog.Title>
 							
 							<Dialog.Content>
-								<TextInput mode='outlined' keyboardType='number-pad' label='Altura' value={this.props.patient.patientHeight} 
-									onChangeText={height => { this.handleHeight(height) }}
-									render={props =>
-										<TextInputMask {...props} mask="[0]{,}[00]" />
-									}
-								/>
+								<TextInput mode='outlined' keyboardType='number-pad' label='Altura' value={this.props.patient.patientHeight.toString()} />
 
 								<Text> {'\n'} </Text>								
 
-								<TextInput mode='outlined' keyboardType='number-pad' label='Peso' value={this.props.patient.patientWeight} 
-									onChangeText={weight => { this.handleWeight(weight) }} 
-									render={props =>
-										<TextInputMask {...props} mask="[900]{,}[000]" />
-									}
-								/>
+								<TextInput mode='outlined' keyboardType='number-pad' label='Peso' value={this.props.patient.patientWeight.toString()} />
 							</Dialog.Content>
 
 							<Divider />
