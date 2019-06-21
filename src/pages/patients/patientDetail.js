@@ -3,6 +3,7 @@ import { Container, Content, Header, Left, Right, Button, Body, Title, Subtitle,
 import { StyleSheet, BackHandler } from "react-native";
 import _ from 'lodash';
 import TabEnum from './PatientDetailTabEnum';
+import Spinner from 'react-native-loading-spinner-overlay';
 import AsyncStorage from '@react-native-community/async-storage';
 import moment from 'moment';
 import Icon from 'react-native-vector-icons/FontAwesome5';
@@ -22,56 +23,83 @@ class PatientDetail extends Component {
 
 		this.state = {
 			patient: this.props.navigation.getParam('patient'),
+			loading: false,
+            timerTextColor: "#005cd1",
+            timerBackgroundColor: "#fff",
 			selectedTab: TabEnum.Profile,
 			isEditable: Session.current.user._profile === 'ADMIN' ? false : true
 		}
 	}
 
-	componentDidMount() {
-		console.log('back press');
-		this.backHandler = BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
-	}
-
 	handleUpdatePatient = async (attribute, value) => {
 
-		console.log(attribute, value);
+		this.setState({loading: true});
+
+		AsyncStorage.setItem('require_sync_at', JSON.stringify(moment().format('YYYY-MM-DD')));
 
 		let patient = this.state.patient;
 
 		patient[attribute] = value;
 
-		console.log(patient);
-
 		this.setState({patient});
 
-		console.log(this.state.patient);
+		AsyncStorage.getItem('hospitalList', (err, res) => {
 
-		AsyncStorage.setItem(this.state.patient.id.toString(), JSON.stringify(this.state.patient));
+			let hospitalList = JSON.parse(res);
 
-		AsyncStorage.setItem('require_sync_at', JSON.stringify(moment().format('YYYY-MM-DD')));
+			let hospital = [];
 
-		/*AsyncStorage.getItem('hospitalizationList', (err, res) => {
+			for (var h = 0; h < hospitalList.length; h++) {
+				
+				if (patient.hospitalName == hospitalList[h].name) {
 
-			console.log(err, res);
+					hospital = hospitalList[h];
 
-			if (res == null) {
-
-				let hospitalizationList = [];
-
-				hospitalizationList.id = this.state.patient.id;
-
-				hospitalizationList[attribute] = value;
-
+					for (var i = 0; i < hospitalList[h].hospitalizationList.length; i++) {
+						if (hospitalList[h].hospitalizationList[i].id == patient.id) {
+							hospitalList[h].hospitalizationList[i] = patient;
+						}
+					}
+				}
 			}
-			else
-			{
-				let hospitalizationList = JSON.parse(res);
 
-			}
+			AsyncStorage.setItem('hospitalList', JSON.stringify(hospitalList));
+
+		});
+
+		AsyncStorage.getItem('hospitalizationList', (err, res) => {
+
+			let hospitalizationList = JSON.parse(res);
+
+			let obj = [];
+
+			obj.id = this.state.patient.id;
+
+			obj[attribute] = value;
+
+			hospitalizationList.push(obj);
 
 			console.log(hospitalizationList);
 
-		});*/
+			/*let hospitalizationList = JSON.parse(res);
+
+			let obj = [];
+
+			obj.id = this.state.patient.id;
+
+			obj[attribute] = value;
+
+			hospitalizationList.push(obj);
+
+			console.log(hospitalizationList);
+
+			AsyncStorage.setItem('hospitalizationList', JSON.stringify(hospitalizationList));*/
+
+			AsyncStorage.setItem('hospitalizationList', JSON.stringify(hospitalizationList));
+
+			this.setState({loading: false});
+
+		});
 	}
 	
 	renderSelectedTab = () => {
@@ -85,44 +113,50 @@ class PatientDetail extends Component {
 		}
 	}
 
-	handleBackPress = () => {
-		this.props.navigation.navigate('Patients');
-		return true;
-	}
-
 	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
 		
-		let patient = this.props.navigation.getParam('patient');
+		this.setState({loading: true});
 
-		console.log(patient.id.toString(), patient);
+		let admin = !(Session.current.user._profile === 'ADMIN');
 
-		AsyncStorage.getItem(patient.id.toString(), (err, res) => {
+		console.log(admin);
 
-			if (res == null) {
+		this.setState({isEditable: admin});
 
-				console.log('NAO TEM NO STORAGE');
+		const hospitalId = this.props.navigation.getParam('hospitalId');
 
-				this.setState({
-					patient: patient,
-					isEditable: Session.current.user._profile === 'ADMIN' ? false : true
-				});
+        const patientId = this.props.navigation.getParam('patientId');
 
-				AsyncStorage.setItem(this.state.patient.id.toString(), JSON.stringify(this.state.patient));
-			}
-			else
-			{
-				res = JSON.parse(res);
+        AsyncStorage.getItem('hospitalList', (err, res) => {
 
-				console.log('TEM NO STORAGE', res);
+            let hospitalList = JSON.parse(res);
 
-				this.setState({
-					patient: res,
-					isEditable: Session.current.user._profile === 'ADMIN' ? false : true
-				});
-			}
-		});
+            for (var h = 0; h < hospitalList.length; h++) {
+                
+                if (hospitalId == hospitalList[h].id) {
 
-		this.backHandler = BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
+                    let hospital = hospitalList[h];
+
+                    for (var i = 0; i < hospital.hospitalizationList.length; i++) {
+                    
+                    	let patient = hospital.hospitalizationList[i];
+                    
+                        if (patient.id == patientId) {
+                        	this.setState({patient: patient});
+                        }
+                    }
+                }
+            }
+
+            this.setState({ loading: false });
+        });
+
+		BackHandler.removeEventListener ('hardwareBackPress', () => {});
+        
+        BackHandler.addEventListener('hardwareBackPress', () => {
+            this.props.navigation.navigate('Patients');
+            return true;
+        });
 	});
 
 	isSelected = (tab) => {
@@ -136,6 +170,12 @@ class PatientDetail extends Component {
 	render() {
 		return (
 			<Container>
+
+				<Spinner
+                    visible={this.state.loading}
+                    textContent={this.state.textContent}
+                    textStyle={styles.spinnerTextStyle} />
+
 				<Header style={ styles.header }>
 					<Left style={{flex:1}} >
 						<Icon name="angle-left" style={{color: '#FFF', fontSize: 40}} onPress={this._goBack} />

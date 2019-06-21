@@ -239,11 +239,11 @@ export default class Profile extends Component {
 							<Dialog.Title>Altura (m) e Peso (Kg)</Dialog.Title>
 							
 							<Dialog.Content>
-								<TextInput mode='outlined' keyboardType='number-pad' label='Altura' value={this.props.patient.patientHeight.toString()} />
+								<TextInput mode='outlined' keyboardType='number-pad' label='Altura' value={this.props.patient.patientHeight ? this.props.patient.patientHeight.toString() : this.props.patient.patientHeight} onChangeText={height => { this.handleHeight(height) }}/>
 
 								<Text> {'\n'} </Text>								
 
-								<TextInput mode='outlined' keyboardType='number-pad' label='Peso' value={this.props.patient.patientWeight.toString()} />
+								<TextInput mode='outlined' keyboardType='number-pad' label='Peso' value={this.props.patient.patientWeight ? this.props.patient.patientWeight.toString() : this.props.patient.patientWeight} onChangeText={weight => { this.handleWeight(weight) }} />
 							</Dialog.Content>
 
 							<Divider />
@@ -414,7 +414,12 @@ export default class Profile extends Component {
 	}
 
 	renderHeightAndWeight() {
+
+			console.log(this.props.patient.patientHeight);
+			console.log(this.props.patient.patientWeight);
+			
 		return (
+
 			this.state.isEditable ?
 				<TextValue color={'#0000FF'} value={ this.props.patient.patientHeight && this.props.patient.patientWeight ? `${this.props.patient.patientHeight}m / ${this.props.patient.patientWeight}kg` : 'INFORMAR' } press={ () => { this.setState({modalSelected: 'HeightAndWeight', modalHeightAndWeight: true}) }}/>
 			:

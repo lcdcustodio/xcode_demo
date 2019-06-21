@@ -43,8 +43,6 @@ export default class Report extends Component {
 			patientQuery: null
 		}
 
-		console.log('Ok');
-
 	}
 
 	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
@@ -63,16 +61,34 @@ export default class Report extends Component {
 
 		});
 
-		AsyncStorage.getItem('dateSync', (err, dateSync) => {
-            this.setState({dateSync: dateSync});
+		AsyncStorage.getItem('dateSync', (err, res) => {
+			
+			if (res !== null) {
+
+				let today =  moment().format('DD/MM/YYYY');
+
+				let dateSync = res.substring(0, 10);
+
+				if (today > dateSync) {
+					this.setState({ timerTextColor: "#721c24", timerBackgroundColor: "#f8d7da" });
+				}				
+			}
+
+            this.setState({dateSync: res});
         });
 
 		AsyncStorage.getItem('require_sync_at', (err, res) => {
-
-			console.log('require_sync_at', res);
-
-			this.setRequireSyncTimer(res);
+			if (res != null) {
+				this.setRequireSyncTimer(res);
+			}
 		});
+
+		BackHandler.removeEventListener ('hardwareBackPress', () => {});
+        
+        BackHandler.addEventListener('hardwareBackPress', () => {
+            this.props.navigation.navigate('Hospitals');
+            return true;
+        });
 
 	});
 
@@ -121,6 +137,9 @@ export default class Report extends Component {
 						this.setState({loading: false});
 
 						if(response.status === 200) {
+
+							AsyncStorage.setItem('hospitalizationList', JSON.stringify([]));
+							AsyncStorage.setItem('morbidityComorbityList', JSON.stringify(response.data.content.morbidityComorbityList));
 
 							let hospitalListOrdered = _.orderBy(response.data.content.hospitalList, ['name'], ['asc']);
 							

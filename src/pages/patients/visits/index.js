@@ -71,7 +71,7 @@ export default class Visitas extends React.Component {
 	alertToRemove = patient => {
 		Alert.alert(
 			'Atenção',
-			'Deseja remover o item selecionado?',
+			'Deseja remover esta visita?',
 			[{ text: 'Cancel',onPress: () => console.log('Cancel Pressed'), style: 'cancel'  },
 			  {text: 'OK', onPress: () => {
 				this.remove(patient);
@@ -203,7 +203,11 @@ export default class Visitas extends React.Component {
 	}
 
 	showButton = () => {
+		
 		const patient = new Patient(this.state.patient);
+
+		console.log(patient);
+
 		switch (patient.getHospitalizationStatusEnum()) {
 			case HospitalizationStatusEnum.Open:
 				return (patient.getStatusVisitEnum() === StatusVisitEnum.Visited)

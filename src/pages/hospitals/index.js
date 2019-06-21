@@ -41,17 +41,6 @@ export default class Hospital extends Component {
 		}
 
 	}
-
-	componentDidMount() {
-		console.log('back press');
-		this.backHandler = BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
-	}
-
-	handleBackPress = () => {
-		console.log('go back');
-		this.props.navigation.navigate('Hospitals');
-		return true;
-	}
 	
 	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
 
@@ -63,22 +52,38 @@ export default class Hospital extends Component {
 
 			this.setState({isConnected: state.isConnected});
 
-			if (this.state.hospitals == null) {
-				this.sincronizar();
-			}
+			this.sincronizar();
 
 		});
 
-		AsyncStorage.getItem('dateSync', (err, dateSync) => {
-            this.setState({dateSync: dateSync});
+		AsyncStorage.getItem('dateSync', (err, res) => {
+			
+			if (res !== null) {
+
+				let today =  moment().format('DD/MM/YYYY');
+
+				let dateSync = res.substring(0, 10);
+
+				if (today > dateSync) {
+					this.setState({ timerTextColor: "#721c24", timerBackgroundColor: "#f8d7da" });
+				}				
+			}
+
+            this.setState({dateSync: res});
         });
 
 		AsyncStorage.getItem('require_sync_at', (err, res) => {
-
-			console.log('require_sync_at', res);
-
-			this.setRequireSyncTimer(res);
+			if (res != null) {
+				this.setRequireSyncTimer(res);
+			}
 		});
+
+		BackHandler.removeEventListener ('hardwareBackPress', () => {});
+        
+        BackHandler.addEventListener('hardwareBackPress', () => {
+            this.props.navigation.navigate('Hospitals');
+            return true;
+        });
 
 	});
 
@@ -88,7 +93,7 @@ export default class Hospital extends Component {
 
 			this.setState({ textContent: 'Carregando informações...' });
 
-			this.setState({loading: true});
+			this.setState({ loading: true });
 
 			AsyncStorage.getItem('userData', (err, res) => {
 
@@ -105,8 +110,6 @@ export default class Hospital extends Component {
 		            if (Session.current.user == null) {
 		            	Session.current.user = parse;
 		            }
-
-					console.log(Session.current.user);
 
 		            let token = parse.token;
 				
@@ -128,11 +131,14 @@ export default class Hospital extends Component {
 
 						if(response.status === 200) {
 
+							AsyncStorage.setItem('hospitalizationList', JSON.stringify([]));
+							AsyncStorage.setItem('morbidityComorbityList', JSON.stringify(response.data.content.morbidityComorbityList));
+
 							let hospitalListOrdered = _.orderBy(response.data.content.hospitalList, ['name'], ['asc']);
 							
 							let user = Session.current.user;
 
-							let listHospital = []
+							let listHospital = [];
 							
 							if (user.profile == 'CONSULTANT') {
 
@@ -298,7 +304,6 @@ export default class Hospital extends Component {
 			return require('../../images/logo_hospital/rj/quintaDor.png');
         }  
 
-		
 		return null;
 	}
 
@@ -329,11 +334,7 @@ export default class Hospital extends Component {
 	        }
 
 			if (lastVisit == 0) {
-
 				++totalPatientsVisited;
-
-				console.log(totalPatientsVisited);
-
 			}
 		});
 
@@ -516,9 +517,7 @@ export default class Hospital extends Component {
 		<TouchableOpacity
 			onPress={() => {
 
-				console.log(item);
-
-				if(item.hospitalizationList.length === 0) {
+				if(item.totalPatients === 0) {
 
 					Alert.alert(
 						item.name,
@@ -536,9 +535,7 @@ export default class Hospital extends Component {
 				}
 				else
 				{
-					AsyncStorage.setItem('hospital', JSON.stringify(item), () => {
-						this.props.navigation.navigate("Patients");
-					});
+					this.props.navigation.navigate("Patients", {hospitalId: item.id});
 
 					this.setState({
 						patientQuery: null,
@@ -647,7 +644,9 @@ export default class Hospital extends Component {
 		console.log(element);
 
 		return (
-			<TouchableOpacity onPress={() => { console.log('clicou'); this.goToProfilePage(element.item) }}>
+			<TouchableOpacity onPress={() => { 
+				this.goToProfilePage(element.item) 
+			}}>
 				<List.Item title={`${element.item.patientName}`} />
 				<TextValue color={'#999'} size={13} marginLeft={4} marginTop={-6} value={element.item.hospitalName} />
 			</TouchableOpacity>
