@@ -160,7 +160,7 @@ export default class Visitas extends React.Component {
 
 		<View style={{ paddingTop: 10, paddingLeft: 10, paddingRight: 10, backgroundColor: baseStyles.container.backgroundColor}}>
 				<Card>
-					<CardItem header bordered style={{ flex: 1, backgroundColor: '#cce5ff', height: 40}}>
+					<CardItem header bordered style={{ flex: 1, backgroundColor: '#cce5ff', height: 60}}>
 						<Left>
 							<Text style={{ fontSize: 16, fontWeight: 'bold'}}>VISITA</Text>
 						</Left>

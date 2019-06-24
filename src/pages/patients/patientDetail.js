@@ -27,7 +27,7 @@ class PatientDetail extends Component {
             timerTextColor: "#005cd1",
             timerBackgroundColor: "#fff",
 			selectedTab: TabEnum.Profile,
-			isEditable: Session.current.user._profile === 'ADMIN' ? false : true
+			isEditable: Session.current.user._profile != 'ADMIN'
 		}
 	}
 
@@ -71,33 +71,18 @@ class PatientDetail extends Component {
 
 			let hospitalizationList = JSON.parse(res);
 
-			let obj = [];
+			hospitalizationList.push({
+				idPatient: this.state.patient.id,
+				key: attribute,
+				value: value
+			});
 
-			obj.id = this.state.patient.id;
+			AsyncStorage.setItem('hospitalizationList', JSON.stringify(hospitalizationList), () => {
 
-			obj[attribute] = value;
+				console.log(hospitalizationList);
 
-			hospitalizationList.push(obj);
-
-			console.log(hospitalizationList);
-
-			/*let hospitalizationList = JSON.parse(res);
-
-			let obj = [];
-
-			obj.id = this.state.patient.id;
-
-			obj[attribute] = value;
-
-			hospitalizationList.push(obj);
-
-			console.log(hospitalizationList);
-
-			AsyncStorage.setItem('hospitalizationList', JSON.stringify(hospitalizationList));*/
-
-			AsyncStorage.setItem('hospitalizationList', JSON.stringify(hospitalizationList));
-
-			this.setState({loading: false});
+				this.setState({loading: false});
+			});
 
 		});
 	}
@@ -105,7 +90,7 @@ class PatientDetail extends Component {
 	renderSelectedTab = () => {
 		switch (this.state.selectedTab) {
 			case TabEnum.Profile:
-				return <Profile patient={this.state.patient} handleUpdatePatient={this.handleUpdatePatient} isEditable={this.state.isEditable} />;
+				return <Profile patient={this.state.patient} handleUpdatePatient={this.handleUpdatePatient} isEditable={this.state.isEditable} navigation={this.props.navigation} />;
 			case TabEnum.Events:
 				return <Events  patient={this.state.patient} handleUpdatePatient={this.handleUpdatePatient} isEditable={this.state.isEditable} navigation={this.props.navigation} />;
 			case TabEnum.Visits:
@@ -117,11 +102,7 @@ class PatientDetail extends Component {
 		
 		this.setState({loading: true});
 
-		let admin = !(Session.current.user._profile === 'ADMIN');
-
-		console.log(admin);
-
-		this.setState({isEditable: admin});
+		this.setState({isEditable: Session.current.user._profile != 'ADMIN'});
 
 		const hospitalId = this.props.navigation.getParam('hospitalId');
 
@@ -179,7 +160,6 @@ class PatientDetail extends Component {
 				<Header style={ styles.header }>
 					<Left style={{flex:1}} >
 						<Icon name="angle-left" style={{color: '#FFF', fontSize: 40}} onPress={this._goBack} />
-
 					</Left>
 					<Body style={{flex: 7}}>
 						<Title style={{color: 'white'}}> Detalhes do Paciente </Title>

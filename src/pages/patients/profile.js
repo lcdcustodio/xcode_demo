@@ -12,6 +12,8 @@ export default class Profile extends Component {
 	constructor(props) {
 		super(props);	
 		this.state = {
+			patient: this.props.navigation.getParam('patient'),
+			isEditable: this.props.isEditable,
 			cid: data.cid,
 			auxCid: data.cid,
 			tuss: data.tuss,
@@ -27,7 +29,6 @@ export default class Profile extends Component {
 			selectedRadio: null,
 			cidQuery: null,
 			tussQuery: null,
-			isEditable: this.props.isEditable,
 			listAttendanceType: [
 				{key: 1, value: 'ELECTIVE', label: 'ELETIVO'},
 				{key: 2, value: 'EMERGENCY', label: 'EMERGÊNCIA'}
@@ -38,6 +39,11 @@ export default class Profile extends Component {
 			]
 		}
 	}
+
+	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
+		this.setState({isEditable: this.props.navigation.getParam('isEditable')});
+		this.setState({patient: this.props.navigation.getParam('patient')});
+	});
 
 	toggleModal = (modalName) => {
 		this.setState({[modalName]: !this.state[modalName]})
@@ -320,7 +326,7 @@ export default class Profile extends Component {
 							<Dialog.Title>CRM</Dialog.Title>
 							
 							<Dialog.Content>
-								<TextInput mode='outlined' label='CRM' value={this.props.patient.mainProcedureCRM} onChangeText={text => { this.handleCRM(text) }} />	
+								<TextInput mode='outlined' label='CRM' value={this.state.patient.mainProcedureCRM} onChangeText={text => { this.handleCRM(text) }} />	
 							</Dialog.Content>
 
 							<Divider />
@@ -511,7 +517,7 @@ export default class Profile extends Component {
 	renderCRM() {
 		return (
 			this.state.isEditable ?
-				<TextValue color={'#0000FF'} value={this.props.patient.mainProcedureCRM !== null ? this.props.patient.mainProcedureCRM : 'INFORMAR'} press={ () => { this.setState({modalSelected: 'CRM', modalCRM: true}) }} />
+				<TextValue color={'#0000FF'} value={this.state.patient.mainProcedureCRM !== null ? this.state.patient.mainProcedureCRM : 'INFORMAR'} press={ () => { this.setState({modalSelected: 'CRM', modalCRM: true}) }} />
 			:
 				<TextValue value={'NÃO INFORMADO'} />
 		);
