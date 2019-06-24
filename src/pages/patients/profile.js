@@ -38,7 +38,8 @@ export default class Profile extends Component {
 				{key: 2, value: 'SURGICAL', label: 'CIRÚRGICO'}
 			],
 			patientHeightTMP: this.props.navigation.getParam('patient').patientHeight,
-			patientWeightTMP: this.props.navigation.getParam('patient').patientWeight
+			patientWeightTMP: this.props.navigation.getParam('patient').patientWeight,
+			crmTMP: this.props.navigation.getParam('patient').mainProcedureCRM
 		}
 	}
 
@@ -100,7 +101,12 @@ export default class Profile extends Component {
 	}
 
 	handleCRM = (crm) => {
-		this.props.handleUpdatePatient('mainProcedureCRM', crm)
+		this.setState({ crmTMP: crm });
+	}
+
+	saveCRM = () => {
+		this.props.handleUpdatePatient('mainProcedureCRM', this.state.crmTMP);
+		this.toggleModal('modalCRM');
 	}
 
 	handlePrimaryCID = (cid) => {
@@ -335,13 +341,14 @@ export default class Profile extends Component {
 							<Dialog.Title>CRM</Dialog.Title>
 							
 							<Dialog.Content>
-								<TextInput mode='outlined' label='CRM' value={this.state.patient.mainProcedureCRM} onChangeText={text => { this.handleCRM(text) }} />	
+								<TextInput mode='outlined' label='CRM' value={this.state.crmTMP} onChangeText={text => { this.handleCRM(text) }} />	
 							</Dialog.Content>
 
 							<Divider />
 
 							<Dialog.Actions>
-								<Button onPress={ () => { this.toggleModal('modalCRM') } }>Salvar</Button>
+								<Button onPress={ () => { this.toggleModal('modalCRM') } }>Fechar</Button>
+								<Button onPress={ () => { this.saveCRM() } }>Salvar</Button>
 							</Dialog.Actions>
 
 						</Dialog>
@@ -526,7 +533,7 @@ export default class Profile extends Component {
 	renderCRM() {
 		return (
 			this.state.isEditable ?
-				<TextValue color={'#0000FF'} value={this.state.patient.mainProcedureCRM !== null ? this.state.patient.mainProcedureCRM : 'INFORMAR'} press={ () => { this.setState({modalSelected: 'CRM', modalCRM: true}) }} />
+				<TextValue color={'#0000FF'} value={this.props.patient.mainProcedureCRM !== null ? this.props.patient.mainProcedureCRM : 'INFORMAR'} press={ () => { this.setState({modalSelected: 'CRM', modalCRM: true}) }} />
 			:
 				<TextValue value={'NÃO INFORMADO'} />
 		);
