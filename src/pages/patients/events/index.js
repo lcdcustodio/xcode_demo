@@ -121,7 +121,11 @@ export default class Events extends Component {
 		: null);
 
 	_create = () => {
-		this.props.navigation.navigate('Recommendation', {	patient: this.props.patient, update: false });
+		this.props.navigation.navigate('Recommendation', {
+			patient: this.props.patient,
+			update: false,
+			handleUpdatePatient: this.props.handleUpdatePatient,
+		});
 	}
 
 	isaRecommendation = typeEnum => typeEnum === 4;
@@ -138,6 +142,7 @@ export default class Events extends Component {
 					patient: this.props.patient,
 					event: event,
 					update: true,
+					handleUpdatePatient: this.props.handleUpdatePatient,
 				});
 			}
 		}
