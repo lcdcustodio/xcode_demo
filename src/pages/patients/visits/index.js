@@ -13,7 +13,7 @@ import TabEnum from '../PatientDetailTabEnum';
 import { Card, CardItem, Text, Body, Right, Left } from "native-base";
 import { Button, Switch, Divider, Portal, Dialog } from 'react-native-paper';
 
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 
 export default class Visitas extends React.Component {
 	
@@ -231,7 +231,7 @@ export default class Visitas extends React.Component {
 					return null;
 			}
 		}
-		
+
 		console.warn('Visitas: tipo de botão não mapeado.', patient);
 		return null;
 	}
