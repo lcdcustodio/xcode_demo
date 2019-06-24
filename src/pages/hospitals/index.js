@@ -630,16 +630,16 @@ export default class Hospital extends Component {
 
 		if(patientQuery !== '') {
 
-			const patientsFiltered = this.state.allPatients.filter(item => {
+			const patientsFilteredNew = this.state.allPatients.filter(item => {
 				return (
 					item.patientName.toUpperCase().includes(patientQuery.toUpperCase())
 				)
 			});
 
-			console.log(patientsFiltered);
+			console.log(patientsFilteredNew);
 	
 			this.setState({
-				patientsFiltered,
+				patientsFiltered: _.uniqBy(patientsFilteredNew, 'id'),
 				patientQuery
 			});
 
