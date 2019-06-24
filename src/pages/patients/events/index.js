@@ -40,7 +40,7 @@ export default class Events extends Component {
 	}
 
 	_loadEvents = () => {
-		const patient = this.props.patient;
+		const patient = this.props.navigation.getParam('patient');
 		let events = [];
 		this._pushRecommendation(events, patient.recommendationWelcomeHomeIndication, 'WELCOME HOME');
 		this._pushRecommendation(events, patient.recommendationMedicineReintegration, 'REC. MEDICAMENTOSA');
