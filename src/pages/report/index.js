@@ -161,21 +161,7 @@ export default class Report extends Component {
 								listHospital = hospitalListOrdered;
 							}
 
-							this.getInformationHospital(listHospital).then(response => {
-
-								this.setState({loading: false});
-								
-								const dateSync = moment().format('DD/MM/YYYY [às] HH:mm:ss');
-
-								this.setState({dateSync: dateSync});
-
-								AsyncStorage.setItem('dateSync', dateSync);
-
-								AsyncStorage.setItem('hospitalList', JSON.stringify(listHospital));	
-
-								this.report(listHospital);
-
-							});
+							this.report(listHospital);
 						
 						} else {
 
@@ -408,11 +394,7 @@ export default class Report extends Component {
 			} 
 			else 
 			{
-				let hospitalList = JSON.parse(res);
-
-				this.getInformationHospital(hospitalList);
-
-				this.report(hospitalList);
+				this.report(JSON.parse(res));
 			}
 
 			this.setState({loading: false});
@@ -514,7 +496,7 @@ export default class Report extends Component {
 		            textContent={this.state.textContent}
 		            textStyle={{color: '#FFF'}} />
 
-				<Header>
+				<Header style={{backgroundColor: "#005cd1"}}>
 					<Left style={{flex:1}} >
 						<Icon name="bars" style={{color: '#FFF', fontSize: 30}} onPress={() => this.props.navigation.openDrawer() } />
 					</Left>

@@ -78,6 +78,11 @@ export default class Hospital extends Component {
 			}
 		});
 
+		this.setState({
+			patientQuery: null,
+			patientsFiltered: []
+		});
+
 		BackHandler.removeEventListener ('hardwareBackPress', () => {});
         
         BackHandler.addEventListener('hardwareBackPress', () => {
@@ -345,7 +350,10 @@ export default class Hospital extends Component {
 		let listPatients = this.state.allPatients;
 
 		let totalPatients = patients.reduce((totalPatients, patient) => {
+			
 			patient.hospitalName = hospital.name;
+			patient.hospitalId = hospital.id;
+
 			let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
 
             if(
@@ -555,27 +563,27 @@ export default class Hospital extends Component {
                     <CardItem footer bordered style={{ justifyContent: 'center', height: 40, paddingTop: 0, paddingRight: 0, paddingBottom: 0, paddingLeft: 0}}>                            
                         
                         <View style={{ width: '8%'}}>
-                            <Text style={{paddingLeft: 5}}><Icon name="briefcase-medical" style={{color: '#666', fontSize: 20}} /></Text>
+                            <Text style={{paddingLeft: 5}}><Icon name="briefcase-medical" style={{color: '#666', fontSize: 17}} /></Text>
                         </View>
 
-                        <View style={{ width: '22%', justifyContent: 'center', borderRightWidth: 1, borderRightColor: '#ccc', height: 40}}>
-                            <Text style={{fontSize: 16}}> {item.lastVisit} </Text>
+                        <View style={{ width: '25%', justifyContent: 'center'}}>
+                            <Text style={{fontSize: 14, color: '#666', fontWeight:'normal'}}> {item.lastVisit} </Text>
                         </View>
                         
                         <View style={{ width: '8%', justifyContent: 'center'}}>
-                            <Text style={{paddingLeft: 5}}><Icon name="bed" style={{color: '#666', fontSize: 20}} /></Text>
+                            <Text style={{paddingLeft: 5}}><Icon name="bed" style={{color: '#666', fontSize: 17}} /></Text>
                         </View>
                         
-                        <View style={{ width: '28%', justifyContent: 'center', borderRightWidth: 1, borderRightColor: '#ccc', height: 40}}>
-                            <Text style={{fontSize: 16}}> {item.totalPatients} Internados </Text>
+                        <View style={{ width: '25%', justifyContent: 'center'}}>
+                            <Text style={{fontSize: 12, color: '#666', fontWeight:'normal'}}> {item.totalPatients} Internados </Text>
                         </View>
                         
                         <View style={{ width: '8%', justifyContent: 'center'}}>
-                            <Text style={{paddingLeft: 5}}><Icon name="eye" style={{color: '#666', fontSize: 20}} /></Text>
+                            <Text style={{paddingLeft: 5}}><Icon name="chalkboard-teacher" style={{color: '#666', fontSize: 17}} /></Text>
                         </View>
                         
-                        <View style={{ width: '26%', justifyContent: 'center'}}>
-                            <Text style={{fontSize: 16}}> {item.totalPatientsVisitedToday} Visitados </Text>
+                        <View style={{ width: '25%', justifyContent: 'center'}}>
+                            <Text style={{fontSize: 14, color: '#666', fontWeight:'normal'}}> {item.totalPatientsVisitedToday} Visitados </Text>
                         </View>
                         
                     
@@ -619,18 +627,22 @@ export default class Hospital extends Component {
 	}
 
 	filterPatients = (patientQuery) => {
+
 		if(patientQuery !== '') {
 
-			const patientsFiltered = this.state.allPatients.filter(item => {
+			const patientsFilteredNew = this.state.allPatients.filter(item => {
 				return (
 					item.patientName.toUpperCase().includes(patientQuery.toUpperCase())
 				)
 			});
+
+			console.log(patientsFilteredNew);
 	
-			this.setState({ 
-				patientsFiltered,
+			this.setState({
+				patientsFiltered: _.uniqBy(patientsFilteredNew, 'id'),
 				patientQuery
 			});
+
 		} else {
 			this.setState({ 
 				patientsFiltered: [],
@@ -640,11 +652,11 @@ export default class Hospital extends Component {
 	}
 
 	renderItemPatient = (element) => {
-		
-		console.log(element);
+
+		console.log(element.item.id, element.item.patientName);
 
 		return (
-			<TouchableOpacity onPress={() => { 
+			<TouchableOpacity onPress={() => {
 				this.goToProfilePage(element.item) 
 			}}>
 				<List.Item title={`${element.item.patientName}`} />
@@ -654,11 +666,19 @@ export default class Hospital extends Component {
 	}
 
 	goToProfilePage(patient) {
+
 		this.setState({
 			patientQuery: null,
 			patientsFiltered: []
 		});
-		this.props.navigation.navigate("PatientDetail", { patient, isEditable: this.state.isEditable });
+		
+		console.log(patient.hospitalId);
+		console.log(patient.id);
+		console.log(patient);
+		console.log(this.state.isEditable);
+
+		this.props.navigation.navigate("PatientDetail", { hospitalId: patient.hospitalId, patientId: patient.id, patient: patient, isEditable: this.state.isEditable});
+
 	}
 
 	render(){

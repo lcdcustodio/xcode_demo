@@ -121,7 +121,11 @@ export default class Events extends Component {
 		: null);
 
 	_create = () => {
-		this.props.navigation.navigate('Recommendation', {	patient: this.props.patient, update: false });
+		this.props.navigation.navigate('Recommendation', {
+			patient: this.props.patient,
+			update: false,
+			handleUpdatePatient: this.props.handleUpdatePatient,
+		});
 	}
 
 	isaRecommendation = typeEnum => typeEnum === 4;
@@ -138,6 +142,7 @@ export default class Events extends Component {
 					patient: this.props.patient,
 					event: event,
 					update: true,
+					handleUpdatePatient: this.props.handleUpdatePatient,
 				});
 			}
 		}
@@ -176,7 +181,7 @@ export default class Events extends Component {
 		return (
 		<View key={index} style={{ paddingTop: 10, paddingLeft: 10, paddingRight: 10, backgroundColor: baseStyles.container.backgroundColor}}>
 		<Card>
-			<CardItem header bordered style={{ flex: 1, backgroundColor: ITEM_COLOR[eventInfo.typeEnum], height: 40}}>
+			<CardItem header bordered style={{ flex: 1, backgroundColor: ITEM_COLOR[eventInfo.typeEnum], height: 60}}>
 				<Left>
 					<Text style={{ fontSize: 16, fontWeight: 'bold'}}>{eventInfo.type}</Text>
 				</Left>

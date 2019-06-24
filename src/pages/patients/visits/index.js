@@ -13,7 +13,7 @@ import TabEnum from '../PatientDetailTabEnum';
 import { Card, CardItem, Text, Body, Right, Left } from "native-base";
 import { Button, Switch, Divider, Portal, Dialog } from 'react-native-paper';
 
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 
 export default class Visitas extends React.Component {
 	
@@ -161,7 +161,7 @@ export default class Visitas extends React.Component {
 
 		<View style={{ paddingTop: 10, paddingLeft: 10, paddingRight: 10, backgroundColor: baseStyles.container.backgroundColor}}>
 				<Card>
-					<CardItem header bordered style={{ flex: 1, backgroundColor: '#cce5ff', height: 40}}>
+					<CardItem header bordered style={{ flex: 1, backgroundColor: '#cce5ff', height: 60}}>
 						<Left>
 							<Text style={{ fontSize: 16, fontWeight: 'bold'}}>VISITA</Text>
 						</Left>
@@ -209,26 +209,30 @@ export default class Visitas extends React.Component {
 
 		console.log(patient);
 
-		switch (patient.getHospitalizationStatusEnum()) {
-			case HospitalizationStatusEnum.Open:
-				return (patient.getStatusVisitEnum() === StatusVisitEnum.Visited)
-					? <VisitedButton/>
-					: <VisitButton onPress={this.appoint}/>;
+		if (this.state.isEditable) {
 
-			case HospitalizationStatusEnum.CanBeClosed:
-				const lastTracking = patient.getLastTracking();
-				if (lastTracking && lastTracking.endMode === TrackingEndModeEnum.AdminDischarge) {
-					return <FinalizeButton onPress={this.finalize}/>;
-				}
-				if (lastTracking && lastTracking.json.endDate) {
-					return (patient.getStatusVisitEnum() === StatusVisitEnum.VisitedEndTracking)
-						? <EndTrackingButtonDisabled/>
-						: <EndTrackingButtonEnabled/>;
-				}
-			case HospitalizationStatusEnum.Closed:
-				console.warn('Visitas: finalizado não é exibido.', patient);
-				return null;
+			switch (patient.getHospitalizationStatusEnum()) {
+				case HospitalizationStatusEnum.Open:
+					return (patient.getStatusVisitEnum() === StatusVisitEnum.Visited)
+						? <VisitedButton/>
+						: <VisitButton onPress={this.appoint}/>;
+
+				case HospitalizationStatusEnum.CanBeClosed:
+					const lastTracking = patient.getLastTracking();
+					if (lastTracking && lastTracking.endMode === TrackingEndModeEnum.AdminDischarge) {
+						return <FinalizeButton onPress={this.finalize}/>;
+					}
+					if (lastTracking && lastTracking.json.endDate) {
+						return (patient.getStatusVisitEnum() === StatusVisitEnum.VisitedEndTracking)
+							? <EndTrackingButtonDisabled/>
+							: <EndTrackingButtonEnabled/>;
+					}
+				case HospitalizationStatusEnum.Closed:
+					console.warn('Visitas: finalizado não é exibido.', patient);
+					return null;
+			}
 		}
+
 		console.warn('Visitas: tipo de botão não mapeado.', patient);
 		return null;
 	}
