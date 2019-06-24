@@ -77,13 +77,11 @@ export default class Patients extends Component {
 
                     hospital.hospitalizationList = patients;
 
-                    console.log(patients);
 
                     this.setState({hospital: hospital});
 
                     this.setState({ loading: false });
 
-                    console.log('SETOU', hospital);
 
                     break;
 
