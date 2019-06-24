@@ -15,7 +15,7 @@ import Modal from '../../../components/Modal';
 import data from '../../../../data.json';
 import baseStyles from '../../../styles';
 
-const PEDIATRIC_PATIENT = 'Pediátrico';
+const PEDIATRIC_PATIENT = 'Pediátrica';
 const GENERAL_PATIENT = 'Geral';
 const SENIORS_PATIENT = 'Idoso';
 
@@ -26,13 +26,15 @@ export default class Finalize extends Component {
 		this.state = { 
 			patient: null,
 			cid: data.cid,
+			specialty: data.specialty,
 			modalExitCID: false,
+			modalSpecialty: false,
 			accordionComplementaryInfoHospitalizationAPI: false,
 			accordionMorbidityComorbityList: false,
 			accordionRecommendationWelcomeHomeIndication: false,
 			accordionRecommendationMedicineReintegration: false,
 			accordionRecommendationClinicalIndication: false,
-			refresh: false
+			morbidityComorbityList: null,
 		};
 
 		handleUpdatePatient = this.props.navigation.getParam('handleUpdatePatient');
@@ -42,10 +44,14 @@ export default class Finalize extends Component {
 		let patientId = payload.state.params.patientID;
 		let patientString = await AsyncStorage.getItem(`${patientId}`);
 		let patientStorage = JSON.parse(patientString);
+		let morbidityComorbityStorage = await AsyncStorage.getItem('morbidityComorbityList');
+		let morbidityComorbityList = JSON.parse(morbidityComorbityStorage);
 		
 		console.log("patientStorage", patientStorage)
+
 		if (patientStorage) {
-			//patientStorage.patientBornDate = '1948/04/13'
+			//patientStorage.patientBornDate = '2010/04/13'
+			//patientStorage.death = true;
 			patientStorage.complementaryInfoHospitalizationAPI.isUrgentEmergHospitatization = patientStorage.attendanceType === 'EMERGENCY' ? true : false;
 			patientStorage.complementaryInfoHospitalizationAPI.isNotHemoglobin = this.getStatusHemoglobin(patientStorage.complementaryInfoHospitalizationAPI.hemoglobin);
 			patientStorage.complementaryInfoHospitalizationAPI.isNotSerumSodium = this.getStatusSodium(patientStorage.complementaryInfoHospitalizationAPI.serumSodium);
@@ -53,12 +59,14 @@ export default class Finalize extends Component {
 			patientStorage.complementaryInfoHospitalizationAPI.hospitalizationsInTwelveMonths = this.getTotalHospitalizationLastTwelveMonth(patientStorage);
 			patientStorage.complementaryInfoHospitalizationAPI.result = this.calculateRehospitalizationRisk(patientStorage);
 			patientStorage.typePatient = this.getTypePatient(patientStorage.patientBornDate);
-			patientStorage.morbidityComorbityList = this.getMorbidityComorbityList(patientStorage.typePatient);
+			patientStorage.brittlenessIndex = this.calculateBrittlenessIndex(patientStorage);
+			patientStorage.labelAccordionMorbidityComorbity = this.getLabelAccordionMorbidityComorbity(patientStorage);
 			
 
 			this.setState({
 				...this.state,
-				patient: patientStorage
+				patient: patientStorage,
+				morbidityComorbityList
 			});
 		}
 
@@ -98,6 +106,23 @@ export default class Finalize extends Component {
 		this.toggleModal('modalExitCID');
 	}
 
+	handleSpecialty = (specialty) => {
+		let newSpecialty = {
+			id: specialty.item.id,
+			name: specialty.item.name,
+			normalizedName: specialty.item.normalizedName,
+		}
+
+		let patient = this.state.patient;
+		patient.specialty = newSpecialty;
+		this.setState({
+			...this.state,
+			patient
+		});
+		
+		this.toggleModal('modalSpecialty');
+	}
+
 	handleComplementaryInfoHospitalizationAPI = (attribute, value) => {
 		this.setState({
 			patient: {
@@ -106,6 +131,35 @@ export default class Finalize extends Component {
 					...this.state.patient.complementaryInfoHospitalizationAPI,
 					[attribute]: value
 				}
+			}
+		});
+	}
+
+	handleMorbidityComorbity(morbidityComorbityItem) {
+		let patient = this.state.patient;
+		if (patient.morbidityComorbityList === null) {
+			patient.morbidityComorbityList = [];	
+		}
+
+		let hasItem = _.includes(patient.morbidityComorbityList, morbidityComorbityItem);
+		if (hasItem) {
+			_.remove(patient.morbidityComorbityList, function(e) {  
+				return e.morbidityComorbityId === morbidityComorbityItem.morbidityComorbityId;
+			});
+		} else {
+			patient.morbidityComorbityList.push(morbidityComorbityItem);
+		}
+
+		this.setState({
+			patient
+		});
+	}
+
+	handlePatient(attribute, value) {
+		this.setState({
+			patient: {
+				...this.state.patient,
+				[attribute]: value
 			}
 		});
 	}
@@ -256,12 +310,38 @@ export default class Finalize extends Component {
 		return 	`em ${monthsAgo} meses`;
 	}
 
-	getMorbidityComorbityList(typePatient) {
-		if (typePatient === PEDIATRIC_PATIENT) {
-			return {
-				
-			}
+	calculateBrittlenessIndex(patient) {
+		let brittlenessIndex = '';
+		if (patient.typePatient === SENIORS_PATIENT) {
+			if (patient.morbidityComorbityList <= 2) {
+				brittlenessIndex = 'Pré-frágil'
+			} 
+			brittlenessIndex = 'Frágil'
 		}
+
+		return brittlenessIndex;
+	}
+
+	getLabelAccordionMorbidityComorbity(patient) {
+		if(patient.brittlenessIndex !== '') {
+			return `${patient.typePatient} - ${patient.brittlenessIndex}`;
+		}
+		return `${patient.typePatient}`
+	}
+
+	getValueMorbidityComorbity(morbidityComorbityItem) {
+		if (this.state.patient.morbidityComorbityList === null) {
+			return false;
+		}
+
+		let result = false;
+		this.state.patient.morbidityComorbityList.map(item => {
+			if (item.morbidityComorbityId === morbidityComorbityItem.morbidityComorbityId) {
+				result = true;
+			}
+		});
+
+		return result;
 	}
 
 	renderAccordionComplementaryInfoHospitalizationAPI() {
@@ -357,244 +437,101 @@ export default class Finalize extends Component {
 		);
 	}
 
-	renderAccordionMorbidityComorbityList() {
+	renderMorbidityComorbityList(typePatient) {
+		return (
+			this.state.morbidityComorbityList.map(item => {
+				if(typePatient !== 'Idoso') {
+					if (item.morbidityComorbityProfileName === typePatient) {
+						return (
+							<ListItem key={item.morbidityComorbityId}>
+									<Body>
+										<View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
+											<Text style={{fontWeight: 'bold', height: 20, width: '80%' ,borderWidth: 0, borderColor: '#000000' }}> {item.morbidityComorbityName} {"\n"} </Text>
+											<Switch value={this.getValueMorbidityComorbity(item)}
+												onValueChange={() => {this.handleMorbidityComorbity(item)}} />
+										</View>
+									</Body>
+							</ListItem>
+						);
+					}
+				} else {
+					if (item.morbidityComorbityProfileName === typePatient || item.morbidityComorbityProfileName === 'Geral') {
+						return (
+							<ListItem key={item.morbidityComorbityId}>
+									<Body>
+										<View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
+											<Text style={{fontWeight: 'bold', height: 20, width: '80%' ,borderWidth: 0, borderColor: '#000000' }}> {item.morbidityComorbityName} {"\n"} </Text>
+											<Switch value={this.getValueMorbidityComorbity(item)}
+												onValueChange={() => {this.handleMorbidityComorbity(item)}} />
+										</View>
+									</Body>
+							</ListItem>
+						);
+					}
+				}
+			})
+		);
+	}
 
-		if (this.state.patient.typePatient === PEDIATRIC_PATIENT) {
-			return (
-				<View style={{marginLeft: '-22%'}}>
-					<ListItem>
-						<Body>
-							<View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
-								<Text style={{fontWeight: 'bold', height: 20, width: '80%' ,borderWidth: 0, borderColor: '#000000' }}>Pneumopatia crônica {"\n"} </Text>
-								<Switch value={this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic}
-									onValueChange={() => {this.handleComplementaryInfoHospitalizationAPI('isPancreateColectomyHepatic', !this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic)}} />
-							</View>
-						</Body>
-					</ListItem>
-					<ListItem>
-						<Body>
-							<View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
-								<Text style={{fontWeight: 'bold', height: 20, width: '80%' ,borderWidth: 0, borderColor: '#000000' }}>Cardiopatia congênita​ {"\n"} </Text>
-								<Switch value={this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic}
-									onValueChange={() => {this.handleComplementaryInfoHospitalizationAPI('isPancreateColectomyHepatic', !this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic)}} />
-							</View>
-						</Body>
-					</ListItem>
-					<ListItem>
-						<Body>
-							<View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
-								<Text style={{fontWeight: 'bold', height: 20, width: '80%' ,borderWidth: 0, borderColor: '#000000' }}>Paralisia cerebral​ {"\n"} </Text>
-								<Switch value={this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic}
-									onValueChange={() => {this.handleComplementaryInfoHospitalizationAPI('isPancreateColectomyHepatic', !this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic)}} />
-							</View>
-						</Body>
-					</ListItem>
-					<ListItem>
-						<Body>
-							<View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
-								<Text style={{fontWeight: 'bold', height: 20, width: '80%' ,borderWidth: 0, borderColor: '#000000' }}>Neuropatias congênitas​ {"\n"} </Text>
-								<Switch value={this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic}
-									onValueChange={() => {this.handleComplementaryInfoHospitalizationAPI('isPancreateColectomyHepatic', !this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic)}} />
-							</View>
-						</Body>
-					</ListItem>
-					<ListItem>
-						<Body>
-							<View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
-								<Text style={{fontWeight: 'bold', height: 20, width: '80%' ,borderWidth: 0, borderColor: '#000000' }}>Anemia falciforme​ {"\n"} </Text>
-								<Switch value={this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic}
-									onValueChange={() => {this.handleComplementaryInfoHospitalizationAPI('isPancreateColectomyHepatic', !this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic)}} />
-							</View>
-						</Body>
-					</ListItem>
-					<ListItem>
-						<Body>
-							<View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
-								<Text style={{fontWeight: 'bold', height: 20, width: '80%' ,borderWidth: 0, borderColor: '#000000' }}>Erros inatos do metabolismo​ {"\n"} </Text>
-								<Switch value={this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic}
-									onValueChange={() => {this.handleComplementaryInfoHospitalizationAPI('isPancreateColectomyHepatic', !this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic)}} />
-							</View>
-						</Body>
-					</ListItem>
-					<ListItem>
-						<Body>
-							<View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
-								<Text style={{fontWeight: 'bold', height: 20, width: '80%' ,borderWidth: 0, borderColor: '#000000' }}>Hipoplasia renal {"\n"} </Text>
-								<Switch value={this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic}
-									onValueChange={() => {this.handleComplementaryInfoHospitalizationAPI('isPancreateColectomyHepatic', !this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic)}} />
-							</View>
-						</Body>
-					</ListItem>
-				</View>
-			);
-		}
+	renderWelcomeHome() {
+		return (
+			<View style={{marginLeft: '-22%'}}>
+				<ListItem>
+					<Body>
+						<View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
+							<Text style={{fontWeight: 'bold', height: 20, width: '80%' ,borderWidth: 0, borderColor: '#000000' }}>Requisitado pelo médico {"\n"} </Text>
+							<Switch value={this.state.patient.recommendationWelcomeHomeIndication}
+								onValueChange={() => {this.handlePatient('recommendationWelcomeHomeIndication', !this.state.patient.recommendationWelcomeHomeIndication)}} />
+						</View>
+					</Body>
+				</ListItem>
+			</View>
+		);
+	}
 
-		if (this.state.patient.typePatient === GENERAL_PATIENT) {
-			return (
-				<View style={{marginLeft: '-22%'}}>
-					<ListItem>
-						<Body>
-							<View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
-								<Text style={{fontWeight: 'bold', height: 20, width: '80%' ,borderWidth: 0, borderColor: '#000000' }}>Neoplasia disseminada {"\n"} </Text>
-								<Switch value={this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic}
-									onValueChange={() => {this.handleComplementaryInfoHospitalizationAPI('isPancreateColectomyHepatic', !this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic)}} />
-							</View>
-						</Body>
-					</ListItem>
-					<ListItem>
-						<Body>
-							<View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
-								<Text style={{fontWeight: 'bold', height: 20, width: '80%' ,borderWidth: 0, borderColor: '#000000' }}>Diabetes​​ {"\n"} </Text>
-								<Switch value={this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic}
-									onValueChange={() => {this.handleComplementaryInfoHospitalizationAPI('isPancreateColectomyHepatic', !this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic)}} />
-							</View>
-						</Body>
-					</ListItem>
-					<ListItem>
-						<Body>
-							<View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
-								<Text style={{fontWeight: 'bold', height: 20, width: '80%' ,borderWidth: 0, borderColor: '#000000' }}>Insuficiência hepática​​ {"\n"} </Text>
-								<Switch value={this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic}
-									onValueChange={() => {this.handleComplementaryInfoHospitalizationAPI('isPancreateColectomyHepatic', !this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic)}} />
-							</View>
-						</Body>
-					</ListItem>
-					<ListItem>
-						<Body>
-							<View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
-								<Text style={{fontWeight: 'bold', height: 20, width: '80%' ,borderWidth: 0, borderColor: '#000000' }}>Insuficiência renal dialítica {"\n"} </Text>
-								<Switch value={this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic}
-									onValueChange={() => {this.handleComplementaryInfoHospitalizationAPI('isPancreateColectomyHepatic', !this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic)}} />
-							</View>
-						</Body>
-					</ListItem>
-					<ListItem>
-						<Body>
-							<View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
-								<Text style={{fontWeight: 'bold', height: 20, width: '80%' ,borderWidth: 0, borderColor: '#000000' }}>DPOC {"\n"} </Text>
-								<Switch value={this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic}
-									onValueChange={() => {this.handleComplementaryInfoHospitalizationAPI('isPancreateColectomyHepatic', !this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic)}} />
-							</View>
-						</Body>
-					</ListItem>
-					<ListItem>
-						<Body>
-							<View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
-								<Text style={{fontWeight: 'bold', height: 20, width: '80%' ,borderWidth: 0, borderColor: '#000000' }}>Insuficiência coronariana​ {"\n"} </Text>
-								<Switch value={this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic}
-									onValueChange={() => {this.handleComplementaryInfoHospitalizationAPI('isPancreateColectomyHepatic', !this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic)}} />
-							</View>
-						</Body>
-					</ListItem>
-				</View>
-			);
-		}
+	renderMedicineReintegration() {
+		return (
+			<View style={{marginLeft: '-22%'}}>
+				<ListItem>
+					<Body>
+						<View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
+							<Text style={{fontWeight: 'bold', height: 20, width: '80%' ,borderWidth: 0, borderColor: '#000000' }}>Requisitado pelo médico {"\n"} </Text>
+							<Switch value={this.state.patient.recommendationMedicineReintegration}
+								onValueChange={() => {this.handlePatient('recommendationMedicineReintegration', !this.state.patient.recommendationMedicineReintegration)}} />
+						</View>
+					</Body>
+				</ListItem>
+			</View>
+		);
+	}
 
-		if (this.state.patient.typePatient === SENIORS_PATIENT) {
-			return (
-				<View style={{marginLeft: '-22%'}}>
-					<ListItem>
-						<Body>
-							<View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
-								<Text style={{fontWeight: 'bold', height: 20, width: '80%' ,borderWidth: 0, borderColor: '#000000' }}>Neoplasia disseminada {"\n"} </Text>
-								<Switch value={this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic}
-									onValueChange={() => {this.handleComplementaryInfoHospitalizationAPI('isPancreateColectomyHepatic', !this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic)}} />
-							</View>
-						</Body>
-					</ListItem>
-					<ListItem>
-						<Body>
-							<View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
-								<Text style={{fontWeight: 'bold', height: 20, width: '80%' ,borderWidth: 0, borderColor: '#000000' }}>Diabetes​​ {"\n"} </Text>
-								<Switch value={this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic}
-									onValueChange={() => {this.handleComplementaryInfoHospitalizationAPI('isPancreateColectomyHepatic', !this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic)}} />
-							</View>
-						</Body>
-					</ListItem>
-					<ListItem>
-						<Body>
-							<View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
-								<Text style={{fontWeight: 'bold', height: 20, width: '80%' ,borderWidth: 0, borderColor: '#000000' }}>Insuficiência hepática​​ {"\n"} </Text>
-								<Switch value={this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic}
-									onValueChange={() => {this.handleComplementaryInfoHospitalizationAPI('isPancreateColectomyHepatic', !this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic)}} />
-							</View>
-						</Body>
-					</ListItem>
-					<ListItem>
-						<Body>
-							<View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
-								<Text style={{fontWeight: 'bold', height: 20, width: '80%' ,borderWidth: 0, borderColor: '#000000' }}>Insuficiência renal dialítica {"\n"} </Text>
-								<Switch value={this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic}
-									onValueChange={() => {this.handleComplementaryInfoHospitalizationAPI('isPancreateColectomyHepatic', !this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic)}} />
-							</View>
-						</Body>
-					</ListItem>
-					<ListItem>
-						<Body>
-							<View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
-								<Text style={{fontWeight: 'bold', height: 20, width: '80%' ,borderWidth: 0, borderColor: '#000000' }}>DPOC {"\n"} </Text>
-								<Switch value={this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic}
-									onValueChange={() => {this.handleComplementaryInfoHospitalizationAPI('isPancreateColectomyHepatic', !this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic)}} />
-							</View>
-						</Body>
-					</ListItem>
-					<ListItem>
-						<Body>
-							<View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
-								<Text style={{fontWeight: 'bold', height: 20, width: '80%' ,borderWidth: 0, borderColor: '#000000' }}>Insuficiência coronariana​ {"\n"} </Text>
-								<Switch value={this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic}
-									onValueChange={() => {this.handleComplementaryInfoHospitalizationAPI('isPancreateColectomyHepatic', !this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic)}} />
-							</View>
-						</Body>
-					</ListItem>
-					<ListItem>
-						<Body>
-							<View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
-								<Text style={{fontWeight: 'bold', height: 20, width: '80%' ,borderWidth: 0, borderColor: '#000000' }}>Perda de peso​​ {"\n"} </Text>
-								<Switch value={this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic}
-									onValueChange={() => {this.handleComplementaryInfoHospitalizationAPI('isPancreateColectomyHepatic', !this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic)}} />
-							</View>
-						</Body>
-					</ListItem>
-					<ListItem>
-						<Body>
-							<View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
-								<Text style={{fontWeight: 'bold', height: 20, width: '80%' ,borderWidth: 0, borderColor: '#000000' }}>Fadiga {"\n"} </Text>
-								<Switch value={this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic}
-									onValueChange={() => {this.handleComplementaryInfoHospitalizationAPI('isPancreateColectomyHepatic', !this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic)}} />
-							</View>
-						</Body>
-					</ListItem>
-					<ListItem>
-						<Body>
-							<View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
-								<Text style={{fontWeight: 'bold', height: 20, width: '80%' ,borderWidth: 0, borderColor: '#000000' }}>Fraqueza muscular​​ {"\n"} </Text>
-								<Switch value={this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic}
-									onValueChange={() => {this.handleComplementaryInfoHospitalizationAPI('isPancreateColectomyHepatic', !this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic)}} />
-							</View>
-						</Body>
-					</ListItem>
-					<ListItem>
-						<Body>
-							<View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
-								<Text style={{fontWeight: 'bold', height: 20, width: '80%' ,borderWidth: 0, borderColor: '#000000' }}>Inatividade física​ {"\n"} </Text>
-								<Switch value={this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic}
-									onValueChange={() => {this.handleComplementaryInfoHospitalizationAPI('isPancreateColectomyHepatic', !this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic)}} />
-							</View>
-						</Body>
-					</ListItem>
-					<ListItem>
-						<Body>
-							<View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
-								<Text style={{fontWeight: 'bold', height: 20, width: '80%' ,borderWidth: 0, borderColor: '#000000' }}>Lentidão da marcha {"\n"} </Text>
-								<Switch value={this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic}
-									onValueChange={() => {this.handleComplementaryInfoHospitalizationAPI('isPancreateColectomyHepatic', !this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic)}} />
-							</View>
-						</Body>
-					</ListItem>
-				</View>
-			);
-		}
+	renderClinicalIndication() {
+		return (
+			<View style={{marginLeft: '-22%'}}>
+				<ListItem>
+					<Body>
+						<View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
+							<Text style={{fontWeight: 'bold', height: 20, width: '80%' ,borderWidth: 0, borderColor: '#000000' }}>Requisitado pelo médico {"\n"} </Text>
+							<Switch value={this.state.patient.recommendationClinicalIndication}
+								onValueChange={() => {this.handlePatient('recommendationClinicalIndication', !this.state.patient.recommendationClinicalIndication)}} />
+						</View>
+					</Body>
+				</ListItem>
+				<ListItem>
+					<Body>
+						<View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
+							<Text style={{fontWeight: 'bold', height: 20, width: '80%' ,borderWidth: 0, borderColor: '#000000' }}>Especialidade {"\n"} </Text>
+						</View>
+						<View style={{flexDirection: 'row', justifyContent: 'space-around'}} >
+							<Text style={{fontWeight: 'bold', height: 20, width: '80%' ,borderWidth: 0, borderColor: '#000000', color:'#0000FF' }} onPress={ () => {this.toggleModal('modalSpecialty')} }>
+								{this.state.patient.specialty ? this.state.patient.specialty.name : 'ESCOLHER'}
+								{"\n"} 
+							</Text>
+						</View>
+					</Body>
+				</ListItem>
+			</View>
+		);
 	}
 
 	render() {
@@ -605,6 +542,7 @@ export default class Finalize extends Component {
 			<Container>
 				<RdHeader title={ patient.death ? 'Óbito' : 'Alta' } goBack={ this._goBack } style={ styles.header }/>
 				<Modal title="CID Primário" visible={this.state.modalExitCID} list={data.cid} onSelect={this.handleExitCID} close={() => {this.toggleModal('modalExitCID')} } />
+				<Modal title="Especialidade" visible={this.state.modalSpecialty} list={data.specialty} onSelect={this.handleSpecialty} close={() => {this.toggleModal('modalSpecialty')} } />
 
 				<Content padder style={ styles.body }>
 					<Card elevation={10} style={ styles.card }>
@@ -623,31 +561,33 @@ export default class Finalize extends Component {
 						</RecommendationCardToggle>
 
 						<RecommendationCardToggle 
-							number='2' title='Morbidades e Comorbidades' subtitle={patient.typePatient}
+							number='2' title='Morbidades e Comorbidades' subtitle={patient.labelAccordionMorbidityComorbity}
 							visible={this.state.accordionMorbidityComorbityList}
 							onPress={ () => {this.toggleAccordion('accordionMorbidityComorbityList')} }> 
-								{this.renderAccordionMorbidityComorbityList()}
+								<View style={{marginLeft: '-22%'}}>
+									{this.renderMorbidityComorbityList(patient.typePatient)}
+								</View>
 						</RecommendationCardToggle>
 
 						<RecommendationCardToggle 
-							number='3' title='Welcome Home' subtitle='Geral'
+							number='3' title='Welcome Home' subtitle=' '
 							visible={this.state.accordionRecommendationWelcomeHomeIndication}
 							onPress={ () => {this.toggleAccordion('accordionRecommendationWelcomeHomeIndication')} }> 
-								<FormItem label='Welcome Home' value='Teste 1' />
+								{this.renderWelcomeHome()}
 						</RecommendationCardToggle>
 						
 						<RecommendationCardToggle 
-							number='4' title='Reconciliação Medicamentosa' subtitle='Geral'
+							number='4' title='Reconciliação Medicamentosa' subtitle=' '
 							visible={this.state.accordionRecommendationMedicineReintegration}
 							onPress={ () => {this.toggleAccordion('accordionRecommendationMedicineReintegration')} }> 
-								<FormItem label='Reconciliação Medicamentosa' value='Teste 1' />
+								{this.renderMedicineReintegration()}
 						</RecommendationCardToggle>
 
 						<RecommendationCardToggle 
-							number='5' title='Indicação para Ambulatório' subtitle='Geral'
+							number='5' title='Indicação para Ambulatório' subtitle=' '
 							visible={this.state.accordionRecommendationClinicalIndication}
 							onPress={ () => {this.toggleAccordion('accordionRecommendationClinicalIndication')} }> 
-								<FormItem label='Indicação para Ambulatório' value='Teste 1' />
+								{this.renderClinicalIndication()}
 						</RecommendationCardToggle>
 					</RdIf>
 				</Content>
