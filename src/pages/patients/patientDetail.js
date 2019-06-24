@@ -77,6 +77,9 @@ class PatientDetail extends Component {
 
 			obj[attribute] = value;
 
+			if (hospitalizationList === null) {
+				hospitalizationList = [];
+			}
 			hospitalizationList.push(obj);
 
 			console.log(hospitalizationList);
@@ -142,7 +145,8 @@ class PatientDetail extends Component {
                     	let patient = hospital.hospitalizationList[i];
                     
                         if (patient.id == patientId) {
-                        	this.setState({patient: patient});
+							this.setState({patient: patient});
+							AsyncStorage.setItem(`${patientId}`, JSON.stringify(patient));
                         }
                     }
                 }
