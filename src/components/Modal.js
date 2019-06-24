@@ -13,7 +13,7 @@ export default class ModalPrimaryCID extends Component {
     }
 
     renderItem = (element) => {
-        if (element.item.code !== null) {
+        if (element.item.code && element.item.code !== null) {
             return(
                 <List.Item title={`${element.item.code} - ${element.item.name}`} onPress={() => {this.props.onSelect(element)} }/>
             );
