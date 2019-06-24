@@ -36,7 +36,9 @@ export default class Profile extends Component {
 			listHospitalizationType: [
 				{key: 1, value: 'CLINICAL', label: 'CLÍNICO'},
 				{key: 2, value: 'SURGICAL', label: 'CIRÚRGICO'}
-			]
+			],
+			patientHeightTMP: this.props.navigation.getParam('patient').patientHeight,
+			patientWeightTMP: this.props.navigation.getParam('patient').patientWeight
 		}
 	}
 
@@ -60,11 +62,17 @@ export default class Profile extends Component {
 	}
 
 	handleHeight = (patientHeight) => {
-		this.props.handleUpdatePatient('patientHeight', patientHeight)
+		this.setState({ patientHeightTMP: patientHeight });
 	}
 
 	handleWeight = (patientWeight) => {
-		this.props.handleUpdatePatient('patientWeight', patientWeight)
+		this.setState({ patientWeightTMP: patientWeight });
+	}
+
+	saveWeightAndHeight = async () => {
+		await this.props.handleUpdatePatient('patientWeight', this.state.patientWeightTMP);
+		await this.props.handleUpdatePatient('patientHeight', this.state.patientHeightTMP);
+		this.toggleModal('modalHeightAndWeight');
 	}
 
 	attendanceType(item) {
@@ -245,17 +253,18 @@ export default class Profile extends Component {
 							<Dialog.Title>Altura (m) e Peso (Kg)</Dialog.Title>
 							
 							<Dialog.Content>
-								<TextInput mode='outlined' keyboardType='number-pad' label='Altura' value={this.props.patient.patientHeight ? this.props.patient.patientHeight.toString() : this.props.patient.patientHeight} onChangeText={height => { this.handleHeight(height) }}/>
+								<TextInput mode='outlined' keyboardType='number-pad' label='Altura' value={this.state.patientHeightTMP ? this.state.patientHeightTMP.toString() : this.state.patientHeightTMP} onChangeText={height => { this.handleHeight(height) }}/>
 
 								<Text> {'\n'} </Text>								
 
-								<TextInput mode='outlined' keyboardType='number-pad' label='Peso' value={this.props.patient.patientWeight ? this.props.patient.patientWeight.toString() : this.props.patient.patientWeight} onChangeText={weight => { this.handleWeight(weight) }} />
+								<TextInput mode='outlined' keyboardType='number-pad' label='Peso' value={this.state.patientWeightTMP ? this.state.patientWeightTMP.toString() : this.state.patientWeightTMP} onChangeText={weight => { this.handleWeight(weight) }} />
 							</Dialog.Content>
 
 							<Divider />
 
 							<Dialog.Actions>
-								<Button onPress={ () => { this.toggleModal('modalHeightAndWeight') } }>Salvar</Button>
+								<Button onPress={ () => { this.toggleModal('modalHeightAndWeight') } }>Fechar</Button>
+								<Button onPress={ () => { this.saveWeightAndHeight() } }>Salvar</Button>
 							</Dialog.Actions>
 
 						</Dialog>
