@@ -110,18 +110,6 @@ export default class Finalize extends Component {
 		});
 	}
 
-	handleComplementaryInfoHospitalizationAPI = (attribute, value) => {
-		this.setState({
-			patient: {
-				...this.state.patient,
-				complementaryInfoHospitalizationAPI: {
-					...this.state.patient.complementaryInfoHospitalizationAPI,
-					[attribute]: value
-				}
-			}
-		});
-	}
-
 	isHospitalizationMoreFiveDays(patient) {
 		const today = moment();
         let admissionDate = moment(moment(patient.admissionDate).format('YYYY-MM-DD HH:mm'));
