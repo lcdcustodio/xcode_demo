@@ -43,8 +43,6 @@ export default class Report extends Component {
 			patientQuery: null
 		}
 
-		console.log('Ok');
-
 	}
 
 	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
@@ -63,16 +61,34 @@ export default class Report extends Component {
 
 		});
 
-		AsyncStorage.getItem('dateSync', (err, dateSync) => {
-            this.setState({dateSync: dateSync});
+		AsyncStorage.getItem('dateSync', (err, res) => {
+			
+			if (res !== null) {
+
+				let today =  moment().format('DD/MM/YYYY');
+
+				let dateSync = res.substring(0, 10);
+
+				if (today > dateSync) {
+					this.setState({ timerTextColor: "#721c24", timerBackgroundColor: "#f8d7da" });
+				}				
+			}
+
+            this.setState({dateSync: res});
         });
 
 		AsyncStorage.getItem('require_sync_at', (err, res) => {
-
-			console.log('require_sync_at', res);
-
-			this.setRequireSyncTimer(res);
+			if (res != null) {
+				this.setRequireSyncTimer(res);
+			}
 		});
+
+		BackHandler.removeEventListener ('hardwareBackPress', () => {});
+        
+        BackHandler.addEventListener('hardwareBackPress', () => {
+            this.props.navigation.navigate('Hospitals');
+            return true;
+        });
 
 	});
 
@@ -122,6 +138,9 @@ export default class Report extends Component {
 
 						if(response.status === 200) {
 
+							AsyncStorage.setItem('hospitalizationList', JSON.stringify([]));
+							AsyncStorage.setItem('morbidityComorbityList', JSON.stringify(response.data.content.morbidityComorbityList));
+
 							let hospitalListOrdered = _.orderBy(response.data.content.hospitalList, ['name'], ['asc']);
 							
 							let user = Session.current.user;
@@ -142,21 +161,7 @@ export default class Report extends Component {
 								listHospital = hospitalListOrdered;
 							}
 
-							this.getInformationHospital(listHospital).then(response => {
-
-								this.setState({loading: false});
-								
-								const dateSync = moment().format('DD/MM/YYYY [às] HH:mm:ss');
-
-								this.setState({dateSync: dateSync});
-
-								AsyncStorage.setItem('dateSync', dateSync);
-
-								AsyncStorage.setItem('hospitalList', JSON.stringify(listHospital));	
-
-								this.report(listHospital);
-
-							});
+							this.report(listHospital);
 						
 						} else {
 
@@ -389,11 +394,7 @@ export default class Report extends Component {
 			} 
 			else 
 			{
-				let hospitalList = JSON.parse(res);
-
-				this.getInformationHospital(hospitalList);
-
-				this.report(hospitalList);
+				this.report(JSON.parse(res));
 			}
 
 			this.setState({loading: false});
@@ -495,7 +496,7 @@ export default class Report extends Component {
 		            textContent={this.state.textContent}
 		            textStyle={{color: '#FFF'}} />
 
-				<Header>
+				<Header style={{backgroundColor: "#005cd1"}}>
 					<Left style={{flex:1}} >
 						<Icon name="bars" style={{color: '#FFF', fontSize: 30}} onPress={() => this.props.navigation.openDrawer() } />
 					</Left>

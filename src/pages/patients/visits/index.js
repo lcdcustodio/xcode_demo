@@ -13,7 +13,7 @@ import TabEnum from '../PatientDetailTabEnum';
 import { Card, CardItem, Text, Body, Right, Left } from "native-base";
 import { Button, Switch, Divider, Portal, Dialog } from 'react-native-paper';
 
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 
 export default class Visitas extends React.Component {
 	
@@ -71,7 +71,7 @@ export default class Visitas extends React.Component {
 	alertToRemove = patient => {
 		Alert.alert(
 			'Atenção',
-			'Deseja remover o item selecionado?',
+			'Deseja remover esta visita?',
 			[{ text: 'Cancel',onPress: () => console.log('Cancel Pressed'), style: 'cancel'  },
 			  {text: 'OK', onPress: () => {
 				this.remove(patient);
@@ -125,8 +125,9 @@ export default class Visitas extends React.Component {
 	finalize = () => {
 		const patient = new Patient(this.state.patient);
 		const errors = patient.validateFinalization();
+
 		if (!errors.length) {
-			this.props.navigation.navigate('Finalize', { patient: patient.json });
+			this.props.navigation.navigate('Finalize', { patientID: patient.json.id, handleUpdatePatient: this.props.handleUpdatePatient });
 		} else {
 			let fields = FINALIZE_ERROR_FIELDS[errors[0]];
 			let msg = '';
@@ -160,7 +161,7 @@ export default class Visitas extends React.Component {
 
 		<View style={{ paddingTop: 10, paddingLeft: 10, paddingRight: 10, backgroundColor: baseStyles.container.backgroundColor}}>
 				<Card>
-					<CardItem header bordered style={{ flex: 1, backgroundColor: '#cce5ff', height: 40}}>
+					<CardItem header bordered style={{ flex: 1, backgroundColor: '#cce5ff', height: 60}}>
 						<Left>
 							<Text style={{ fontSize: 16, fontWeight: 'bold'}}>VISITA</Text>
 						</Left>
@@ -203,27 +204,35 @@ export default class Visitas extends React.Component {
 	}
 
 	showButton = () => {
+		
 		const patient = new Patient(this.state.patient);
-		switch (patient.getHospitalizationStatusEnum()) {
-			case HospitalizationStatusEnum.Open:
-				return (patient.getStatusVisitEnum() === StatusVisitEnum.Visited)
-					? <VisitedButton/>
-					: <VisitButton onPress={this.appoint}/>;
 
-			case HospitalizationStatusEnum.CanBeClosed:
-				const lastTracking = patient.getLastTracking();
-				if (lastTracking && lastTracking.endMode === TrackingEndModeEnum.AdminDischarge) {
-					return <FinalizeButton onPress={this.finalize}/>;
-				}
-				if (lastTracking && lastTracking.json.endDate) {
-					return (patient.getStatusVisitEnum() === StatusVisitEnum.VisitedEndTracking)
-						? <EndTrackingButtonDisabled/>
-						: <EndTrackingButtonEnabled/>;
-				}
-			case HospitalizationStatusEnum.Closed:
-				console.warn('Visitas: finalizado não é exibido.', patient);
-				return null;
+		console.log(patient);
+
+		if (this.state.isEditable) {
+
+			switch (patient.getHospitalizationStatusEnum()) {
+				case HospitalizationStatusEnum.Open:
+					return (patient.getStatusVisitEnum() === StatusVisitEnum.Visited)
+						? <VisitedButton/>
+						: <VisitButton onPress={this.appoint}/>;
+
+				case HospitalizationStatusEnum.CanBeClosed:
+					const lastTracking = patient.getLastTracking();
+					if (lastTracking && lastTracking.endMode === TrackingEndModeEnum.AdminDischarge) {
+						return <FinalizeButton onPress={this.finalize}/>;
+					}
+					if (lastTracking && lastTracking.json.endDate) {
+						return (patient.getStatusVisitEnum() === StatusVisitEnum.VisitedEndTracking)
+							? <EndTrackingButtonDisabled/>
+							: <EndTrackingButtonEnabled/>;
+					}
+				case HospitalizationStatusEnum.Closed:
+					console.warn('Visitas: finalizado não é exibido.', patient);
+					return null;
+			}
 		}
+
 		console.warn('Visitas: tipo de botão não mapeado.', patient);
 		return null;
 	}

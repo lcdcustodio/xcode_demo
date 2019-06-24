@@ -6,13 +6,14 @@ import uuidv4 from'uuid/v4';
 import data from '../../../data.json';
 import { Button, Paragraph, Dialog, Portal, RadioButton, Divider, TextInput, Searchbar, List } from 'react-native-paper';
 import { Content, ListItem, Text, Right, Body } from 'native-base';
-import TextInputMask from 'react-native-text-input-mask';
 
 export default class Profile extends Component {
 
 	constructor(props) {
 		super(props);	
 		this.state = {
+			patient: this.props.navigation.getParam('patient'),
+			isEditable: this.props.isEditable,
 			cid: data.cid,
 			auxCid: data.cid,
 			tuss: data.tuss,
@@ -28,7 +29,6 @@ export default class Profile extends Component {
 			selectedRadio: null,
 			cidQuery: null,
 			tussQuery: null,
-			isEditable: this.props.isEditable,
 			listAttendanceType: [
 				{key: 1, value: 'ELECTIVE', label: 'ELETIVO'},
 				{key: 2, value: 'EMERGENCY', label: 'EMERGÊNCIA'}
@@ -36,9 +36,19 @@ export default class Profile extends Component {
 			listHospitalizationType: [
 				{key: 1, value: 'CLINICAL', label: 'CLÍNICO'},
 				{key: 2, value: 'SURGICAL', label: 'CIRÚRGICO'}
-			]
+			],
+			patientHeightTMP: this.props.navigation.getParam('patient').patientHeight,
+			patientWeightTMP: this.props.navigation.getParam('patient').patientWeight,
+			crmTMP: this.props.navigation.getParam('patient').mainProcedureCRM
 		}
 	}
+
+	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
+		this.setState({
+			isEditable: this.props.isEditable,
+			patient: this.props.navigation.getParam('patient')
+		});
+	});
 
 	toggleModal = (modalName) => {
 		this.setState({[modalName]: !this.state[modalName]})
@@ -55,11 +65,17 @@ export default class Profile extends Component {
 	}
 
 	handleHeight = (patientHeight) => {
-		this.props.handleUpdatePatient('patientHeight', patientHeight)
+		this.setState({ patientHeightTMP: patientHeight });
 	}
 
 	handleWeight = (patientWeight) => {
-		this.props.handleUpdatePatient('patientWeight', patientWeight)
+		this.setState({ patientWeightTMP: patientWeight });
+	}
+
+	saveWeightAndHeight = async () => {
+		await this.props.handleUpdatePatient('patientWeight', this.state.patientWeightTMP);
+		await this.props.handleUpdatePatient('patientHeight', this.state.patientHeightTMP);
+		this.toggleModal('modalHeightAndWeight');
 	}
 
 	attendanceType(item) {
@@ -87,7 +103,12 @@ export default class Profile extends Component {
 	}
 
 	handleCRM = (crm) => {
-		this.props.handleUpdatePatient('mainProcedureCRM', crm)
+		this.setState({ crmTMP: crm });
+	}
+
+	saveCRM = () => {
+		this.props.handleUpdatePatient('mainProcedureCRM', this.state.crmTMP);
+		this.toggleModal('modalCRM');
 	}
 
 	handlePrimaryCID = (cid) => {
@@ -240,27 +261,18 @@ export default class Profile extends Component {
 							<Dialog.Title>Altura (m) e Peso (Kg)</Dialog.Title>
 							
 							<Dialog.Content>
-								<TextInput mode='outlined' keyboardType='number-pad' label='Altura' value={this.props.patient.patientHeight} 
-									onChangeText={height => { this.handleHeight(height) }}
-									render={props =>
-										<TextInputMask {...props} mask="[0]{,}[00]" />
-									}
-								/>
+								<TextInput mode='outlined' keyboardType='number-pad' label='Altura' value={this.state.patientHeightTMP ? this.state.patientHeightTMP.toString() : this.state.patientHeightTMP} onChangeText={height => { this.handleHeight(height) }}/>
 
 								<Text> {'\n'} </Text>								
 
-								<TextInput mode='outlined' keyboardType='number-pad' label='Peso' value={this.props.patient.patientWeight} 
-									onChangeText={weight => { this.handleWeight(weight) }} 
-									render={props =>
-										<TextInputMask {...props} mask="[900]{,}[000]" />
-									}
-								/>
+								<TextInput mode='outlined' keyboardType='number-pad' label='Peso' value={this.state.patientWeightTMP ? this.state.patientWeightTMP.toString() : this.state.patientWeightTMP} onChangeText={weight => { this.handleWeight(weight) }} />
 							</Dialog.Content>
 
 							<Divider />
 
 							<Dialog.Actions>
-								<Button onPress={ () => { this.toggleModal('modalHeightAndWeight') } }>Salvar</Button>
+								<Button onPress={ () => { this.toggleModal('modalHeightAndWeight') } }>Fechar</Button>
+								<Button onPress={ () => { this.saveWeightAndHeight() } }>Salvar</Button>
 							</Dialog.Actions>
 
 						</Dialog>
@@ -290,7 +302,7 @@ export default class Profile extends Component {
 							<Divider />
 
 							<Dialog.Actions>
-								<Button onPress={ () => { this.toggleModal('modalAttendanceType') } }>Salvar</Button>
+								<Button onPress={ () => { this.toggleModal('modalAttendanceType') } }>Fechar</Button>
 							</Dialog.Actions>
 						</Dialog>
 					</Portal>
@@ -319,7 +331,7 @@ export default class Profile extends Component {
 							<Divider />
 
 							<Dialog.Actions>
-								<Button onPress={ () => { this.toggleModal('modalHospitalizationType') } }>Salvar</Button>
+								<Button onPress={ () => { this.toggleModal('modalHospitalizationType') } }>Fechar</Button>
 							</Dialog.Actions>
 						</Dialog>
 					</Portal>
@@ -331,13 +343,14 @@ export default class Profile extends Component {
 							<Dialog.Title>CRM</Dialog.Title>
 							
 							<Dialog.Content>
-								<TextInput mode='outlined' label='CRM' value={this.props.patient.mainProcedureCRM} onChangeText={text => { this.handleCRM(text) }} />	
+								<TextInput mode='outlined' label='CRM' value={this.state.crmTMP} onChangeText={text => { this.handleCRM(text) }} />	
 							</Dialog.Content>
 
 							<Divider />
 
 							<Dialog.Actions>
-								<Button onPress={ () => { this.toggleModal('modalCRM') } }>Salvar</Button>
+								<Button onPress={ () => { this.toggleModal('modalCRM') } }>Fechar</Button>
+								<Button onPress={ () => { this.saveCRM() } }>Salvar</Button>
 							</Dialog.Actions>
 
 						</Dialog>
@@ -416,7 +429,7 @@ export default class Profile extends Component {
 							<Divider />
 
 							<Dialog.Actions>
-								<Button onPress={ () => { this.toggleModal('modalMainProcedure') } }>Salvar</Button>
+								<Button onPress={ () => { this.toggleModal('modalMainProcedure') } }>Fechar</Button>
 							</Dialog.Actions>
 						</Dialog>
 					</Portal>
@@ -425,7 +438,12 @@ export default class Profile extends Component {
 	}
 
 	renderHeightAndWeight() {
+
+			console.log(this.props.patient.patientHeight);
+			console.log(this.props.patient.patientWeight);
+			
 		return (
+
 			this.state.isEditable ?
 				<TextValue color={'#0000FF'} value={ this.props.patient.patientHeight && this.props.patient.patientWeight ? `${this.props.patient.patientHeight}m / ${this.props.patient.patientWeight}kg` : 'INFORMAR' } press={ () => { this.setState({modalSelected: 'HeightAndWeight', modalHeightAndWeight: true}) }}/>
 			:
