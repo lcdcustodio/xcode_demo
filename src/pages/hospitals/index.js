@@ -563,27 +563,27 @@ export default class Hospital extends Component {
                     <CardItem footer bordered style={{ justifyContent: 'center', height: 40, paddingTop: 0, paddingRight: 0, paddingBottom: 0, paddingLeft: 0}}>                            
                         
                         <View style={{ width: '8%'}}>
-                            <Text style={{paddingLeft: 5}}><Icon name="briefcase-medical" style={{color: '#666', fontSize: 20}} /></Text>
+                            <Text style={{paddingLeft: 5}}><Icon name="briefcase-medical" style={{color: '#666', fontSize: 17}} /></Text>
                         </View>
 
-                        <View style={{ width: '22%', justifyContent: 'center', borderRightWidth: 1, borderRightColor: '#ccc', height: 40}}>
-                            <Text style={{fontSize: 16}}> {item.lastVisit} </Text>
+                        <View style={{ width: '25%', justifyContent: 'center'}}>
+                            <Text style={{fontSize: 14, color: '#666', fontWeight:'normal'}}> {item.lastVisit} </Text>
                         </View>
                         
                         <View style={{ width: '8%', justifyContent: 'center'}}>
-                            <Text style={{paddingLeft: 5}}><Icon name="bed" style={{color: '#666', fontSize: 20}} /></Text>
+                            <Text style={{paddingLeft: 5}}><Icon name="bed" style={{color: '#666', fontSize: 17}} /></Text>
                         </View>
                         
-                        <View style={{ width: '28%', justifyContent: 'center', borderRightWidth: 1, borderRightColor: '#ccc', height: 40}}>
-                            <Text style={{fontSize: 16}}> {item.totalPatients} Internados </Text>
+                        <View style={{ width: '25%', justifyContent: 'center'}}>
+                            <Text style={{fontSize: 12, color: '#666', fontWeight:'normal'}}> {item.totalPatients} Internados </Text>
                         </View>
                         
                         <View style={{ width: '8%', justifyContent: 'center'}}>
-                            <Text style={{paddingLeft: 5}}><Icon name="eye" style={{color: '#666', fontSize: 20}} /></Text>
+                            <Text style={{paddingLeft: 5}}><Icon name="chalkboard-teacher" style={{color: '#666', fontSize: 17}} /></Text>
                         </View>
                         
-                        <View style={{ width: '26%', justifyContent: 'center'}}>
-                            <Text style={{fontSize: 16}}> {item.totalPatientsVisitedToday} Visitados </Text>
+                        <View style={{ width: '25%', justifyContent: 'center'}}>
+                            <Text style={{fontSize: 14, color: '#666', fontWeight:'normal'}}> {item.totalPatientsVisitedToday} Visitados </Text>
                         </View>
                         
                     

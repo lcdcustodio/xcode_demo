@@ -285,9 +285,9 @@ export default class Recommendation extends React.Component {
 
 							<Divider />
 
-							<Dialog.Actions>
+{/* 							<Dialog.Actions>
 								<Button onPress={ () => { this.toggleModalRecommendationType() } }>Fechar</Button>
-							</Dialog.Actions>
+							</Dialog.Actions> */}
 						</Dialog>
 					</Portal> 
 
@@ -310,9 +310,10 @@ export default class Recommendation extends React.Component {
 
 							<Divider />
 
-							<Dialog.Actions>
+{/* 							<Dialog.Actions>
 								<Button onPress={ () => { this.toggleModalSpecialty() } }>Fechar</Button>
-							</Dialog.Actions>
+							</Dialog.Actions> */}
+
 						</Dialog>
 					</Portal>
 

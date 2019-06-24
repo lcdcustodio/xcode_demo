@@ -284,9 +284,9 @@ export default class Profile extends Component {
 
 							<Divider />
 
-							<Dialog.Actions>
+{/* 							<Dialog.Actions>
 								<Button onPress={ () => { this.toggleModal('modalAttendanceType') } }>Salvar</Button>
-							</Dialog.Actions>
+							</Dialog.Actions> */}
 						</Dialog>
 					</Portal>
 				);
@@ -313,9 +313,9 @@ export default class Profile extends Component {
 
 							<Divider />
 
-							<Dialog.Actions>
+{/* 							<Dialog.Actions>
 								<Button onPress={ () => { this.toggleModal('modalHospitalizationType') } }>Salvar</Button>
-							</Dialog.Actions>
+							</Dialog.Actions> */}
 						</Dialog>
 					</Portal>
 				);
