@@ -47,6 +47,7 @@ export default class Finalize extends Component {
 		let morbidityComorbityList = JSON.parse(morbidityComorbityStorage);
 		
 		console.log("patientStorage", patientStorage)
+		console.log("morbidityComorbityList", morbidityComorbityList)
 
 		if (patientStorage) {
 			//patientStorage.patientBornDate = '2010/04/13'
@@ -73,25 +74,24 @@ export default class Finalize extends Component {
 
 	save = () => {
 		const handleUpdatePatient = (p1, p2) => console.log('handleUpdatePatient:', p1, p2);
-		const { state, /*handleUpdatePatient*/ } = this;
-		const { patient } = state;
+		const { patient } = this.state;
 		if (!patient.exitCID) {
 			Alert.alert('Atenção', "É necessário selecionar um CID de Saída.", [{text:'OK',onPress:()=>{}}],{cancelable:false});
 			return;
 		}
-		if (patient.clinicalIndication && patient.clinicalIndication.indicated && !patient.clinicalIndication.specialtyDisplayName) {
+		if (patient.recommendationClinicalIndication && !patient.specialty) {
 			Alert.alert('Atenção', "É necessário selecionar uma especialidade.", [{text:'OK',onPress:()=>{}}],{cancelable:false});
 			return;
 		}
 		const welcomeHomeIndication = patient.welcomeHomeIndication ? patient.welcomeHomeIndication : {};
-		welcomeHomeIndication.indicated = true; // OU FALSE
+		welcomeHomeIndication.indicated = !!patient.recommendationWelcomeHomeIndication;
 		const medicineReintegration = patient.medicineReintegration ? patient.medicineReintegration : {};
-		medicineReintegration.indicated = true; // OU FALSE
+		medicineReintegration.indicated = !!patient.recommendationMedicineReintegration;
 		const clinicalIndication = patient.clinicalIndication ? patient.clinicalIndication : {};
-		clinicalIndication.indicated = true; // OU FALSE
+		clinicalIndication.indicated = !!patient.recommendationClinicalIndication;
 		if (clinicalIndication.indicated) {
-			clinicalIndication.specialtyId = 1;
-        	clinicalIndication.specialtyDisplayName = '';
+			clinicalIndication.specialtyId = patient.specialty.id;
+        	clinicalIndication.specialtyDisplayName = patient.specialty.name;
 		}
 		handleUpdatePatient('diagnosticHypothesisList', [patient.exitCID]);
 		handleUpdatePatient('complementaryInfoHospitalizationAPI', patient.complementaryInfoHospitalizationAPI);
@@ -99,6 +99,11 @@ export default class Finalize extends Component {
 		handleUpdatePatient('welcomeHomeIndication', welcomeHomeIndication);
 		handleUpdatePatient('medicineReintegration', medicineReintegration);
 		handleUpdatePatient('clinicalIndication', clinicalIndication);
+	}
+
+	updatePatientOnStorage = () => {
+		console.log('<<< updatePatientOnStorage >>>', `${this.state.patient.id}`, this.state.patient);
+		AsyncStorage.setItem(`${this.state.patient.id}`, JSON.stringify(this.state.patient));
 	}
 
 	_goBack = () => {
@@ -130,7 +135,7 @@ export default class Finalize extends Component {
 			...this.state,
 			patient
 		});
-		
+		this.updatePatientOnStorage();
 		this.toggleModal('modalExitCID');
 	}
 
@@ -466,6 +471,7 @@ export default class Finalize extends Component {
 	}
 
 	renderMorbidityComorbityList(typePatient) {
+		if (this.state.morbidityComorbityList) {
 		return (
 			this.state.morbidityComorbityList.map(item => {
 				if(typePatient !== 'Idoso') {
@@ -499,6 +505,7 @@ export default class Finalize extends Component {
 				}
 			})
 		);
+		}
 	}
 
 	renderWelcomeHome() {
