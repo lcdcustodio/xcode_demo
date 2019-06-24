@@ -300,7 +300,7 @@ export default class Profile extends Component {
 							<Divider />
 
 							<Dialog.Actions>
-								<Button onPress={ () => { this.toggleModal('modalAttendanceType') } }>Salvar</Button>
+								<Button onPress={ () => { this.toggleModal('modalAttendanceType') } }>Fechar</Button>
 							</Dialog.Actions>
 						</Dialog>
 					</Portal>
@@ -329,7 +329,7 @@ export default class Profile extends Component {
 							<Divider />
 
 							<Dialog.Actions>
-								<Button onPress={ () => { this.toggleModal('modalHospitalizationType') } }>Salvar</Button>
+								<Button onPress={ () => { this.toggleModal('modalHospitalizationType') } }>Fechar</Button>
 							</Dialog.Actions>
 						</Dialog>
 					</Portal>
@@ -427,7 +427,7 @@ export default class Profile extends Component {
 							<Divider />
 
 							<Dialog.Actions>
-								<Button onPress={ () => { this.toggleModal('modalMainProcedure') } }>Salvar</Button>
+								<Button onPress={ () => { this.toggleModal('modalMainProcedure') } }>Fechar</Button>
 							</Dialog.Actions>
 						</Dialog>
 					</Portal>
