@@ -35,6 +35,8 @@ export default class Patients extends Component {
 
         const hospitalId = this.props.navigation.getParam('hospitalId');
 
+        console.log(hospitalId);
+
         AsyncStorage.getItem('hospitalList', (err, res) => {
 
             let hospitalList = JSON.parse(res);
@@ -259,9 +261,13 @@ export default class Patients extends Component {
     }
 
     renderItem = ({ item }) => (
-        
-             <TouchableOpacity
+                    
+            <TouchableOpacity
                 onPress={() => {
+                
+                    console.log(this.state.hospital.id);
+                    console.log(item.id);
+                
                     this.props.navigation.navigate("PatientDetail", { hospitalId: this.state.hospital.id, patientId: item.id, patient: item});
                 }}>
 

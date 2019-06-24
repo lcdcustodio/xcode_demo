@@ -78,6 +78,11 @@ export default class Hospital extends Component {
 			}
 		});
 
+		this.setState({
+			patientQuery: null,
+			patientsFiltered: []
+		});
+
 		BackHandler.removeEventListener ('hardwareBackPress', () => {});
         
         BackHandler.addEventListener('hardwareBackPress', () => {
@@ -345,7 +350,10 @@ export default class Hospital extends Component {
 		let listPatients = this.state.allPatients;
 
 		let totalPatients = patients.reduce((totalPatients, patient) => {
+			
 			patient.hospitalName = hospital.name;
+			patient.hospitalId = hospital.id;
+
 			let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
 
             if(
@@ -619,6 +627,7 @@ export default class Hospital extends Component {
 	}
 
 	filterPatients = (patientQuery) => {
+
 		if(patientQuery !== '') {
 
 			const patientsFiltered = this.state.allPatients.filter(item => {
@@ -626,11 +635,14 @@ export default class Hospital extends Component {
 					item.patientName.toUpperCase().includes(patientQuery.toUpperCase())
 				)
 			});
+
+			console.log(patientsFiltered);
 	
-			this.setState({ 
+			this.setState({
 				patientsFiltered,
 				patientQuery
 			});
+
 		} else {
 			this.setState({ 
 				patientsFiltered: [],
@@ -640,11 +652,11 @@ export default class Hospital extends Component {
 	}
 
 	renderItemPatient = (element) => {
-		
-		console.log(element);
+
+		console.log(element.item.id, element.item.patientName);
 
 		return (
-			<TouchableOpacity onPress={() => { 
+			<TouchableOpacity onPress={() => {
 				this.goToProfilePage(element.item) 
 			}}>
 				<List.Item title={`${element.item.patientName}`} />
@@ -654,11 +666,19 @@ export default class Hospital extends Component {
 	}
 
 	goToProfilePage(patient) {
+
 		this.setState({
 			patientQuery: null,
 			patientsFiltered: []
 		});
-		this.props.navigation.navigate("PatientDetail", { patient, isEditable: this.state.isEditable });
+		
+		console.log(patient.hospitalId);
+		console.log(patient.id);
+		console.log(patient);
+		console.log(this.state.isEditable);
+
+		this.props.navigation.navigate("PatientDetail", { hospitalId: patient.hospitalId, patientId: patient.id, patient: patient, isEditable: this.state.isEditable});
+
 	}
 
 	render(){
