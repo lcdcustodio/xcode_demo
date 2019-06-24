@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { Container, Content, ListItem, Text, Right, Body } from 'native-base';
-import { Card, TextInput, Switch } from 'react-native-paper';
+import { Button, Card, TextInput, Switch } from 'react-native-paper';
 import AsyncStorage from '@react-native-community/async-storage';
-import { StyleSheet, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 import moment from 'moment';
 import uuidv4 from'uuid/v4';
 import _ from 'lodash'
@@ -34,8 +34,7 @@ export default class Finalize extends Component {
 			accordionRecommendationClinicalIndication: false,
 			refresh: false
 		};
-
-		handleUpdatePatient = this.props.navigation.getParam('handleUpdatePatient');
+		this.handleUpdatePatient = this.props.navigation.getParam('handleUpdatePatient');
 	}
 
 	didFocus = this.props.navigation.addListener('didFocus', async (payload) => {
@@ -61,9 +60,38 @@ export default class Finalize extends Component {
 				patient: patientStorage
 			});
 		}
-
-		handleUpdatePatient = payload.action.params.handleUpdatePatient;
+		this.handleUpdatePatient = payload.action.params.handleUpdatePatient;
 	});
+
+	save = () => {
+		const handleUpdatePatient = (p1, p2) => console.log('handleUpdatePatient:', p1, p2);
+		const { state, /*handleUpdatePatient*/ } = this;
+		const { patient } = state;
+		if (!patient.exitCID) {
+			Alert.alert('Atenção', "É necessário selecionar um CID de Saída.", [{text:'OK',onPress:()=>{}}],{cancelable:false});
+			return;
+		}
+		if (patient.clinicalIndication && patient.clinicalIndication.indicated && !patient.clinicalIndication.specialtyDisplayName) {
+			Alert.alert('Atenção', "É necessário selecionar uma especialidade.", [{text:'OK',onPress:()=>{}}],{cancelable:false});
+			return;
+		}
+		const welcomeHomeIndication = patient.welcomeHomeIndication ? patient.welcomeHomeIndication : {};
+		welcomeHomeIndication.indicated = true; // OU FALSE
+		const medicineReintegration = patient.medicineReintegration ? patient.medicineReintegration : {};
+		medicineReintegration.indicated = true; // OU FALSE
+		const clinicalIndication = patient.clinicalIndication ? patient.clinicalIndication : {};
+		clinicalIndication.indicated = true; // OU FALSE
+		if (clinicalIndication.indicated) {
+			clinicalIndication.specialtyId = 1;
+        	clinicalIndication.specialtyDisplayName = '';
+		}
+		handleUpdatePatient('diagnosticHypothesisList', [patient.exitCID]);
+		handleUpdatePatient('complementaryInfoHospitalizationAPI', patient.complementaryInfoHospitalizationAPI);
+		handleUpdatePatient('morbidityComorbityList', patient.morbidityComorbityList);
+		handleUpdatePatient('welcomeHomeIndication', welcomeHomeIndication);
+		handleUpdatePatient('medicineReintegration', medicineReintegration);
+		handleUpdatePatient('clinicalIndication', clinicalIndication);
+	}
 
 	_goBack = () => {
 		this.props.navigation.navigate('PatientDetail');
@@ -650,6 +678,9 @@ export default class Finalize extends Component {
 								<FormItem label='Indicação para Ambulatório' value='Teste 1' />
 						</RecommendationCardToggle>
 					</RdIf>
+					<View style={styles.button}>
+						<Button  mode="contained" onPress={ () => this.save() }>Salvar</Button>
+					</View>
 				</Content>
 			</Container>
 		);
@@ -689,5 +720,8 @@ const styles = StyleSheet.create({
 	},
 	finalizeRequestedSwitch: {
 		flex: 1,
-	}
+	},
+	button: {
+		width: '100%',
+	},
 });
