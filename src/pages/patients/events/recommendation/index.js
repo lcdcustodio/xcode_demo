@@ -122,7 +122,10 @@ export default class Recommendation extends React.Component {
 			if(patient.recommendationWelcomeHomeIndication && !this.state.update){
 				this.showAlertMsg(indicationItem + " já cadastrado!")
 			} else {
-				patient.recommendationWelcomeHomeIndication = this.state.recommendation;
+				const { handleUpdatePatient } = this.props.navigation.state.params;
+				const { recommendation } = this.state;
+				handleUpdatePatient('recommendationWelcomeHomeIndication', recommendation);
+				patient.recommendationWelcomeHomeIndication = recommendation;
 				return true;
 			}	
 		}
@@ -137,7 +140,10 @@ export default class Recommendation extends React.Component {
 				if(!this.state.recommendation.specialtyId){
 					this.showAlertMsg("Selecione uma especialidade")
 				} else {
-					patient.recommendationClinicalIndication = this.state.recommendation;
+					const { handleUpdatePatient } = this.props.navigation.state.params;
+					const { recommendation } = this.state;
+					handleUpdatePatient('recommendationClinicalIndication', recommendation);
+					patient.recommendationClinicalIndication = recommendation;
 					return true;
 				}
 			} 
@@ -151,7 +157,10 @@ export default class Recommendation extends React.Component {
 			if(patient.recommendationMedicineReintegration && !this.state.update){
 				this.showAlertMsg(reintegrationItem + " já cadastrado!")
 			} else {
-				patient.recommendationMedicineReintegration =  this.state.recommendation;
+				const { handleUpdatePatient } = this.props.navigation.state.params;
+				const { recommendation } = this.state;
+				handleUpdatePatient('recommendationMedicineReintegration', recommendation);
+				patient.recommendationMedicineReintegration =  recommendation;
 				return true;
 			}
 		} 
@@ -285,9 +294,9 @@ export default class Recommendation extends React.Component {
 
 							<Divider />
 
-							<Dialog.Actions>
+{/* 							<Dialog.Actions>
 								<Button onPress={ () => { this.toggleModalRecommendationType() } }>Fechar</Button>
-							</Dialog.Actions>
+							</Dialog.Actions> */}
 						</Dialog>
 					</Portal> 
 
@@ -310,9 +319,10 @@ export default class Recommendation extends React.Component {
 
 							<Divider />
 
-							<Dialog.Actions>
+{/* 							<Dialog.Actions>
 								<Button onPress={ () => { this.toggleModalSpecialty() } }>Fechar</Button>
-							</Dialog.Actions>
+							</Dialog.Actions> */}
+
 						</Dialog>
 					</Portal>
 

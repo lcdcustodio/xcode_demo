@@ -22,6 +22,9 @@ class PatientDetail extends Component {
 		super(props);
 
 		this.state = {
+            hospital: {},
+			patientId: this.props.navigation.getParam('hospitalId'),
+			patientId: this.props.navigation.getParam('patientId'),
 			patient: this.props.navigation.getParam('patient'),
 			loading: false,
             timerTextColor: "#005cd1",
@@ -104,9 +107,11 @@ class PatientDetail extends Component {
 
 		this.setState({isEditable: Session.current.user._profile != 'ADMIN'});
 
+		const patientId = this.props.navigation.getParam('patientId');
+
 		const hospitalId = this.props.navigation.getParam('hospitalId');
 
-        const patientId = this.props.navigation.getParam('patientId');
+		console.log(patientId, hospitalId);
 
         AsyncStorage.getItem('hospitalList', (err, res) => {
 
@@ -123,9 +128,14 @@ class PatientDetail extends Component {
                     	let patient = hospital.hospitalizationList[i];
                     
                         if (patient.id == patientId) {
-                        	this.setState({patient: patient});
+							this.setState({patient: patient});
+							AsyncStorage.setItem(`${patientId}`, JSON.stringify(patient));
                         }
                     }
+
+                    this.setState({hospital: hospital});
+
+            		console.log('SETOU', hospital);
                 }
             }
 
@@ -180,8 +190,8 @@ class PatientDetail extends Component {
 	}
 
 	_goBack = () => {
-		console.log(this.state.patient.id, this.state.patient);
-		this.props.navigation.navigate('Patients',  {hospital: this.state.hospital});
+		console.log(this.state.patient.id, this.state.patient, this.state.hospital);
+		this.props.navigation.navigate('Patients',  {hospitalId: this.state.hospital.id});
 	}
 }
 

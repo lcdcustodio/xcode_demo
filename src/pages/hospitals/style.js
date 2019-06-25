@@ -12,8 +12,7 @@ export default StyleSheet.create({
 	},
 
 	title: {
-		fontSize: 16,
-		fontWeight: "bold",
+		fontSize: 14,
     color: "#333",
     marginLeft: 10, 
     paddingTop: 10,
@@ -23,6 +22,7 @@ export default StyleSheet.create({
 	hospitalIcon: {
     height: 60,
     width: 140,
+    color: "#333",
     alignItems: 'center', 
     textAlign: "center", 
     justifyContent: 'center'

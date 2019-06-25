@@ -77,13 +77,11 @@ export default class Patients extends Component {
 
                     hospital.hospitalizationList = patients;
 
-                    console.log(patients);
 
                     this.setState({hospital: hospital});
 
                     this.setState({ loading: false });
 
-                    console.log('SETOU', hospital);
 
                     break;
 
@@ -276,38 +274,38 @@ export default class Patients extends Component {
                         </Right>
                     </CardItem>
                     
-                    <CardItem footer bordered style={{ justifyContent: 'center', height: 40, paddingTop: 0, paddingRight: 0, paddingBottom: 0, paddingLeft: 0}}>                            
+                    <CardItem footer bordered style={{ justifyContent: 'center', height: 30, paddingTop: 0, paddingRight: 0, paddingBottom: 0, paddingLeft: 0}}>                            
                         
-                        <View style={{ width: '8%'}}>
-                            <Text style={{paddingLeft: 10}}><Icon name="calendar" style={{color: '#666', fontSize: 20}} /></Text>
+                        <View style={{ width: '10%'}}>
+                            <Text style={{paddingLeft: 1}}><Icon name="calendar" style={{color: '#666', fontSize: 15}} /></Text>
                         </View>
 
-                        <View style={{ width: '19%', justifyContent: 'center', borderRightWidth: 1, borderRightColor: '#ccc', height: 40}}>
-                            <Text style={{fontSize: 16}}>{item.totalDaysOfHospitalization}0 dias</Text>
+                        <View style={{ width: '15%'}}>
+                            <Text style={{fontSize: 10, color: '#666', fontWeight:'normal'}}>{item.totalDaysOfHospitalization}0 dias</Text>
                         </View>
 
-                        <View style={{ width: '8%', justifyContent: 'center'}}>
-                            <Text style={{paddingLeft: 5}}><Icon name="tag" style={{color: '#666', fontSize: 20}} /></Text>
+                        <View style={{ width: '10%'}}>
+                            <Text style={{paddingLeft: 1}}><Icon name="tag" style={{color: '#666', fontSize: 15}} /></Text>
                         </View>
                         
-                        <View style={{ width: '10%', justifyContent: 'center', borderRightWidth: 1, borderRightColor: '#ccc', height: 40}}>
-                            <Text style={{fontSize: 16}}>{item.locationSession}</Text>
+                        <View style={{ width: '15%'}}>
+                            <Text style={{fontSize: 12, color: '#666', fontWeight:'normal'}}>{item.locationSession}</Text>
                         </View>
 
-                        <View style={{ width: '8%', justifyContent: 'center'}}>
-                            <Text style={{paddingLeft: 5}}><Icon name="bed" style={{color: '#666', fontSize: 20}} /></Text>
+                        <View style={{ width: '10%'}}>
+                            <Text style={{paddingLeft: 1}}><Icon name="bed" style={{color: '#666', fontSize: 15}} /></Text>
                         </View>
                         
-                        <View style={{ width: '18%', justifyContent: 'center', borderRightWidth: 1, borderRightColor: '#ccc', height: 40}}>
-                            <Text style={{fontSize: 16, paddingLeft: 5}}>{item.locationBed}</Text>
+                        <View style={{ width: '15%'}}>
+                            <Text style={{fontSize: 12, color: '#666', fontWeight:'normal'}}>{item.locationBed}</Text>
                         </View>
                         
-                        <View style={{ width: '8%', justifyContent: 'center'}}>
-                            <Text style={{paddingLeft: 5}}><Icon name="eye" style={{color: '#666', fontSize: 20}} /></Text>
+                        <View style={{ width: '10%'}}>
+                            <Text style={{paddingLeft: 1}}><Icon name="eye" style={{color: '#666', fontSize: 15}} /></Text>
                         </View>
                         
-                        <View style={{ width: '23%', justifyContent: 'center'}}>
-                            <Text style={{fontSize: 16}}>{item.lastVisit}</Text>
+                        <View style={{ width: '15%'}}>
+                            <Text style={{fontSize: 10, color: '#666', fontWeight:'normal'}}>{item.lastVisit}</Text>
                         </View>
                     
                     </CardItem>
