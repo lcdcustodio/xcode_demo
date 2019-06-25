@@ -125,8 +125,9 @@ export default class Visitas extends React.Component {
 	finalize = () => {
 		const patient = new Patient(this.state.patient);
 		const errors = patient.validateFinalization();
+
 		if (!errors.length) {
-			this.props.navigation.navigate('Finalize', { patient: patient.json });
+			this.props.navigation.navigate('Finalize', { patientID: patient.json.id, handleUpdatePatient: this.props.handleUpdatePatient });
 		} else {
 			let fields = FINALIZE_ERROR_FIELDS[errors[0]];
 			let msg = '';
