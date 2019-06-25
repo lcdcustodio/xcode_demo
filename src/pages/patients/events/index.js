@@ -11,15 +11,19 @@ export default class Events extends Component {
 	
 	constructor(props) {
 		super(props);
-		this.state = { 
-			eventos: this._loadEvents(),
+		const { patient } = this.props;
+		this.state = {
+			patient: patient,
+			eventos: this._loadEvents(patient),
 			isEditable: this.props.isEditable
 		};
 	}
 		
-	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
+	willFocus = this.props.navigation.addListener('willFocus', (payload) => {
+		const patient = this.props.navigation.getParam('patient');
 		this.setState({
-			eventos: this._loadEvents() 
+			patient: patient,
+			eventos: this._loadEvents(patient),
 		});
 	});
 
@@ -39,8 +43,7 @@ export default class Events extends Component {
 		);
 	}
 
-	_loadEvents = () => {
-		const patient = this.props.navigation.getParam('patient');
+	_loadEvents = (patient) => {
 		let events = [];
 		this._pushRecommendation(events, patient.recommendationWelcomeHomeIndication, 'WELCOME HOME');
 		this._pushRecommendation(events, patient.recommendationMedicineReintegration, 'REC. MEDICAMENTOSA');
@@ -122,7 +125,7 @@ export default class Events extends Component {
 
 	_create = () => {
 		this.props.navigation.navigate('Recommendation', {
-			patient: this.props.patient,
+			patient: this.state.patient,
 			update: false,
 			handleUpdatePatient: this.props.handleUpdatePatient,
 		});
@@ -130,16 +133,16 @@ export default class Events extends Component {
 
 	isaRecommendation = typeEnum => typeEnum === 4;
 	
-	isaPatientWithDischarge = _ =>  this.props.patient.iconNumber === 1; 
+	isaPatientWithDischarge = _ =>  this.state.patient.iconNumber === 1; 
 	
 	_read = (event) => {
 		if (this.isaRecommendation(event.typeEnum)) {
 			if (this.isaPatientWithDischarge()) {
 				Alert.alert('Atenção', "Paciente já está de alta", [{text:'OK',onPress:()=>{}}],{cancelable: false});
 			} else {
-				this.recommendationSelected(event, this.props.patient);
+				this.recommendationSelected(event, this.state.patient);
 				this.props.navigation.navigate('Recommendation', {
-					patient: this.props.patient,
+					patient: this.state.patient,
 					event: event,
 					update: true,
 					handleUpdatePatient: this.props.handleUpdatePatient,
@@ -149,25 +152,24 @@ export default class Events extends Component {
 	}
 
 	_delete = (event) => {
-
-		if(this.isaRecommendation(event.typeEnum)){
-			
-			if(this.isaPatientWithDischarge()){
-				Alert.alert('Atenção', "Não é permitido excluir a recomendação selecioanada!",[{text: 'OK', onPress: () => {}}],{cancelable: false});
+		if (this.isaRecommendation(event.typeEnum)) {
+			if (this.isaPatientWithDischarge()) {
+				Alert.alert('Atenção', "Não é permitido excluir a recomendação selecionada!",[{text: 'OK', onPress: () => {}}],{cancelable: false});
 			} else {
-				let uuid = event.data.uuid;
-				if(this.props.patient.recommendationClinicalIndication && uuid === this.props.patient.recommendationClinicalIndication.uuid)	{
-					this.props.patient.recommendationClinicalIndication = null;
-				} else 
-				if(this.props.patient.recommendationMedicineReintegration && uuid === this.props.patient.recommendationMedicineReintegration.uuid) { 
-						this.props.patient.recommendationMedicineReintegration = null;
-				} else 
-				if(this.props.patient.recommendationWelcomeHomeIndication && uuid === this.props.patient.recommendationWelcomeHomeIndication.uuid) {
-					this.props.patient.recommendationWelcomeHomeIndication = null;
+				const { handleUpdatePatient } = this.props;
+				const { patient } = this.state;
+				function deleteRecommendation(itemName) {
+					if (patient[itemName] && patient[itemName].uuid === event.data.uuid)	{
+						patient[itemName] = null;
+						handleUpdatePatient(itemName, null);
+					}
 				}
-				
+				deleteRecommendation('recommendationClinicalIndication');
+				deleteRecommendation('recommendationMedicineReintegration');
+				deleteRecommendation('recommendationWelcomeHomeIndication');
 				this.setState({
-					eventos: this._loadEvents() 
+					patient: patient,
+					eventos: this._loadEvents(patient),
 				});
 			}
 		} else {
