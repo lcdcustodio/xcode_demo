@@ -113,6 +113,10 @@ class PatientDetail extends Component {
 
 		const hospitalId = this.props.navigation.getParam('hospitalId');
 
+		const setprofile = this.props.navigation.getParam('setprofile');
+
+		console.log(setprofile);
+
 		console.log(patientId, hospitalId);
 
         AsyncStorage.getItem('hospitalList', (err, res) => {
@@ -130,7 +134,11 @@ class PatientDetail extends Component {
                     	let patient = hospital.hospitalizationList[i];
                     
                         if (patient.id == patientId) {
+
+                        	console.log(patient);
+
 							this.setState({patient: patient});
+							
 							AsyncStorage.setItem(`${patientId}`, JSON.stringify(patient));
                         }
                     }

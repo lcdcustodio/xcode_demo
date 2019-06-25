@@ -100,6 +100,8 @@ export default class SignIn extends Component {
 			)
 			.then(response => {
 
+				AsyncStorage.removeItem('hospitalList');
+
 				let content = response.data.content;
 				
 				Session.current.user = new User(content.name, content.profile);

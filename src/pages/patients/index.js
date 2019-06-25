@@ -110,9 +110,16 @@ export default class Patients extends Component {
 
         const today = moment();
 
-        let admissionDate = moment(moment(patient.admissionDate).format('YYYY-MM-DD'));
+        let admissionDate = moment(moment(patient.admissionDate).format('YYYY-MM-DD HH:mm:ss'));
 
         let totalHospitalizationHours = today.diff(admissionDate, 'hours');
+
+        if (patient.exitDate != null) {
+
+            let exitDate = moment(moment(patient.exitDate).format('YYYY-MM-DD HH:mm:ss'));
+
+            totalHospitalizationHours = exitDate.diff(admissionDate, 'hours');
+        }
 
         totalHospitalizationHours = Math.round((totalHospitalizationHours / 24));
 
@@ -261,7 +268,7 @@ export default class Patients extends Component {
         
              <TouchableOpacity
                 onPress={() => {
-                    this.props.navigation.navigate("PatientDetail", { hospitalId: this.state.hospital.id, patientId: item.id, patient: item});
+                    this.props.navigation.navigate("PatientDetail", { hospitalId: this.state.hospital.id, patientId: item.id, patient: item, setprofile: true});
                 }}>
 
             <View style={{ paddingTop: 10, paddingLeft: 10, paddingRight: 10, backgroundColor: baseStyles.container.backgroundColor}}>

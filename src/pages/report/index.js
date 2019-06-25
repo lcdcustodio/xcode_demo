@@ -260,18 +260,28 @@ export default class Report extends Component {
 		return hasHospitality
 	}
 
-	getInformationHospital = async (listHospital) => {
+	countTotalPatients = (patients) => {
+		
+		let totalPatients = patients.reduce((totalPatients, patient) => {
+			
+			let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
 
-		listHospital.forEach( hospital => {
-			hospital.logomarca = this.getLogomarca(hospital)
-			hospital.totalPatientsVisitedToday = this.countTotalPatientsVisited(hospital.hospitalizationList)
-			hospital.totalPatients = this.countTotalPatients(hospital.hospitalizationList, hospital)
-			hospital.lastVisit = this.setLastVisit(hospital.hospitalizationList)
-		}); 
+            if(
+                (listOfOrderedPatientObservations.length == 0) || 
 
-		this.setState({
-			hospitals: [ ...listHospital], 
-		});
+                (!listOfOrderedPatientObservations[0].endTracking && !listOfOrderedPatientObservations[0].medicalRelease)
+            )
+            {
+            	return totalPatients + 1;
+            }
+            else
+            {
+            	return totalPatients;
+            }
+
+		}, 0);
+
+		return totalPatients;
 	}
 
 	calculateDaysOfHospitalization = async (patient) => {
@@ -304,13 +314,18 @@ export default class Report extends Component {
 		};
 
 		for (var i = 0; i < hospitalList.length; i++) {
-			
-			report.hospital_report.push({
-				name: hospitalList[i].name,
-				patients: hospitalList[i].hospitalizationList.length
-			});
 
-			report.patients += hospitalList[i].hospitalizationList.length;
+			let countTotalPatients = this.countTotalPatients(hospitalList[i].hospitalizationList);
+			
+			let obj = {
+				name: hospitalList[i].name,
+				length: hospitalList[i].hospitalizationList.length,
+				patients: countTotalPatients
+			};
+
+			report.hospital_report.push(obj);
+
+			report.patients += countTotalPatients;
 
 			if (hospitalList[i].hospitalizationList.length > 0) {
 
@@ -318,49 +333,58 @@ export default class Report extends Component {
 				{
 					let patient = hospitalList[i].hospitalizationList[x];
 
-					if (patient.attendanceType == "EMERGENCY") 
-					{
-						report.attendanceType_emergency += 1;
-					}
-					else if (patient.attendanceType == "ELECTIVE") 
-					{
-						report.attendanceType_elective += 1;
-					}
-					else 
-					{
-						report.attendanceType_other += 1;
-					}
+					let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
 
-					if (patient.locationType == "CTI" || patient.locationType == "UTI") 
-					{
-						report.locationType_room_ctiuti += 1;
-					}
-					else if (patient.locationType == "USI") 
-					{
-						report.locationType_room_usi += 1;
-					}
-					else 
-					{
-						report.locationType_room_other += 1;
-					}
+		            if(
+		                (listOfOrderedPatientObservations.length == 0) || 
 
-					let days = await this.calculateDaysOfHospitalization(patient);
+		                (!listOfOrderedPatientObservations[0].endTracking && !listOfOrderedPatientObservations[0].medicalRelease)
+		            )
+		            {
+						if (patient.attendanceType == "EMERGENCY") 
+						{
+							report.attendanceType_emergency += 1;
+						}
+						else if (patient.attendanceType == "ELECTIVE") 
+						{
+							report.attendanceType_elective += 1;
+						}
+						else 
+						{
+							report.attendanceType_other += 1;
+						}
 
-					console.log(days);
+						if (patient.locationType == "CTI" || patient.locationType == "UTI") 
+						{
+							report.locationType_room_ctiuti += 1;
+						}
+						else if (patient.locationType == "USI") 
+						{
+							report.locationType_room_usi += 1;
+						}
+						else 
+						{
+							report.locationType_room_other += 1;
+						}
 
-					if (days <= 5) 
-					{
-						report.attendanceType_time_until_five += 1;
-					}
-					else if (days > 5 && days <= 49) 
-					{
-						report.attendanceType_time_between_five_and_fortynine += 1;
-					}
-					else 
-					{
-						report.attendanceType_time_other += 1;
+						let days = await this.calculateDaysOfHospitalization(patient);
+
+						if (days <= 5) 
+						{
+							report.attendanceType_time_until_five += 1;
+						}
+						else if (days > 5 && days <= 49) 
+						{
+							report.attendanceType_time_between_five_and_fortynine += 1;
+						}
+						else 
+						{
+							report.attendanceType_time_other += 1;
+						}
+
 					}
 				}
+
 			}
 		}
 
@@ -487,6 +511,11 @@ export default class Report extends Component {
 	}
 
 	render() {
+
+		if (!this.state.hospital_report.hospital_report) {
+			return null;
+		}
+		
 		return (
 
 			<Container>
@@ -524,7 +553,7 @@ export default class Report extends Component {
 
 					<DataTable>
 						
-						{this.state.hospital_report.hospital_report && this.state.hospital_report.hospital_report.map((prop) => {
+						{this.state.hospital_report.hospital_report.map((prop) => {
 							return ( 
 								<DataTable.Row key={prop.name} style={{backgroundColor:'#ffffff', minHeight: 20, height: 32}}>
 									<DataTable.Cell style={{width: '90%'}}>{prop.name}</DataTable.Cell>

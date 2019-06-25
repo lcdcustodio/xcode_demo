@@ -53,6 +53,8 @@ export default class Hospital extends Component {
 
 			this.setState({isConnected: state.isConnected});
 
+			this.setState({hospitals: null});
+			
 			this.sincronizar();
 
 		});
@@ -348,6 +350,7 @@ export default class Hospital extends Component {
 	}	
 
 	countTotalPatients = (patients, hospital) => {
+
 		let listPatients = this.state.allPatients;
 
 		let totalPatients = patients.reduce((totalPatients, patient) => {
@@ -495,6 +498,7 @@ export default class Hospital extends Component {
 				AsyncStorage.getItem('hospitalList', (err, res) => {
 
 					if (res == null) {
+
 						this.sincronizar(true);
 					}
 					else
