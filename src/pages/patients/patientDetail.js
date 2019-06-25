@@ -9,6 +9,7 @@ import moment from 'moment';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import {Icon as IconNativeBase} from 'native-base';
 
+import baseStyles from '../../styles';
 
 //Pages
 import Profile from "./profile";
@@ -185,7 +186,7 @@ class PatientDetail extends Component {
 						<Title style={{color: 'white'}}> Detalhes do Paciente </Title>
 					</Body>
 				</Header>
-				<Content>
+				<Content style={ baseStyles.container }>
 					{ this.renderSelectedTab() }
 				</Content>
 				<Footer>

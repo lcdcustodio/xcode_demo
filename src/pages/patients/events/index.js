@@ -29,15 +29,14 @@ export default class Events extends Component {
 	render() {
 		return (
 			<View style={{...baseStyles.container, ...styles.container}}>
+				<View style={{marginTop:12, marginBottom: 0, marginLeft: 10, marginRight: 10}}>
+					<Button mode="contained" onPress={this._create}> APONTAR </Button>
+				</View>
 				<FlatList 
 					contentContainerStyle={baseStyles.container}
 					data={this.state.eventos}
 					keyExtractor={ (event) => { return event.data.uuid; } }
-					renderItem={this._renderEvent}  />
-					
-					<View style={{marginTop:10, marginBottom: 10, marginLeft: 10, marginRight: 10}}>
-						<Button mode="contained" onPress={this._create}> APONTAR </Button>
-					</View>
+					renderItem={this._renderEvent}  />					
 			</View>
 		);
 	}
@@ -245,7 +244,7 @@ ITEM_COLOR[TimelineEventEnum.Recommendation] = '#96FFDB';
 
 const styles = StyleSheet.create({
 	container: {
-		height: Math.round(Dimensions.get('window').height - 110 ),
+		//height: Math.round(Dimensions.get('window').height - 110 ),
 	},
 	date: {
 		fontFamily:'Segoe UI', 
