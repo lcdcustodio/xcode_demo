@@ -5,6 +5,7 @@ import { Button} from 'react-native-paper';
 import baseStyles from '../../../styles';
 import TimelineEvent, { TimelineEventEnum, TimelineEventEvaluation, timelineEventSorter } from '../../../util/TimelineEvent'
 import moment from 'moment';
+import Patient, { StatusVisitEnum } from '../../../model/Patient'
 
 export default class Events extends Component {
 	
@@ -131,11 +132,11 @@ export default class Events extends Component {
 
 	isaRecommendation = typeEnum => typeEnum === 4;
 	
-	isaPatientWithDischarge = _ =>  this.state.patient.iconNumber === 1; 
-	
 	_read = (event) => {
 		if (this.isaRecommendation(event.typeEnum)) {
-			if (this.isaPatientWithDischarge()) {
+			const patientEntity = new Patient(this.state.patient);
+			const status = patientEntity.getStatusVisitEnum()
+			if (status === StatusVisitEnum.VisitedDischarged || status === StatusVisitEnum.NotVisitedDischarged) {
 				Alert.alert('Atenção', "Paciente já está de alta", [{text:'OK',onPress:()=>{}}],{cancelable: false});
 			} else {
 				this.recommendationSelected(event, this.state.patient);
@@ -151,7 +152,9 @@ export default class Events extends Component {
 
 	_delete = (event) => {
 		if (this.isaRecommendation(event.typeEnum)) {
-			if (this.isaPatientWithDischarge()) {
+			const patientEntity = new Patient(this.state.patient);
+			const status = patientEntity.getStatusVisitEnum()
+			if (status === StatusVisitEnum.VisitedDischarged || status === StatusVisitEnum.NotVisitedDischarged) {
 				Alert.alert('Atenção', "Não é permitido excluir a recomendação selecionada!",[{text: 'OK', onPress: () => {}}],{cancelable: false});
 			} else {
 				const { handleUpdatePatient } = this.props;
