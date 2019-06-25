@@ -121,9 +121,9 @@ export default class Hospital extends Component {
 
 		            let token = parse.token;
 					
-					//AsyncStorage.getItem('hospitalizationList', (err, res) => {
-					//	console.log(JSON.parse(res));
-					//});
+					AsyncStorage.getItem('hospitalizationList', (err, res) => {
+						console.log(JSON.parse(res));
+					});
 					
 					let data = { "hospitalizationList": [] };
 					

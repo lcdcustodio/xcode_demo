@@ -191,9 +191,9 @@ class PatientDetail extends Component {
 				</Content>
 				<Footer>
 					<FooterTab style={{backgroundColor: '#005cd1'}}>
-						<Tab style={{color: '#FFF', backgroundColor: '#005cd1'}} name={ TabEnum.Profile } displayName='Perfil' iconName='user' isSelected={this.isSelected} selectTab={this.selectTab} />
-						<Tab style={{color: '#FFF', backgroundColor: '#005cd1'}} name={ TabEnum.Events } displayName='Timeline' iconName='book' isSelected={this.isSelected} selectTab={this.selectTab} />
-						<Tab style={{color: '#FFF', backgroundColor: '#005cd1'}}  name={ TabEnum.Visits } displayName='Visitas' iconName='calendar' isSelected={this.isSelected} selectTab={this.selectTab} />
+						<Tab name={ TabEnum.Profile } displayName='Perfil' iconName='user' isSelected={this.isSelected} selectTab={this.selectTab} />
+						<Tab name={ TabEnum.Events } displayName='Timeline' iconName='book' isSelected={this.isSelected} selectTab={this.selectTab} />
+						<Tab name={ TabEnum.Visits } displayName='Visitas' iconName='calendar' isSelected={this.isSelected} selectTab={this.selectTab} />
 					</FooterTab>
 				</Footer>
 			</Container>
@@ -215,7 +215,7 @@ const Tab = (props) => (
 			active={props.isSelected(props.name)}
 			onPress={() => props.selectTab(props.name)}>
 		<Icon name={props.iconName} style={{color: '#FFF', fontSize: 20}} />
-		<Text>{props.displayName}</Text>
+		<Text style={{color: 'white'}}>{props.displayName}</Text>
 	</Button>
 );
 
