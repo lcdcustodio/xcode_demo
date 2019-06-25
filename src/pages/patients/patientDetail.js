@@ -26,7 +26,7 @@ class PatientDetail extends Component {
 
 		this.state = {
             hospital: {},
-			patientId: this.props.navigation.getParam('hospitalId'),
+			hospitalId: this.props.navigation.getParam('hospitalId'),
 			patientId: this.props.navigation.getParam('patientId'),
 			patient: this.props.navigation.getParam('patient'),
 			loading: false,
@@ -101,7 +101,7 @@ class PatientDetail extends Component {
 			case TabEnum.Events:
 				return <Events  patient={this.state.patient} handleUpdatePatient={this.handleUpdatePatient} isEditable={this.state.isEditable} navigation={this.props.navigation} />;
 			case TabEnum.Visits:
-				return <Visits  patient={this.state.patient} handleUpdatePatient={this.handleUpdatePatient} isEditable={this.state.isEditable} navigation={this.props.navigation} selectTab={this.selectTab} />;
+				return <Visits  patient={this.state.patient} handleUpdatePatient={this.handleUpdatePatient} isEditable={this.state.isEditable} navigation={this.props.navigation} selectTab={this.selectTab} hospitalId={this.state.hospitalId} />;
 		}
 	}
 

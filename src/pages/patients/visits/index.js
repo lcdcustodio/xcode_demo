@@ -22,6 +22,7 @@ export default class Visitas extends React.Component {
 		this.state = {
 			patient: this.props.patient,
 			modalVisible: false,
+			hospitalId: this.props.hospitalId,
 			isEditable: this.props.isEditable,
 			visit: {
 				uuid: null,
@@ -32,6 +33,11 @@ export default class Visitas extends React.Component {
 			update: false
 		}
 	}
+
+	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
+		const hospitalId = this.props.hospitalId;
+		this.setState({hospitalId});
+	});
 
 	save = _ => {
 		const newVisit = this.state.visit;
@@ -127,7 +133,7 @@ export default class Visitas extends React.Component {
 		const errors = patient.validateFinalization();
 
 		if (!errors.length) {
-			this.props.navigation.navigate('Finalize', { patientID: patient.json.id, handleUpdatePatient: this.props.handleUpdatePatient });
+			this.props.navigation.navigate('Finalize', { patientId: patient.json.id, handleUpdatePatient: this.props.handleUpdatePatient, hospitalId: this.state.hospitalId });
 		} else {
 			let fields = FINALIZE_ERROR_FIELDS[errors[0]];
 			let msg = '';
@@ -163,7 +169,7 @@ export default class Visitas extends React.Component {
 				<Card>
 					<CardItem header bordered style={{ flex: 1, backgroundColor: '#cce5ff', height: 60}}>
 						<Left>
-							<Text style={{ fontSize: 16, fontWeight: 'bold'}}>VISITA</Text>
+							<Text style={{ fontSize: 16, fontWeight: 'bold'}}>Visita</Text>
 						</Left>
 						<Right>
 							<Text>{this.isToday(item.observationDate) ? 'Hoje' : 	moment(item.observationDate).format('DD/MM/YYYY')}</Text>
