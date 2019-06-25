@@ -17,6 +17,7 @@ import _ from 'lodash'
 import { Searchbar, List } from 'react-native-paper';
 import TextValue from '../../components/TextValue';
 import Icon from 'react-native-vector-icons/FontAwesome5';
+import {Icon as IconNativeBase} from 'native-base';
 
 export default class Hospital extends Component {
 
@@ -575,7 +576,7 @@ export default class Hospital extends Component {
                         </View>
                         
                         <View style={{ width: '25%', justifyContent: 'center'}}>
-                            <Text style={{fontSize: 12, color: '#666', fontWeight:'normal'}}> {item.totalPatients} Internados </Text>
+                            <Text style={{fontSize: 14, color: '#666', fontWeight:'normal'}}> {item.totalPatients} Internados </Text>
                         </View>
                         
                         <View style={{ width: '8%', justifyContent: 'center'}}>
@@ -692,13 +693,13 @@ export default class Hospital extends Component {
 
 				<Header style={styles.headerMenu}>
 					<Left style={{flex:1}} >
-						<Icon name="bars" style={{color: '#FFF', fontSize: 30}} onPress={() => this.props.navigation.openDrawer() } />
+						<IconNativeBase ios='ios-menu' android="md-menu" style={{color: '#FFF', fontSize: 40}} onPress={() => this.props.navigation.openDrawer() } />
 					</Left>
 					<Body style={{flex: 7}}>
 						<Title style={{color: 'white'}}>Hospitais</Title>
 					</Body>
 					<Right style={{flex:1}} >
-						<Icon name="sync" style={{color: '#FFF', fontSize: 25}} onPress={() => this.sincronizar(true) } />
+						<IconNativeBase name="sync" style={{color: '#FFF', fontSize: 30}} onPress={() => this.sincronizar(true) } />
 					</Right>
 				</Header>
 

@@ -7,6 +7,8 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import AsyncStorage from '@react-native-community/async-storage';
 import moment from 'moment';
 import Icon from 'react-native-vector-icons/FontAwesome5';
+import {Icon as IconNativeBase} from 'native-base';
+
 
 //Pages
 import Profile from "./profile";
@@ -169,7 +171,7 @@ class PatientDetail extends Component {
 
 				<Header style={ styles.header }>
 					<Left style={{flex:1}} >
-						<Icon name="angle-left" style={{color: '#FFF', fontSize: 40}} onPress={this._goBack} />
+						<IconNativeBase type="FontAwesome" name="angle-left" style={{color: '#FFF', fontSize: 40}} onPress={this._goBack} />
 					</Left>
 					<Body style={{flex: 7}}>
 						<Title style={{color: 'white'}}> Detalhes do Paciente </Title>
@@ -180,9 +182,9 @@ class PatientDetail extends Component {
 				</Content>
 				<Footer>
 					<FooterTab style={{backgroundColor: '#005cd1'}}>
-						<Tab name={ TabEnum.Profile } displayName='Perfil' iconName='user' isSelected={this.isSelected} selectTab={this.selectTab} />
-						<Tab name={ TabEnum.Events } displayName='Timeline' iconName='book' isSelected={this.isSelected} selectTab={this.selectTab} />
-						<Tab name={ TabEnum.Visits } displayName='Visitas' iconName='calendar' isSelected={this.isSelected} selectTab={this.selectTab} />
+						<Tab style={{color: '#FFF', backgroundColor: '#005cd1'}} name={ TabEnum.Profile } displayName='Perfil' iconName='user' isSelected={this.isSelected} selectTab={this.selectTab} />
+						<Tab style={{color: '#FFF', backgroundColor: '#005cd1'}} name={ TabEnum.Events } displayName='Timeline' iconName='book' isSelected={this.isSelected} selectTab={this.selectTab} />
+						<Tab style={{color: '#FFF', backgroundColor: '#005cd1'}}  name={ TabEnum.Visits } displayName='Visitas' iconName='calendar' isSelected={this.isSelected} selectTab={this.selectTab} />
 					</FooterTab>
 				</Footer>
 			</Container>

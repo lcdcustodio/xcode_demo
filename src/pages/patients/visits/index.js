@@ -180,11 +180,11 @@ export default class Visitas extends React.Component {
 
 					<CardItem footer bordered style={{ alignItems: 'center', justifyContent: 'center', height: 40}}>							
 						<View>
-							<Button color='#00dda2' icon="add" onPress={_=>this.showVisit(item)}>Editar</Button>
+							<Button color='#00dda2' style={{color: '#00dda2'}} icon="add" onPress={_=>this.showVisit(item)}>Editar</Button>
 						</View>
 						<View  style={{borderRightColor: '#ffffff', borderWidth: 1, height: '80%', borderBottomColor: '#ffffff', borderTopColor: '#ffffff', borderLeftColor: '#ebeff2'}}></View>
 						<View>
-							<Button color='#f73655' icon="remove" onPress={_=>this.alertToRemove(item)}>Excluir</Button>
+							<Button color='#f73655' style={{color: '#f73655'}} icon="remove" onPress={_=>this.alertToRemove(item)}>Excluir</Button>
 						</View>
 					</CardItem>
 

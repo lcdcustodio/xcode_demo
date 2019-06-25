@@ -6,7 +6,6 @@ import baseStyles from '../../../styles';
 import TimelineEvent, { TimelineEventEnum, TimelineEventEvaluation, timelineEventSorter } from '../../../util/TimelineEvent'
 import moment from 'moment';
 
-
 export default class Events extends Component {
 	
 	constructor(props) {
