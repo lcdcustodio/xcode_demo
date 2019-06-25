@@ -64,7 +64,7 @@ export default class Events extends Component {
 			destination.push(new TimelineEvent(
 				TimelineEventEnum.Recommendation,
 				source,
-				new Date(source.performedAt),
+				moment(source.performedAt).toDate(),
 				'Recomendação para alta',
 				name + (source.specialtyDisplayName ? (': ' + source.specialtyDisplayName) : ''),
 				source.observation,
@@ -77,7 +77,7 @@ export default class Events extends Component {
 	_createExamRequest = (json) => new TimelineEvent(
 		TimelineEventEnum.ExamRequest,
 		json,
-		new Date(json.performedAt),
+		moment(json.performedAt).toDate(),
 		'Exame',
 		json.examDisplayName,
 		(json.examHighCost ? 'Alto Custo' : null),
@@ -88,7 +88,7 @@ export default class Events extends Component {
 	_createFurtherOpinion = (json) => new TimelineEvent(
 		TimelineEventEnum.FurtherOpinion,
 		json,
-		new Date(json.performedAt),
+		moment(json.performedAt).toDate(),
 		'Parecer',
 		json.specialtyDisplayName,
 		null,
@@ -99,7 +99,7 @@ export default class Events extends Component {
 	_createMedicalProcedure = (json) => new TimelineEvent(
 		TimelineEventEnum.MedicalProcedure,
 		json,
-		new Date(json.performedAt),
+		moment(json.performedAt).toDate(),
 		'Procedimento',
 		json.tussDisplayName,
 		null,
@@ -110,7 +110,7 @@ export default class Events extends Component {
 	_createMedicineUsage = (json) => new TimelineEvent(
 		TimelineEventEnum.MedicineUsage,
 		json,
-		new Date(json.performedAt),
+		moment(json.performedAt).toDate(),
 		'Medicamento',
 		json.medicineDisplayName,
 		null,
