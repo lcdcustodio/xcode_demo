@@ -40,14 +40,12 @@ export default class Finalize extends Component {
 	}
 
 	didFocus = this.props.navigation.addListener('didFocus', async (payload) => {
-		let patientId = payload.state.params.patientID;
-		let patientString = await AsyncStorage.getItem(`${patientId}`);
-		let patientStorage = JSON.parse(patientString);
+		let hospitalId = payload.state.params.hospitalId;
+		let patientId = payload.state.params.patientId;
+		await this.getPatient(patientId, hospitalId);
+		let patientStorage = this.state.patient;
 		let morbidityComorbityStorage = await AsyncStorage.getItem('morbidityComorbityList');
 		let morbidityComorbityList = JSON.parse(morbidityComorbityStorage);
-		
-		console.log("patientStorage", patientStorage)
-		console.log("morbidityComorbityList", morbidityComorbityList)
 
 		if (patientStorage) {
 			//patientStorage.patientBornDate = '2010/04/13'
@@ -61,7 +59,11 @@ export default class Finalize extends Component {
 			patientStorage.typePatient = this.getTypePatient(patientStorage.patientBornDate);
 			patientStorage.brittlenessIndex = this.calculateBrittlenessIndex(patientStorage);
 			patientStorage.labelAccordionMorbidityComorbity = this.getLabelAccordionMorbidityComorbity(patientStorage);
-			
+			patientStorage.exitCID = null;
+
+			await this.setClinicalIndication(patientStorage);
+			await this.setMedicineReintegration(patientStorage);
+			await this.setWelcomeHomeIndication(patientStorage);
 
 			this.setState({
 				...this.state,
@@ -72,38 +74,41 @@ export default class Finalize extends Component {
 		this.handleUpdatePatient = payload.action.params.handleUpdatePatient;
 	});
 
-	save = () => {
-		const handleUpdatePatient = (p1, p2) => console.log('handleUpdatePatient:', p1, p2);
+	getPatient = async (patientID, hospitalId) => {
+		let self = this;
+		let hospitalList = JSON.parse(await AsyncStorage.getItem('hospitalList'));
+		
+		hospitalList.map(hospital => {
+			if (hospital.id === hospitalId) {
+				hospital.hospitalizationList.map(patient => {
+					if (patient.id === patientID) {
+						this.setState({patient});
+					}
+				});
+			}
+		});
+	}
+
+	save = async () => {
 		const { patient } = this.state;
 		if (!patient.exitCID) {
 			Alert.alert('Atenção', "É necessário selecionar um CID de Saída.", [{text:'OK',onPress:()=>{}}],{cancelable:false});
 			return;
 		}
+
 		if (patient.recommendationClinicalIndication && !patient.specialty) {
 			Alert.alert('Atenção', "É necessário selecionar uma especialidade.", [{text:'OK',onPress:()=>{}}],{cancelable:false});
 			return;
 		}
-		const welcomeHomeIndication = patient.welcomeHomeIndication ? patient.welcomeHomeIndication : {};
-		welcomeHomeIndication.indicated = !!patient.recommendationWelcomeHomeIndication;
-		const medicineReintegration = patient.medicineReintegration ? patient.medicineReintegration : {};
-		medicineReintegration.indicated = !!patient.recommendationMedicineReintegration;
-		const clinicalIndication = patient.clinicalIndication ? patient.clinicalIndication : {};
-		clinicalIndication.indicated = !!patient.recommendationClinicalIndication;
-		if (clinicalIndication.indicated) {
-			clinicalIndication.specialtyId = patient.specialty.id;
-        	clinicalIndication.specialtyDisplayName = patient.specialty.name;
-		}
-		handleUpdatePatient('diagnosticHypothesisList', [patient.exitCID]);
-		handleUpdatePatient('complementaryInfoHospitalizationAPI', patient.complementaryInfoHospitalizationAPI);
-		handleUpdatePatient('morbidityComorbityList', patient.morbidityComorbityList);
-		handleUpdatePatient('welcomeHomeIndication', welcomeHomeIndication);
-		handleUpdatePatient('medicineReintegration', medicineReintegration);
-		handleUpdatePatient('clinicalIndication', clinicalIndication);
-	}
 
-	updatePatientOnStorage = () => {
-		console.log('<<< updatePatientOnStorage >>>', `${this.state.patient.id}`, this.state.patient);
-		AsyncStorage.setItem(`${this.state.patient.id}`, JSON.stringify(this.state.patient));
+		console.log("chegou")
+		await this.handleUpdatePatient('diagnosticHypothesisList', [patient.exitCID]);
+		await this.handleUpdatePatient('complementaryInfoHospitalizationAPI', patient.complementaryInfoHospitalizationAPI);
+		await this.handleUpdatePatient('morbidityComorbityList', patient.morbidityComorbityList);
+		await this.handleUpdatePatient('welcomeHomeIndication', patient.welcomeHomeIndication);
+		await this.handleUpdatePatient('medicineReintegration', patient.medicineReintegration);
+		await this.handleUpdatePatient('clinicalIndication', patient.clinicalIndication);
+		console.log("fechou")
 	}
 
 	_goBack = () => {
@@ -135,25 +140,7 @@ export default class Finalize extends Component {
 			...this.state,
 			patient
 		});
-		this.updatePatientOnStorage();
 		this.toggleModal('modalExitCID');
-	}
-
-	handleSpecialty = (specialty) => {
-		let newSpecialty = {
-			id: specialty.item.id,
-			name: specialty.item.name,
-			normalizedName: specialty.item.normalizedName,
-		}
-
-		let patient = this.state.patient;
-		patient.specialty = newSpecialty;
-		this.setState({
-			...this.state,
-			patient
-		});
-		
-		this.toggleModal('modalSpecialty');
 	}
 
 	handleComplementaryInfoHospitalizationAPI = (attribute, value) => {
@@ -188,13 +175,57 @@ export default class Finalize extends Component {
 		});
 	}
 
-	handlePatient(attribute, value) {
+	handleWelcomeHome(status) {
 		this.setState({
 			patient: {
 				...this.state.patient,
-				[attribute]: value
+				welcomeHomeIndication: {
+					...this.state.patient.welcomeHomeIndication,
+					indicated: status
+				}
 			}
 		});
+	}
+
+	handleMedicineReintegration(status) {
+		this.setState({
+			patient: {
+				...this.state.patient,
+				medicineReintegration: {
+					...this.state.patient.medicineReintegration,
+					indicated: status
+				}
+			}
+		});
+	}
+
+	handleClinicalIndicationStatus(status) {
+		this.setState({
+			patient: {
+				...this.state.patient,
+				clinicalIndication: {
+					...this.state.patient.clinicalIndication,
+					indicated: status,
+					specialtyId: status ? this.state.patient.clinicalIndication.specialtyId : null,
+					specialtyDisplayName: status ? this.state.patient.clinicalIndication.specialtyDisplayName : null
+				}
+			}
+		});
+	}
+
+	handleClinicalIndicationSpecialty(specialty) {
+		let clinicalIndication = this.state.patient.clinicalIndication;
+		clinicalIndication.specialtyId = specialty.item.id;
+		clinicalIndication.specialtyDisplayName = specialty.item.name;
+
+		this.setState({
+			patient: {
+				...this.state.patient,
+				clinicalIndication
+			}
+		});
+		
+		this.toggleModal('modalSpecialty');
 	}
 
 	isHospitalizationMoreFiveDays(patient) {
@@ -339,6 +370,10 @@ export default class Finalize extends Component {
 		if(monthsAgo === 12) {
 			return 	'';
 		}
+
+		if(monthsAgo === 1) {
+			return 	`em ${monthsAgo} mes`;
+		}
 		
 		return 	`em ${monthsAgo} meses`;
 	}
@@ -375,6 +410,70 @@ export default class Finalize extends Component {
 		});
 
 		return result;
+	}
+
+	async setClinicalIndication(patient) {
+		if (patient.clinicalIndication) {
+			patient.clinicalIndication = {
+				performedAt: patient.exitDate ? patient.exitDate : moment(),
+				uuid: patient.clinicalIndication.uuid ? patient.clinicalIndication.uuid : uuidv4(),
+				indicated: patient.clinicalIndication.indicated ? patient.clinicalIndication.indicated : false,
+				costEvaluation: patient.clinicalIndication.costEvaluation ? patient.clinicalIndication.costEvaluation : null,
+				qualityEvaluation: patient.clinicalIndication.qualityEvaluation ? patient.clinicalIndication.qualityEvaluation : null,
+				specialtyId: patient.clinicalIndication.specialtyId ? patient.clinicalIndication.specialtyId : null,
+				specialtyDisplayName: patient.clinicalIndication.specialtyDisplayName ? patient.clinicalIndication.specialtyDisplayName : null
+			};
+		} else {
+			patient.clinicalIndication = {
+				performedAt: moment(),
+				uuid: uuidv4(),
+				indicated: false,
+				costEvaluation: null,
+				qualityEvaluation: null,
+				specialtyId: null,
+				specialtyDisplayName: null
+			};
+		}
+	}
+
+	async setMedicineReintegration(patient) {
+		if (patient.medicineReintegration) {
+			patient.medicineReintegration = {
+				performedAt: patient.exitDate ? patient.exitDate : moment(),
+				uuid: patient.medicineReintegration.uuid ? patient.medicineReintegration.uuid : uuidv4(),
+				indicated: patient.medicineReintegration.indicated ? patient.medicineReintegration.indicated : false,
+				costEvaluation: patient.medicineReintegration.costEvaluation ? patient.medicineReintegration.costEvaluation : null,
+				qualityEvaluation: patient.medicineReintegration.qualityEvaluation ? patient.medicineReintegration.qualityEvaluation : null,
+			};
+		} else {
+			patient.medicineReintegration = {
+				performedAt: moment(),
+				uuid: uuidv4(),
+				indicated: false,
+				costEvaluation: null,
+				qualityEvaluation: null,
+			};
+		}
+	}
+
+	async setWelcomeHomeIndication(patient) {
+		if (patient.welcomeHomeIndication) {
+			patient.welcomeHomeIndication = {
+				performedAt: patient.exitDate ? patient.exitDate : moment(),
+				uuid: patient.welcomeHomeIndication.uuid ? patient.welcomeHomeIndication.uuid : uuidv4(),
+				indicated: patient.welcomeHomeIndication.indicated ? patient.welcomeHomeIndication.indicated : false,
+				costEvaluation: patient.welcomeHomeIndication.costEvaluation ? patient.welcomeHomeIndication.costEvaluation : null,
+				qualityEvaluation: patient.welcomeHomeIndication.qualityEvaluation ? patient.welcomeHomeIndication.qualityEvaluation : null,
+			};
+		} else {
+			patient.welcomeHomeIndication = {
+				performedAt: moment(),
+				uuid: uuidv4(),
+				indicated: false,
+				costEvaluation: null,
+				qualityEvaluation: null,
+			};
+		}
 	}
 
 	renderAccordionComplementaryInfoHospitalizationAPI() {
@@ -459,10 +558,14 @@ export default class Finalize extends Component {
 					<Body>
 						<Text style={{fontWeight: 'bold'}}>Quantidade de internação nos últimos 12 meses {"\n"} </Text>
 						<View style={{flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
-							<TextInput mode='flat' style={{backgroundColor: 'white', width: '65%', height: 40, marginBottom: 20 }} 
-								keyboardType="numeric"
+							<Text>
+								{this.state.patient.complementaryInfoHospitalizationAPI.hospitalizationsInTwelveMonths ? this.state.patient.complementaryInfoHospitalizationAPI.hospitalizationsInTwelveMonths : 0}
+							</Text>
+
+							{/* <TextInput mode='flat' style={{backgroundColor: 'white', width: '65%', height: 40, marginBottom: 20 }} 
+								keyboardType="numeric" editable={false}
 								value={this.state.patient.complementaryInfoHospitalizationAPI.hospitalizationsInTwelveMonths}
-								onChangeText={text => {this.handleComplementaryInfoHospitalizationAPI('hospitalizationsInTwelveMonths', text)}} />
+								onChangeText={text => {this.handleComplementaryInfoHospitalizationAPI('hospitalizationsInTwelveMonths', text)}} /> */}
 						</View>
 					</Body>
 				</ListItem>
@@ -515,8 +618,8 @@ export default class Finalize extends Component {
 					<Body>
 						<View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
 							<Text style={{fontWeight: 'bold', height: 20, width: '80%' ,borderWidth: 0, borderColor: '#000000' }}>Requisitado pelo médico {"\n"} </Text>
-							<Switch value={this.state.patient.recommendationWelcomeHomeIndication}
-								onValueChange={() => {this.handlePatient('recommendationWelcomeHomeIndication', !this.state.patient.recommendationWelcomeHomeIndication)}} />
+							<Switch value={this.state.patient.welcomeHomeIndication ? this.state.patient.welcomeHomeIndication.indicated : false}
+								onValueChange={(status) => {this.handleWelcomeHome(status)}} />
 						</View>
 					</Body>
 				</ListItem>
@@ -531,15 +634,15 @@ export default class Finalize extends Component {
 					<Body>
 						<View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
 							<Text style={{fontWeight: 'bold', height: 20, width: '80%' ,borderWidth: 0, borderColor: '#000000' }}>Requisitado pelo médico {"\n"} </Text>
-							<Switch value={this.state.patient.recommendationMedicineReintegration}
-								onValueChange={() => {this.handlePatient('recommendationMedicineReintegration', !this.state.patient.recommendationMedicineReintegration)}} />
+							<Switch value={this.state.patient.medicineReintegration ? this.state.patient.medicineReintegration.indicated : false}
+								onValueChange={(status) => {this.handleMedicineReintegration(status)}} />
 						</View>
 					</Body>
 				</ListItem>
 			</View>
 		);
 	}
-
+	
 	renderClinicalIndication() {
 		return (
 			<View style={{marginLeft: '-22%'}}>
@@ -547,8 +650,8 @@ export default class Finalize extends Component {
 					<Body>
 						<View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
 							<Text style={{fontWeight: 'bold', height: 20, width: '80%' ,borderWidth: 0, borderColor: '#000000' }}>Requisitado pelo médico {"\n"} </Text>
-							<Switch value={this.state.patient.recommendationClinicalIndication}
-								onValueChange={() => {this.handlePatient('recommendationClinicalIndication', !this.state.patient.recommendationClinicalIndication)}} />
+							<Switch value={this.state.patient.clinicalIndication ? this.state.patient.clinicalIndication.indicated : false}
+								onValueChange={(status) => {this.handleClinicalIndicationStatus(status)}} />
 						</View>
 					</Body>
 				</ListItem>
@@ -559,7 +662,7 @@ export default class Finalize extends Component {
 						</View>
 						<View style={{flexDirection: 'row', justifyContent: 'space-around'}} >
 							<Text style={{fontWeight: 'bold', height: 20, width: '80%' ,borderWidth: 0, borderColor: '#000000', color:'#0000FF' }} onPress={ () => {this.toggleModal('modalSpecialty')} }>
-								{this.state.patient.specialty ? this.state.patient.specialty.name : 'ESCOLHER'}
+								{this.state.patient.clinicalIndication && this.state.patient.clinicalIndication.specialtyDisplayName ? this.state.patient.clinicalIndication.specialtyDisplayName : 'ESCOLHER'}
 								{"\n"} 
 							</Text>
 						</View>
@@ -577,7 +680,7 @@ export default class Finalize extends Component {
 			<Container>
 				<RdHeader title={ patient.death ? 'Óbito' : 'Alta' } goBack={ this._goBack } style={ styles.header }/>
 				<Modal title="CID Primário" visible={this.state.modalExitCID} list={data.cid} onSelect={this.handleExitCID} close={() => {this.toggleModal('modalExitCID')} } />
-				<Modal title="Especialidade" visible={this.state.modalSpecialty} list={data.specialty} onSelect={this.handleSpecialty} close={() => {this.toggleModal('modalSpecialty')} } />
+				<Modal title="Especialidade" visible={this.state.modalSpecialty} list={data.specialty} onSelect={ (item) => { this.handleClinicalIndicationSpecialty(item) }} close={() => {this.toggleModal('modalSpecialty')} } />
 
 				<Content padder style={ styles.body }>
 					<Card elevation={10} style={ styles.card }>
