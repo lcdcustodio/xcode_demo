@@ -207,8 +207,6 @@ export default class Visitas extends React.Component {
 		
 		const patient = new Patient(this.state.patient);
 
-		console.log(patient);
-
 		if (this.state.isEditable) {
 
 			switch (patient.getHospitalizationStatusEnum()) {

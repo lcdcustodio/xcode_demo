@@ -268,7 +268,7 @@ export default class Patients extends Component {
         
              <TouchableOpacity
                 onPress={() => {
-                    this.props.navigation.navigate("PatientDetail", { hospitalId: this.state.hospital.id, patientId: item.id, patient: item, setprofile: true});
+                    this.props.navigation.navigate("PatientDetail", { hospitalId: this.state.hospital.id, patientId: item.id, patient: item});
                 }}>
 
             <View style={{ paddingTop: 10, paddingLeft: 10, paddingRight: 10, backgroundColor: baseStyles.container.backgroundColor}}>

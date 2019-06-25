@@ -29,6 +29,7 @@ class PatientDetail extends Component {
 			patientId: this.props.navigation.getParam('patientId'),
 			patient: this.props.navigation.getParam('patient'),
 			loading: false,
+			setprofile: null,
             timerTextColor: "#005cd1",
             timerBackgroundColor: "#fff",
 			selectedTab: TabEnum.Profile,
@@ -113,11 +114,10 @@ class PatientDetail extends Component {
 
 		const hospitalId = this.props.navigation.getParam('hospitalId');
 
-		const setprofile = this.props.navigation.getParam('setprofile');
-
-		console.log(setprofile);
-
-		console.log(patientId, hospitalId);
+		if (this.state.setprofile != patientId) {
+			this.setState({ selectedTab: 'profile' });
+			this.state.setprofile =  patientId;
+		}
 
         AsyncStorage.getItem('hospitalList', (err, res) => {
 

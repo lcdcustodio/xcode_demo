@@ -54,7 +54,7 @@ export default class Hospital extends Component {
 			this.setState({isConnected: state.isConnected});
 
 			this.setState({hospitals: null});
-			
+
 			this.sincronizar();
 
 		});
@@ -120,7 +120,11 @@ export default class Hospital extends Component {
 		            }
 
 		            let token = parse.token;
-				
+					
+					//AsyncStorage.getItem('hospitalizationList', (err, res) => {
+					//	console.log(JSON.parse(res));
+					//});
+					
 					let data = { "hospitalizationList": [] };
 					
 					api.post('/api/v2.0/sync', data, 

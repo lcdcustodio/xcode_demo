@@ -42,7 +42,6 @@ export default class Report extends Component {
 			hospital_report: [],
 			patientQuery: null
 		}
-
 	}
 
 	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
@@ -119,7 +118,11 @@ export default class Report extends Component {
 					console.log(Session.current.user);
 
 		            let token = parse.token;
-				
+					
+					//AsyncStorage.getItem('hospitalizationList', (err, res) => {
+					//	console.log(JSON.parse(res));
+					//});
+
 					let data = { "hospitalizationList": [] };
 					
 					api.post('/api/v2.0/sync', data, 
@@ -515,7 +518,7 @@ export default class Report extends Component {
 		if (!this.state.hospital_report.hospital_report) {
 			return null;
 		}
-		
+
 		return (
 
 			<Container>
