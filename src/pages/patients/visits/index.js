@@ -163,7 +163,7 @@ export default class Visitas extends React.Component {
 				<Card>
 					<CardItem header bordered style={{ flex: 1, backgroundColor: '#cce5ff', height: 60}}>
 						<Left>
-							<Text style={{ fontSize: 16, fontWeight: 'bold'}}>VISITA</Text>
+							<Text style={{ fontSize: 16, fontWeight: 'bold'}}>Visita</Text>
 						</Left>
 						<Right>
 							<Text>{this.isToday(item.observationDate) ? 'Hoje' : 	moment(item.observationDate).format('DD/MM/YYYY')}</Text>

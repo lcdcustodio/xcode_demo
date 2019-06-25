@@ -319,11 +319,11 @@ export default class Profile extends Component {
 								<RadioButton.Group onValueChange={ value => { this.handleHospitalizationType(value) } } value={this.props.patient.hospitalizationType}>
 									<View style={{flexDirection: 'row', alignItems: 'center'}}>
 										<RadioButton value="CLINICAL" />
-										<Text>Clínico</Text>
+										<Text onPress={ () => { this.handleHospitalizationType('CLINICAL') } }>Clínico</Text>
 									</View>
 									<View style={{flexDirection: 'row', alignItems: 'center'}}>
 										<RadioButton value="SURGICAL" />
-										<Text>Cirúrgico</Text>
+										<Text onPress={ () => { this.handleHospitalizationType('SURGICAL') } }>Cirúrgico</Text>
 									</View>
 								</RadioButton.Group>
 							</Dialog.Content>
