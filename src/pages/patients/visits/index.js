@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dimensions, View, FlatList, TextInput, Alert } from 'react-native';
+import { Dimensions, View, FlatList, Alert, ScrollView, KeyboardAvoidingView } from 'react-native';
 import baseStyles from '../../../styles'
 import styles from './style'
 import moment from 'moment';
@@ -11,7 +11,7 @@ import { TrackingEndModeEnum } from '../../../model/Tracking';
 import TabEnum from '../PatientDetailTabEnum';
 
 import { Card, CardItem, Text, Body, Right, Left } from "native-base";
-import { Button, Switch, Divider, Portal, Dialog } from 'react-native-paper';
+import { Button, Switch, Divider, Portal, Dialog, TextInput, List } from 'react-native-paper';
 
 import Icon from 'react-native-vector-icons/FontAwesome5';
 
@@ -56,7 +56,14 @@ export default class Visitas extends React.Component {
 			}
 			
 			if(!hasErrors){
-				this.state.patient.observationList.push(newVisit)
+				let newObservationList = this.state.patient.observationList.push(newVisit);
+				this.setState({
+					patient: {
+						...this.state.patient,
+						observationList: newObservationList
+					}
+				});
+
 				this.props.handleUpdatePatient("observationList", this.state.patient.observationList)
 				this.toggleModal()
 			} else {
@@ -111,14 +118,14 @@ export default class Visitas extends React.Component {
 
  	appoint = _ => {
 		 this.setState({ 
-		 modalVisible: true,
-		 update: false, 
-		 visit: {
-			uuid: uuid(),
-			observation: '',
-			alert: false,
-			observationDate: moment().format(),
-			}
+			modalVisible: true,
+			update: false, 
+			visit: {
+				uuid: uuid(),
+				observation: '',
+				alert: false,
+				observationDate: moment().format(),
+				}
 		})
 	}
 
@@ -238,30 +245,31 @@ export default class Visitas extends React.Component {
 	
 	renderModal() {
 		return(
-			<Portal>
-				<Dialog visible={this.state.modalVisible} onDismiss={ () => { this.toggleModal() } }>
+			<Portal >
+					<Dialog style={{marginBottom: 300}} visible={this.state.modalVisible} onDismiss={ () => { this.toggleModal() } }>
 					<Dialog.Title>Visita</Dialog.Title>
 					<Dialog.Content>
-						<View style={styles.alertInformation}>
-							<View style={{order: 1 , width:'10%', paddingLeft: 2}} >
-								<Icon name="exclamation" style={{color: 'red', fontSize: 25}} />
+						<View style={{backgroundColor: 'white'}}>
+							<View style={styles.alertInformation}>
+								<View style={{order: 1 , width:'10%', paddingLeft: 2}} >
+									<Icon name="exclamation" style={{color: 'red', fontSize: 25}} />
+								</View>
+								<View style={{order: 2, width:'70%'}}>
+									<Text style={{fontSize: 19, fontWeight: "bold"}}>Alerta</Text>
+								</View>
+								<View style={{order: 3, width:'20%', paddingLeft: 2}}>
+									<Switch value={this.state.visit.alert} onValueChange={this.toggleSwitch} />
+								</View>	
 							</View>
-							<View style={{order: 2, width:'70%'}}>
-								<Text style={{fontSize: 19, fontWeight: "bold"}}>Alerta</Text>
-							</View>
-							<View style={{order: 3, width:'20%', paddingLeft: 2}}>
-								<Switch value={this.state.visit.alert} onValueChange={this.toggleSwitch} />
+							<View>
+								<TextInput style={ { height: 100, textAlign: 'center', backgroundColor: 'white' } } multiline={true} numberOfLines={2} label='Observação' value={this.state.visit.observation} onChangeText = {observation => this.addObservation(observation)} />
 							</View>	
 						</View>
-						<View style={styles.observation}>
-							<Text style={styles.textObservation}>Observação</Text>
-							<TextInput multiline={true}	 numberOfLines={3} style={styles.textArea} value={this.state.visit.observation} onChangeText = {observation => this.addObservation(observation)} />
-						</View>	
 					</Dialog.Content>
 
-					<Divider />
+					<Divider/>
 					
-					<Dialog.Actions>
+					<Dialog.Actions >
 						<Button onPress={ () => { this.toggleModal() } }>Fechar</Button>
 						<Button onPress={ () => { this.save() } }>Salvar</Button>
 					</Dialog.Actions>
@@ -278,12 +286,19 @@ export default class Visitas extends React.Component {
 		return (
 
 			<View style={{ ...baseStyles.container, height: Math.round(Dimensions.get('window').height - 110) }}>	
-				{ this.renderModal() }
-				<FlatList
-					data={listOfOrderedObservationDate}
-					keyExtractor={item => item.uuid}
-					extraData={this.props}
-					renderItem={this.renderItem}/>
+
+					{ this.renderModal() }
+			
+				<ScrollView style={{marginTop: 20}} contentContainerStyle={{ paddingHorizontal: 10 }}>
+					<List.Section>
+					<FlatList
+						data={listOfOrderedObservationDate}
+						keyExtractor={item => item.uuid}
+						extraData={this.props}
+						renderItem={this.renderItem}/>
+					</List.Section>
+				</ScrollView>
+		
 				{ this.showButton() }
 			</View>
 		);

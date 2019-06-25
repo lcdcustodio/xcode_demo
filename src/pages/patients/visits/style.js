@@ -77,12 +77,7 @@ export default StyleSheet.create({
 		backgroundColor: 'rgba(0, 0, 0, 0.3)',
 		flexDirection: "row"
  	},
- 	textArea: {
-		width: "100%",
-		borderColor: '#ccc',
-		borderWidth: 1,
-		padding: 0
-	},
+ 
 	modal : {
 		backgroundColor: '#F8F8FF', 
 		borderRadius: 4, 
@@ -92,11 +87,9 @@ export default StyleSheet.create({
 		marginTop: '25%', 
 		padding: 1
 	},
-	observation: {
-		flexDirection: "row", 
-		width: '100%', 
-		flexWrap: 'wrap', 
-		paddingTop: '5%'
+	textArea: {
+		flex: 1,
+		backgroundColor: 'red',
 	},
 	textVisit: {
 		fontWeight: "bold", 
@@ -105,14 +98,16 @@ export default StyleSheet.create({
 	},
 	alertInformation : {
 		flexDirection: "row", 
-		width: '100%', 
 		flexWrap: 'wrap', 
-		alignItems:'center'
+		width: '100%', 
+		alignItems:'center',
+		justifyContent: 'center'
+
 	},
 	textObservation : {
 		fontWeight: "bold", 
 		width: '100%',
-		 fontSize: 17
+		fontSize: 17
 	},
 	close : {
 		color: 'white', 
@@ -134,5 +129,8 @@ export default StyleSheet.create({
 		marginTop: 1, 
 		marginBottom: 1, 
 		marginRight: '12%'
+	},
+	keyborderView: {
+		flex: 1
 	}
 });
