@@ -44,8 +44,10 @@ export default class Profile extends Component {
 	}
 
 	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
-		this.setState({isEditable: this.props.navigation.getParam('isEditable')});
-		this.setState({patient: this.props.navigation.getParam('patient')});
+		this.setState({
+			isEditable: this.props.isEditable,
+			patient: this.props.navigation.getParam('patient')
+		});
 	});
 
 	toggleModal = (modalName) => {
