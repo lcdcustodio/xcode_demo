@@ -25,7 +25,7 @@ class PatientDetail extends Component {
 
 		this.state = {
             hospital: {},
-			patientId: this.props.navigation.getParam('hospitalId'),
+			hospitalId: this.props.navigation.getParam('hospitalId'),
 			patientId: this.props.navigation.getParam('patientId'),
 			patient: this.props.navigation.getParam('patient'),
 			loading: false,
