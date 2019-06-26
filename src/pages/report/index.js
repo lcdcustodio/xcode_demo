@@ -15,6 +15,7 @@ import _ from 'lodash'
 import { Searchbar, List } from 'react-native-paper';
 import TextValue from '../../components/TextValue';
 import Icon from 'react-native-vector-icons/FontAwesome5';
+import {Icon as IconNativeBase} from 'native-base';
 import { DataTable } from 'react-native-paper';
 import { RdHeader } from '../../components/rededor-base';
 import type { ViewStyleProp } from 'react-native/Libraries/StyleSheet/StyleSheet';
@@ -117,130 +118,150 @@ export default class Report extends Component {
 
 					console.log(Session.current.user);
 
-		            let token = parse.token;
+		            this.state.token = parse.token;
 					
-					//AsyncStorage.getItem('hospitalizationList', (err, res) => {
-					//	console.log(JSON.parse(res));
-					//});
+					AsyncStorage.getItem('hospitalizationList', (err, res) => {
+						
+						let obj = [];
 
-					let data = { "hospitalizationList": [] };
-					
-					api.post('/api/v2.0/sync', data, 
-					{
-						headers: {
-							"Content-Type": "application/json",
-						  	"Accept": "application/json",
-						  	"Token": token, 
+						let hospitalizationList = JSON.parse(res);
+
+						for (var i = 0; i < hospitalizationList.length; i++) {
+							
+							console.log(hospitalizationList[i]);
+
+							let array = {};
+							array['id'] = hospitalizationList[i].idPatient;
+							array[hospitalizationList[i].key] = hospitalizationList[i].value;
+
+							console.log(array);
+
+							obj.push(array);
 						}
 
-					}).then(response => {
+						let data = { "hospitalizationList": obj };
 
-						this.setRequireSyncTimer(null);
-
-						this.setState({loading: false});
-
-						if(response.status === 200) {
-
-							AsyncStorage.setItem('hospitalizationList', JSON.stringify([]));
-							AsyncStorage.setItem('morbidityComorbityList', JSON.stringify(response.data.content.morbidityComorbityList));
-
-							let hospitalListOrdered = _.orderBy(response.data.content.hospitalList, ['name'], ['asc']);
-							
-							let user = Session.current.user;
-
-							let listHospital = []
-							
-							if (user.profile == 'CONSULTANT') {
-
-								hospitalListOrdered.forEach( hospital => {
-									if(this.isTheSameHospital(hospital, parse)){
-										listHospital.push(hospital)
-									}
-								});
-							
-							} 
-							else
-							{
-								listHospital = hospitalListOrdered;
+						console.log(data);
+					
+						api.post('/api/v2.0/sync', data, 
+						{
+							headers: {
+								"Content-Type": "application/json",
+							  	"Accept": "application/json",
+							  	"Token": this.state.token, 
 							}
 
-							this.report(listHospital);
-						
-						} else {
+						}).then(response => {
 
-							Alert.alert(
-								'Erro ao carregar informações',
-								'Desculpe, recebemos um erro inesperado do servidor, por favor, faça login e tente novamente! ',
-								[
-									{
-										text: 'OK', onPress: () => {
-											this.props.navigation.navigate("SignIn");
-										}
-									},
-								],
-								{
-									cancelable: false
-								},
-							);
+							this.setRequireSyncTimer(null);
+
+							this.setState({loading: false});
 
 							console.log(response);
-						}
-					
-					}).catch(error => {
+							
+							if(response.status === 200) {
 
-						this.setState({loading: false});
+								AsyncStorage.setItem('hospitalizationList', JSON.stringify([]));
+								AsyncStorage.setItem('morbidityComorbityList', JSON.stringify(response.data.content.morbidityComorbityList));
 
-						this.setState({errorSync: (this.state.errorSync + 1) });
+								let hospitalListOrdered = _.orderBy(response.data.content.hospitalList, ['name'], ['asc']);
+								
+								let user = Session.current.user;
 
-						if (this.state.errorSync <= 3) {
+								let listHospital = []
+								
+								if (user.profile == 'CONSULTANT') {
 
-							AsyncStorage.getItem('auth', (err, auth) => {
-
-								console.log(auth);
-						            
-					            data = JSON.parse(auth);
-
-					            data = qs.stringify(data, { encode: false });
-
-								api.post('/api/login',
-									data
-								)
-								.then(response => {
-
-									let content = response.data.content;
-																	
-									if(response.data.success) {
-										AsyncStorage.setItem('userData', JSON.stringify(content), () => {
-											this.sincronizar(true);
-										});
-									}
-
-									console.log(response);
-								});
-					        });
-						}
-						else
-						{
-							Alert.alert(
-								'Erro ao carregar informações',
-								'Desculpe, recebemos um erro inesperado do servidor, por favor, faça login e tente novamente! ',
-								[
-									{
-										text: 'OK', onPress: () => {
-											this.props.navigation.navigate("SignIn");
+									hospitalListOrdered.forEach( hospital => {
+										if(this.isTheSameHospital(hospital, parse)){
+											listHospital.push(hospital)
 										}
-									},
-								],
+									});
+								
+								} 
+								else
 								{
-									cancelable: false
-								},
-							);
-						}
+									listHospital = hospitalListOrdered;
+								}
 
-						console.log(error);
+								this.report(listHospital);
+							
+							} else {
+
+								Alert.alert(
+									'Erro ao carregar informações',
+									'Desculpe, recebemos um erro inesperado do servidor, por favor, faça login e tente novamente! ',
+									[
+										{
+											text: 'OK', onPress: () => {
+												this.props.navigation.navigate("SignIn");
+											}
+										},
+									],
+									{
+										cancelable: false
+									},
+								);
+
+								console.log(response);
+							}
+						
+						}).catch(error => {
+
+							this.setState({loading: false});
+
+							this.setState({errorSync: (this.state.errorSync + 1) });
+
+							if (this.state.errorSync <= 3) {
+
+								AsyncStorage.getItem('auth', (err, auth) => {
+
+									console.log(auth);
+							            
+						            data = JSON.parse(auth);
+
+						            data = qs.stringify(data, { encode: false });
+
+									api.post('/api/login',
+										data
+									)
+									.then(response => {
+
+										let content = response.data.content;
+																		
+										if(response.data.success) {
+											AsyncStorage.setItem('userData', JSON.stringify(content), () => {
+												this.sincronizar(true);
+											});
+										}
+
+										console.log(response);
+									});
+						        });
+							}
+							else
+							{
+								Alert.alert(
+									'Erro ao carregar informações',
+									'Desculpe, recebemos um erro inesperado do servidor, por favor, faça login e tente novamente! ',
+									[
+										{
+											text: 'OK', onPress: () => {
+												this.props.navigation.navigate("SignIn");
+											}
+										},
+									],
+									{
+										cancelable: false
+									},
+								);
+							}
+
+							console.log(error);
+
+						});
 
 					});
-
 				}
 			});
 
@@ -530,13 +551,13 @@ export default class Report extends Component {
 
 				<Header style={{backgroundColor: "#005cd1"}}>
 					<Left style={{flex:1}} >
-						<Icon name="bars" style={{color: '#FFF', fontSize: 30}} onPress={() => this.props.navigation.openDrawer() } />
+						<IconNativeBase ios='ios-menu' android="md-menu" style={{color: '#FFF', fontSize: 40}} onPress={() => this.props.navigation.openDrawer() } />
 					</Left>
 					<Body style={{flex: 7}}>
 						<Title style={{color: 'white'}}> Relatório Consolidado</Title>
 					</Body>
 					<Right style={{flex:1}} >
-						<Icon name="sync" style={{color: '#FFF', fontSize: 25}} onPress={() => this.sincronizar(true) } />
+						<IconNativeBase name="sync" style={{color: '#FFF', fontSize: 30}} onPress={() => this.sincronizar(true) } />
 					</Right>
 				</Header>
 
