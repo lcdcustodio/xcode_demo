@@ -5,6 +5,7 @@ import { Button} from 'react-native-paper';
 import baseStyles from '../../../styles';
 import TimelineEvent, { TimelineEventEnum, TimelineEventEvaluation, timelineEventSorter } from '../../../util/TimelineEvent'
 import moment from 'moment';
+import { RdIf } from '../../../components/rededor-base'
 import Patient, { StatusVisitEnum } from '../../../model/Patient'
 
 export default class Events extends Component {
@@ -30,9 +31,11 @@ export default class Events extends Component {
 	render() {
 		return (
 			<View style={{...baseStyles.container, ...styles.container}}>
-				<View style={{marginTop:12, marginBottom: 0, marginLeft: 10, marginRight: 10}}>
-					<Button mode="contained" onPress={this._create}> APONTAR </Button>
-				</View>
+				<RdIf condition={this.state.isEditable}>
+					<View style={{marginTop:12, marginBottom: 0, marginLeft: 10, marginRight: 10}}>
+						<Button mode="contained" onPress={this._create}> APONTAR </Button>
+					</View>
+				</RdIf>
 				<FlatList 
 					contentContainerStyle={baseStyles.container}
 					data={this.state.eventos}
@@ -204,7 +207,7 @@ export default class Events extends Component {
 					}
 				</Body>
 			</CardItem>
-			{ eventInfo.typeEnum === TimelineEventEnum.Recommendation &&
+			<RdIf condition={this.state.isEditable && eventInfo.typeEnum === TimelineEventEnum.Recommendation}>
 				<CardItem footer bordered style={{ alignItems: 'center', justifyContent: 'center', height: 40}}>							
 					<View>
 						<Button color='#00dda2' icon="add" onPress={ () => this._read(eventInfo) }>Editar</Button>
@@ -214,8 +217,7 @@ export default class Events extends Component {
 						<Button color='#f73655' icon="remove" onPress={ () => this._delete(eventInfo) }>Excluir</Button>
 					</View>
 				</CardItem>
-			}
-
+			</RdIf>
 		</Card>
 		</View>
 	);
