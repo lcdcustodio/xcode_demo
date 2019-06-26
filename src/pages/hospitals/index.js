@@ -81,6 +81,51 @@ export default class Hospital extends Component {
 			}
 		});
 
+		AsyncStorage.getItem('hospitalizationList', (err, res) => {
+						
+			let obj = [];
+
+			let arrayfull = {};
+
+			if (res != null) {
+
+				let hospitalizationList = JSON.parse(res);
+
+				console.log(hospitalizationList);
+
+				for (var i = 0; i < hospitalizationList.length; i++) {
+
+					if (hospitalizationList[i].value instanceof Array) {
+
+						for (var key = 0; key < hospitalizationList[i].value.length; key++) {
+							if (hospitalizationList[i].value[key].beginDate) {
+								delete hospitalizationList[i].value[key]['beginDate'];
+							}
+						}
+						
+					}
+
+					let array = {};
+					array['id'] = hospitalizationList[i].idPatient;
+					array[hospitalizationList[i].key] = hospitalizationList[i].value;
+
+					if (hospitalizationList[i].idPatient in arrayfull) {
+						arrayfull[hospitalizationList[i].idPatient][id] = hospitalizationList[i].idPatient;
+						arrayfull[hospitalizationList[i].idPatient][hospitalizationList[i].key] = hospitalizationList[i].value;
+					}
+					else
+					{
+						arrayfull[hospitalizationList[i].idPatient] = [];
+					}
+					
+					obj.push(arrayfull);
+				}
+			}
+
+			console.log(obj);
+			console.log(arrayfull);
+		});
+
 		this.setState({
 			patientQuery: null,
 			patientsFiltered: []
@@ -153,7 +198,7 @@ export default class Hospital extends Component {
 
 						console.log(JSON.stringify(obj));
 
-						let data = { "hospitalizationList": obj };
+						let data = { "hospitalizationList": [] };
 
 						console.log(data);
 					

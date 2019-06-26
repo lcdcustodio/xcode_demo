@@ -148,7 +148,7 @@ export default class Report extends Component {
 							}
 						}
 
-						let data = { "hospitalizationList": obj };
+						let data = { "hospitalizationList": [] };
 
 						console.log(data);
 					
