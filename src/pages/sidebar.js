@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { View, StyleSheet, Image, Text, Button, TouchableWithoutFeedback } from 'react-native';
 import { Icon } from 'native-base';
 import LinearGradient from 'react-native-linear-gradient';
+import AsyncStorage from '@react-native-community/async-storage';
 
 import Session from '../Session';
 
@@ -46,7 +47,15 @@ export default class Sidebar extends Component {
 					<View style={styles.divider} />
 					<View style={styles.containerMenu}>
 						{this.items.map((item, key) => (
-							<TouchableWithoutFeedback key={key} onPress={() => { global.currentScreenIndex = key; this.props.navigation.closeDrawer(); this.props.navigation.navigate(item.screenToNavigate); }}>
+							<TouchableWithoutFeedback key={key} onPress={() => { 
+
+								if (item.screenToNavigate == 'SignIn') {
+									AsyncStorage.removeItem('hospitalList');
+									console.log('saiu');
+								}
+
+								this.props.navigation.closeDrawer(); this.props.navigation.navigate(item.screenToNavigate); 
+							}}>
 								<View style={{ flexDirection: 'row', alignItems: 'center', paddingTop: 2, paddingBottom: 2, backgroundColor:'transparent', borderBottomColor: '#fff', borderBottomWidth: 1}} >
 									<View style={styles.itemIcon}>
 										<View style={styles.sideButtonRight}>

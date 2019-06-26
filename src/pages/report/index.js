@@ -41,7 +41,13 @@ export default class Report extends Component {
 			allPatients: [],
 			patientsFiltered: [],
 			hospital_report: [],
-			patientQuery: null
+			patientQuery: null,
+			ICON: {
+                OLHO_CINZA_COM_CHECK: 3,
+                OLHO_AZUL: 1,
+                OLHO_CINZA_COM_EXCLAMACAO: 0,
+                CASA_AZUL: 2
+            }
 		}
 	}
 
@@ -293,19 +299,71 @@ export default class Report extends Component {
 		return hasHospitality
 	}
 
-	countTotalPatients = (patients) => {
+	getIconNumber(patient) {
+
+        let lastVisit = null;
+
+        let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc'])
+        
+        if (listOfOrderedPatientObservations.length > 0) {
+            
+            const today = moment();
+            
+            lastVisit = moment(moment(listOfOrderedPatientObservations[0].observationDate).format('YYYY-MM-DD'));
+
+            lastVisit = today.diff(lastVisit, 'days');
+        }
+
+        if(patient.observationList.length > 0 && listOfOrderedPatientObservations[0].alert) // TEVE VISITA E COM ALERTA
+        {
+            return this.state.ICON.OLHO_CINZA_COM_EXCLAMACAO;
+        }
+        else if(lastVisit == 0 && patient.exitDate == null) // VISITADO HOJE E NÃO TEVE ALTA
+        {
+            return this.state.ICON.OLHO_CINZA_COM_CHECK;
+        }
+
+        else if(lastVisit > 0 && patient.exitDate == null) // NÃO TEVE VISITA HOJE E NÃO TEVE ALTA
+        {
+            return this.state.ICON.OLHO_AZUL;
+        }
+
+        else if(patient.observationList.length == 0 && patient.exitDate == null) // NÃO TEVE VISITA E NÃO TEVE ALTA
+        {
+            return this.state.ICON.OLHO_AZUL;
+        }
+
+        else if (patient.exitDate != null) // TEVE ALTA
+        {
+            return this.state.ICON.CASA_AZUL;
+        }
+    }
+
+	countTotalPatients = (patients, hospitalName) => {
 		
 		let totalPatients = patients.reduce((totalPatients, patient) => {
 			
+			let iconNumber = this.getIconNumber(patient);
+
 			let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
 
-            if(
+			if (
+
                 (listOfOrderedPatientObservations.length == 0) || 
 
                 (!listOfOrderedPatientObservations[0].endTracking && !listOfOrderedPatientObservations[0].medicalRelease)
-            )
-            {
-            	return totalPatients + 1;
+            ) {
+
+				if (iconNumber == this.state.ICON.OLHO_CINZA_COM_EXCLAMACAO ||
+					iconNumber == this.state.ICON.OLHO_AZUL ||
+					iconNumber == this.state.ICON.OLHO_CINZA_COM_CHECK) {
+					console.log(patient.patientName, hospitalName, iconNumber);
+					return totalPatients + 1;
+				}
+				else
+				{
+					return totalPatients;
+				}
             }
             else
             {
@@ -348,7 +406,7 @@ export default class Report extends Component {
 
 		for (var i = 0; i < hospitalList.length; i++) {
 
-			let countTotalPatients = this.countTotalPatients(hospitalList[i].hospitalizationList);
+			let countTotalPatients = this.countTotalPatients(hospitalList[i].hospitalizationList, hospitalList[i].name);
 			
 			let obj = {
 				name: hospitalList[i].name,
@@ -545,10 +603,6 @@ export default class Report extends Component {
 
 	render() {
 
-		if (!this.state.hospital_report.hospital_report) {
-			return null;
-		}
-
 		return (
 
 			<Container>
@@ -586,7 +640,7 @@ export default class Report extends Component {
 
 					<DataTable>
 						
-						{this.state.hospital_report.hospital_report.map((prop) => {
+						{this.state.hospital_report.hospital_report && this.state.hospital_report.hospital_report.map((prop) => {
 							return ( 
 								<DataTable.Row key={prop.name} style={{backgroundColor:'#ffffff', minHeight: 20, height: 32}}>
 									<DataTable.Cell style={{width: '90%'}}>{prop.name}</DataTable.Cell>

@@ -124,6 +124,8 @@ export default class SignIn extends Component {
 					AsyncStorage.removeItem('hospitalList');
 
 					let content = response.data.content;
+
+					console.log(content);
 					
 					Session.current.user = new User(content.name, content.profile);
 					
