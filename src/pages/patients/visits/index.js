@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dimensions, View, FlatList, TextInput, Alert } from 'react-native';
+import { Dimensions, View, FlatList, Alert } from 'react-native';
 import baseStyles from '../../../styles'
 import styles from './style'
 import moment from 'moment';
@@ -11,7 +11,7 @@ import { TrackingEndModeEnum } from '../../../model/Tracking';
 import TabEnum from '../PatientDetailTabEnum';
 
 import { Card, CardItem, Text, Body, Right, Left } from "native-base";
-import { Button, Switch, Divider, Portal, Dialog } from 'react-native-paper';
+import { Button, Switch, Divider, Portal, Dialog, TextInput } from 'react-native-paper';
 
 import Icon from 'react-native-vector-icons/FontAwesome5';
 
@@ -275,7 +275,7 @@ export default class Visitas extends React.Component {
 	renderModal() {
 		return(
 			<Portal>
-				<Dialog visible={this.state.modalVisible} onDismiss={ () => { this.toggleModal() } }>
+				<Dialog style={{ marginBottom: 290}} visible={this.state.modalVisible} onDismiss={ () => { this.toggleModal() } }>
 					<Dialog.Title>Visita</Dialog.Title>
 					<Dialog.Content>
 						<View style={styles.alertInformation}>
@@ -289,9 +289,8 @@ export default class Visitas extends React.Component {
 								<Switch value={this.state.visit.alert} onValueChange={this.toggleSwitch} />
 							</View>	
 						</View>
-						<View style={styles.observation}>
-							<Text style={styles.textObservation}>Observação</Text>
-							<TextInput multiline={true}	 numberOfLines={3} style={styles.textArea} value={this.state.visit.observation} onChangeText = {observation => this.addObservation(observation)} />
+						<View>
+							<TextInput style={ styles.textObservation } multiline={true} numberOfLines={2} label='Observação' value={this.state.visit.observation} onChangeText = {observation => this.addObservation(observation)} />
 						</View>	
 					</Dialog.Content>
 
