@@ -1,9 +1,5 @@
 import React from 'react';
-<<<<<<< HEAD
-import { Dimensions, View, FlatList, Alert, ScrollView, KeyboardAvoidingView } from 'react-native';
-=======
 import { Dimensions, View, FlatList, Alert } from 'react-native';
->>>>>>> release
 import baseStyles from '../../../styles'
 import styles from './style'
 import moment from 'moment';
@@ -15,11 +11,7 @@ import { TrackingEndModeEnum } from '../../../model/Tracking';
 import TabEnum from '../PatientDetailTabEnum';
 
 import { Card, CardItem, Text, Body, Right, Left } from "native-base";
-<<<<<<< HEAD
-import { Button, Switch, Divider, Portal, Dialog, TextInput, List } from 'react-native-paper';
-=======
 import { Button, Switch, Divider, Portal, Dialog, TextInput } from 'react-native-paper';
->>>>>>> release
 
 import Icon from 'react-native-vector-icons/FontAwesome5';
 
@@ -58,31 +50,6 @@ export default class Visitas extends React.Component {
 
 			if (this.state.update) {
 				this.state.patient.observationList.forEach( element => {
-<<<<<<< HEAD
-				   if(this.isaSameVisit(newVisit, element)){
-					   this.remove(element)
-					} 
-			  	}); 
-			} else {
-			   this.state.patient.observationList.forEach( element => {
-				   if(this.isToday(element.observationDate)){
-						hasErrors = true;
-					} 
-				}); 
-			}
-			
-			if(!hasErrors){
-				let newObservationList = this.state.patient.observationList.push(newVisit);
-				this.setState({
-					patient: {
-						...this.state.patient,
-						observationList: newObservationList
-					}
-				});
-
-				this.props.handleUpdatePatient("observationList", this.state.patient.observationList)
-				this.toggleModal()
-=======
 					if (this.isaSameVisit(newVisit, element)) {
 						element.observation = newVisit.observation;
 						element.alert = newVisit.alert;
@@ -90,7 +57,6 @@ export default class Visitas extends React.Component {
 						element.observationDate = moment();
 					}
 				});
->>>>>>> release
 			} else {
 				if (!this.hasObservationToday()) {
 					let observationList = this.state.patient.observationList;
@@ -308,13 +274,8 @@ export default class Visitas extends React.Component {
 	
 	renderModal() {
 		return(
-<<<<<<< HEAD
-			<Portal >
-					<Dialog style={{marginBottom: 300}} visible={this.state.modalVisible} onDismiss={ () => { this.toggleModal() } }>
-=======
 			<Portal>
-				<Dialog style={{ marginBottom: 290}} visible={this.state.modalVisible} onDismiss={ () => { this.toggleModal() } }>
->>>>>>> release
+				<Dialog style={{ marginBottom: 280}} visible={this.state.modalVisible} onDismiss={ () => { this.toggleModal() } }>
 					<Dialog.Title>Visita</Dialog.Title>
 					<Dialog.Content>
 						<View style={{backgroundColor: 'white'}}>
@@ -330,15 +291,9 @@ export default class Visitas extends React.Component {
 								</View>	
 							</View>
 							<View>
-								<TextInput style={ { height: 100, textAlign: 'center', backgroundColor: 'white' } } multiline={true} numberOfLines={2} label='Observação' value={this.state.visit.observation} onChangeText = {observation => this.addObservation(observation)} />
+							<TextInput style={ styles.textObservation } multiline={true} numberOfLines={2} label='Observação' value={this.state.visit.observation} onChangeText = {observation => this.addObservation(observation)} />
 							</View>	
 						</View>
-<<<<<<< HEAD
-=======
-						<View>
-							<TextInput style={ styles.textObservation } multiline={true} numberOfLines={2} label='Observação' value={this.state.visit.observation} onChangeText = {observation => this.addObservation(observation)} />
-						</View>	
->>>>>>> release
 					</Dialog.Content>
 
 					<Divider/>
@@ -359,23 +314,6 @@ export default class Visitas extends React.Component {
 		}
 		return (
 
-<<<<<<< HEAD
-			<View style={{ ...baseStyles.container, height: Math.round(Dimensions.get('window').height - 110) }}>	
-
-					{ this.renderModal() }
-			
-				<ScrollView style={{marginTop: 20}} contentContainerStyle={{ paddingHorizontal: 10 }}>
-					<List.Section>
-					<FlatList
-						data={listOfOrderedObservationDate}
-						keyExtractor={item => item.uuid}
-						extraData={this.props}
-						renderItem={this.renderItem}/>
-					</List.Section>
-				</ScrollView>
-		
-				{ this.showButton() }
-=======
 			<View style={{ ...baseStyles.container }}>	
 				{ this.renderModal() }
 				{ this.showButton() }
@@ -384,7 +322,6 @@ export default class Visitas extends React.Component {
 					keyExtractor={item => item.uuid}
 					extraData={this.props}
 					renderItem={this.renderItem}/>
->>>>>>> release
 			</View>
 		);
 	}
@@ -403,10 +340,6 @@ const COLORS_DISABLED = ['#808080', '#696969'];
 const GradientButton = (props) => (
 	<View style={{marginTop:12, marginBottom: 0, marginLeft: 10, marginRight: 10}}>
 		<Button mode="contained" onPress={ props.onPress }> { props.children } </Button>
-		{/* <LinearGradient colors={ props.colors } style={ [styles.circle, styles.borderCircle ]} >
-				<Icon type="FontAwesome5" name={ props.iconName } style={ styles.iconCircle } onPress={ props.onPress }/>
-				<Text style={ styles.textCircle } >{ props.children }</Text>
-			</LinearGradient>  */}
     </View>
 );
 
