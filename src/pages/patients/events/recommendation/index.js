@@ -414,5 +414,7 @@ const styles = StyleSheet.create({
 	},
 	textObservation: {
 		backgroundColor: 'white',
+		width: '100%',
+		height: 100
 	}
 });
