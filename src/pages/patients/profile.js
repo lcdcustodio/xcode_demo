@@ -261,11 +261,11 @@ export default class Profile extends Component {
 							<Dialog.Title>Altura (m) e Peso (Kg)</Dialog.Title>
 							
 							<Dialog.Content>
-								<TextInput mode='outlined' keyboardType='number-pad' label='Altura' value={this.state.patientHeightTMP ? this.state.patientHeightTMP.toString() : this.state.patientHeightTMP} onChangeText={height => { this.handleHeight(height) }}/>
+								<TextInput mode='outlined' maxLength={4} keyboardType='number-pad' label='Altura' value={this.state.patientHeightTMP ? this.state.patientHeightTMP.toString() : this.state.patientHeightTMP} onChangeText={height => { this.handleHeight(height) }}/>
 
 								<Text> {'\n'} </Text>								
 
-								<TextInput mode='outlined' keyboardType='number-pad' label='Peso' value={this.state.patientWeightTMP ? this.state.patientWeightTMP.toString() : this.state.patientWeightTMP} onChangeText={weight => { this.handleWeight(weight) }} />
+								<TextInput mode='outlined' maxLength={4} keyboardType='number-pad' label='Peso' value={this.state.patientWeightTMP ? this.state.patientWeightTMP.toString() : this.state.patientWeightTMP} onChangeText={weight => { this.handleWeight(weight) }} />
 							</Dialog.Content>
 
 							<Divider />
