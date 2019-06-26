@@ -123,26 +123,35 @@ export default class Hospital extends Component {
 
 		            AsyncStorage.getItem('hospitalizationList', (err, res) => {
 						
+						console.log(res);
+						
 						let obj = [];
 
-						if(res != null){
+						if (res != null) {
 
 							let hospitalizationList = JSON.parse(res);
 
 							for (var i = 0; i < hospitalizationList.length; i++) {
-								
-								console.log(hospitalizationList[i]);
+
+								if (hospitalizationList[i].value instanceof Array) {
+
+									for (var key = 0; key < hospitalizationList[i].value.length; key++) {
+										if (hospitalizationList[i].value[key].beginDate) {
+											delete hospitalizationList[i].value[key]['beginDate'];
+										}
+									}
+									
+								}
 
 								let array = {};
 								array['id'] = hospitalizationList[i].idPatient;
 								array[hospitalizationList[i].key] = hospitalizationList[i].value;
 
-								console.log(array);
-
 								obj.push(array);
 							}
-
 						}
+
+						console.log(JSON.stringify(obj));
 
 						let data = { "hospitalizationList": obj };
 
@@ -164,53 +173,15 @@ export default class Hospital extends Component {
 
 							console.log(response);
 
-							if(response.status === 200) {
-
-								AsyncStorage.setItem('hospitalizationList', JSON.stringify([]));
-								AsyncStorage.setItem('morbidityComorbityList', JSON.stringify(response.data.content.morbidityComorbityList));
-
-								let hospitalListOrdered = _.orderBy(response.data.content.hospitalList, ['name'], ['asc']);
-								
-								let user = Session.current.user;
-
-								let listHospital = [];
-								
-								if (user.profile == 'CONSULTANT') {
-
-									hospitalListOrdered.forEach( hospital => {
-										if(this.isTheSameHospital(hospital, parse)){
-											listHospital.push(hospital)
-										}
-									});
-								
-								} 
-								else
-								{
-									listHospital = hospitalListOrdered;
-								}
-
-								this.getInformationHospital(listHospital).then(response => {
-
-									this.setState({loading: false});
-									
-									const dateSync = moment().format('DD/MM/YYYY [às] HH:mm:ss');
-
-									this.setState({dateSync: dateSync});
-
-									AsyncStorage.setItem('dateSync', dateSync);
-
-									AsyncStorage.setItem('hospitalList', JSON.stringify(listHospital));						
-								});
-							
-							} else {
+							if (response == undefined) {
 
 								Alert.alert(
 									'Erro ao carregar informações',
-									'Desculpe, recebemos um erro inesperado do servidor, por favor, faça login e tente novamente! ',
+									'Desculpe, recebemos um erro inesperado do servidor, por favor tente novamente! ',
 									[
 										{
 											text: 'OK', onPress: () => {
-												this.props.navigation.navigate("SignIn");
+												console.log('ok');
 											}
 										},
 									],
@@ -218,10 +189,68 @@ export default class Hospital extends Component {
 										cancelable: false
 									},
 								);
+							}
+							else
+							{
+								if(response.status === 200) {
 
-								this.props.navigation.navigate("SignIn");
+									AsyncStorage.setItem('hospitalizationList', JSON.stringify([]));
+									AsyncStorage.setItem('morbidityComorbityList', JSON.stringify(response.data.content.morbidityComorbityList));
 
-								console.log(response);
+									let hospitalListOrdered = _.orderBy(response.data.content.hospitalList, ['name'], ['asc']);
+									
+									let user = Session.current.user;
+
+									let listHospital = [];
+									
+									if (user.profile == 'CONSULTANT') {
+
+										hospitalListOrdered.forEach( hospital => {
+											if(this.isTheSameHospital(hospital, parse)){
+												listHospital.push(hospital)
+											}
+										});
+									
+									} 
+									else
+									{
+										listHospital = hospitalListOrdered;
+									}
+
+									this.getInformationHospital(listHospital).then(response => {
+
+										this.setState({loading: false});
+										
+										const dateSync = moment().format('DD/MM/YYYY [às] HH:mm:ss');
+
+										this.setState({dateSync: dateSync});
+
+										AsyncStorage.setItem('dateSync', dateSync);
+
+										AsyncStorage.setItem('hospitalList', JSON.stringify(listHospital));						
+									});
+								
+								} else {
+
+									Alert.alert(
+										'Erro ao carregar informações',
+										'Desculpe, recebemos um erro inesperado do servidor, por favor, faça login e tente novamente! ',
+										[
+											{
+												text: 'OK', onPress: () => {
+													this.props.navigation.navigate("SignIn");
+												}
+											},
+										],
+										{
+											cancelable: false
+										},
+									);
+
+									this.props.navigation.navigate("SignIn");
+
+									console.log(response);
+								}
 							}
 						
 						}).catch(error => {

@@ -101,12 +101,12 @@ export default class Finalize extends Component {
 			return;
 		}
 
-		await this.handleUpdatePatient('diagnosticHypothesisList', [patient.exitCID]);
-		await this.handleUpdatePatient('complementaryInfoHospitalizationAPI', patient.complementaryInfoHospitalizationAPI);
-		await this.handleUpdatePatient('morbidityComorbityList', patient.morbidityComorbityList);
-		await this.handleUpdatePatient('welcomeHomeIndication', patient.welcomeHomeIndication);
-		await this.handleUpdatePatient('medicineReintegration', patient.medicineReintegration);
-		await this.handleUpdatePatient('clinicalIndication', patient.clinicalIndication);
+		this.handleUpdatePatient('diagnosticHypothesisList', [patient.exitCID]);
+		this.handleUpdatePatient('complementaryInfoHospitalizationAPI', patient.complementaryInfoHospitalizationAPI);
+		this.handleUpdatePatient('morbidityComorbityList', patient.morbidityComorbityList);
+		this.handleUpdatePatient('welcomeHomeIndication', patient.welcomeHomeIndication);
+		this.handleUpdatePatient('medicineReintegration', patient.medicineReintegration);
+		this.handleUpdatePatient('clinicalIndication', patient.clinicalIndication);
 
 		if (patient.observationList && patient.observationList.lenght > 0) {
 			orderedObservationList = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
