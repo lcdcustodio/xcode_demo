@@ -107,12 +107,13 @@ export default StyleSheet.create({
 		flexDirection: "row", 
 		width: '100%', 
 		flexWrap: 'wrap', 
-		alignItems:'center'
+		alignItems:'center',
+		justifyContent: 'center'
 	},
 	textObservation : {
-		fontWeight: "bold", 
-		width: '100%',
-		 fontSize: 17
+		height: 80, 
+		textAlign: 'center', 
+		backgroundColor: 'white'
 	},
 	close : {
 		color: 'white', 
