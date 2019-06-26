@@ -643,22 +643,32 @@ export default class Profile extends Component {
 							</Text> 
 						</Body>
 					</ListItem>
-					
-					<ListItem>
-						<Body>
-							<Text style={{fontWeight: 'bold'}}>Procedimento Principal{"\n"}
-								{ this.renderMainProcedure() }
-							</Text>
-						</Body>
-					</ListItem>
 
-					<ListItem>
-						<Body>
-							<Text style={{fontWeight: 'bold'}}>CRM do Responsável{"\n"}
-								{ this.renderCRM() }
-							</Text>
-						</Body>
-					</ListItem>
+					{
+						this.props.patient.hospitalizationType === 'SURGICAL' ?
+							<ListItem>
+								<Body>
+									<Text style={{fontWeight: 'bold'}}>Procedimento Principal{"\n"}
+										{ this.renderMainProcedure() }
+									</Text>
+								</Body>
+							</ListItem>
+						:
+						null
+					}
+
+					{
+						this.props.patient.hospitalizationType === 'SURGICAL' ?
+							<ListItem>
+								<Body>
+									<Text style={{fontWeight: 'bold'}}>CRM do Responsável{"\n"}
+										{ this.renderCRM() }
+									</Text>
+								</Body>
+							</ListItem>
+						:
+						null
+					}
 
 					<ListItem>
 						<Body>
