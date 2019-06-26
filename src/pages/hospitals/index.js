@@ -123,6 +123,8 @@ export default class Hospital extends Component {
 
 		            AsyncStorage.getItem('hospitalizationList', (err, res) => {
 						
+						console.log(res);
+						
 						let obj = [];
 
 						if (res != null) {

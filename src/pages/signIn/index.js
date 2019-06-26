@@ -100,34 +100,56 @@ export default class SignIn extends Component {
 			)
 			.then(response => {
 
-				AsyncStorage.removeItem('hospitalList');
+				console.log(response);
 
-				let content = response.data.content;
-				
-				Session.current.user = new User(content.name, content.profile);
-				
-				if(response && response.data.success) {
+				if (response == undefined) {
 
-					//this.setState({ textContent: 'Sincronizando...' });
+					Alert.alert(
+						'Erro ao carregar informações',
+						'Desculpe, recebemos um erro inesperado do servidor, por favor tente novamente! ',
+						[
+							{
+								text: 'OK', onPress: () => {
+									console.log('ok');
+								}
+							},
+						],
+						{
+							cancelable: false
+						},
+					);
+				}
+				else
+				{
+					AsyncStorage.removeItem('hospitalList');
 
-					AsyncStorage.multiSet([
-					    ["auth", JSON.stringify(params)],
-					    ["userData", JSON.stringify(content)]
-					], async() => {
+					let content = response.data.content;
+					
+					Session.current.user = new User(content.name, content.profile);
+					
+					if(response && response.data.success) {
 
-						//let baseDataSync = await this.getBaseDataSync();
+						//this.setState({ textContent: 'Sincronizando...' });
 
-						//console.log(JSON.stringify(baseDataSync));
+						AsyncStorage.multiSet([
+						    ["auth", JSON.stringify(params)],
+						    ["userData", JSON.stringify(content)]
+						], async() => {
 
+							//let baseDataSync = await this.getBaseDataSync();
+
+							//console.log(JSON.stringify(baseDataSync));
+
+							this.setState({loading: false});
+
+							this.props.navigation.navigate("Hospitals");
+					
+				        });	
+			        }	
+			        else
+			        {		    	
 						this.setState({loading: false});
-
-						this.props.navigation.navigate("Hospitals");
-				
-			        });	
-		        }	
-		        else
-		        {		    	
-					this.setState({loading: false});
+			        }	
 		        }	
 
 		        console.log(response);
