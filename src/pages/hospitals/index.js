@@ -59,33 +59,6 @@ export default class Hospital extends Component {
 
 		});
 
-		AsyncStorage.getItem('hospitalizationList', (err, res) => {
-						
-			let obj = [];
-
-			let hospitalizationList = JSON.parse(res);
-
-			for (var i = 0; i < hospitalizationList.length; i++) {
-				
-				console.log(hospitalizationList[i]);
-
-				if (hospitalizationList[i].value instanceof Array) {
-					for (var i = 0; i < hospitalizationList[i].value.length; i++) {
-						console.log(hospitalizationList[i].value[i]);
-					}
-				}
-
-				let array = {};
-				array['id'] = hospitalizationList[i].idPatient;
-				array[hospitalizationList[i].key] = hospitalizationList[i].value;
-
-				console.log(array);
-
-				obj.push(array);
-			}
-
-		});
-
 		AsyncStorage.getItem('dateSync', (err, res) => {
 			
 			if (res !== null) {
@@ -152,19 +125,23 @@ export default class Hospital extends Component {
 						
 						let obj = [];
 
-						let hospitalizationList = JSON.parse(res);
+						if(res != null){
 
-						for (var i = 0; i < hospitalizationList.length; i++) {
-							
-							console.log(hospitalizationList[i]);
+							let hospitalizationList = JSON.parse(res);
 
-							let array = {};
-							array['id'] = hospitalizationList[i].idPatient;
-							array[hospitalizationList[i].key] = hospitalizationList[i].value;
+							for (var i = 0; i < hospitalizationList.length; i++) {
+								
+								console.log(hospitalizationList[i]);
 
-							console.log(array);
+								let array = {};
+								array['id'] = hospitalizationList[i].idPatient;
+								array[hospitalizationList[i].key] = hospitalizationList[i].value;
 
-							obj.push(array);
+								console.log(array);
+
+								obj.push(array);
+							}
+
 						}
 
 						let data = { "hospitalizationList": obj };

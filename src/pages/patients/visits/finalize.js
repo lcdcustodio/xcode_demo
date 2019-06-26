@@ -101,14 +101,34 @@ export default class Finalize extends Component {
 			return;
 		}
 
-		console.log("chegou")
 		await this.handleUpdatePatient('diagnosticHypothesisList', [patient.exitCID]);
 		await this.handleUpdatePatient('complementaryInfoHospitalizationAPI', patient.complementaryInfoHospitalizationAPI);
 		await this.handleUpdatePatient('morbidityComorbityList', patient.morbidityComorbityList);
 		await this.handleUpdatePatient('welcomeHomeIndication', patient.welcomeHomeIndication);
 		await this.handleUpdatePatient('medicineReintegration', patient.medicineReintegration);
 		await this.handleUpdatePatient('clinicalIndication', patient.clinicalIndication);
-		console.log("fechou")
+
+		if (patient.observationList && patient.observationList.lenght > 0) {
+			orderedObservationList = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
+			orderedObservationList[0].medicalRelease = true;
+			orderedObservationList[0].observation = "Internação finalizada.";
+			await this.handleUpdatePatient('observationList', orderedObservationList);
+			Alert.alert('Finalizar', "Finalização realizada com sucesso.", [{text:'OK',onPress:() =>{ this._goBack()} } ]);
+		} else {
+			let observation = {
+				uuid: uuidv4(),
+				observationDate: moment(),
+				alert: null,
+				medicalRelease: true,
+				endTracking: null,
+				observation: "Internação finalizada.",
+				removedAt: null
+			}
+			let observationList = [];
+			observationList.push(observation);
+			await this.handleUpdatePatient('observationList', observationList);
+			Alert.alert('Finalizar', "Finalização realizada com sucesso.", [{text:'OK',onPress:() =>{ this._goBack()} } ]);
+		}
 	}
 
 	_goBack = () => {
