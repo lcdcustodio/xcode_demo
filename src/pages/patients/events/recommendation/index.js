@@ -336,7 +336,7 @@ export default class Recommendation extends React.Component {
 					{ this.showViewSpecialty() }
 
 					<View style={styles.row}>
-						<TextInput  style={styles.textObservation} multiline={true} label='Observação' value={this.state.recommendation.observation} onChangeText = {observation => this.addObservation(observation)} />
+						<TextInput  style={styles.textObservation} multiline={true} numberOfLines={3} label='Observação' value={this.state.recommendation.observation} onChangeText = {observation => this.addObservation(observation)} />
 					</View>
 
 					<View style={styles.button}>

@@ -139,14 +139,14 @@ export default class Visitas extends React.Component {
 
  	appoint = _ => {
 		 this.setState({ 
-		 modalVisible: true,
-		 update: false, 
-		 visit: {
-			uuid: uuid(),
-			observation: '',
-			alert: false,
-			observationDate: moment().format(),
-			}
+			modalVisible: true,
+			update: false, 
+			visit: {
+				uuid: uuid(),
+				observation: '',
+				alert: false,
+				observationDate: moment().format(),
+				}
 		})
 	}
 
@@ -268,28 +268,30 @@ export default class Visitas extends React.Component {
 	renderModal() {
 		return(
 			<Portal>
-				<Dialog style={{ marginBottom: 290}} visible={this.state.modalVisible} onDismiss={ () => { this.toggleModal() } }>
+				<Dialog style={{ marginBottom: 280}} visible={this.state.modalVisible} onDismiss={ () => { this.toggleModal() } }>
 					<Dialog.Title>Visita</Dialog.Title>
 					<Dialog.Content>
-						<View style={styles.alertInformation}>
-							<View style={{order: 1 , width:'10%', paddingLeft: 2}} >
-								<Icon name="exclamation" style={{color: 'red', fontSize: 25}} />
+						<View style={{backgroundColor: 'white'}}>
+							<View style={styles.alertInformation}>
+								<View style={{order: 1 , width:'10%', paddingLeft: 2}} >
+									<Icon name="exclamation" style={{color: 'red', fontSize: 25}} />
+								</View>
+								<View style={{order: 2, width:'70%'}}>
+									<Text style={{fontSize: 19, fontWeight: "bold"}}>Alerta</Text>
+								</View>
+								<View style={{order: 3, width:'20%', paddingLeft: 2}}>
+									<Switch value={this.state.visit.alert} onValueChange={this.toggleSwitch} />
+								</View>	
 							</View>
-							<View style={{order: 2, width:'70%'}}>
-								<Text style={{fontSize: 19, fontWeight: "bold"}}>Alerta</Text>
-							</View>
-							<View style={{order: 3, width:'20%', paddingLeft: 2}}>
-								<Switch value={this.state.visit.alert} onValueChange={this.toggleSwitch} />
+							<View>
+							<TextInput style={ styles.textObservation } multiline={true} numberOfLines={2} label='Observação' value={this.state.visit.observation} onChangeText = {observation => this.addObservation(observation)} />
 							</View>	
 						</View>
-						<View>
-							<TextInput style={ styles.textObservation } multiline={true} numberOfLines={2} label='Observação' value={this.state.visit.observation} onChangeText = {observation => this.addObservation(observation)} />
-						</View>	
 					</Dialog.Content>
 
-					<Divider />
+					<Divider/>
 					
-					<Dialog.Actions>
+					<Dialog.Actions >
 						<Button onPress={ () => { this.toggleModal() } }>Fechar</Button>
 						<Button onPress={ () => { this.save() } }>Salvar</Button>
 					</Dialog.Actions>
@@ -330,10 +332,6 @@ const COLORS_DISABLED = ['#808080', '#696969'];
 const GradientButton = (props) => (
 	<View style={{marginTop:12, marginBottom: 0, marginLeft: 10, marginRight: 10}}>
 		<Button mode="contained" onPress={ props.onPress }> { props.children } </Button>
-		{/* <LinearGradient colors={ props.colors } style={ [styles.circle, styles.borderCircle ]} >
-				<Icon type="FontAwesome5" name={ props.iconName } style={ styles.iconCircle } onPress={ props.onPress }/>
-				<Text style={ styles.textCircle } >{ props.children }</Text>
-			</LinearGradient>  */}
     </View>
 );
 
