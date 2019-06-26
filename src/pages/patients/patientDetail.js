@@ -7,6 +7,9 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import AsyncStorage from '@react-native-community/async-storage';
 import moment from 'moment';
 import Icon from 'react-native-vector-icons/FontAwesome5';
+import {Icon as IconNativeBase} from 'native-base';
+
+import baseStyles from '../../styles';
 
 //Pages
 import Profile from "./profile";
@@ -23,10 +26,11 @@ class PatientDetail extends Component {
 
 		this.state = {
             hospital: {},
-			patientId: this.props.navigation.getParam('hospitalId'),
+			hospitalId: this.props.navigation.getParam('hospitalId'),
 			patientId: this.props.navigation.getParam('patientId'),
 			patient: this.props.navigation.getParam('patient'),
 			loading: false,
+			setprofile: null,
             timerTextColor: "#005cd1",
             timerBackgroundColor: "#fff",
 			selectedTab: TabEnum.Profile,
@@ -97,7 +101,7 @@ class PatientDetail extends Component {
 			case TabEnum.Events:
 				return <Events  patient={this.state.patient} handleUpdatePatient={this.handleUpdatePatient} isEditable={this.state.isEditable} navigation={this.props.navigation} />;
 			case TabEnum.Visits:
-				return <Visits  patient={this.state.patient} handleUpdatePatient={this.handleUpdatePatient} isEditable={this.state.isEditable} navigation={this.props.navigation} selectTab={this.selectTab} />;
+				return <Visits  patient={this.state.patient} handleUpdatePatient={this.handleUpdatePatient} isEditable={this.state.isEditable} navigation={this.props.navigation} selectTab={this.selectTab} hospitalId={this.state.hospitalId} />;
 		}
 	}
 
@@ -111,7 +115,10 @@ class PatientDetail extends Component {
 
 		const hospitalId = this.props.navigation.getParam('hospitalId');
 
-		console.log(patientId, hospitalId);
+		if (this.state.setprofile != patientId) {
+			this.setState({ selectedTab: 'profile' });
+			this.state.setprofile =  patientId;
+		}
 
         AsyncStorage.getItem('hospitalList', (err, res) => {
 
@@ -128,7 +135,11 @@ class PatientDetail extends Component {
                     	let patient = hospital.hospitalizationList[i];
                     
                         if (patient.id == patientId) {
+
+                        	console.log(patient);
+
 							this.setState({patient: patient});
+							
 							AsyncStorage.setItem(`${patientId}`, JSON.stringify(patient));
                         }
                     }
@@ -169,13 +180,13 @@ class PatientDetail extends Component {
 
 				<Header style={ styles.header }>
 					<Left style={{flex:1}} >
-						<Icon name="angle-left" style={{color: '#FFF', fontSize: 40}} onPress={this._goBack} />
+						<IconNativeBase type="FontAwesome" name="angle-left" style={{color: '#FFF', fontSize: 40}} onPress={this._goBack} />
 					</Left>
 					<Body style={{flex: 7}}>
 						<Title style={{color: 'white'}}> Detalhes do Paciente </Title>
 					</Body>
 				</Header>
-				<Content>
+				<Content style={ baseStyles.container }>
 					{ this.renderSelectedTab() }
 				</Content>
 				<Footer>
@@ -204,7 +215,7 @@ const Tab = (props) => (
 			active={props.isSelected(props.name)}
 			onPress={() => props.selectTab(props.name)}>
 		<Icon name={props.iconName} style={{color: '#FFF', fontSize: 20}} />
-		<Text>{props.displayName}</Text>
+		<Text style={{color: 'white'}}>{props.displayName}</Text>
 	</Button>
 );
 

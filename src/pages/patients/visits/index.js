@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dimensions, View, FlatList, TextInput, Alert } from 'react-native';
+import { Dimensions, View, FlatList, Alert } from 'react-native';
 import baseStyles from '../../../styles'
 import styles from './style'
 import moment from 'moment';
@@ -11,7 +11,7 @@ import { TrackingEndModeEnum } from '../../../model/Tracking';
 import TabEnum from '../PatientDetailTabEnum';
 
 import { Card, CardItem, Text, Body, Right, Left } from "native-base";
-import { Button, Switch, Divider, Portal, Dialog } from 'react-native-paper';
+import { Button, Switch, Divider, Portal, Dialog, TextInput } from 'react-native-paper';
 
 import Icon from 'react-native-vector-icons/FontAwesome5';
 
@@ -22,6 +22,7 @@ export default class Visitas extends React.Component {
 		this.state = {
 			patient: this.props.patient,
 			modalVisible: false,
+			hospitalId: this.props.hospitalId,
 			isEditable: this.props.isEditable,
 			visit: {
 				uuid: null,
@@ -33,39 +34,65 @@ export default class Visitas extends React.Component {
 		}
 	}
 
+	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
+		const hospitalId = this.props.hospitalId;
+		this.setState({hospitalId});
+	});
+
 	save = _ => {
 		const newVisit = this.state.visit;
-		let hasErrors = false;
-		if(newVisit.observation.length === 0 ){
+
+		if (!this.hasObservation) {
 			Alert.alert('Atenção', 'O campo observação é obrigatório!',
-							[{text: 'OK', onPress: () => {}},],
-							{cancelable: false});
+				[{text: 'OK', onPress: () => {}},], {cancelable: false}
+			);
 		} else {
-			if(this.state.update){
+
+			if (this.state.update) {
 				this.state.patient.observationList.forEach( element => {
-				   if(this.isaSameVisit(newVisit, element)){
-					   this.remove(element)
-					} 
-			  	}); 
+					if (this.isaSameVisit(newVisit, element)) {
+						element.observation = newVisit.observation;
+						element.alert = newVisit.alert;
+						element.uuid = newVisit.uuid;
+						element.observationDate = moment();
+					}
+				});
 			} else {
-			   this.state.patient.observationList.forEach( element => {
-				   if(this.isToday(element.observationDate)){
-						hasErrors = true;
-					} 
-				}); 
+				if (!this.hasObservationToday()) {
+					let observationList = this.state.patient.observationList;
+					observationList.push(newVisit)
+					this.setState({ 
+						patient: {
+							...this.state.patient,
+							observationList 
+						}
+					});
+				}
 			}
-			
-			if(!hasErrors){
-				this.state.patient.observationList.push(newVisit)
-				this.props.handleUpdatePatient("observationList", this.state.patient.observationList)
-				this.toggleModal()
-			} else {
-				Alert.alert('Atenção', 'Visita já cadastrada!',
-							[{text: 'OK', onPress: () => {}},],
-							{cancelable: false});
-			}
+
+			this.props.handleUpdatePatient("observationList", this.state.patient.observationList)
+			this.toggleModal();
 		}
-		
+	}
+
+	hasObservation(visit) {
+		let result = true;
+		if(visit.observation.length === 0 ){
+			result = false;
+		}
+		return result;
+	}
+
+	hasObservationToday() {
+		let result = false;
+		if(this.state.patient.observationList) {
+			this.state.patient.observationList.forEach( element => {
+				if (this.isToday(element.observationDate)) {
+					result = true;
+				}
+			});
+		}
+		return result;
 	}
 
 	alertToRemove = patient => {
@@ -81,10 +108,12 @@ export default class Visitas extends React.Component {
 		  );
 	}
 
-	showVisit = patient =>{
+	showVisit = visit => {
 		this.toggleModal()
-		this.state.visit = patient;
-		this.state.update = true
+		this.setState({
+			visit,
+			update: true
+		});
 	}
 
 	toggleSwitch = alert => {
@@ -111,14 +140,14 @@ export default class Visitas extends React.Component {
 
  	appoint = _ => {
 		 this.setState({ 
-		 modalVisible: true,
-		 update: false, 
-		 visit: {
-			uuid: uuid(),
-			observation: '',
-			alert: false,
-			observationDate: moment().format(),
-			}
+			modalVisible: true,
+			update: false, 
+			visit: {
+				uuid: uuid(),
+				observation: '',
+				alert: false,
+				observationDate: moment().format(),
+				}
 		})
 	}
 
@@ -127,7 +156,7 @@ export default class Visitas extends React.Component {
 		const errors = patient.validateFinalization();
 
 		if (!errors.length) {
-			this.props.navigation.navigate('Finalize', { patientID: patient.json.id, handleUpdatePatient: this.props.handleUpdatePatient });
+			this.props.navigation.navigate('Finalize', { patientId: patient.json.id, handleUpdatePatient: this.props.handleUpdatePatient, hospitalId: this.state.hospitalId });
 		} else {
 			let fields = FINALIZE_ERROR_FIELDS[errors[0]];
 			let msg = '';
@@ -157,45 +186,51 @@ export default class Visitas extends React.Component {
 		return diffDays === 0 ? true : false
 	}
 
-	renderItem = ({ item }) => (
-
-		<View style={{ paddingTop: 10, paddingLeft: 10, paddingRight: 10, backgroundColor: baseStyles.container.backgroundColor}}>
-				<Card>
-					<CardItem header bordered style={{ flex: 1, backgroundColor: '#cce5ff', height: 60}}>
-						<Left>
-							<Text style={{ fontSize: 16, fontWeight: 'bold'}}>VISITA</Text>
-						</Left>
-						<Right>
-							<Text>{this.isToday(item.observationDate) ? 'Hoje' : 	moment(item.observationDate).format('DD/MM/YYYY')}</Text>
-						</Right>
-					</CardItem>
-				    
-		            <CardItem bordered>
-						<Body>
-							<Text>
-								{item.observation}
-							</Text>
-						</Body>
-		            </CardItem>
-
-					<CardItem footer bordered style={{ alignItems: 'center', justifyContent: 'center', height: 40}}>							
-						<View>
-							<Button color='#00dda2' icon="add" onPress={_=>this.showVisit(item)}>Editar</Button>
-						</View>
-						<View  style={{borderRightColor: '#ffffff', borderWidth: 1, height: '80%', borderBottomColor: '#ffffff', borderTopColor: '#ffffff', borderLeftColor: '#ebeff2'}}></View>
-						<View>
-							<Button color='#f73655' icon="remove" onPress={_=>this.alertToRemove(item)}>Excluir</Button>
-						</View>
-					</CardItem>
-
-				</Card>
-			</View>
-
-		);
+	renderItem = ({ item }) => {
+		if(item.uuid) {
+			return (
+				<View style={{ paddingTop: 10, paddingLeft: 10, paddingRight: 10, backgroundColor: baseStyles.container.backgroundColor}}>
+					<Card>
+						<CardItem header bordered style={{ flex: 1, backgroundColor: '#cce5ff', height: 60}}>
+							<Left>
+								<Text style={{ fontSize: 16, fontWeight: 'bold'}}>Visita</Text>
+							</Left>
+							<Right>
+								<Text>{this.isToday(item.observationDate) ? 'Hoje' : 	moment(item.observationDate).format('DD/MM/YYYY')}</Text>
+							</Right>
+						</CardItem>
+						
+						<CardItem bordered>
+							<Body>
+								<Text>
+									{item.observation}
+								</Text>
+							</Body>
+						</CardItem>
+	
+						<CardItem footer bordered style={{ alignItems: 'center', justifyContent: 'center', height: 40}}>							
+							<View>
+								<Button color='#00dda2' style={{color: '#00dda2'}} icon="add" onPress={_=>this.showVisit(item)}>Editar</Button>
+							</View>
+							<View  style={{borderRightColor: '#ffffff', borderWidth: 1, height: '80%', borderBottomColor: '#ffffff', borderTopColor: '#ffffff', borderLeftColor: '#ebeff2'}}></View>
+							<View>
+								<Button color='#f73655' style={{color: '#f73655'}} icon="remove" onPress={_=>this.alertToRemove(item)}>Excluir</Button>
+							</View>
+						</CardItem>
+					</Card>
+				</View>
+			);
+		} else return null;
+	};
 	
 	remove(patient) {
-		const visits = this.state.patient.observationList.filter(item => item.uuid !== patient.uuid);
-		this.state.patient.observationList = visits;
+		const newObservationList = this.state.patient.observationList.filter(item => item.uuid !== patient.uuid);
+		this.setState({
+			patient: {
+				...this.state.patient,
+				observationList: newObservationList
+			}
+		});
 		this.props.handleUpdatePatient("observationList", this.state.patient.observationList);
 	}
 
@@ -207,9 +242,9 @@ export default class Visitas extends React.Component {
 		
 		const patient = new Patient(this.state.patient);
 
-		console.log(patient);
-
 		if (this.state.isEditable) {
+
+			console.log("patient => ", this.state.patient);
 
 			switch (patient.getHospitalizationStatusEnum()) {
 				case HospitalizationStatusEnum.Open:
@@ -240,29 +275,30 @@ export default class Visitas extends React.Component {
 	renderModal() {
 		return(
 			<Portal>
-				<Dialog visible={this.state.modalVisible} onDismiss={ () => { this.toggleModal() } }>
+				<Dialog style={{ marginBottom: 280}} visible={this.state.modalVisible} onDismiss={ () => { this.toggleModal() } }>
 					<Dialog.Title>Visita</Dialog.Title>
 					<Dialog.Content>
-						<View style={styles.alertInformation}>
-							<View style={{order: 1 , width:'10%', paddingLeft: 2}} >
-								<Icon name="exclamation" style={{color: 'red', fontSize: 25}} />
+						<View style={{backgroundColor: 'white'}}>
+							<View style={styles.alertInformation}>
+								<View style={{order: 1 , width:'10%', paddingLeft: 2}} >
+									<Icon name="exclamation" style={{color: 'red', fontSize: 25}} />
+								</View>
+								<View style={{order: 2, width:'70%'}}>
+									<Text style={{fontSize: 19, fontWeight: "bold"}}>Alerta</Text>
+								</View>
+								<View style={{order: 3, width:'20%', paddingLeft: 2}}>
+									<Switch value={this.state.visit.alert} onValueChange={this.toggleSwitch} />
+								</View>	
 							</View>
-							<View style={{order: 2, width:'70%'}}>
-								<Text style={{fontSize: 19, fontWeight: "bold"}}>Alerta</Text>
-							</View>
-							<View style={{order: 3, width:'20%', paddingLeft: 2}}>
-								<Switch value={this.state.visit.alert} onValueChange={this.toggleSwitch} />
+							<View>
+							<TextInput style={ styles.textObservation } multiline={true} numberOfLines={2} label='Observação' value={this.state.visit.observation} onChangeText = {observation => this.addObservation(observation)} />
 							</View>	
 						</View>
-						<View style={styles.observation}>
-							<Text style={styles.textObservation}>Observação</Text>
-							<TextInput multiline={true}	 numberOfLines={3} style={styles.textArea} value={this.state.visit.observation} onChangeText = {observation => this.addObservation(observation)} />
-						</View>	
 					</Dialog.Content>
 
-					<Divider />
+					<Divider/>
 					
-					<Dialog.Actions>
+					<Dialog.Actions >
 						<Button onPress={ () => { this.toggleModal() } }>Fechar</Button>
 						<Button onPress={ () => { this.save() } }>Salvar</Button>
 					</Dialog.Actions>
@@ -278,14 +314,14 @@ export default class Visitas extends React.Component {
 		}
 		return (
 
-			<View style={{ ...baseStyles.container, height: Math.round(Dimensions.get('window').height - 110) }}>	
+			<View style={{ ...baseStyles.container }}>	
 				{ this.renderModal() }
+				{ this.showButton() }
 				<FlatList
 					data={listOfOrderedObservationDate}
 					keyExtractor={item => item.uuid}
 					extraData={this.props}
 					renderItem={this.renderItem}/>
-				{ this.showButton() }
 			</View>
 		);
 	}
@@ -302,12 +338,8 @@ const COLORS_ENABLED = ['#035fcc', '#023066'];
 const COLORS_DISABLED = ['#808080', '#696969'];
 
 const GradientButton = (props) => (
-	<View style={{marginTop:10, marginBottom: 10, marginLeft: 10, marginRight: 10}}>
+	<View style={{marginTop:12, marginBottom: 0, marginLeft: 10, marginRight: 10}}>
 		<Button mode="contained" onPress={ props.onPress }> { props.children } </Button>
-		{/* <LinearGradient colors={ props.colors } style={ [styles.circle, styles.borderCircle ]} >
-				<Icon type="FontAwesome5" name={ props.iconName } style={ styles.iconCircle } onPress={ props.onPress }/>
-				<Text style={ styles.textCircle } >{ props.children }</Text>
-			</LinearGradient>  */}
     </View>
 );
 

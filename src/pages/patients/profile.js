@@ -4,7 +4,7 @@ import TextValue from '../../components/TextValue';
 import moment from 'moment';
 import uuidv4 from'uuid/v4';
 import data from '../../../data.json';
-import { Button, Paragraph, Dialog, Portal, RadioButton, Divider, TextInput, Searchbar, List } from 'react-native-paper';
+import { Button, Dialog, Portal, RadioButton, Divider, TextInput, Searchbar, List } from 'react-native-paper';
 import { Content, ListItem, Text, Right, Body } from 'native-base';
 
 export default class Profile extends Component {
@@ -257,15 +257,15 @@ export default class Profile extends Component {
 			case 'HeightAndWeight':
 				return (
 					<Portal>
-						<Dialog visible={this.state.modalHeightAndWeight} onDismiss={ () => { this.toggleModal('modalHeightAndWeight') } }>
+						<Dialog style={{marginBottom: 280}}  visible={this.state.modalHeightAndWeight} onDismiss={ () => { this.toggleModal('modalHeightAndWeight') } }>
 							<Dialog.Title>Altura (m) e Peso (Kg)</Dialog.Title>
 							
 							<Dialog.Content>
-								<TextInput mode='outlined' keyboardType='number-pad' label='Altura' value={this.state.patientHeightTMP ? this.state.patientHeightTMP.toString() : this.state.patientHeightTMP} onChangeText={height => { this.handleHeight(height) }}/>
+								<TextInput mode='outlined' maxLength={4} keyboardType='number-pad' label='Altura' value={this.state.patientHeightTMP ? this.state.patientHeightTMP.toString() : this.state.patientHeightTMP} onChangeText={height => { this.handleHeight(height) }}/>
 
 								<Text> {'\n'} </Text>								
 
-								<TextInput mode='outlined' keyboardType='number-pad' label='Peso' value={this.state.patientWeightTMP ? this.state.patientWeightTMP.toString() : this.state.patientWeightTMP} onChangeText={weight => { this.handleWeight(weight) }} />
+								<TextInput mode='outlined' maxLength={4} keyboardType='number-pad' label='Peso' value={this.state.patientWeightTMP ? this.state.patientWeightTMP.toString() : this.state.patientWeightTMP} onChangeText={weight => { this.handleWeight(weight) }} />
 							</Dialog.Content>
 
 							<Divider />
@@ -281,7 +281,7 @@ export default class Profile extends Component {
 			case 'AttendanceType':
 				return ( 
 					<Portal>
-						<Dialog visible={this.state.modalAttendanceType} onDismiss={ () => { this.toggleModal('modalAttendanceType') } }>
+						<Dialog style={{marginBottom: 280}} visible={this.state.modalAttendanceType} onDismiss={ () => { this.toggleModal('modalAttendanceType') } }>
 							<Dialog.Title>Atendimento</Dialog.Title>
 							
 							<Divider />
@@ -310,7 +310,7 @@ export default class Profile extends Component {
 			case 'HospitalizationType':
 				return ( 
 					<Portal>
-						<Dialog visible={this.state.modalHospitalizationType} onDismiss={ () => { this.toggleModal('modalHospitalizationType') } }>
+						<Dialog style={{marginBottom: 280}} visible={this.state.modalHospitalizationType} onDismiss={ () => { this.toggleModal('modalHospitalizationType') } }>
 							<Dialog.Title>Tipo</Dialog.Title>
 							
 							<Divider />
@@ -319,11 +319,11 @@ export default class Profile extends Component {
 								<RadioButton.Group onValueChange={ value => { this.handleHospitalizationType(value) } } value={this.props.patient.hospitalizationType}>
 									<View style={{flexDirection: 'row', alignItems: 'center'}}>
 										<RadioButton value="CLINICAL" />
-										<Text>Clínico</Text>
+										<Text onPress={ () => { this.handleHospitalizationType('CLINICAL') } }>Clínico</Text>
 									</View>
 									<View style={{flexDirection: 'row', alignItems: 'center'}}>
 										<RadioButton value="SURGICAL" />
-										<Text>Cirúrgico</Text>
+										<Text onPress={ () => { this.handleHospitalizationType('SURGICAL') } }>Cirúrgico</Text>
 									</View>
 								</RadioButton.Group>
 							</Dialog.Content>
@@ -339,7 +339,7 @@ export default class Profile extends Component {
 			case 'CRM':
 				return ( 
 					<Portal>
-						<Dialog visible={this.state.modalCRM} onDismiss={ () => { this.toggleModal('modalCRM') } }>
+						<Dialog style={{marginBottom: 280}} visible={this.state.modalCRM} onDismiss={ () => { this.toggleModal('modalCRM') } }>
 							<Dialog.Title>CRM</Dialog.Title>
 							
 							<Dialog.Content>
@@ -359,7 +359,7 @@ export default class Profile extends Component {
 			case 'PrimaryCID':
 				return ( 
 					<Portal>
-						<Dialog style={{height: '70%'}} visible={this.state.modalPrimaryCID} onDismiss={ () => { this.toggleModal('modalPrimaryCID') } }>
+						<Dialog style={{height: '45%', marginBottom: 280}} visible={this.state.modalPrimaryCID} onDismiss={ () => { this.toggleModal('modalPrimaryCID') } }>
 							<Dialog.ScrollArea>
 								<Dialog.Title>CID Primário</Dialog.Title>
 								<Searchbar placeholder="Filtrar" onChangeText={query => { this.filterCID(query) }} value={this.state.cidQuery} />
@@ -385,7 +385,7 @@ export default class Profile extends Component {
 			case 'SecondaryCID':
 				return ( 
 					<Portal>
-						<Dialog style={{height: '70%'}} visible={this.state.modalSecondaryCID} onDismiss={ () => { this.toggleModal('modalSecondaryCID') } }>
+						<Dialog style={{height: '45%', marginBottom: 280}} visible={this.state.modalSecondaryCID} onDismiss={ () => { this.toggleModal('modalSecondaryCID') } }>
 							<Dialog.ScrollArea>
 								<Dialog.Title>CID Secundário</Dialog.Title>
 								<Searchbar placeholder="Filtrar" onChangeText={query => { this.filterCID(query) }} value={this.state.cidQuery} />
@@ -411,7 +411,7 @@ export default class Profile extends Component {
 			case 'MainProcedure':
 				return ( 
 					<Portal>
-						<Dialog style={{height: '70%'}} visible={this.state.modalMainProcedure} onDismiss={ () => { this.toggleModal('modalMainProcedure') } }>
+						<Dialog style={{height: '45%', marginBottom: 280}} visible={this.state.modalMainProcedure} onDismiss={ () => { this.toggleModal('modalMainProcedure') } }>
 							<Dialog.ScrollArea>
 								<Dialog.Title>Procedimento Principal</Dialog.Title>
 								<Searchbar placeholder="Filtrar" onChangeText={query => { this.filterTuss(query) }} value={this.state.tussQuery} />
@@ -486,15 +486,6 @@ export default class Profile extends Component {
 				<TextValue color={'#0000FF'} value={this.props.patient.hospitalizationType ? this.hospitalizationType(this.props.patient.hospitalizationType) : 'INFORMAR'} press={ () => { this.setState({modalSelected: 'HospitalizationType', modalHospitalizationType: true}) }}/>
 			:
 				<TextValue value={this.props.patient.hospitalizationType ? this.hospitalizationType(this.props.patient.hospitalizationType) : 'NÃO INFORMADO'} />
-		);
-	}
-
-	renderMainProcedure() {
-		return (
-			this.state.isEditable ?
-				<TextValue color={'#0000FF'} value={this.props.patient.mainProcedureTUSSDisplayName ? this.props.patient.mainProcedureTUSSDisplayName : 'ESCOLHER'} press={ () => { this.setState({modalSelected: 'MainProcedure', modalMainProcedure: true}) }} />
-			:
-				<TextValue value={this.props.patient.mainProcedureTUSSDisplayName ? this.props.patient.mainProcedureTUSSDisplayName : 'NÃO INFORMADO'} />
 		);
 	}
 
@@ -641,14 +632,6 @@ export default class Profile extends Component {
 					<ListItem>
 						<Body>
 							<Text style={{fontWeight: 'bold'}}>Motivo da Alta Administrativa{"\n"}<TextValue value={this.props.patient.exitDescription} /></Text>
-						</Body>
-					</ListItem>
-
-					<ListItem>
-						<Body>
-							<Text style={{fontWeight: 'bold'}}>Procedimento Principal{"\n"}
-								{ this.renderMainProcedure() }
-							</Text>
 						</Body>
 					</ListItem>
 

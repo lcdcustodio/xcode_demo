@@ -8,6 +8,7 @@ import moment from 'moment';
 import _ from 'lodash';
 import AsyncStorage from '@react-native-community/async-storage';
 import Icon from 'react-native-vector-icons/FontAwesome5';
+import {Icon as IconNativeBase} from 'native-base';
 
 export default class Patients extends Component {
     
@@ -109,9 +110,16 @@ export default class Patients extends Component {
 
         const today = moment();
 
-        let admissionDate = moment(moment(patient.admissionDate).format('YYYY-MM-DD'));
+        let admissionDate = moment(moment(patient.admissionDate).format('YYYY-MM-DD HH:mm:ss'));
 
         let totalHospitalizationHours = today.diff(admissionDate, 'hours');
+
+        if (patient.exitDate != null) {
+
+            let exitDate = moment(moment(patient.exitDate).format('YYYY-MM-DD HH:mm:ss'));
+
+            totalHospitalizationHours = exitDate.diff(admissionDate, 'hours');
+        }
 
         totalHospitalizationHours = Math.round((totalHospitalizationHours / 24));
 
@@ -154,7 +162,7 @@ export default class Patients extends Component {
     getLastVisit(patient) {
         let listOfOrderedPatientVisits = _.orderBy(patient.observationList, ['observationDate'], ['desc'])
         if(patient.observationList.length === 0 || listOfOrderedPatientVisits[0].observationDate === null) {
-            return 'Sem visita'
+            return 'S/ visita'
         } else if(this.isToday(listOfOrderedPatientVisits[0].observationDate)) {
             return 'Hoje'
         } else if(this.isYesterday(listOfOrderedPatientVisits[0].observationDate)) {
@@ -277,11 +285,11 @@ export default class Patients extends Component {
                     <CardItem footer bordered style={{ justifyContent: 'center', height: 30, paddingTop: 0, paddingRight: 0, paddingBottom: 0, paddingLeft: 0}}>                            
                         
                         <View style={{ width: '10%'}}>
-                            <Text style={{paddingLeft: 1}}><Icon name="calendar" style={{color: '#666', fontSize: 15}} /></Text>
+                            <Text style={{paddingLeft: 10}}><Icon name="calendar" style={{color: '#666', fontSize: 15}} /></Text>
                         </View>
 
                         <View style={{ width: '15%'}}>
-                            <Text style={{fontSize: 10, color: '#666', fontWeight:'normal'}}>{item.totalDaysOfHospitalization}0 dias</Text>
+                            <Text style={{fontSize: 14, color: '#666', fontWeight:'normal'}}>{item.totalDaysOfHospitalization} d</Text>
                         </View>
 
                         <View style={{ width: '10%'}}>
@@ -289,7 +297,7 @@ export default class Patients extends Component {
                         </View>
                         
                         <View style={{ width: '15%'}}>
-                            <Text style={{fontSize: 12, color: '#666', fontWeight:'normal'}}>{item.locationSession}</Text>
+                            <Text style={{fontSize: 14, color: '#666', fontWeight:'normal'}}>{item.locationSession}</Text>
                         </View>
 
                         <View style={{ width: '10%'}}>
@@ -297,7 +305,7 @@ export default class Patients extends Component {
                         </View>
                         
                         <View style={{ width: '15%'}}>
-                            <Text style={{fontSize: 12, color: '#666', fontWeight:'normal'}}>{item.locationBed}</Text>
+                            <Text style={{fontSize: 14, color: '#666', fontWeight:'normal'}}>{item.locationBed}</Text>
                         </View>
                         
                         <View style={{ width: '10%'}}>
@@ -305,7 +313,7 @@ export default class Patients extends Component {
                         </View>
                         
                         <View style={{ width: '15%'}}>
-                            <Text style={{fontSize: 10, color: '#666', fontWeight:'normal'}}>{item.lastVisit}</Text>
+                            <Text style={{fontSize: 14, color: '#666', fontWeight:'normal'}}>{item.lastVisit}</Text>
                         </View>
                     
                     </CardItem>
@@ -328,7 +336,7 @@ export default class Patients extends Component {
                 <Header style={styles.headerMenu}>
                     
                     <Left style={{flex:1}} >
-                        <Icon name="angle-left" style={{color: '#FFF', fontSize: 40}} onPress={() => this.props.navigation.navigate('Hospitals') } />
+                        <IconNativeBase type="FontAwesome" name="angle-left" style={{color: '#FFF', fontSize: 40}} onPress={() => this.props.navigation.navigate('Hospitals') } />
                     </Left>
                     <Body style={{flex: 7}}>
                         <Title style={{color: 'white'}}>{this.state.hospital.name}</Title>

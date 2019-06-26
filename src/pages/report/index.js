@@ -15,6 +15,7 @@ import _ from 'lodash'
 import { Searchbar, List } from 'react-native-paper';
 import TextValue from '../../components/TextValue';
 import Icon from 'react-native-vector-icons/FontAwesome5';
+import {Icon as IconNativeBase} from 'native-base';
 import { DataTable } from 'react-native-paper';
 import { RdHeader } from '../../components/rededor-base';
 import type { ViewStyleProp } from 'react-native/Libraries/StyleSheet/StyleSheet';
@@ -42,7 +43,6 @@ export default class Report extends Component {
 			hospital_report: [],
 			patientQuery: null
 		}
-
 	}
 
 	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
@@ -118,126 +118,159 @@ export default class Report extends Component {
 
 					console.log(Session.current.user);
 
-		            let token = parse.token;
-				
-					let data = { "hospitalizationList": [] };
+		            this.state.token = parse.token;
 					
-					api.post('/api/v2.0/sync', data, 
-					{
-						headers: {
-							"Content-Type": "application/json",
-						  	"Accept": "application/json",
-						  	"Token": token, 
+					AsyncStorage.getItem('hospitalizationList', (err, res) => {
+						
+						let obj = [];
+
+						if (res != null) {
+
+							let hospitalizationList = JSON.parse(res);
+
+							for (var i = 0; i < hospitalizationList.length; i++) {
+
+								if (hospitalizationList[i].value instanceof Array) {
+
+									for (var key = 0; key < hospitalizationList[i].value.length; key++) {
+										if (hospitalizationList[i].value[key].beginDate) {
+											delete hospitalizationList[i].value[key]['beginDate'];
+										}
+									}
+									
+								}
+
+								let array = {};
+								array['id'] = hospitalizationList[i].idPatient;
+								array[hospitalizationList[i].key] = hospitalizationList[i].value;
+
+								obj.push(array);
+							}
 						}
 
-					}).then(response => {
+						let data = { "hospitalizationList": obj };
 
-						this.setRequireSyncTimer(null);
-
-						this.setState({loading: false});
-
-						if(response.status === 200) {
-
-							AsyncStorage.setItem('hospitalizationList', JSON.stringify([]));
-							AsyncStorage.setItem('morbidityComorbityList', JSON.stringify(response.data.content.morbidityComorbityList));
-
-							let hospitalListOrdered = _.orderBy(response.data.content.hospitalList, ['name'], ['asc']);
-							
-							let user = Session.current.user;
-
-							let listHospital = []
-							
-							if (user.profile == 'CONSULTANT') {
-
-								hospitalListOrdered.forEach( hospital => {
-									if(this.isTheSameHospital(hospital, parse)){
-										listHospital.push(hospital)
-									}
-								});
-							
-							} 
-							else
-							{
-								listHospital = hospitalListOrdered;
+						console.log(data);
+					
+						api.post('/api/v2.0/sync', data, 
+						{
+							headers: {
+								"Content-Type": "application/json",
+							  	"Accept": "application/json",
+							  	"Token": this.state.token, 
 							}
 
-							this.report(listHospital);
-						
-						} else {
+						}).then(response => {
 
-							Alert.alert(
-								'Erro ao carregar informações',
-								'Desculpe, recebemos um erro inesperado do servidor, por favor, faça login e tente novamente! ',
-								[
-									{
-										text: 'OK', onPress: () => {
-											this.props.navigation.navigate("SignIn");
-										}
-									},
-								],
-								{
-									cancelable: false
-								},
-							);
+							this.setRequireSyncTimer(null);
+
+							this.setState({loading: false});
 
 							console.log(response);
-						}
-					
-					}).catch(error => {
+							
+							if(response.status === 200) {
 
-						this.setState({loading: false});
+								AsyncStorage.setItem('hospitalizationList', JSON.stringify([]));
+								AsyncStorage.setItem('morbidityComorbityList', JSON.stringify(response.data.content.morbidityComorbityList));
 
-						this.setState({errorSync: (this.state.errorSync + 1) });
+								let hospitalListOrdered = _.orderBy(response.data.content.hospitalList, ['name'], ['asc']);
+								
+								let user = Session.current.user;
 
-						if (this.state.errorSync <= 3) {
+								let listHospital = []
+								
+								if (user.profile == 'CONSULTANT') {
 
-							AsyncStorage.getItem('auth', (err, auth) => {
-
-								console.log(auth);
-						            
-					            data = JSON.parse(auth);
-
-					            data = qs.stringify(data, { encode: false });
-
-								api.post('/api/login',
-									data
-								)
-								.then(response => {
-
-									let content = response.data.content;
-																	
-									if(response.data.success) {
-										AsyncStorage.setItem('userData', JSON.stringify(content), () => {
-											this.sincronizar(true);
-										});
-									}
-
-									console.log(response);
-								});
-					        });
-						}
-						else
-						{
-							Alert.alert(
-								'Erro ao carregar informações',
-								'Desculpe, recebemos um erro inesperado do servidor, por favor, faça login e tente novamente! ',
-								[
-									{
-										text: 'OK', onPress: () => {
-											this.props.navigation.navigate("SignIn");
+									hospitalListOrdered.forEach( hospital => {
+										if(this.isTheSameHospital(hospital, parse)){
+											listHospital.push(hospital)
 										}
-									},
-								],
+									});
+								
+								} 
+								else
 								{
-									cancelable: false
-								},
-							);
-						}
+									listHospital = hospitalListOrdered;
+								}
 
-						console.log(error);
+								this.report(listHospital);
+							
+							} else {
+
+								Alert.alert(
+									'Erro ao carregar informações',
+									'Desculpe, recebemos um erro inesperado do servidor, por favor, faça login e tente novamente! ',
+									[
+										{
+											text: 'OK', onPress: () => {
+												this.props.navigation.navigate("SignIn");
+											}
+										},
+									],
+									{
+										cancelable: false
+									},
+								);
+
+								console.log(response);
+							}
+						
+						}).catch(error => {
+
+							this.setState({loading: false});
+
+							this.setState({errorSync: (this.state.errorSync + 1) });
+
+							if (this.state.errorSync <= 3) {
+
+								AsyncStorage.getItem('auth', (err, auth) => {
+
+									console.log(auth);
+							            
+						            data = JSON.parse(auth);
+
+						            data = qs.stringify(data, { encode: false });
+
+									api.post('/api/login',
+										data
+									)
+									.then(response => {
+
+										let content = response.data.content;
+																		
+										if(response.data.success) {
+											AsyncStorage.setItem('userData', JSON.stringify(content), () => {
+												this.sincronizar(true);
+											});
+										}
+
+										console.log(response);
+									});
+						        });
+							}
+							else
+							{
+								Alert.alert(
+									'Erro ao carregar informações',
+									'Desculpe, recebemos um erro inesperado do servidor, por favor, faça login e tente novamente! ',
+									[
+										{
+											text: 'OK', onPress: () => {
+												this.props.navigation.navigate("SignIn");
+											}
+										},
+									],
+									{
+										cancelable: false
+									},
+								);
+							}
+
+							console.log(error);
+
+						});
 
 					});
-
 				}
 			});
 
@@ -260,18 +293,28 @@ export default class Report extends Component {
 		return hasHospitality
 	}
 
-	getInformationHospital = async (listHospital) => {
+	countTotalPatients = (patients) => {
+		
+		let totalPatients = patients.reduce((totalPatients, patient) => {
+			
+			let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
 
-		listHospital.forEach( hospital => {
-			hospital.logomarca = this.getLogomarca(hospital)
-			hospital.totalPatientsVisitedToday = this.countTotalPatientsVisited(hospital.hospitalizationList)
-			hospital.totalPatients = this.countTotalPatients(hospital.hospitalizationList, hospital)
-			hospital.lastVisit = this.setLastVisit(hospital.hospitalizationList)
-		}); 
+            if(
+                (listOfOrderedPatientObservations.length == 0) || 
 
-		this.setState({
-			hospitals: [ ...listHospital], 
-		});
+                (!listOfOrderedPatientObservations[0].endTracking && !listOfOrderedPatientObservations[0].medicalRelease)
+            )
+            {
+            	return totalPatients + 1;
+            }
+            else
+            {
+            	return totalPatients;
+            }
+
+		}, 0);
+
+		return totalPatients;
 	}
 
 	calculateDaysOfHospitalization = async (patient) => {
@@ -304,13 +347,18 @@ export default class Report extends Component {
 		};
 
 		for (var i = 0; i < hospitalList.length; i++) {
-			
-			report.hospital_report.push({
-				name: hospitalList[i].name,
-				patients: hospitalList[i].hospitalizationList.length
-			});
 
-			report.patients += hospitalList[i].hospitalizationList.length;
+			let countTotalPatients = this.countTotalPatients(hospitalList[i].hospitalizationList);
+			
+			let obj = {
+				name: hospitalList[i].name,
+				length: hospitalList[i].hospitalizationList.length,
+				patients: countTotalPatients
+			};
+
+			report.hospital_report.push(obj);
+
+			report.patients += countTotalPatients;
 
 			if (hospitalList[i].hospitalizationList.length > 0) {
 
@@ -318,49 +366,58 @@ export default class Report extends Component {
 				{
 					let patient = hospitalList[i].hospitalizationList[x];
 
-					if (patient.attendanceType == "EMERGENCY") 
-					{
-						report.attendanceType_emergency += 1;
-					}
-					else if (patient.attendanceType == "ELECTIVE") 
-					{
-						report.attendanceType_elective += 1;
-					}
-					else 
-					{
-						report.attendanceType_other += 1;
-					}
+					let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
 
-					if (patient.locationType == "CTI" || patient.locationType == "UTI") 
-					{
-						report.locationType_room_ctiuti += 1;
-					}
-					else if (patient.locationType == "USI") 
-					{
-						report.locationType_room_usi += 1;
-					}
-					else 
-					{
-						report.locationType_room_other += 1;
-					}
+		            if(
+		                (listOfOrderedPatientObservations.length == 0) || 
 
-					let days = await this.calculateDaysOfHospitalization(patient);
+		                (!listOfOrderedPatientObservations[0].endTracking && !listOfOrderedPatientObservations[0].medicalRelease)
+		            )
+		            {
+						if (patient.attendanceType == "EMERGENCY") 
+						{
+							report.attendanceType_emergency += 1;
+						}
+						else if (patient.attendanceType == "ELECTIVE") 
+						{
+							report.attendanceType_elective += 1;
+						}
+						else 
+						{
+							report.attendanceType_other += 1;
+						}
 
-					console.log(days);
+						if (patient.locationType == "CTI" || patient.locationType == "UTI") 
+						{
+							report.locationType_room_ctiuti += 1;
+						}
+						else if (patient.locationType == "USI") 
+						{
+							report.locationType_room_usi += 1;
+						}
+						else 
+						{
+							report.locationType_room_other += 1;
+						}
 
-					if (days <= 5) 
-					{
-						report.attendanceType_time_until_five += 1;
-					}
-					else if (days > 5 && days <= 49) 
-					{
-						report.attendanceType_time_between_five_and_fortynine += 1;
-					}
-					else 
-					{
-						report.attendanceType_time_other += 1;
+						let days = await this.calculateDaysOfHospitalization(patient);
+
+						if (days <= 5) 
+						{
+							report.attendanceType_time_until_five += 1;
+						}
+						else if (days > 5 && days <= 49) 
+						{
+							report.attendanceType_time_between_five_and_fortynine += 1;
+						}
+						else 
+						{
+							report.attendanceType_time_other += 1;
+						}
+
 					}
 				}
+
 			}
 		}
 
@@ -487,6 +544,11 @@ export default class Report extends Component {
 	}
 
 	render() {
+
+		if (!this.state.hospital_report.hospital_report) {
+			return null;
+		}
+
 		return (
 
 			<Container>
@@ -498,13 +560,13 @@ export default class Report extends Component {
 
 				<Header style={{backgroundColor: "#005cd1"}}>
 					<Left style={{flex:1}} >
-						<Icon name="bars" style={{color: '#FFF', fontSize: 30}} onPress={() => this.props.navigation.openDrawer() } />
+						<IconNativeBase ios='ios-menu' android="md-menu" style={{color: '#FFF', fontSize: 40}} onPress={() => this.props.navigation.openDrawer() } />
 					</Left>
 					<Body style={{flex: 7}}>
 						<Title style={{color: 'white'}}> Relatório Consolidado</Title>
 					</Body>
 					<Right style={{flex:1}} >
-						<Icon name="sync" style={{color: '#FFF', fontSize: 25}} onPress={() => this.sincronizar(true) } />
+						<IconNativeBase name="sync" style={{color: '#FFF', fontSize: 30}} onPress={() => this.sincronizar(true) } />
 					</Right>
 				</Header>
 
@@ -524,7 +586,7 @@ export default class Report extends Component {
 
 					<DataTable>
 						
-						{this.state.hospital_report.hospital_report && this.state.hospital_report.hospital_report.map((prop) => {
+						{this.state.hospital_report.hospital_report.map((prop) => {
 							return ( 
 								<DataTable.Row key={prop.name} style={{backgroundColor:'#ffffff', minHeight: 20, height: 32}}>
 									<DataTable.Cell style={{width: '90%'}}>{prop.name}</DataTable.Cell>

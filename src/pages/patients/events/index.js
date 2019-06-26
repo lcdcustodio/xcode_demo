@@ -5,42 +5,44 @@ import { Button} from 'react-native-paper';
 import baseStyles from '../../../styles';
 import TimelineEvent, { TimelineEventEnum, TimelineEventEvaluation, timelineEventSorter } from '../../../util/TimelineEvent'
 import moment from 'moment';
-
+import Patient, { StatusVisitEnum } from '../../../model/Patient'
 
 export default class Events extends Component {
 	
 	constructor(props) {
 		super(props);
-		this.state = { 
-			eventos: this._loadEvents(),
+		const { patient } = this.props;
+		this.state = {
+			patient: patient,
+			eventos: this._loadEvents(patient),
 			isEditable: this.props.isEditable
 		};
 	}
 		
-	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
+	willFocus = this.props.navigation.addListener('willFocus', (payload) => {
+		const patient = this.props.navigation.getParam('patient');
 		this.setState({
-			eventos: this._loadEvents() 
+			patient: patient,
+			eventos: this._loadEvents(patient),
 		});
 	});
 
 	render() {
 		return (
 			<View style={{...baseStyles.container, ...styles.container}}>
+				<View style={{marginTop:12, marginBottom: 0, marginLeft: 10, marginRight: 10}}>
+					<Button mode="contained" onPress={this._create}> APONTAR </Button>
+				</View>
 				<FlatList 
 					contentContainerStyle={baseStyles.container}
 					data={this.state.eventos}
 					keyExtractor={ (event) => { return event.data.uuid; } }
-					renderItem={this._renderEvent}  />
-					
-					<View style={{marginTop:10, marginBottom: 10, marginLeft: 10, marginRight: 10}}>
-						<Button mode="contained" onPress={this._create}> APONTAR </Button>
-					</View>
+					renderItem={this._renderEvent}  />					
 			</View>
 		);
 	}
 
-	_loadEvents = () => {
-		const patient = this.props.patient;
+	_loadEvents = (patient) => {
 		let events = [];
 		this._pushRecommendation(events, patient.recommendationWelcomeHomeIndication, 'WELCOME HOME');
 		this._pushRecommendation(events, patient.recommendationMedicineReintegration, 'REC. MEDICAMENTOSA');
@@ -62,7 +64,7 @@ export default class Events extends Component {
 			destination.push(new TimelineEvent(
 				TimelineEventEnum.Recommendation,
 				source,
-				new Date(source.performedAt),
+				moment(source.performedAt).toDate(),
 				'Recomendação para alta',
 				name + (source.specialtyDisplayName ? (': ' + source.specialtyDisplayName) : ''),
 				source.observation,
@@ -75,7 +77,7 @@ export default class Events extends Component {
 	_createExamRequest = (json) => new TimelineEvent(
 		TimelineEventEnum.ExamRequest,
 		json,
-		new Date(json.performedAt),
+		moment(json.performedAt).toDate(),
 		'Exame',
 		json.examDisplayName,
 		(json.examHighCost ? 'Alto Custo' : null),
@@ -86,7 +88,7 @@ export default class Events extends Component {
 	_createFurtherOpinion = (json) => new TimelineEvent(
 		TimelineEventEnum.FurtherOpinion,
 		json,
-		new Date(json.performedAt),
+		moment(json.performedAt).toDate(),
 		'Parecer',
 		json.specialtyDisplayName,
 		null,
@@ -97,7 +99,7 @@ export default class Events extends Component {
 	_createMedicalProcedure = (json) => new TimelineEvent(
 		TimelineEventEnum.MedicalProcedure,
 		json,
-		new Date(json.performedAt),
+		moment(json.performedAt).toDate(),
 		'Procedimento',
 		json.tussDisplayName,
 		null,
@@ -108,7 +110,7 @@ export default class Events extends Component {
 	_createMedicineUsage = (json) => new TimelineEvent(
 		TimelineEventEnum.MedicineUsage,
 		json,
-		new Date(json.performedAt),
+		moment(json.performedAt).toDate(),
 		'Medicamento',
 		json.medicineDisplayName,
 		null,
@@ -122,7 +124,7 @@ export default class Events extends Component {
 
 	_create = () => {
 		this.props.navigation.navigate('Recommendation', {
-			patient: this.props.patient,
+			patient: this.state.patient,
 			update: false,
 			handleUpdatePatient: this.props.handleUpdatePatient,
 		});
@@ -130,16 +132,16 @@ export default class Events extends Component {
 
 	isaRecommendation = typeEnum => typeEnum === 4;
 	
-	isaPatientWithDischarge = _ =>  this.props.patient.iconNumber === 1; 
-	
 	_read = (event) => {
 		if (this.isaRecommendation(event.typeEnum)) {
-			if (this.isaPatientWithDischarge()) {
+			const patientEntity = new Patient(this.state.patient);
+			const status = patientEntity.getStatusVisitEnum()
+			if (status === StatusVisitEnum.VisitedDischarged || status === StatusVisitEnum.NotVisitedDischarged) {
 				Alert.alert('Atenção', "Paciente já está de alta", [{text:'OK',onPress:()=>{}}],{cancelable: false});
 			} else {
-				this.recommendationSelected(event, this.props.patient);
+				this.recommendationSelected(event, this.state.patient);
 				this.props.navigation.navigate('Recommendation', {
-					patient: this.props.patient,
+					patient: this.state.patient,
 					event: event,
 					update: true,
 					handleUpdatePatient: this.props.handleUpdatePatient,
@@ -149,25 +151,26 @@ export default class Events extends Component {
 	}
 
 	_delete = (event) => {
-
-		if(this.isaRecommendation(event.typeEnum)){
-			
-			if(this.isaPatientWithDischarge()){
-				Alert.alert('Atenção', "Não é permitido excluir a recomendação selecioanada!",[{text: 'OK', onPress: () => {}}],{cancelable: false});
+		if (this.isaRecommendation(event.typeEnum)) {
+			const patientEntity = new Patient(this.state.patient);
+			const status = patientEntity.getStatusVisitEnum()
+			if (status === StatusVisitEnum.VisitedDischarged || status === StatusVisitEnum.NotVisitedDischarged) {
+				Alert.alert('Atenção', "Não é permitido excluir a recomendação selecionada!",[{text: 'OK', onPress: () => {}}],{cancelable: false});
 			} else {
-				let uuid = event.data.uuid;
-				if(this.props.patient.recommendationClinicalIndication && uuid === this.props.patient.recommendationClinicalIndication.uuid)	{
-					this.props.patient.recommendationClinicalIndication = null;
-				} else 
-				if(this.props.patient.recommendationMedicineReintegration && uuid === this.props.patient.recommendationMedicineReintegration.uuid) { 
-						this.props.patient.recommendationMedicineReintegration = null;
-				} else 
-				if(this.props.patient.recommendationWelcomeHomeIndication && uuid === this.props.patient.recommendationWelcomeHomeIndication.uuid) {
-					this.props.patient.recommendationWelcomeHomeIndication = null;
+				const { handleUpdatePatient } = this.props;
+				const { patient } = this.state;
+				function deleteRecommendation(itemName) {
+					if (patient[itemName] && patient[itemName].uuid === event.data.uuid)	{
+						patient[itemName] = null;
+						handleUpdatePatient(itemName, null);
+					}
 				}
-				
+				deleteRecommendation('recommendationClinicalIndication');
+				deleteRecommendation('recommendationMedicineReintegration');
+				deleteRecommendation('recommendationWelcomeHomeIndication');
 				this.setState({
-					eventos: this._loadEvents() 
+					patient: patient,
+					eventos: this._loadEvents(patient),
 				});
 			}
 		} else {
@@ -244,7 +247,7 @@ ITEM_COLOR[TimelineEventEnum.Recommendation] = '#96FFDB';
 
 const styles = StyleSheet.create({
 	container: {
-		height: Math.round(Dimensions.get('window').height - 110 ),
+		//height: Math.round(Dimensions.get('window').height - 110 ),
 	},
 	date: {
 		fontFamily:'Segoe UI', 
