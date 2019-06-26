@@ -17,6 +17,7 @@ import _ from 'lodash'
 import { Searchbar, List } from 'react-native-paper';
 import TextValue from '../../components/TextValue';
 import Icon from 'react-native-vector-icons/FontAwesome5';
+import {Icon as IconNativeBase} from 'native-base';
 
 export default class Hospital extends Component {
 
@@ -51,6 +52,8 @@ export default class Hospital extends Component {
 		NetInfo.fetch().then(state => {
 
 			this.setState({isConnected: state.isConnected});
+
+			this.setState({hospitals: null});
 
 			this.sincronizar();
 
@@ -116,137 +119,194 @@ export default class Hospital extends Component {
 		            	Session.current.user = parse;
 		            }
 
-		            let token = parse.token;
-				
-					let data = { "hospitalizationList": [] };
-					
-					api.post('/api/v2.0/sync', data, 
-					{
-						headers: {
-							"Content-Type": "application/json",
-						  	"Accept": "application/json",
-						  	"Token": token, 
+		            this.state.token = parse.token;
+
+		            AsyncStorage.getItem('hospitalizationList', (err, res) => {
+						
+						let obj = [];
+
+						if (res != null) {
+
+							let hospitalizationList = JSON.parse(res);
+
+							for (var i = 0; i < hospitalizationList.length; i++) {
+
+								if (hospitalizationList[i].value instanceof Array) {
+
+									for (var key = 0; key < hospitalizationList[i].value.length; key++) {
+										if (hospitalizationList[i].value[key].beginDate) {
+											delete hospitalizationList[i].value[key]['beginDate'];
+										}
+									}
+									
+								}
+
+								let array = {};
+								array['id'] = hospitalizationList[i].idPatient;
+								array[hospitalizationList[i].key] = hospitalizationList[i].value;
+
+								obj.push(array);
+							}
 						}
 
-					}).then(response => {
+						console.log(JSON.stringify(obj));
 
-						this.setRequireSyncTimer(null);
+						let data = { "hospitalizationList": obj };
 
-						this.setState({loading: false});
-
-						if(response.status === 200) {
-
-							AsyncStorage.setItem('hospitalizationList', JSON.stringify([]));
-							AsyncStorage.setItem('morbidityComorbityList', JSON.stringify(response.data.content.morbidityComorbityList));
-
-							let hospitalListOrdered = _.orderBy(response.data.content.hospitalList, ['name'], ['asc']);
-							
-							let user = Session.current.user;
-
-							let listHospital = [];
-							
-							if (user.profile == 'CONSULTANT') {
-
-								hospitalListOrdered.forEach( hospital => {
-									if(this.isTheSameHospital(hospital, parse)){
-										listHospital.push(hospital)
-									}
-								});
-							
-							} 
-							else
-							{
-								listHospital = hospitalListOrdered;
+						console.log(data);
+					
+						api.post('/api/v2.0/sync', data, 
+						{
+							headers: {
+								"Content-Type": "application/json",
+							  	"Accept": "application/json",
+							  	"Token": this.state.token, 
 							}
 
-							this.getInformationHospital(listHospital).then(response => {
+						}).then(response => {
 
-								this.setState({loading: false});
-								
-								const dateSync = moment().format('DD/MM/YYYY [às] HH:mm:ss');
+							this.setRequireSyncTimer(null);
 
-								this.setState({dateSync: dateSync});
-
-								AsyncStorage.setItem('dateSync', dateSync);
-
-								AsyncStorage.setItem('hospitalList', JSON.stringify(listHospital));						
-							});
-						
-						} else {
-
-							Alert.alert(
-								'Erro ao carregar informações',
-								'Desculpe, recebemos um erro inesperado do servidor, por favor, faça login e tente novamente! ',
-								[
-									{
-										text: 'OK', onPress: () => {
-											this.props.navigation.navigate("SignIn");
-										}
-									},
-								],
-								{
-									cancelable: false
-								},
-							);
+							this.setState({loading: false});
 
 							console.log(response);
-						}
-					
-					}).catch(error => {
 
-						this.setState({loading: false});
+							if (response == undefined) {
 
-						this.setState({errorSync: (this.state.errorSync + 1) });
+								Alert.alert(
+									'Erro ao carregar informações',
+									'Desculpe, recebemos um erro inesperado do servidor, por favor tente novamente! ',
+									[
+										{
+											text: 'OK', onPress: () => {
+												console.log('ok');
+											}
+										},
+									],
+									{
+										cancelable: false
+									},
+								);
+							}
+							else
+							{
+								if(response.status === 200) {
 
-						if (this.state.errorSync <= 3) {
+									AsyncStorage.setItem('hospitalizationList', JSON.stringify([]));
+									AsyncStorage.setItem('morbidityComorbityList', JSON.stringify(response.data.content.morbidityComorbityList));
 
-							AsyncStorage.getItem('auth', (err, auth) => {
+									let hospitalListOrdered = _.orderBy(response.data.content.hospitalList, ['name'], ['asc']);
+									
+									let user = Session.current.user;
 
-								console.log(auth);
-						            
-					            data = JSON.parse(auth);
+									let listHospital = [];
+									
+									if (user.profile == 'CONSULTANT') {
 
-					            data = qs.stringify(data, { encode: false });
-
-								api.post('/api/login',
-									data
-								)
-								.then(response => {
-
-									let content = response.data.content;
-																	
-									if(response.data.success) {
-										AsyncStorage.setItem('userData', JSON.stringify(content), () => {
-											this.sincronizar(true);
+										hospitalListOrdered.forEach( hospital => {
+											if(this.isTheSameHospital(hospital, parse)){
+												listHospital.push(hospital)
+											}
 										});
+									
+									} 
+									else
+									{
+										listHospital = hospitalListOrdered;
 									}
 
-									console.log(response);
-								});
-					        });
-						}
-						else
-						{
-							Alert.alert(
-								'Erro ao carregar informações',
-								'Desculpe, recebemos um erro inesperado do servidor, por favor, faça login e tente novamente! ',
-								[
-									{
-										text: 'OK', onPress: () => {
-											this.props.navigation.navigate("SignIn");
-										}
-									},
-								],
-								{
-									cancelable: false
-								},
-							);
-						}
+									this.getInformationHospital(listHospital).then(response => {
 
-						console.log(error);
+										this.setState({loading: false});
+										
+										const dateSync = moment().format('DD/MM/YYYY [às] HH:mm:ss');
+
+										this.setState({dateSync: dateSync});
+
+										AsyncStorage.setItem('dateSync', dateSync);
+
+										AsyncStorage.setItem('hospitalList', JSON.stringify(listHospital));						
+									});
+								
+								} else {
+
+									Alert.alert(
+										'Erro ao carregar informações',
+										'Desculpe, recebemos um erro inesperado do servidor, por favor, faça login e tente novamente! ',
+										[
+											{
+												text: 'OK', onPress: () => {
+													this.props.navigation.navigate("SignIn");
+												}
+											},
+										],
+										{
+											cancelable: false
+										},
+									);
+
+									this.props.navigation.navigate("SignIn");
+
+									console.log(response);
+								}
+							}
+						
+						}).catch(error => {
+
+							this.setState({loading: false});
+
+							this.setState({errorSync: (this.state.errorSync + 1) });
+
+							if (this.state.errorSync <= 3) {
+
+								AsyncStorage.getItem('auth', (err, auth) => {
+
+									console.log(auth);
+							            
+						            data = JSON.parse(auth);
+
+						            data = qs.stringify(data, { encode: false });
+
+									api.post('/api/login',
+										data
+									)
+									.then(response => {
+
+										let content = response.data.content;
+																		
+										if(response.data.success) {
+											AsyncStorage.setItem('userData', JSON.stringify(content), () => {
+												this.sincronizar(true);
+											});
+										}
+
+										console.log(response);
+									});
+						        });
+							}
+							else
+							{
+								Alert.alert(
+									'Erro ao carregar informações',
+									'Desculpe, recebemos um erro inesperado do servidor, por favor, faça login e tente novamente! ',
+									[
+										{
+											text: 'OK', onPress: () => {
+												this.props.navigation.navigate("SignIn");
+											}
+										},
+									],
+									{
+										cancelable: false
+									},
+								);
+							}
+
+							console.log(error);
+
+						});
 
 					});
-
 				}
 			});
 
@@ -347,6 +407,7 @@ export default class Hospital extends Component {
 	}	
 
 	countTotalPatients = (patients, hospital) => {
+
 		let listPatients = this.state.allPatients;
 
 		let totalPatients = patients.reduce((totalPatients, patient) => {
@@ -494,6 +555,7 @@ export default class Hospital extends Component {
 				AsyncStorage.getItem('hospitalList', (err, res) => {
 
 					if (res == null) {
+
 						this.sincronizar(true);
 					}
 					else
@@ -575,7 +637,7 @@ export default class Hospital extends Component {
                         </View>
                         
                         <View style={{ width: '25%', justifyContent: 'center'}}>
-                            <Text style={{fontSize: 12, color: '#666', fontWeight:'normal'}}> {item.totalPatients} Internados </Text>
+                            <Text style={{fontSize: 14, color: '#666', fontWeight:'normal'}}> {item.totalPatients} Internados </Text>
                         </View>
                         
                         <View style={{ width: '8%', justifyContent: 'center'}}>
@@ -692,13 +754,13 @@ export default class Hospital extends Component {
 
 				<Header style={styles.headerMenu}>
 					<Left style={{flex:1}} >
-						<Icon name="bars" style={{color: '#FFF', fontSize: 30}} onPress={() => this.props.navigation.openDrawer() } />
+						<IconNativeBase ios='ios-menu' android="md-menu" style={{color: '#FFF', fontSize: 40}} onPress={() => this.props.navigation.openDrawer() } />
 					</Left>
 					<Body style={{flex: 7}}>
 						<Title style={{color: 'white'}}>Hospitais</Title>
 					</Body>
 					<Right style={{flex:1}} >
-						<Icon name="sync" style={{color: '#FFF', fontSize: 25}} onPress={() => this.sincronizar(true) } />
+						<IconNativeBase name="sync" style={{color: '#FFF', fontSize: 30}} onPress={() => this.sincronizar(true) } />
 					</Right>
 				</Header>
 

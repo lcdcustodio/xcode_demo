@@ -319,11 +319,11 @@ export default class Profile extends Component {
 								<RadioButton.Group onValueChange={ value => { this.handleHospitalizationType(value) } } value={this.props.patient.hospitalizationType}>
 									<View style={{flexDirection: 'row', alignItems: 'center'}}>
 										<RadioButton value="CLINICAL" />
-										<Text>Clínico</Text>
+										<Text onPress={ () => { this.handleHospitalizationType('CLINICAL') } }>Clínico</Text>
 									</View>
 									<View style={{flexDirection: 'row', alignItems: 'center'}}>
 										<RadioButton value="SURGICAL" />
-										<Text>Cirúrgico</Text>
+										<Text onPress={ () => { this.handleHospitalizationType('SURGICAL') } }>Cirúrgico</Text>
 									</View>
 								</RadioButton.Group>
 							</Dialog.Content>
@@ -489,15 +489,6 @@ export default class Profile extends Component {
 		);
 	}
 
-	renderMainProcedure() {
-		return (
-			this.state.isEditable ?
-				<TextValue color={'#0000FF'} value={this.props.patient.mainProcedureTUSSDisplayName ? this.props.patient.mainProcedureTUSSDisplayName : 'ESCOLHER'} press={ () => { this.setState({modalSelected: 'MainProcedure', modalMainProcedure: true}) }} />
-			:
-				<TextValue value={this.props.patient.mainProcedureTUSSDisplayName ? this.props.patient.mainProcedureTUSSDisplayName : 'NÃO INFORMADO'} />
-		);
-	}
-
 	renderPrimaryCID() {
 		return (
 			this.state.isEditable ?
@@ -641,14 +632,6 @@ export default class Profile extends Component {
 					<ListItem>
 						<Body>
 							<Text style={{fontWeight: 'bold'}}>Motivo da Alta Administrativa{"\n"}<TextValue value={this.props.patient.exitDescription} /></Text>
-						</Body>
-					</ListItem>
-
-					<ListItem>
-						<Body>
-							<Text style={{fontWeight: 'bold'}}>Procedimento Principal{"\n"}
-								{ this.renderMainProcedure() }
-							</Text>
 						</Body>
 					</ListItem>
 

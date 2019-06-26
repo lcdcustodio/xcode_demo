@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Alert, StatusBar, Text, StyleSheet, ImageBackground } from 'react-native';
+import { Alert, StatusBar, Text, StyleSheet, ImageBackground,KeyboardAvoidingView } from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
 import AsyncStorage from '@react-native-community/async-storage';
 import qs from "qs";
@@ -100,6 +100,8 @@ export default class SignIn extends Component {
 			)
 			.then(response => {
 
+				AsyncStorage.removeItem('hospitalList');
+
 				let content = response.data.content;
 				
 				Session.current.user = new User(content.name, content.profile);
@@ -148,38 +150,52 @@ export default class SignIn extends Component {
 	render() {
 		return (
 			<ImageBackground source={require('../../images/doctor-background.png')} style={ styles.imgBackground }>
+				
 				<Container>
+
 						<Spinner
 							visible={this.state.loading}
 							textContent={this.state.textContent}
 							textStyle={styles.spinnerTextStyle} />
 						<StatusBar hidden />
+						
 						<Logo source={require('../../images/logo-medico-consultor-branca.png')} resizeMode="contain" /> 
-						<Text style={styles.titulo}>ACESSAR MÉDICO CONSULTOR</Text>
-						<Input
-							placeholder="Endereço de E-mail"
-							value={this.state.email}
-							onChangeText={this.handleEmailChange}
-							autoCapitalize="none"
-							autoCorrect={false}
-              				placeholderTextColor="#FFFFFF"
-							textAlign="auto"
-						/>
-						<Input
-							placeholder="Senha"
-							value={this.state.password}
-							onChangeText={this.handlePasswordChange}
-							autoCapitalize="none"
-							autoCorrect={false}
-							secureTextEntry
-							placeholderTextColor="#FFFFFF"
-							textAlign="auto"
-						/>
-						{this.state.error.length !== 0 && <ErrorMessage>{this.state.error}</ErrorMessage>}
-						<Button onPress={this.handleSignInPress}>
-							<ButtonText>ENTRAR</ButtonText>
-						</Button>
+						
+						<KeyboardAvoidingView style={styles.container} behavior="padding" enabled>
+							
+							<Text style={styles.titulo}>ACESSAR MÉDICO CONSULTOR</Text>
+							
+							<Input
+								placeholder="Usuário"
+								value={this.state.email}
+								onChangeText={this.handleEmailChange}
+								autoCapitalize="none"
+								autoCorrect={false}
+	              				placeholderTextColor="#FFFFFF"
+								textAlign="auto"
+							/>
+							
+							<Input
+								placeholder="Senha"
+								value={this.state.password}
+								onChangeText={this.handlePasswordChange}
+								autoCapitalize="none"
+								autoCorrect={false}
+								secureTextEntry
+								placeholderTextColor="#FFFFFF"
+								textAlign="auto"
+							/>
+							
+							{this.state.error.length !== 0 && <ErrorMessage>{this.state.error}</ErrorMessage>}
+							
+							<Button onPress={this.handleSignInPress}>
+								<ButtonText>ENTRAR</ButtonText>
+							</Button>
+
+						</KeyboardAvoidingView>
+
 				</Container>
+
 			</ImageBackground>
 		)
 	}

@@ -99,15 +99,13 @@ export default StyleSheet.create({
 	alertInformation : {
 		flexDirection: "row", 
 		flexWrap: 'wrap', 
-		width: '100%', 
 		alignItems:'center',
 		justifyContent: 'center'
-
 	},
 	textObservation : {
-		fontWeight: "bold", 
-		width: '100%',
-		fontSize: 17
+		height: 80, 
+		textAlign: 'center', 
+		backgroundColor: 'white'
 	},
 	close : {
 		color: 'white', 
