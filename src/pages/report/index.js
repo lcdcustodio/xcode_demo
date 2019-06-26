@@ -124,19 +124,28 @@ export default class Report extends Component {
 						
 						let obj = [];
 
-						let hospitalizationList = JSON.parse(res);
+						if (res != null) {
 
-						for (var i = 0; i < hospitalizationList.length; i++) {
-							
-							console.log(hospitalizationList[i]);
+							let hospitalizationList = JSON.parse(res);
 
-							let array = {};
-							array['id'] = hospitalizationList[i].idPatient;
-							array[hospitalizationList[i].key] = hospitalizationList[i].value;
+							for (var i = 0; i < hospitalizationList.length; i++) {
 
-							console.log(array);
+								if (hospitalizationList[i].value instanceof Array) {
 
-							obj.push(array);
+									for (var key = 0; key < hospitalizationList[i].value.length; key++) {
+										if (hospitalizationList[i].value[key].beginDate) {
+											delete hospitalizationList[i].value[key]['beginDate'];
+										}
+									}
+									
+								}
+
+								let array = {};
+								array['id'] = hospitalizationList[i].idPatient;
+								array[hospitalizationList[i].key] = hospitalizationList[i].value;
+
+								obj.push(array);
+							}
 						}
 
 						let data = { "hospitalizationList": obj };
