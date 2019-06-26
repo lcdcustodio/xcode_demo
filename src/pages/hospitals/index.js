@@ -59,6 +59,33 @@ export default class Hospital extends Component {
 
 		});
 
+		AsyncStorage.getItem('hospitalizationList', (err, res) => {
+						
+			let obj = [];
+
+			let hospitalizationList = JSON.parse(res);
+
+			for (var i = 0; i < hospitalizationList.length; i++) {
+				
+				console.log(hospitalizationList[i]);
+
+				if (hospitalizationList[i].value instanceof Array) {
+					for (var i = 0; i < hospitalizationList[i].value.length; i++) {
+						console.log(hospitalizationList[i].value[i]);
+					}
+				}
+
+				let array = {};
+				array['id'] = hospitalizationList[i].idPatient;
+				array[hospitalizationList[i].key] = hospitalizationList[i].value;
+
+				console.log(array);
+
+				obj.push(array);
+			}
+
+		});
+
 		AsyncStorage.getItem('dateSync', (err, res) => {
 			
 			if (res !== null) {
@@ -119,141 +146,163 @@ export default class Hospital extends Component {
 		            	Session.current.user = parse;
 		            }
 
-		            let token = parse.token;
-					
-					AsyncStorage.getItem('hospitalizationList', (err, res) => {
-						console.log(JSON.parse(res));
-					});
-					
-					let data = { "hospitalizationList": [] };
-					
-					api.post('/api/v2.0/sync', data, 
-					{
-						headers: {
-							"Content-Type": "application/json",
-						  	"Accept": "application/json",
-						  	"Token": token, 
+		            this.state.token = parse.token;
+
+		            AsyncStorage.getItem('hospitalizationList', (err, res) => {
+						
+						let obj = [];
+
+						let hospitalizationList = JSON.parse(res);
+
+						for (var i = 0; i < hospitalizationList.length; i++) {
+							
+							console.log(hospitalizationList[i]);
+
+							let array = {};
+							array['id'] = hospitalizationList[i].idPatient;
+							array[hospitalizationList[i].key] = hospitalizationList[i].value;
+
+							console.log(array);
+
+							obj.push(array);
 						}
 
-					}).then(response => {
+						let data = { "hospitalizationList": obj };
 
-						this.setRequireSyncTimer(null);
-
-						this.setState({loading: false});
-
-						if(response.status === 200) {
-
-							AsyncStorage.setItem('hospitalizationList', JSON.stringify([]));
-							AsyncStorage.setItem('morbidityComorbityList', JSON.stringify(response.data.content.morbidityComorbityList));
-
-							let hospitalListOrdered = _.orderBy(response.data.content.hospitalList, ['name'], ['asc']);
-							
-							let user = Session.current.user;
-
-							let listHospital = [];
-							
-							if (user.profile == 'CONSULTANT') {
-
-								hospitalListOrdered.forEach( hospital => {
-									if(this.isTheSameHospital(hospital, parse)){
-										listHospital.push(hospital)
-									}
-								});
-							
-							} 
-							else
-							{
-								listHospital = hospitalListOrdered;
+						console.log(data);
+					
+						api.post('/api/v2.0/sync', data, 
+						{
+							headers: {
+								"Content-Type": "application/json",
+							  	"Accept": "application/json",
+							  	"Token": this.state.token, 
 							}
 
-							this.getInformationHospital(listHospital).then(response => {
+						}).then(response => {
 
-								this.setState({loading: false});
-								
-								const dateSync = moment().format('DD/MM/YYYY [às] HH:mm:ss');
+							this.setRequireSyncTimer(null);
 
-								this.setState({dateSync: dateSync});
-
-								AsyncStorage.setItem('dateSync', dateSync);
-
-								AsyncStorage.setItem('hospitalList', JSON.stringify(listHospital));						
-							});
-						
-						} else {
-
-							Alert.alert(
-								'Erro ao carregar informações',
-								'Desculpe, recebemos um erro inesperado do servidor, por favor, faça login e tente novamente! ',
-								[
-									{
-										text: 'OK', onPress: () => {
-											this.props.navigation.navigate("SignIn");
-										}
-									},
-								],
-								{
-									cancelable: false
-								},
-							);
+							this.setState({loading: false});
 
 							console.log(response);
-						}
-					
-					}).catch(error => {
 
-						this.setState({loading: false});
+							if(response.status === 200) {
 
-						this.setState({errorSync: (this.state.errorSync + 1) });
+								AsyncStorage.setItem('hospitalizationList', JSON.stringify([]));
+								AsyncStorage.setItem('morbidityComorbityList', JSON.stringify(response.data.content.morbidityComorbityList));
 
-						if (this.state.errorSync <= 3) {
+								let hospitalListOrdered = _.orderBy(response.data.content.hospitalList, ['name'], ['asc']);
+								
+								let user = Session.current.user;
 
-							AsyncStorage.getItem('auth', (err, auth) => {
+								let listHospital = [];
+								
+								if (user.profile == 'CONSULTANT') {
 
-								console.log(auth);
-						            
-					            data = JSON.parse(auth);
-
-					            data = qs.stringify(data, { encode: false });
-
-								api.post('/api/login',
-									data
-								)
-								.then(response => {
-
-									let content = response.data.content;
-																	
-									if(response.data.success) {
-										AsyncStorage.setItem('userData', JSON.stringify(content), () => {
-											this.sincronizar(true);
-										});
-									}
-
-									console.log(response);
-								});
-					        });
-						}
-						else
-						{
-							Alert.alert(
-								'Erro ao carregar informações',
-								'Desculpe, recebemos um erro inesperado do servidor, por favor, faça login e tente novamente! ',
-								[
-									{
-										text: 'OK', onPress: () => {
-											this.props.navigation.navigate("SignIn");
+									hospitalListOrdered.forEach( hospital => {
+										if(this.isTheSameHospital(hospital, parse)){
+											listHospital.push(hospital)
 										}
-									},
-								],
+									});
+								
+								} 
+								else
 								{
-									cancelable: false
-								},
-							);
-						}
+									listHospital = hospitalListOrdered;
+								}
 
-						console.log(error);
+								this.getInformationHospital(listHospital).then(response => {
+
+									this.setState({loading: false});
+									
+									const dateSync = moment().format('DD/MM/YYYY [às] HH:mm:ss');
+
+									this.setState({dateSync: dateSync});
+
+									AsyncStorage.setItem('dateSync', dateSync);
+
+									AsyncStorage.setItem('hospitalList', JSON.stringify(listHospital));						
+								});
+							
+							} else {
+
+								Alert.alert(
+									'Erro ao carregar informações',
+									'Desculpe, recebemos um erro inesperado do servidor, por favor, faça login e tente novamente! ',
+									[
+										{
+											text: 'OK', onPress: () => {
+												this.props.navigation.navigate("SignIn");
+											}
+										},
+									],
+									{
+										cancelable: false
+									},
+								);
+
+								this.props.navigation.navigate("SignIn");
+
+								console.log(response);
+							}
+						
+						}).catch(error => {
+
+							this.setState({loading: false});
+
+							this.setState({errorSync: (this.state.errorSync + 1) });
+
+							if (this.state.errorSync <= 3) {
+
+								AsyncStorage.getItem('auth', (err, auth) => {
+
+									console.log(auth);
+							            
+						            data = JSON.parse(auth);
+
+						            data = qs.stringify(data, { encode: false });
+
+									api.post('/api/login',
+										data
+									)
+									.then(response => {
+
+										let content = response.data.content;
+																		
+										if(response.data.success) {
+											AsyncStorage.setItem('userData', JSON.stringify(content), () => {
+												this.sincronizar(true);
+											});
+										}
+
+										console.log(response);
+									});
+						        });
+							}
+							else
+							{
+								Alert.alert(
+									'Erro ao carregar informações',
+									'Desculpe, recebemos um erro inesperado do servidor, por favor, faça login e tente novamente! ',
+									[
+										{
+											text: 'OK', onPress: () => {
+												this.props.navigation.navigate("SignIn");
+											}
+										},
+									],
+									{
+										cancelable: false
+									},
+								);
+							}
+
+							console.log(error);
+
+						});
 
 					});
-
 				}
 			});
 
