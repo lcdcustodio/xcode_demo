@@ -489,15 +489,6 @@ export default class Profile extends Component {
 		);
 	}
 
-	renderMainProcedure() {
-		return (
-			this.state.isEditable ?
-				<TextValue color={'#0000FF'} value={this.props.patient.mainProcedureTUSSDisplayName ? this.props.patient.mainProcedureTUSSDisplayName : 'ESCOLHER'} press={ () => { this.setState({modalSelected: 'MainProcedure', modalMainProcedure: true}) }} />
-			:
-				<TextValue value={this.props.patient.mainProcedureTUSSDisplayName ? this.props.patient.mainProcedureTUSSDisplayName : 'NÃO INFORMADO'} />
-		);
-	}
-
 	renderPrimaryCID() {
 		return (
 			this.state.isEditable ?
@@ -641,14 +632,6 @@ export default class Profile extends Component {
 					<ListItem>
 						<Body>
 							<Text style={{fontWeight: 'bold'}}>Motivo da Alta Administrativa{"\n"}<TextValue value={this.props.patient.exitDescription} /></Text>
-						</Body>
-					</ListItem>
-
-					<ListItem>
-						<Body>
-							<Text style={{fontWeight: 'bold'}}>Procedimento Principal{"\n"}
-								{ this.renderMainProcedure() }
-							</Text>
 						</Body>
 					</ListItem>
 
