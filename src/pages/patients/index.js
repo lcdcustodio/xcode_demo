@@ -111,13 +111,13 @@ export default class Patients extends Component {
 
         const today = moment();
 
-        let admissionDate = moment(moment(patient.admissionDate).format('YYYY-MM-DD HH:mm:ss'));
+        let admissionDate = moment(moment(patient.admissionDate).format('YYYY-MM-DD'));
 
         let totalHospitalizationHours = today.diff(admissionDate, 'hours');
 
         if (patient.exitDate != null) {
 
-            let exitDate = moment(moment(patient.exitDate).format('YYYY-MM-DD HH:mm:ss'));
+            let exitDate = moment(moment(patient.exitDate).format('YYYY-MM-DD'));
 
             totalHospitalizationHours = exitDate.diff(admissionDate, 'hours');
         }

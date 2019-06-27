@@ -8,15 +8,15 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import moment from 'moment';
 import qs from "qs";
-import _ from 'lodash'
+import _ from 'lodash';
 import { RdRootHeader } from "../../components/rededor-base";
 import api from '../../services/api';
 import Line from '../../components/Line'
 import Timer from '../../components/Timer'
 import Session from '../../Session';
 import TextValue from '../../components/TextValue';
-import baseStyles from '../../styles'
-import styles from './style'
+import baseStyles from '../../styles';
+import styles from './style';
 
 export default class Hospital extends Component {
 
@@ -140,10 +140,18 @@ export default class Hospital extends Component {
         }
     }
 
-	countTotalPatients = (patients, hospitalName) => {
+	countTotalPatients = (patients, hospital) => {
+
+		let listPatients = this.state.allPatients;
 		
 		let totalPatients = patients.reduce((totalPatients, patient) => {
 			
+			patient.hospitalName = hospital.name;
+
+			patient.hospitalId = hospital.id;
+
+			listPatients.push(patient);
+
 			let iconNumber = this.getIconNumber(patient);
 
 			let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
@@ -172,9 +180,10 @@ export default class Hospital extends Component {
 
 		}, 0);
 
+		this.setState({ allPatients: listPatients });
+
 		return totalPatients;
 	}
-
 
 	loadHospitals = async () => {
 		
@@ -822,12 +831,13 @@ export default class Hospital extends Component {
 
 				<Searchbar placeholder="Buscar paciente" onChangeText={patientQuery => { this.filterPatients(patientQuery) }} value={this.state.patientQuery} />
 				
-				<List.Section style={styles.listItemPatient}>
-					<FlatList
-						data={this.state.patientsFiltered}
-						keyExtractor={element => `${element.id}`}
-						renderItem={this.renderItemPatient} />
-				</List.Section>
+					<List.Section style={styles.listItemPatient}>
+						<FlatList
+							data={this.state.patientsFiltered}
+							keyExtractor={element => `${element.id}`}
+							renderItem={this.renderItemPatient} 
+							keyboardShouldPersistTaps="always" /> 
+					</List.Section>
 				
 				<Line size={1} />
 
