@@ -1,23 +1,22 @@
 import React, { Component } from "react";
-import api from '../../services/api';
-import { Container, Content, Header, Left, Right, Body, Title, Text, Thumbnail, Card, CardItem } from 'native-base';
-
+import { Container, Content, Text, Card, CardItem } from 'native-base';
 import { Alert, View, FlatList, TouchableOpacity, Image, BackHandler } from "react-native";
+import { Searchbar, List } from 'react-native-paper';
 import AsyncStorage from '@react-native-community/async-storage';
 import NetInfo from "@react-native-community/netinfo";
 import Spinner from 'react-native-loading-spinner-overlay';
-import baseStyles from '../../styles'
-import styles from './style'
-import Line from '../../components/Line'
-import Timer from '../../components/Timer'
+import Icon from 'react-native-vector-icons/FontAwesome5';
 import moment from 'moment';
-import Session from '../../Session';
 import qs from "qs";
 import _ from 'lodash'
-import { Searchbar, List } from 'react-native-paper';
+import { RdRootHeader } from "../../components/rededor-base";
+import api from '../../services/api';
+import Line from '../../components/Line'
+import Timer from '../../components/Timer'
+import Session from '../../Session';
 import TextValue from '../../components/TextValue';
-import Icon from 'react-native-vector-icons/FontAwesome5';
-import {Icon as IconNativeBase} from 'native-base';
+import baseStyles from '../../styles'
+import styles from './style'
 
 export default class Hospital extends Component {
 
@@ -812,17 +811,10 @@ export default class Hospital extends Component {
 		            textContent={this.state.textContent}
 		            textStyle={styles.spinnerTextStyle} />
 
-				<Header style={styles.headerMenu}>
-					<Left style={{flex:1}} >
-						<IconNativeBase ios='ios-menu' android="md-menu" style={{color: '#FFF', fontSize: 40}} onPress={() => this.props.navigation.openDrawer() } />
-					</Left>
-					<Body style={{flex: 7}}>
-						<Title style={{color: 'white'}}>Hospitais</Title>
-					</Body>
-					<Right style={{flex:1}} >
-						<IconNativeBase name="sync" style={{color: '#FFF', fontSize: 30}} onPress={() => this.sincronizar(true) } />
-					</Right>
-				</Header>
+				<RdRootHeader
+					title='Hospitais'
+					menu={ () => this.props.navigation.openDrawer() }
+					sync={ () => this.sincronizar(true) }/>
 
 				{ this.renderTimer() }			
 

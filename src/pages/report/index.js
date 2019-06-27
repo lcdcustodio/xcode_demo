@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import api from '../../services/api';
-import { Container, Content, Header, Left, Right, Body, Title, Text, Card, CardItem } from 'native-base';
-
-import { Alert, View, FlatList, TouchableOpacity, Image, BackHandler } from "react-native";
+import { Container, Content, Text, Card, CardItem } from 'native-base';
+import { Alert, View, BackHandler } from "react-native";
 import AsyncStorage from '@react-native-community/async-storage';
 import NetInfo from "@react-native-community/netinfo";
 import Spinner from 'react-native-loading-spinner-overlay';
@@ -12,12 +11,8 @@ import moment from 'moment';
 import Session from '../../Session';
 import qs from "qs";
 import _ from 'lodash'
-import { Searchbar, List } from 'react-native-paper';
-import TextValue from '../../components/TextValue';
-import Icon from 'react-native-vector-icons/FontAwesome5';
-import {Icon as IconNativeBase} from 'native-base';
 import { DataTable } from 'react-native-paper';
-import { RdHeader } from '../../components/rededor-base';
+import { RdRootHeader } from '../../components/rededor-base';
 import type { ViewStyleProp } from 'react-native/Libraries/StyleSheet/StyleSheet';
 
 export default class Report extends Component {
@@ -645,17 +640,10 @@ export default class Report extends Component {
 		            textContent={this.state.textContent}
 		            textStyle={{color: '#FFF'}} />
 
-				<Header style={{backgroundColor: "#005cd1"}}>
-					<Left style={{flex:1}} >
-						<IconNativeBase ios='ios-menu' android="md-menu" style={{color: '#FFF', fontSize: 40}} onPress={() => this.props.navigation.openDrawer() } />
-					</Left>
-					<Body style={{flex: 7}}>
-						<Title style={{color: 'white'}}> Relatório Consolidado</Title>
-					</Body>
-					<Right style={{flex:1}} >
-						<IconNativeBase name="sync" style={{color: '#FFF', fontSize: 30}} onPress={() => this.sincronizar(true) } />
-					</Right>
-				</Header>
+				<RdRootHeader
+					title='Relatório Consolidado'
+					menu={ () => this.props.navigation.openDrawer() }
+					sync={ () => this.sincronizar(true) }/>
 
 				{ this.renderTimer() }			
 
