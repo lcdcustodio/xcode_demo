@@ -5,15 +5,14 @@ import styles from './style'
 import moment from 'moment';
 import _ from 'lodash'
 import uuid from 'uuid/v4';
+import { Card, CardItem, Text, Body, Right, Left } from "native-base";
+import { Button, Switch, Divider, Portal, Dialog, TextInput } from 'react-native-paper';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 
+import { RdIf } from '../../../components/rededor-base'
 import Patient, { HospitalizationStatusEnum, StatusVisitEnum, FinalizationErrorEnum } from '../../../model/Patient';
 import { TrackingEndModeEnum } from '../../../model/Tracking';
 import TabEnum from '../PatientDetailTabEnum';
-
-import { Card, CardItem, Text, Body, Right, Left } from "native-base";
-import { Button, Switch, Divider, Portal, Dialog, TextInput } from 'react-native-paper';
-
-import Icon from 'react-native-vector-icons/FontAwesome5';
 
 export default class Visitas extends React.Component {
 	
@@ -208,15 +207,17 @@ export default class Visitas extends React.Component {
 							</Body>
 						</CardItem>
 	
-						<CardItem footer bordered style={{ alignItems: 'center', justifyContent: 'center', height: 40}}>							
-							<View>
-								<Button color='#00dda2' style={{color: '#00dda2'}} icon="add" onPress={_=>this.showVisit(item)}>Editar</Button>
-							</View>
-							<View  style={{borderRightColor: '#ffffff', borderWidth: 1, height: '80%', borderBottomColor: '#ffffff', borderTopColor: '#ffffff', borderLeftColor: '#ebeff2'}}></View>
-							<View>
-								<Button color='#f73655' style={{color: '#f73655'}} icon="remove" onPress={_=>this.alertToRemove(item)}>Excluir</Button>
-							</View>
-						</CardItem>
+						<RdIf condition={this.state.isEditable}>
+							<CardItem footer bordered style={{ alignItems: 'center', justifyContent: 'center', height: 40}}>							
+								<View>
+									<Button color='#00dda2' style={{color: '#00dda2'}} icon="add" onPress={_=>this.showVisit(item)}>Editar</Button>
+								</View>
+								<View  style={{borderRightColor: '#ffffff', borderWidth: 1, height: '80%', borderBottomColor: '#ffffff', borderTopColor: '#ffffff', borderLeftColor: '#ebeff2'}}></View>
+								<View>
+									<Button color='#f73655' style={{color: '#f73655'}} icon="remove" onPress={_=>this.alertToRemove(item)}>Excluir</Button>
+								</View>
+							</CardItem>
+						</RdIf>
 					</Card>
 				</View>
 			);
@@ -239,36 +240,28 @@ export default class Visitas extends React.Component {
 	}
 
 	showButton = () => {
-		
 		const patient = new Patient(this.state.patient);
+		switch (patient.getHospitalizationStatusEnum()) {
+			case HospitalizationStatusEnum.Open:
+				return (patient.getStatusVisitEnum() === StatusVisitEnum.Visited)
+					? <VisitedButton/>
+					: <VisitButton onPress={this.appoint}/>;
 
-		if (this.state.isEditable) {
-
-			console.log("patient => ", this.state.patient);
-
-			switch (patient.getHospitalizationStatusEnum()) {
-				case HospitalizationStatusEnum.Open:
-					return (patient.getStatusVisitEnum() === StatusVisitEnum.Visited)
-						? <VisitedButton/>
-						: <VisitButton onPress={this.appoint}/>;
-
-				case HospitalizationStatusEnum.CanBeClosed:
-					const lastTracking = patient.getLastTracking();
-					if (lastTracking && lastTracking.endMode === TrackingEndModeEnum.AdminDischarge) {
-						return <FinalizeButton onPress={this.finalize}/>;
-					}
-					if (lastTracking && lastTracking.json.endDate) {
-						return (patient.getStatusVisitEnum() === StatusVisitEnum.VisitedEndTracking)
-							? <EndTrackingButtonDisabled/>
-							: <EndTrackingButtonEnabled/>;
-					}
-				case HospitalizationStatusEnum.Closed:
-					console.warn('Visitas: finalizado não é exibido.', patient);
-					return null;
-			}
+			case HospitalizationStatusEnum.CanBeClosed:
+				const lastTracking = patient.getLastTracking();
+				if (lastTracking && lastTracking.endMode === TrackingEndModeEnum.AdminDischarge) {
+					return <FinalizeButton onPress={this.finalize}/>;
+				}
+				if (lastTracking && lastTracking.json.endDate) {
+					return (patient.getStatusVisitEnum() === StatusVisitEnum.VisitedEndTracking)
+						? <EndTrackingButtonDisabled/>
+						: <EndTrackingButtonEnabled/>;
+				}
+			case HospitalizationStatusEnum.Closed:
+				console.log('Visitas: finalizado não é exibido.', patient);
+				return null;
 		}
-
-		console.warn('Visitas: tipo de botão não mapeado.', patient);
+		console.log('Visitas: tipo de botão não mapeado.', patient);
 		return null;
 	}
 	
@@ -313,10 +306,9 @@ export default class Visitas extends React.Component {
 			listOfOrderedObservationDate = _.orderBy(this.props.patient.observationList, ['observationDate'], ['desc'])
 		}
 		return (
-
 			<View style={{ ...baseStyles.container }}>	
 				{ this.renderModal() }
-				{ this.showButton() }
+				{ this.state.isEditable && this.showButton() }
 				<FlatList
 					data={listOfOrderedObservationDate}
 					keyExtractor={item => item.uuid}

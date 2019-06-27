@@ -50,7 +50,7 @@ class PatientDetail extends Component {
 
 		this.setState({patient});
 
-		AsyncStorage.getItem('hospitalList', (err, res) => {
+		await AsyncStorage.getItem('hospitalList', (err, res) => {
 
 			let hospitalList = JSON.parse(res);
 
@@ -74,7 +74,7 @@ class PatientDetail extends Component {
 
 		});
 
-		AsyncStorage.getItem('hospitalizationList', (err, res) => {
+		await AsyncStorage.getItem('hospitalizationList', async (err, res) => {
 
 			let hospitalizationList = JSON.parse(res);
 
@@ -84,7 +84,7 @@ class PatientDetail extends Component {
 				value: value
 			});
 
-			AsyncStorage.setItem('hospitalizationList', JSON.stringify(hospitalizationList), () => {
+			await AsyncStorage.setItem('hospitalizationList', JSON.stringify(hospitalizationList), () => {
 
 				console.log(hospitalizationList);
 
