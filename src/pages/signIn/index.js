@@ -24,7 +24,7 @@ export default class SignIn extends Component {
 	}
 
 	componentDidMount() {
-	
+        	
         this.setState({loading: true});
 
         AsyncStorage.getItem('hospitalList', (err, hospitalList) => {
@@ -87,82 +87,87 @@ export default class SignIn extends Component {
 			this.setState({ textContent: 'Aguarde...' });
 
 			this.setState({loading: true});
-
+			
 			const params = {
 				username: this.state.email,
 				password: this.state.password
 			};
 
-			let formdata = new FormData();
+			const data = qs.stringify(params, { encode: false });
 
-			formdata.append('username', params.username);
-			
-			formdata.append('password', params.password);
-
-			let xhr = new XMLHttpRequest();
-
-			xhr.open('POST', 'https://appmedconsultor.rededor.com.br/api/login');
-
-			const react = this;
-
-			console.log(react);
-
-			xhr.onload = function () {
-
-				let response = JSON.parse(xhr.response);
-
-				content = response.content;
+			api.post('/api/login',
+				data
+			)
+			.then(response => {
 
 				console.log(response);
-				
-				console.log(content);
-				
-				if(content && response.success) {
-					
-					Session.current.user = new User(content.name, content.profile);
 
-					AsyncStorage.multiSet([
-					    ["auth", JSON.stringify(params)],
-					    ["userData", JSON.stringify(content)]
-					], async() => {
+				if (response == undefined) {
 
-						react.setState({loading: false});
-
-						react.props.navigation.navigate("Hospitals");
-				
-			        });
-		        }	
-		        else
-		        {		   
-		        	react.setState({ error: 'Erro inesperado!' }, () => false); 
-
-					react.setState({loading: false});
-		        }	
-		    };
-
-			xhr.onerror = function () {
-				
-				console.log(xhr._response);
-				
-				react.setState({loading: false});
-				
-				if(xhr.status == 401) 
-				{
-					react.setState({ error: 'Usuário e senha não coincidem' }, () => false);
-				} 
-				else if(xhr.status == 500) 
-				{
-					react.setState({ error: 'Falha na comunicação com o servidor de aplicação' }, () => false);
+					Alert.alert(
+						'Erro ao carregar informações',
+						'Desculpe, recebemos um erro inesperado do servidor, por favor tente novamente! ',
+						[
+							{
+								text: 'OK', onPress: () => {
+									console.log('ok');
+								}
+							},
+						],
+						{
+							cancelable: false
+						},
+					);
 				}
 				else
 				{
-					react.setState({ error: xhr._response }, () => false);
+					AsyncStorage.removeItem('hospitalList');
+
+					let content = response.data.content;
+
+					console.log(content);
+					
+					Session.current.user = new User(content.name, content.profile);
+					
+					if(response && response.data.success) {
+
+						//this.setState({ textContent: 'Sincronizando...' });
+
+						AsyncStorage.multiSet([
+						    ["auth", JSON.stringify(params)],
+						    ["userData", JSON.stringify(content)]
+						], async() => {
+
+							//let baseDataSync = await this.getBaseDataSync();
+
+							//console.log(JSON.stringify(baseDataSync));
+
+							this.setState({loading: false});
+
+							this.props.navigation.navigate("Hospitals");
+					
+				        });	
+			        }	
+			        else
+			        {		    	
+						this.setState({loading: false});
+			        }	
+		        }	
+
+		        console.log(response);
+
+			}).catch(error => {
+				
+				this.setState({loading: false});
+				
+				console.log(error);
+				
+				if(error.response.status == 401) {
+					this.setState({ error: 'Usuário e senha não coincidem' }, () => false);
+				} else if(error.response.status == 500) {
+					this.setState({ error: 'Falha na comunicação com o servidor de aplicação' }, () => false);
 				}
-			};
-
-			xhr.send(formdata);
-
-			console.log(xhr);
+			});
 		} 
 	};
 
@@ -205,7 +210,7 @@ export default class SignIn extends Component {
 								textAlign="auto"
 							/>
 							
-							{this.state.error.length !== 0 && <ErrorMessage style={styles.errorMessage}>{this.state.error}</ErrorMessage>}
+							{this.state.error.length !== 0 && <ErrorMessage>{this.state.error}</ErrorMessage>}
 							
 							<Button onPress={this.handleSignInPress}>
 								<ButtonText>ENTRAR</ButtonText>
@@ -238,8 +243,5 @@ const styles = StyleSheet.create({
 	},
 	spinnerTextStyle: {
 	    color: '#FFF'
-	},
-	errorMessage: {
-	    width: '100%'
 	},
 });
