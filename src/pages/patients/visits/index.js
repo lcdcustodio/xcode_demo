@@ -222,11 +222,11 @@ export default class Visitas extends React.Component {
 						<RdIf condition={this.state.isEditable}>
 							<CardItem footer bordered style={{ alignItems: 'center', justifyContent: 'center', height: 40}}>							
 								<View>
-									<Button color='#00dda2' style={{color: '#00dda2'}} icon="add" onPress={_=>this.showVisit(item)}>Editar</Button>
+									<Text style={{color: '#00dda2', paddingRight: 20}} onPress={_=>this.showVisit(item)}>Editar</Text>
 								</View>
 								<View  style={{borderRightColor: '#ffffff', borderWidth: 1, height: '80%', borderBottomColor: '#ffffff', borderTopColor: '#ffffff', borderLeftColor: '#ebeff2'}}></View>
 								<View>
-									<Button color='#f73655' style={{color: '#f73655'}} icon="remove" onPress={_=>this.alertToRemove(item)}>Excluir</Button>
+									<Text style={{color: '#f73655', paddingLeft: 20}} onPress={_=>this.alertToRemove(item)}>Excluir</Text>
 								</View>
 							</CardItem>
 						</RdIf>
@@ -252,6 +252,26 @@ export default class Visitas extends React.Component {
 	}
 
 	showButton = () => {
+		const { patient } = this.state;
+		const observations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
+		const lastObservation = observations.length ? observations[0] : null;
+		if (lastObservation && lastObservation.medicalRelease) {
+			return <FinalizedButton/>;
+		}
+		if (patient.exitDate != null) {
+			return <FinalizeButton onPress={this.finalize}/>;
+		}
+		if (lastObservation) {
+            const today = moment();
+            const lastVisit = moment(moment(lastObservation.observationDate).format('YYYY-MM-DD'));
+			if (today.diff(lastVisit, 'days') === 0) {
+				return <VisitedButton/>;
+			}
+		}
+		return <VisitButton onPress={this.appoint}/>;
+	}
+
+	/*showButton = () => {
 		const patient = new Patient(this.state.patient);
 		switch (patient.getHospitalizationStatusEnum()) {
 			case HospitalizationStatusEnum.Open:
@@ -275,7 +295,7 @@ export default class Visitas extends React.Component {
 		}
 		console.log('Visitas: tipo de botão não mapeado.', patient);
 		return null;
-	}
+	}*/
 	
 	renderModal() {
 		return(
@@ -341,23 +361,20 @@ FINALIZE_ERROR_FIELDS[FinalizationErrorEnum.CrmMissing] = 'CRM do Responsável';
 const COLORS_ENABLED = ['#035fcc', '#023066'];
 const COLORS_DISABLED = ['#808080', '#696969'];
 
-const GradientButton = (props) => (
-	<View style={{marginTop:12, marginBottom: 0, marginLeft: 10, marginRight: 10}}>
+const VisitsButton = (props) => (
+	<View style={{ marginTop:12, marginBottom: 0, marginLeft: 10, marginRight: 10 }}>
 		<Button mode="contained" onPress={ props.onPress }> { props.children } </Button>
     </View>
 );
 
 const VisitButton = (props) =>
-	<GradientButton colors={COLORS_ENABLED} iconName="id-badge" onPress={props.onPress}>VISITAR</GradientButton>;
+	<VisitsButton colors={COLORS_ENABLED} iconName="id-badge" onPress={props.onPress}>VISITAR</VisitsButton>;
 
 const VisitedButton = (props) =>
-	<GradientButton colors={COLORS_DISABLED} iconName="id-badge">VISITADO</GradientButton>;
+	<VisitsButton colors={COLORS_DISABLED} iconName="id-badge">VISITADO</VisitsButton>;
 
 const FinalizeButton = (props) =>
-	<GradientButton colors={COLORS_ENABLED} iconName="id-badge" onPress={props.onPress}>FINALIZAR</GradientButton>;
+	<VisitsButton colors={COLORS_ENABLED} iconName="id-badge" onPress={props.onPress}>FINALIZAR</VisitsButton>;
 
-const EndTrackingButtonEnabled = (props) =>
-	<GradientButton colors={COLORS_ENABLED} iconName="id-badge" onPress={props.onPress}>FIM DO MONITORAMENTO</GradientButton>;
-
-const EndTrackingButtonDisabled = (props) =>
-	<GradientButton colors={COLORS_DISABLED} iconName="id-badge">FIM DO MONITORAMENTO</GradientButton>;
+const FinalizedButton = (props) =>
+	<VisitsButton colors={COLORS_DISABLED} iconName="id-badge">FINALIZADO</VisitsButton>;

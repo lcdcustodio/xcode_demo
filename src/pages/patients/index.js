@@ -33,8 +33,6 @@ export default class Patients extends Component {
 
     didFocus = this.props.navigation.addListener('didFocus', (res) => {
 
-        this.setState({ loading: true });
-
         const hospitalId = this.props.navigation.getParam('hospitalId');
 
         AsyncStorage.getItem('hospitalList', (err, res) => {
@@ -79,11 +77,7 @@ export default class Patients extends Component {
 
                     hospital.hospitalizationList = patients;
 
-
                     this.setState({hospital: hospital});
-
-                    this.setState({ loading: false });
-
 
                     break;
 
@@ -276,7 +270,7 @@ export default class Patients extends Component {
                 <Card>
                     <CardItem header bordered style={{ flex: 1, height: 50}}>
                         <View style={{width: '90%'}}>
-                            <Text style={[styles.patientTitle, {color: `${item.colorName}`, fontSize: 16, marginLeft: -10} ]}> {item.patientName} </Text>
+                            <Text style={[styles.patientTitle, {color: `${item.colorName}`, fontSize: 16, marginLeft: -10, width: '90%'} ]}> {item.patientName} </Text>
                         </View>
                         <Right>
                             <Image source={item.icon} style={{width: 25, height: 25}} />
@@ -297,7 +291,7 @@ export default class Patients extends Component {
                             <Text style={{paddingLeft: 1}}><Icon name="tag" style={{color: '#666', fontSize: 15}} /></Text>
                         </View>
                         
-                        <View style={{ width: '15%'}}>
+                        <View style={{ width: '10%'}}>
                             <Text style={{fontSize: 14, color: '#666', fontWeight:'normal'}}>{item.locationSession}</Text>
                         </View>
 
@@ -305,7 +299,7 @@ export default class Patients extends Component {
                             <Text style={{paddingLeft: 1}}><Icon name="bed" style={{color: '#666', fontSize: 15}} /></Text>
                         </View>
                         
-                        <View style={{ width: '15%'}}>
+                        <View style={{ width: '18%'}}>
                             <Text style={{fontSize: 14, color: '#666', fontWeight:'normal'}}>{item.locationBed}</Text>
                         </View>
                         
@@ -313,8 +307,8 @@ export default class Patients extends Component {
                             <Text style={{paddingLeft: 1}}><Icon name="eye" style={{color: '#666', fontSize: 15}} /></Text>
                         </View>
                         
-                        <View style={{ width: '15%'}}>
-                            <Text style={{fontSize: 14, color: '#666', fontWeight:'normal'}}>{item.lastVisit}</Text>
+                        <View style={{ width: '17%'}}>
+                            <Text style={{fontSize: 14, color: '#666', fontWeight:'normal', paddingRight: 10}}>{item.lastVisit}</Text>
                         </View>
                     
                     </CardItem>

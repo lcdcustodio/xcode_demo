@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Container, Content, Header, Left, Right, Button, Body, Title, Subtitle, Footer, FooterTab, Text } from 'native-base';
-import { StyleSheet, BackHandler } from 'react-native';
+import { StyleSheet, BackHandler, TouchableOpacity} from 'react-native';
 import _ from 'lodash';
 import TabEnum from './PatientDetailTabEnum';
 import Spinner from 'react-native-loading-spinner-overlay';
@@ -105,8 +105,6 @@ class PatientDetail extends Component {
 
 	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
 		
-		this.setState({loading: true});
-
 		this.setState({isEditable: Session.current.user._profile != 'ADMIN'});
 
 		const patientId = this.props.navigation.getParam('patientId');
@@ -147,8 +145,6 @@ class PatientDetail extends Component {
             		console.log('SETOU', hospital);
                 }
             }
-
-            this.setState({ loading: false });
         });
 
 		BackHandler.removeEventListener ('hardwareBackPress', () => {});
@@ -181,10 +177,16 @@ class PatientDetail extends Component {
 					{ this.renderSelectedTab() }
 				</Content>
 				<Footer>
-					<FooterTab style={{backgroundColor: '#005cd1'}}>
-						<Tab name={ TabEnum.Profile } displayName='Perfil' iconName='user' isSelected={this.isSelected} selectTab={this.selectTab} />
-						<Tab name={ TabEnum.Events } displayName='Timeline' iconName='book' isSelected={this.isSelected} selectTab={this.selectTab} />
-						<Tab name={ TabEnum.Visits } displayName='Visitas' iconName='calendar' isSelected={this.isSelected} selectTab={this.selectTab} />
+					<FooterTab style={{backgroundColor: '#005cd1', alignItems: 'center'}}>
+						<Left style={[this.isSelected(TabEnum.Profile) ? styles.tabAtiva : styles.tabInativa]}>
+							<Tab name={ TabEnum.Profile } displayName='Perfil' iconName='user' isSelected={this.isSelected} selectTab={this.selectTab} />
+						</Left>
+						<Body style={[this.isSelected(TabEnum.Events) ? styles.tabAtiva : styles.tabInativa]}>
+							<Tab name={ TabEnum.Events } displayName='Timeline' iconName='book' isSelected={this.isSelected} selectTab={this.selectTab} />
+						</Body>
+						<Right style={[this.isSelected(TabEnum.Visits) ? styles.tabAtiva : styles.tabInativa]}>
+							<Tab name={ TabEnum.Visits } displayName='Visitas' iconName='calendar' isSelected={this.isSelected} selectTab={this.selectTab} />
+						</Right>
 					</FooterTab>
 				</Footer>
 			</Container>
@@ -202,12 +204,11 @@ export default PatientDetail;
 const backgroundColor = '#005cd1';
 
 const Tab = (props) => (
-	<Button backgroundColor={backgroundColor} vertical
-			active={props.isSelected(props.name)}
+	<TouchableOpacity style={{alignItems: 'center', justifyContent: 'center'}}
 			onPress={() => props.selectTab(props.name)}>
 		<Icon name={props.iconName} style={{color: '#FFF', fontSize: 20}} />
-		<Text style={{color: 'white'}}>{props.displayName}</Text>
-	</Button>
+		<Text style={{color: '#FFF'}}>{props.displayName}</Text>
+	</TouchableOpacity>
 );
 
 const styles = StyleSheet.create({
@@ -245,4 +246,16 @@ const styles = StyleSheet.create({
 		textAlign: "left",
 		color: "rgb(25, 118, 159)"
 	},
+	tabAtiva: {
+        backgroundColor: '#0065e6',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 10
+    },
+    tabInativa: {
+        backgroundColor: '#005cd1',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 10
+    }
 });
