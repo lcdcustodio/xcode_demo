@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, Alert, ScrollView, FlatList } from 'react-native';
+import { StyleSheet, View, Alert, ScrollView, FlatList, Keyboard, Dimensions } from 'react-native';
 import TextValue from '../../components/TextValue';
 import moment from 'moment';
 import uuidv4 from'uuid/v4';
@@ -39,8 +39,21 @@ export default class Profile extends Component {
 			],
 			patientHeightTMP: this.props.navigation.getParam('patient').patientHeight,
 			patientWeightTMP: this.props.navigation.getParam('patient').patientWeight,
-			crmTMP: this.props.navigation.getParam('patient').mainProcedureCRM
+			crmTMP: this.props.navigation.getParam('patient').mainProcedureCRM,
+			keyboardSpace:0,
+			modalHeight:0
 		}
+
+		Keyboard.addListener('keyboardDidShow',(frames)=>{
+            if (!frames.endCoordinates) return;
+            this.setState({
+				keyboardSpace: frames.endCoordinates.height
+			});
+		});
+		
+        Keyboard.addListener('keyboardDidHide',(frames)=>{
+            this.setState({keyboardSpace:0});
+        });
 	}
 
 	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
@@ -206,19 +219,19 @@ export default class Profile extends Component {
 
 	renderItemPrimary = (element) => {
 		return (
-			<List.Item title={`${element.item.code} - ${element.item.name}`} onPress={() => { this.handlePrimaryCID(element) }} />
+			<Text style={styles.textListItem} onPress={() => { this.handlePrimaryCID(element) }}> {`${element.item.code} - ${element.item.name}`} </Text>
 		);
 	}
 
 	renderItemSecondary = (element) => {
 		return (
-			<List.Item title={`${element.item.code} - ${element.item.name}`} onPress={() => { this.handleSecondaryCID(element) }} />
-		);
+			<Text style={styles.textListItem} onPress={() => { this.handleSecondaryCID(element) }}> {`${element.item.code} - ${element.item.name}`} </Text>                             
+        );
 	}
 
 	renderItemTuss = (element) => {
 		return (
-			<List.Item title={`${element.item.code} - ${element.item.name}`} onPress={() => { this.handleMainProcedure(element) }} />
+			<Text style={styles.textListItem} onPress={() => { this.handleMainProcedure(element) }}> {`${element.item.code} - ${element.item.name}`} </Text>
 		);
 	}
 
@@ -251,21 +264,21 @@ export default class Profile extends Component {
 			tussQuery: query
 		});
 	}
-
+	
 	renderModalSelected() {
 		switch (this.state.modalSelected) {
 			case 'HeightAndWeight':
 				return (
 					<Portal>
-						<Dialog style={{marginBottom: 280}}  visible={this.state.modalHeightAndWeight} onDismiss={ () => { this.toggleModal('modalHeightAndWeight') } }>
+						<Dialog visible={this.state.modalHeightAndWeight} onDismiss={ () => { this.toggleModal('modalHeightAndWeight') } }>
 							<Dialog.Title>Altura (m) e Peso (Kg)</Dialog.Title>
 							
 							<Dialog.Content>
-								<TextInput mode='outlined' maxLength={4} keyboardType='number-pad' label='Altura' value={this.state.patientHeightTMP ? this.state.patientHeightTMP.toString() : this.state.patientHeightTMP} onChangeText={height => { this.handleHeight(height) }}/>
+								<TextInput mode='outlined' maxLength={4} keyboardType='numeric' label='Altura' value={this.state.patientHeightTMP ? this.state.patientHeightTMP.toString() : this.state.patientHeightTMP} onChangeText={height => { this.handleHeight(height) }}/>
 
 								<Text> {'\n'} </Text>								
 
-								<TextInput mode='outlined' maxLength={4} keyboardType='number-pad' label='Peso' value={this.state.patientWeightTMP ? this.state.patientWeightTMP.toString() : this.state.patientWeightTMP} onChangeText={weight => { this.handleWeight(weight) }} />
+								<TextInput mode='outlined' maxLength={4} keyboardType='numeric' label='Peso' value={this.state.patientWeightTMP ? this.state.patientWeightTMP.toString() : this.state.patientWeightTMP} onChangeText={weight => { this.handleWeight(weight) }} />
 							</Dialog.Content>
 
 							<Divider />
@@ -389,12 +402,12 @@ export default class Profile extends Component {
 			case 'SecondaryCID':
 				return ( 
 					<Portal>
-						<Dialog style={{height: '45%', marginBottom: 280}} visible={this.state.modalSecondaryCID} onDismiss={ () => { this.toggleModal('modalSecondaryCID') } }>
+						<Dialog style={{height: this.state.keyboardSpace ? '52%' : '84%', top: this.state.keyboardSpace ? -(this.state.keyboardSpace * .47) : 0}} visible={this.state.modalSecondaryCID} onDismiss={ () => { this.toggleModal('modalSecondaryCID') } }>
 							<Dialog.ScrollArea>
 							<Dialog.Title>CID Secundário</Dialog.Title>
 								<Searchbar placeholder="Filtrar" onChangeText={query => { this.filterCID(query) }} value={this.state.cidQuery} />
 
-								<ScrollView style={{marginTop: 20}} contentContainerStyle={{ paddingHorizontal: 10 }}>
+								<ScrollView style={{marginTop: 20}} contentContainerStyle={{ paddingHorizontal: 0, marginHorizontal: 0 }}>
 									<List.Section>
 										<FlatList
 											data={this.state.auxCid}
@@ -495,6 +508,15 @@ export default class Profile extends Component {
 		);
 	}
 
+	renderMainProcedure() {
+		return (
+			this.state.isEditable ?
+				<TextValue color={'#0000FF'} value={this.props.patient.mainProcedureTUSSDisplayName ? this.props.patient.mainProcedureTUSSDisplayName : 'ESCOLHER'} press={ () => { this.setState({modalSelected: 'MainProcedure', modalMainProcedure: true}) }} />
+			:
+				<TextValue value={this.props.patient.mainProcedureTUSSDisplayName ? this.props.patient.mainProcedureTUSSDisplayName : 'NÃO INFORMADO'} />
+		);
+	}
+
 	renderPrimaryCID() {
 		return (
 			this.state.isEditable ?
@@ -510,11 +532,7 @@ export default class Profile extends Component {
 	}
 
 	renderSecondaryCID() {
-		
-		console.log(this.props.patient.secondaryCIDList);
-		
 		return (
-
 			this.state.isEditable ?
 				this.props.patient.secondaryCIDList.map((prop) => {
 					return ( <TextValue color={'#0000FF'} key={prop.cidId} value={`${prop.cidDisplayName} \n`} press={ () => { this.removeSecondaryCID(prop) }} /> )
@@ -542,9 +560,9 @@ export default class Profile extends Component {
 		
 		return (
 			<View>
-
+				
 				{ this.renderModalSelected() }
-
+				
 				<Content>
 
 					<ListItem itemDivider>
@@ -603,6 +621,45 @@ export default class Profile extends Component {
 
 					<ListItem>
 						<Body>
+							<Text style={{fontWeight: 'bold'}}>Data de Internação{"\n"}<TextValue value={ this.props.patient.admissionDate ? moment(this.props.patient.admissionDate).format('DD/MM/YYYY HH:mm') : ''} /></Text>
+						</Body>
+					</ListItem>
+
+					{
+						this.props.patient.exitDate ?
+							<ListItem>
+								<Body>
+									<Text style={{fontWeight: 'bold'}}>Data da Alta Médica{"\n"}<TextValue value={ this.props.patient.medicalExitDate ? moment(this.props.patient.medicalExitDate).format('DD/MM/YYYY HH:mm') : '' } /></Text>
+								</Body>
+							</ListItem>
+						:
+							null
+					}
+
+					{
+						this.props.patient.exitDate ?
+							<ListItem>
+								<Body>
+									<Text style={{fontWeight: 'bold'}}>Data da Alta Administrativa{"\n"}<TextValue value={ this.props.patient.exitDate ? moment(this.props.patient.exitDate).format('DD/MM/YYYY HH:mm') : '' } /></Text>
+								</Body>
+							</ListItem>
+						:
+							null
+					}
+
+					{
+						this.props.patient.exitDate ?
+							<ListItem>
+								<Body>
+									<Text style={{fontWeight: 'bold'}}>Motivo da Alta Administrativa{"\n"}<TextValue value={this.props.patient.exitDescription} /></Text>
+								</Body>
+							</ListItem>
+						:
+						null
+					}
+
+					<ListItem>
+						<Body>
 							<Text style={{fontWeight: 'bold'}}>Atendimento{"\n"}
 								{ this.renderAtendencyType() }
 							</Text>
@@ -617,37 +674,31 @@ export default class Profile extends Component {
 						</Body>
 					</ListItem>
 
-					<ListItem>
-						<Body>
-							<Text style={{fontWeight: 'bold'}}>Data de Internação{"\n"}<TextValue value={ this.props.patient.admissionDate ? moment(this.props.patient.admissionDate).format('DD/MM/YYYY HH:mm') : ''} /></Text>
-						</Body>
-					</ListItem>
+					{
+						this.props.patient.hospitalizationType === 'SURGICAL' ?
+							<ListItem>
+								<Body>
+									<Text style={{fontWeight: 'bold'}}>Procedimento Principal{"\n"}
+										{ this.renderMainProcedure() }
+									</Text>
+								</Body>
+							</ListItem>
+						:
+						null
+					}
 
-					<ListItem>
-						<Body>
-							<Text style={{fontWeight: 'bold'}}>Data da Alta Médica{"\n"}<TextValue value={ this.props.patient.medicalExitDate ? moment(this.props.patient.medicalExitDate).format('DD/MM/YYYY HH:mm') : '' } /></Text>
-						</Body>
-					</ListItem>
-
-					<ListItem>
-						<Body>
-							<Text style={{fontWeight: 'bold'}}>Data da Alta Administrativa{"\n"}<TextValue value={ this.props.patient.exitDate ? moment(this.props.patient.exitDate).format('DD/MM/YYYY HH:mm') : '' } /></Text>
-						</Body>
-					</ListItem>
-
-					<ListItem>
-						<Body>
-							<Text style={{fontWeight: 'bold'}}>Motivo da Alta Administrativa{"\n"}<TextValue value={this.props.patient.exitDescription} /></Text>
-						</Body>
-					</ListItem>
-
-					<ListItem>
-						<Body>
-							<Text style={{fontWeight: 'bold'}}>CRM do Responsável{"\n"}
-								{ this.renderCRM() }
-							</Text>
-						</Body>
-					</ListItem>
+					{
+						this.props.patient.hospitalizationType === 'SURGICAL' ?
+							<ListItem>
+								<Body>
+									<Text style={{fontWeight: 'bold'}}>CRM do Responsável{"\n"}
+										{ this.renderCRM() }
+									</Text>
+								</Body>
+							</ListItem>
+						:
+						null
+					}
 
 					<ListItem>
 						<Body>
@@ -696,3 +747,9 @@ export default class Profile extends Component {
 		);
 	}
 }
+
+const styles = StyleSheet.create({
+    textListItem: {
+        padding: 12, fontSize: 18
+    },
+});

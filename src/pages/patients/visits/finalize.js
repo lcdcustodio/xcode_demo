@@ -59,7 +59,7 @@ export default class Finalize extends Component {
 			patientStorage.typePatient = this.getTypePatient(patientStorage.patientBornDate);
 			patientStorage.brittlenessIndex = this.calculateBrittlenessIndex(patientStorage);
 			patientStorage.labelAccordionMorbidityComorbity = this.getLabelAccordionMorbidityComorbity(patientStorage);
-			patientStorage.exitCID = null;
+			patientStorage.exitCID = patientStorage.diagnosticHypothesisList[0];
 
 			await this.setClinicalIndication(patientStorage);
 			await this.setMedicineReintegration(patientStorage);
@@ -328,14 +328,14 @@ export default class Finalize extends Component {
 		totalRisk += this.getRiskOfPreviousHospitalization(patient);
 
 		if (totalRisk <= 4) {
-			return risk = 'risco baixo de reinternação';
+			return risk = 'Risco baixo de reinternação';
 		}
 
 		if (totalRisk >= 5 && totalRisk <= 6) {
-			return risk = 'risco intermediário de reinternação';
+			return risk = 'Risco intermediário de reinternação';
 		}
 
-		return risk = 'risco alto de reinternação';
+		return risk = 'Risco alto de reinternação';
 		
 	}
 
@@ -551,7 +551,7 @@ export default class Finalize extends Component {
 				</ListItem>
 				<ListItem>
 					<Body>
-						<Text style={{fontWeight: 'bold'}}>Pancreatctomia colectomia e/ou ressecção hepática* {"\n"} </Text>
+						<Text style={{fontWeight: 'bold'}}>Pancreatectomia, colectomia e/ou ressecção hepática* {"\n"} </Text>
 						<View style={{justifyContent: 'flex-end' }}>
 							<Switch value={this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic}
 								onValueChange={() => {this.handleComplementaryInfoHospitalizationAPI('isPancreateColectomyHepatic', !this.state.patient.complementaryInfoHospitalizationAPI.isPancreateColectomyHepatic)}} />
@@ -675,19 +675,24 @@ export default class Finalize extends Component {
 						</View>
 					</Body>
 				</ListItem>
-				<ListItem>
-					<Body>
-						<View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
-							<Text style={{fontWeight: 'bold', height: 20, width: '80%' ,borderWidth: 0, borderColor: '#000000' }}>Especialidade {"\n"} </Text>
-						</View>
-						<View style={{flexDirection: 'row', justifyContent: 'space-around'}} >
-							<Text style={{fontWeight: 'bold', height: 20, width: '80%' ,borderWidth: 0, borderColor: '#000000', color:'#0000FF' }} onPress={ () => {this.toggleModal('modalSpecialty')} }>
-								{this.state.patient.clinicalIndication && this.state.patient.clinicalIndication.specialtyDisplayName ? this.state.patient.clinicalIndication.specialtyDisplayName : 'ESCOLHER'}
-								{"\n"} 
-							</Text>
-						</View>
-					</Body>
-				</ListItem>
+				{
+					this.state.patient.clinicalIndication && this.state.patient.clinicalIndication.indicated ?
+						<ListItem>
+							<Body>
+								<View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
+									<Text style={{fontWeight: 'bold', height: 20, width: '80%' ,borderWidth: 0, borderColor: '#000000' }}>Especialidade {"\n"} </Text>
+								</View>
+								<View style={{flexDirection: 'row', justifyContent: 'space-around'}} >
+									<Text style={{fontWeight: 'bold', height: 20, width: '80%' ,borderWidth: 0, borderColor: '#000000', color:'#0000FF' }} onPress={ () => {this.toggleModal('modalSpecialty')} }>
+										{this.state.patient.clinicalIndication && this.state.patient.clinicalIndication.specialtyDisplayName ? this.state.patient.clinicalIndication.specialtyDisplayName : 'ESCOLHER'}
+										{"\n"} 
+									</Text>
+								</View>
+							</Body>
+						</ListItem>
+					:
+					null
+				}
 			</View>
 		);
 	}
@@ -733,13 +738,6 @@ export default class Finalize extends Component {
 							onPress={ () => {this.toggleAccordion('accordionRecommendationWelcomeHomeIndication')} }> 
 								{this.renderWelcomeHome()}
 						</RecommendationCardToggle>
-						
-						<RecommendationCardToggle 
-							number='4' title='Reconciliação Medicamentosa' subtitle=' '
-							visible={this.state.accordionRecommendationMedicineReintegration}
-							onPress={ () => {this.toggleAccordion('accordionRecommendationMedicineReintegration')} }> 
-								{this.renderMedicineReintegration()}
-						</RecommendationCardToggle>
 
 						<RecommendationCardToggle 
 							number='5' title='Indicação para Ambulatório' subtitle=' '
@@ -747,6 +745,14 @@ export default class Finalize extends Component {
 							onPress={ () => {this.toggleAccordion('accordionRecommendationClinicalIndication')} }> 
 								{this.renderClinicalIndication()}
 						</RecommendationCardToggle>
+
+						<RecommendationCardToggle 
+							number='4' title='Reconciliação Medicamentosa' subtitle=' '
+							visible={this.state.accordionRecommendationMedicineReintegration}
+							onPress={ () => {this.toggleAccordion('accordionRecommendationMedicineReintegration')} }> 
+								{this.renderMedicineReintegration()}
+						</RecommendationCardToggle>
+
 					</RdIf>
 					<View style={styles.button}>
 						<Button  mode="contained" onPress={ () => this.save() }>Salvar</Button>

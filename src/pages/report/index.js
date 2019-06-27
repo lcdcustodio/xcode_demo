@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import api from '../../services/api';
-import { Container, Content, Header, Left, Right, Body, Title, Text, Card, CardItem } from 'native-base';
-
-import { Alert, View, FlatList, TouchableOpacity, Image, BackHandler } from "react-native";
+import { Container, Content, Text, Card, CardItem } from 'native-base';
+import { Alert, View, BackHandler } from "react-native";
 import AsyncStorage from '@react-native-community/async-storage';
 import NetInfo from "@react-native-community/netinfo";
 import Spinner from 'react-native-loading-spinner-overlay';
@@ -12,12 +11,8 @@ import moment from 'moment';
 import Session from '../../Session';
 import qs from "qs";
 import _ from 'lodash'
-import { Searchbar, List } from 'react-native-paper';
-import TextValue from '../../components/TextValue';
-import Icon from 'react-native-vector-icons/FontAwesome5';
-import {Icon as IconNativeBase} from 'native-base';
 import { DataTable } from 'react-native-paper';
-import { RdHeader } from '../../components/rededor-base';
+import { RdRootHeader } from '../../components/rededor-base';
 import type { ViewStyleProp } from 'react-native/Libraries/StyleSheet/StyleSheet';
 
 export default class Report extends Component {
@@ -41,7 +36,13 @@ export default class Report extends Component {
 			allPatients: [],
 			patientsFiltered: [],
 			hospital_report: [],
-			patientQuery: null
+			patientQuery: null,
+			ICON: {
+                OLHO_CINZA_COM_CHECK: 3,
+                OLHO_AZUL: 1,
+                OLHO_CINZA_COM_EXCLAMACAO: 0,
+                CASA_AZUL: 2
+            }
 		}
 	}
 
@@ -148,7 +149,7 @@ export default class Report extends Component {
 							}
 						}
 
-						let data = { "hospitalizationList": obj };
+						let data = { "hospitalizationList": [] };
 
 						console.log(data);
 					
@@ -293,19 +294,71 @@ export default class Report extends Component {
 		return hasHospitality
 	}
 
-	countTotalPatients = (patients) => {
+	getIconNumber(patient) {
+
+        let lastVisit = null;
+
+        let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc'])
+        
+        if (listOfOrderedPatientObservations.length > 0) {
+            
+            const today = moment();
+            
+            lastVisit = moment(moment(listOfOrderedPatientObservations[0].observationDate).format('YYYY-MM-DD'));
+
+            lastVisit = today.diff(lastVisit, 'days');
+        }
+
+        if(patient.observationList.length > 0 && listOfOrderedPatientObservations[0].alert) // TEVE VISITA E COM ALERTA
+        {
+            return this.state.ICON.OLHO_CINZA_COM_EXCLAMACAO;
+        }
+        else if(lastVisit == 0 && patient.exitDate == null) // VISITADO HOJE E NÃO TEVE ALTA
+        {
+            return this.state.ICON.OLHO_CINZA_COM_CHECK;
+        }
+
+        else if(lastVisit > 0 && patient.exitDate == null) // NÃO TEVE VISITA HOJE E NÃO TEVE ALTA
+        {
+            return this.state.ICON.OLHO_AZUL;
+        }
+
+        else if(patient.observationList.length == 0 && patient.exitDate == null) // NÃO TEVE VISITA E NÃO TEVE ALTA
+        {
+            return this.state.ICON.OLHO_AZUL;
+        }
+
+        else if (patient.exitDate != null) // TEVE ALTA
+        {
+            return this.state.ICON.CASA_AZUL;
+        }
+    }
+
+	countTotalPatients = (patients, hospitalName) => {
 		
 		let totalPatients = patients.reduce((totalPatients, patient) => {
 			
+			let iconNumber = this.getIconNumber(patient);
+
 			let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
 
-            if(
+			if (
+
                 (listOfOrderedPatientObservations.length == 0) || 
 
                 (!listOfOrderedPatientObservations[0].endTracking && !listOfOrderedPatientObservations[0].medicalRelease)
-            )
-            {
-            	return totalPatients + 1;
+            ) {
+
+				if (iconNumber == this.state.ICON.OLHO_CINZA_COM_EXCLAMACAO ||
+					iconNumber == this.state.ICON.OLHO_AZUL ||
+					iconNumber == this.state.ICON.OLHO_CINZA_COM_CHECK) {
+					console.log(patient.patientName, hospitalName, iconNumber);
+					return totalPatients + 1;
+				}
+				else
+				{
+					return totalPatients;
+				}
             }
             else
             {
@@ -343,12 +396,15 @@ export default class Report extends Component {
 			'attendanceType_time_other': 0,
 			'locationType_room_ctiuti': 0,
 			'locationType_room_usi': 0,
-			'locationType_room_other': 0
+			'locationType_room_other': 0,
+			'hospitalizationType_room_clinical': 0,
+			'hospitalizationType_room_surgical': 0,
+			'hospitalizationType_room_other': 0
 		};
 
 		for (var i = 0; i < hospitalList.length; i++) {
 
-			let countTotalPatients = this.countTotalPatients(hospitalList[i].hospitalizationList);
+			let countTotalPatients = this.countTotalPatients(hospitalList[i].hospitalizationList, hospitalList[i].name);
 			
 			let obj = {
 				name: hospitalList[i].name,
@@ -366,58 +422,88 @@ export default class Report extends Component {
 				{
 					let patient = hospitalList[i].hospitalizationList[x];
 
+					let iconNumber = this.getIconNumber(patient);
+
 					let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
 
-		            if(
+					if (
+
 		                (listOfOrderedPatientObservations.length == 0) || 
 
 		                (!listOfOrderedPatientObservations[0].endTracking && !listOfOrderedPatientObservations[0].medicalRelease)
-		            )
+		            ) 
 		            {
-						if (patient.attendanceType == "EMERGENCY") 
-						{
-							report.attendanceType_emergency += 1;
-						}
-						else if (patient.attendanceType == "ELECTIVE") 
-						{
-							report.attendanceType_elective += 1;
-						}
-						else 
-						{
-							report.attendanceType_other += 1;
-						}
 
-						if (patient.locationType == "CTI" || patient.locationType == "UTI") 
-						{
-							report.locationType_room_ctiuti += 1;
-						}
-						else if (patient.locationType == "USI") 
-						{
-							report.locationType_room_usi += 1;
-						}
-						else 
-						{
-							report.locationType_room_other += 1;
-						}
+						if (iconNumber == this.state.ICON.OLHO_CINZA_COM_EXCLAMACAO ||
+							iconNumber == this.state.ICON.OLHO_AZUL ||
+							iconNumber == this.state.ICON.OLHO_CINZA_COM_CHECK) {
 
-						let days = await this.calculateDaysOfHospitalization(patient);
+				            if(
+				                (listOfOrderedPatientObservations.length == 0) || 
 
-						if (days <= 5) 
-						{
-							report.attendanceType_time_until_five += 1;
-						}
-						else if (days > 5 && days <= 49) 
-						{
-							report.attendanceType_time_between_five_and_fortynine += 1;
-						}
-						else 
-						{
-							report.attendanceType_time_other += 1;
-						}
+				                (!listOfOrderedPatientObservations[0].endTracking && !listOfOrderedPatientObservations[0].medicalRelease)
+				            )
+				            {
 
+				            	if (patient.hospitalizationType == "CLINICAL") 
+								{
+									report.hospitalizationType_room_clinical += 1;
+								}
+								else if (patient.hospitalizationType == "SURGICAL") 
+								{
+									report.hospitalizationType_room_surgical += 1;
+								}
+								else 
+								{
+									report.hospitalizationType_room_other += 1;
+								}
+
+								if (patient.attendanceType == "EMERGENCY") 
+								{
+									report.attendanceType_emergency += 1;
+								}
+								else if (patient.attendanceType == "ELECTIVE") 
+								{
+									report.attendanceType_elective += 1;
+								}
+								else 
+								{
+									report.attendanceType_other += 1;
+								}
+
+								if (patient.locationType == "CTI" || patient.locationType == "UTI") 
+								{
+									report.locationType_room_ctiuti += 1;
+								}
+								else if (patient.locationType == "USI") 
+								{
+									report.locationType_room_usi += 1;
+								}
+								else 
+								{
+									report.locationType_room_other += 1;
+								}
+
+								let days = await this.calculateDaysOfHospitalization(patient);
+
+								if (days <= 5) 
+								{
+									report.attendanceType_time_until_five += 1;
+								}
+								else if (days > 5 && days <= 49) 
+								{
+									report.attendanceType_time_between_five_and_fortynine += 1;
+								}
+								else 
+								{
+									report.attendanceType_time_other += 1;
+								}
+
+							}
+
+						}
 					}
 				}
-
 			}
 		}
 
@@ -545,10 +631,6 @@ export default class Report extends Component {
 
 	render() {
 
-		if (!this.state.hospital_report.hospital_report) {
-			return null;
-		}
-
 		return (
 
 			<Container>
@@ -558,17 +640,10 @@ export default class Report extends Component {
 		            textContent={this.state.textContent}
 		            textStyle={{color: '#FFF'}} />
 
-				<Header style={{backgroundColor: "#005cd1"}}>
-					<Left style={{flex:1}} >
-						<IconNativeBase ios='ios-menu' android="md-menu" style={{color: '#FFF', fontSize: 40}} onPress={() => this.props.navigation.openDrawer() } />
-					</Left>
-					<Body style={{flex: 7}}>
-						<Title style={{color: 'white'}}> Relatório Consolidado</Title>
-					</Body>
-					<Right style={{flex:1}} >
-						<IconNativeBase name="sync" style={{color: '#FFF', fontSize: 30}} onPress={() => this.sincronizar(true) } />
-					</Right>
-				</Header>
+				<RdRootHeader
+					title='Relatório Consolidado'
+					menu={ () => this.props.navigation.openDrawer() }
+					sync={ () => this.sincronizar(true) }/>
 
 				{ this.renderTimer() }			
 
@@ -579,14 +654,14 @@ export default class Report extends Component {
 		         <Card>
 					
 					<CardItem style={{backgroundColor: '#CCE5FF', minHeight: 20, height: 40}}>
-						<Left>
+						<View>
 							<Text>Pacientes Internados</Text>
-						</Left>
+						</View>
 					</CardItem>
 
 					<DataTable>
 						
-						{this.state.hospital_report.hospital_report.map((prop) => {
+						{this.state.hospital_report.hospital_report && this.state.hospital_report.hospital_report.map((prop) => {
 							return ( 
 								<DataTable.Row key={prop.name} style={{backgroundColor:'#ffffff', minHeight: 20, height: 32}}>
 									<DataTable.Cell style={{width: '90%'}}>{prop.name}</DataTable.Cell>
@@ -595,14 +670,19 @@ export default class Report extends Component {
 							)
 						})}
 
+						<DataTable.Row style={{backgroundColor:'#ededed', minHeight: 20, height: 32}}>
+							<DataTable.Cell>Total</DataTable.Cell>
+							<DataTable.Cell numeric>{this.state.hospital_report.patients}</DataTable.Cell>
+						</DataTable.Row>
+
 					</DataTable>
 				 </Card>
 
 				 <Card>
 					<CardItem style={{backgroundColor: '#CCE5FF', minHeight: 20, height: 40}}>
-						<Left>
-							<Text>Tipo de Internação</Text>
-						</Left>
+						<View>
+							<Text>Caráter da internação</Text>
+						</View>
 					</CardItem>
 					<DataTable>
 						<DataTable.Row style={{backgroundColor:'#ffffff', minHeight: 20, height: 32}}>
@@ -624,9 +704,33 @@ export default class Report extends Component {
 
 				 <Card>
 					<CardItem style={{backgroundColor: '#CCE5FF', minHeight: 20, height: 40}}>
-						<Left>
+						<View>
+							<Text>Tipo da internação</Text>
+						</View>
+					</CardItem>
+					<DataTable>
+						<DataTable.Row style={{backgroundColor:'#ffffff', minHeight: 20, height: 32}}>
+							<DataTable.Cell>Clínico</DataTable.Cell>
+							<DataTable.Cell numeric>{this.state.hospital_report.hospitalizationType_room_clinical}</DataTable.Cell>
+						</DataTable.Row>
+				
+						<DataTable.Row style={{backgroundColor:'#ededed', minHeight: 20, height: 32}}>
+							<DataTable.Cell>Cirúrgico</DataTable.Cell>
+							<DataTable.Cell numeric>{this.state.hospital_report.hospitalizationType_room_surgical}</DataTable.Cell>
+						</DataTable.Row>
+
+						<DataTable.Row style={{backgroundColor:'#ffffff', minHeight: 20, height: 32}}>
+							<DataTable.Cell>Sem Informação</DataTable.Cell>
+							<DataTable.Cell numeric>{this.state.hospital_report.hospitalizationType_room_other}</DataTable.Cell>
+						</DataTable.Row>
+					</DataTable>
+				 </Card>
+
+				 <Card>
+					<CardItem style={{backgroundColor: '#CCE5FF', minHeight: 20, height: 40}}>
+						<View>
 							<Text>Tempo de Internação</Text>
-						</Left>
+						</View>
 					</CardItem>
 					<DataTable>
 						<DataTable.Row style={{backgroundColor:'#ffffff', minHeight: 20, height: 32}}>
@@ -648,9 +752,9 @@ export default class Report extends Component {
 
 				 <Card>
 					<CardItem style={{backgroundColor: '#CCE5FF', minHeight: 20, height: 40}}>
-						<Left>
+						<View>
 							<Text>Tipo Acomodação</Text>
-						</Left>
+						</View>
 					</CardItem>
 					<DataTable>
 						<DataTable.Row style={{backgroundColor:'#ffffff', minHeight: 20, height: 32}}>

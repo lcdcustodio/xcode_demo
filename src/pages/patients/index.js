@@ -1,14 +1,15 @@
 import React, { Component } from "react"
-import baseStyles from '../../styles';
-import styles from './style';
-import { Container, Content, Header, Left, Right, Body, Title, Text, Card, CardItem } from 'native-base';
+import { Container, Content, Right, Text, Card, CardItem } from 'native-base';
 import { View, FlatList, TouchableOpacity, Image, BackHandler } from "react-native";
 import Spinner from 'react-native-loading-spinner-overlay';
 import moment from 'moment';
 import _ from 'lodash';
 import AsyncStorage from '@react-native-community/async-storage';
 import Icon from 'react-native-vector-icons/FontAwesome5';
-import {Icon as IconNativeBase} from 'native-base';
+
+import { RdHeader } from '../../components/rededor-base';
+import baseStyles from '../../styles';
+import styles from './style';
 
 export default class Patients extends Component {
     
@@ -110,13 +111,13 @@ export default class Patients extends Component {
 
         const today = moment();
 
-        let admissionDate = moment(moment(patient.admissionDate).format('YYYY-MM-DD HH:mm:ss'));
+        let admissionDate = moment(moment(patient.admissionDate).format('YYYY-MM-DD'));
 
         let totalHospitalizationHours = today.diff(admissionDate, 'hours');
 
         if (patient.exitDate != null) {
 
-            let exitDate = moment(moment(patient.exitDate).format('YYYY-MM-DD HH:mm:ss'));
+            let exitDate = moment(moment(patient.exitDate).format('YYYY-MM-DD'));
 
             totalHospitalizationHours = exitDate.diff(admissionDate, 'hours');
         }
@@ -325,23 +326,14 @@ export default class Patients extends Component {
 
     render(){
         return (
-
-            <Container>
-                
+           <Container>
                 <Spinner
                     visible={this.state.loading}
                     textContent={this.state.textContent}
                     textStyle={styles.spinnerTextStyle} />
-
-                <Header style={styles.headerMenu}>
-                    
-                    <Left style={{flex:1}} >
-                        <IconNativeBase type="FontAwesome" name="angle-left" style={{color: '#FFF', fontSize: 40}} onPress={() => this.props.navigation.navigate('Hospitals') } />
-                    </Left>
-                    <Body style={{flex: 7}}>
-                        <Title style={{color: 'white'}}>{this.state.hospital.name}</Title>
-                    </Body>
-                </Header> 
+                <RdHeader
+                    title={this.state.hospital.name}
+                    goBack={()=>this.props.navigation.navigate('Hospitals')}/>
                 <Content style={baseStyles.container}>
                     <View style={styles.container}>
                         <FlatList

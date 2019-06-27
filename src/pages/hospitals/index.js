@@ -1,23 +1,22 @@
 import React, { Component } from "react";
-import api from '../../services/api';
-import { Container, Content, Header, Left, Right, Body, Title, Text, Thumbnail, Card, CardItem } from 'native-base';
-
+import { Container, Content, Text, Card, CardItem } from 'native-base';
 import { Alert, View, FlatList, TouchableOpacity, Image, BackHandler } from "react-native";
+import { Searchbar, List } from 'react-native-paper';
 import AsyncStorage from '@react-native-community/async-storage';
 import NetInfo from "@react-native-community/netinfo";
 import Spinner from 'react-native-loading-spinner-overlay';
-import baseStyles from '../../styles'
-import styles from './style'
+import Icon from 'react-native-vector-icons/FontAwesome5';
+import moment from 'moment';
+import qs from "qs";
+import _ from 'lodash';
+import { RdRootHeader } from "../../components/rededor-base";
+import api from '../../services/api';
 import Line from '../../components/Line'
 import Timer from '../../components/Timer'
-import moment from 'moment';
 import Session from '../../Session';
-import qs from "qs";
-import _ from 'lodash'
-import { Searchbar, List } from 'react-native-paper';
 import TextValue from '../../components/TextValue';
-import Icon from 'react-native-vector-icons/FontAwesome5';
-import {Icon as IconNativeBase} from 'native-base';
+import baseStyles from '../../styles';
+import styles from './style';
 
 export default class Hospital extends Component {
 
@@ -38,7 +37,13 @@ export default class Hospital extends Component {
 			errorSync: 0,
 			allPatients: [],
 			patientsFiltered: [],
-			patientQuery: null
+			patientQuery: null,
+			ICON: {
+                OLHO_CINZA_COM_CHECK: 3,
+                OLHO_AZUL: 1,
+                OLHO_CINZA_COM_EXCLAMACAO: 0,
+                CASA_AZUL: 2
+            }
 		}
 
 	}
@@ -94,6 +99,91 @@ export default class Hospital extends Component {
         });
 
 	});
+
+	getIconNumber(patient) {
+
+        let lastVisit = null;
+
+        let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc'])
+        
+        if (listOfOrderedPatientObservations.length > 0) {
+            
+            const today = moment();
+            
+            lastVisit = moment(moment(listOfOrderedPatientObservations[0].observationDate).format('YYYY-MM-DD'));
+
+            lastVisit = today.diff(lastVisit, 'days');
+        }
+
+        if(patient.observationList.length > 0 && listOfOrderedPatientObservations[0].alert) // TEVE VISITA E COM ALERTA
+        {
+            return this.state.ICON.OLHO_CINZA_COM_EXCLAMACAO;
+        }
+        else if(lastVisit == 0 && patient.exitDate == null) // VISITADO HOJE E NÃO TEVE ALTA
+        {
+            return this.state.ICON.OLHO_CINZA_COM_CHECK;
+        }
+
+        else if(lastVisit > 0 && patient.exitDate == null) // NÃO TEVE VISITA HOJE E NÃO TEVE ALTA
+        {
+            return this.state.ICON.OLHO_AZUL;
+        }
+
+        else if(patient.observationList.length == 0 && patient.exitDate == null) // NÃO TEVE VISITA E NÃO TEVE ALTA
+        {
+            return this.state.ICON.OLHO_AZUL;
+        }
+
+        else if (patient.exitDate != null) // TEVE ALTA
+        {
+            return this.state.ICON.CASA_AZUL;
+        }
+    }
+
+	countTotalPatients = (patients, hospital) => {
+
+		let listPatients = this.state.allPatients;
+		
+		let totalPatients = patients.reduce((totalPatients, patient) => {
+			
+			patient.hospitalName = hospital.name;
+
+			patient.hospitalId = hospital.id;
+
+			listPatients.push(patient);
+
+			let iconNumber = this.getIconNumber(patient);
+
+			let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
+
+			if (
+
+                (listOfOrderedPatientObservations.length == 0) || 
+
+                (!listOfOrderedPatientObservations[0].endTracking && !listOfOrderedPatientObservations[0].medicalRelease)
+            ) {
+
+				if (iconNumber == this.state.ICON.OLHO_CINZA_COM_EXCLAMACAO ||
+					iconNumber == this.state.ICON.OLHO_AZUL ||
+					iconNumber == this.state.ICON.OLHO_CINZA_COM_CHECK) {
+					return totalPatients + 1;
+				}
+				else
+				{
+					return totalPatients;
+				}
+            }
+            else
+            {
+            	return totalPatients;
+            }
+
+		}, 0);
+
+		this.setState({ allPatients: listPatients });
+
+		return totalPatients;
+	}
 
 	loadHospitals = async () => {
 		
@@ -153,7 +243,7 @@ export default class Hospital extends Component {
 
 						console.log(JSON.stringify(obj));
 
-						let data = { "hospitalizationList": obj };
+						let data = { "hospitalizationList": [] };
 
 						console.log(data);
 					
@@ -369,6 +459,14 @@ export default class Hospital extends Component {
 			return require('../../images/logo_hospital/rj/caxiasDor.png');
         }  else if(hospital.id === 8) {
 			return require('../../images/logo_hospital/rj/quintaDor.png');
+        } else if(hospital.id === 144) {
+			return require('../../images/logo_hospital/pe/saoMarcos.png');
+        } else if(hospital.id === 143) {
+			return require('../../images/logo_hospital/pe/saoJose.png');
+        } else if(hospital.id === 142) {
+			return require('../../images/logo_hospital/pe/esperancaOlinda.png');
+        } else if(hospital.id === 141) {
+			return require('../../images/logo_hospital/pe/esperancaRecife.png');
         }  
 
 		return null;
@@ -407,38 +505,6 @@ export default class Hospital extends Component {
 
 		return totalPatientsVisited;
 	}	
-
-	countTotalPatients = (patients, hospital) => {
-
-		let listPatients = this.state.allPatients;
-
-		let totalPatients = patients.reduce((totalPatients, patient) => {
-			
-			patient.hospitalName = hospital.name;
-			patient.hospitalId = hospital.id;
-
-			let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
-
-            if(
-                (listOfOrderedPatientObservations.length == 0) || 
-
-                (!listOfOrderedPatientObservations[0].endTracking && !listOfOrderedPatientObservations[0].medicalRelease)
-            )
-            {
-				listPatients.push(patient);
-            	return totalPatients + 1;
-            }
-            else
-            {
-            	return totalPatients;
-            }
-
-		}, 0);
-
-		this.setState({ allPatients: listPatients });
-
-		return totalPatients;
-	}
 
 	setLastVisit = patients => {
 		
@@ -754,17 +820,10 @@ export default class Hospital extends Component {
 		            textContent={this.state.textContent}
 		            textStyle={styles.spinnerTextStyle} />
 
-				<Header style={styles.headerMenu}>
-					<Left style={{flex:1}} >
-						<IconNativeBase ios='ios-menu' android="md-menu" style={{color: '#FFF', fontSize: 40}} onPress={() => this.props.navigation.openDrawer() } />
-					</Left>
-					<Body style={{flex: 7}}>
-						<Title style={{color: 'white'}}>Hospitais</Title>
-					</Body>
-					<Right style={{flex:1}} >
-						<IconNativeBase name="sync" style={{color: '#FFF', fontSize: 30}} onPress={() => this.sincronizar(true) } />
-					</Right>
-				</Header>
+				<RdRootHeader
+					title='Hospitais'
+					menu={ () => this.props.navigation.openDrawer() }
+					sync={ () => this.sincronizar(true) }/>
 
 				{ this.renderTimer() }			
 
@@ -772,12 +831,13 @@ export default class Hospital extends Component {
 
 				<Searchbar placeholder="Buscar paciente" onChangeText={patientQuery => { this.filterPatients(patientQuery) }} value={this.state.patientQuery} />
 				
-				<List.Section style={styles.listItemPatient}>
-					<FlatList
-						data={this.state.patientsFiltered}
-						keyExtractor={element => `${element.id}`}
-						renderItem={this.renderItemPatient} />
-				</List.Section>
+					<List.Section style={styles.listItemPatient}>
+						<FlatList
+							data={this.state.patientsFiltered}
+							keyExtractor={element => `${element.id}`}
+							renderItem={this.renderItemPatient} 
+							keyboardShouldPersistTaps="always" /> 
+					</List.Section>
 				
 				<Line size={1} />
 

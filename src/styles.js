@@ -7,8 +7,6 @@ const styles = StyleSheet.create({
 	},
 	container: {
 		color: 'black',
-//		backgroundColor: '#F8F8FF',
-//		backgroundColor: '#e7e7ff',
 		backgroundColor: '#eeeeee',
 	},
 });
