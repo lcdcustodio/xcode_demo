@@ -87,51 +87,6 @@ export default class Hospital extends Component {
 			}
 		});
 
-		/*AsyncStorage.getItem('hospitalizationList', (err, res) => {
-						
-			let obj = [];
-
-			let arrayfull = {};
-
-			if (res != null) {
-
-				let hospitalizationList = JSON.parse(res);
-
-				console.log(hospitalizationList);
-
-				for (var i = 0; i < hospitalizationList.length; i++) {
-
-					if (hospitalizationList[i].value instanceof Array) {
-
-						for (var key = 0; key < hospitalizationList[i].value.length; key++) {
-							if (hospitalizationList[i].value[key].beginDate) {
-								delete hospitalizationList[i].value[key]['beginDate'];
-							}
-						}
-						
-					}
-
-					let array = {};
-					array['id'] = hospitalizationList[i].idPatient;
-					array[hospitalizationList[i].key] = hospitalizationList[i].value;
-
-					if (hospitalizationList[i].idPatient in arrayfull) {
-						arrayfull[hospitalizationList[i].idPatient][id] = hospitalizationList[i].idPatient;
-						arrayfull[hospitalizationList[i].idPatient][hospitalizationList[i].key] = hospitalizationList[i].value;
-					}
-					else
-					{
-						arrayfull[hospitalizationList[i].idPatient] = [];
-					}
-					
-					obj.push(arrayfull);
-				}
-			}
-
-			console.log(obj);
-			console.log(arrayfull);
-		});*/
-
 		this.setState({
 			patientQuery: null,
 			patientsFiltered: []
@@ -146,7 +101,7 @@ export default class Hospital extends Component {
 
 	});
 
-		getIconNumber(patient) {
+	getIconNumber(patient) {
 
         let lastVisit = null;
 
@@ -204,7 +159,6 @@ export default class Hospital extends Component {
 				if (iconNumber == this.state.ICON.OLHO_CINZA_COM_EXCLAMACAO ||
 					iconNumber == this.state.ICON.OLHO_AZUL ||
 					iconNumber == this.state.ICON.OLHO_CINZA_COM_CHECK) {
-					console.log(patient.patientName, hospitalName, iconNumber);
 					return totalPatients + 1;
 				}
 				else
