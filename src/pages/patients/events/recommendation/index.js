@@ -77,11 +77,7 @@ export default class Recommendation extends React.Component {
 			this.showAlertMsg("Selecione uma recomendação.");
 		} else {
 			if (this.saveRecommendation(patient)) {
-				//const navigate = () => {
 				this.props.navigation.navigate("PatientDetail", { patient, selectedTab: 'events' });
-				//}
-				// Atraso para PatientDetail.didFocus carregar a versão já atualizada:
-				//setTimeout(navigate, 100);
 			}
 		}
 	}
@@ -280,15 +276,21 @@ export default class Recommendation extends React.Component {
 								<RadioButton.Group onValueChange={ value => { this.addRecommendation(value) } } value={() => this.getRecommendationTypeLabel(this.props.navigation.state.params.patient.recommendationType)}>
 									<View style={styles.recommendationItem}>
 										<RadioButton value="WELCOME_HOME" />
-										<Text>{this.state.listRecommendationType[0].label}</Text>
+										<Text onPress={ _ => { this.addRecommendation(this.state.listRecommendationType[0].value)}}>
+											{this.state.listRecommendationType[0].label}
+										</Text>
 									</View>
 									<View style={styles.recommendationItem}>
 										<RadioButton value="INDICACAO_AMBULATORIO" />
-										<Text>{this.state.listRecommendationType[1].label}</Text>
+										<Text onPress={ _ => { this.addRecommendation(this.state.listRecommendationType[1].value)}}>
+											{this.state.listRecommendationType[1].label}
+										</Text>
 									</View>
 									<View style={styles.recommendationItem}>
 										<RadioButton value="RECOMENDACAO_MEDICAMENTOSA" />
-										<Text>{this.state.listRecommendationType[2].label}</Text>
+										<Text onPress={ _ => { this.addRecommendation(this.state.listRecommendationType[2].value)}}>
+											{this.state.listRecommendationType[2].label}
+										</Text>
 									</View>
 								</RadioButton.Group>
 							</Dialog.Content>
