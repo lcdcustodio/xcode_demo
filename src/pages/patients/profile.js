@@ -610,23 +610,38 @@ export default class Profile extends Component {
 						</Body>
 					</ListItem>
 
-					<ListItem>
-						<Body>
-							<Text style={{fontWeight: 'bold'}}>Data da Alta Médica{"\n"}<TextValue value={ this.props.patient.medicalExitDate ? moment(this.props.patient.medicalExitDate).format('DD/MM/YYYY HH:mm') : '' } /></Text>
-						</Body>
-					</ListItem>
+					{
+						this.props.patient.exitDate ?
+							<ListItem>
+								<Body>
+									<Text style={{fontWeight: 'bold'}}>Data da Alta Médica{"\n"}<TextValue value={ this.props.patient.medicalExitDate ? moment(this.props.patient.medicalExitDate).format('DD/MM/YYYY HH:mm') : '' } /></Text>
+								</Body>
+							</ListItem>
+						:
+							null
+					}
 
-					<ListItem>
-						<Body>
-							<Text style={{fontWeight: 'bold'}}>Data da Alta Administrativa{"\n"}<TextValue value={ this.props.patient.exitDate ? moment(this.props.patient.exitDate).format('DD/MM/YYYY HH:mm') : '' } /></Text>
-						</Body>
-					</ListItem>
+					{
+						this.props.patient.exitDate ?
+							<ListItem>
+								<Body>
+									<Text style={{fontWeight: 'bold'}}>Data da Alta Administrativa{"\n"}<TextValue value={ this.props.patient.exitDate ? moment(this.props.patient.exitDate).format('DD/MM/YYYY HH:mm') : '' } /></Text>
+								</Body>
+							</ListItem>
+						:
+							null
+					}
 
-					<ListItem>
-						<Body>
-							<Text style={{fontWeight: 'bold'}}>Motivo da Alta Administrativa{"\n"}<TextValue value={this.props.patient.exitDescription} /></Text>
-						</Body>
-					</ListItem>
+					{
+						this.props.patient.exitDate ?
+							<ListItem>
+								<Body>
+									<Text style={{fontWeight: 'bold'}}>Motivo da Alta Administrativa{"\n"}<TextValue value={this.props.patient.exitDescription} /></Text>
+								</Body>
+							</ListItem>
+						:
+						null
+					}
 
 					<ListItem>
 						<Body>
