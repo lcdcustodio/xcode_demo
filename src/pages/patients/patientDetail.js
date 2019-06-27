@@ -1,6 +1,6 @@
-import React, { Component } from "react";
+import React, { Component } from 'react';
 import { Container, Content, Header, Left, Right, Button, Body, Title, Subtitle, Footer, FooterTab, Text } from 'native-base';
-import { StyleSheet, BackHandler } from "react-native";
+import { StyleSheet, BackHandler } from 'react-native';
 import _ from 'lodash';
 import TabEnum from './PatientDetailTabEnum';
 import Spinner from 'react-native-loading-spinner-overlay';
@@ -9,14 +9,12 @@ import moment from 'moment';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import {Icon as IconNativeBase} from 'native-base';
 
-import baseStyles from '../../styles';
-
-//Pages
-import Profile from "./profile";
-import Events from "./events";
-import Visits from "./visits";
-
+import { RdHeader } from '../../components/rededor-base';
 import Session from '../../Session';
+import baseStyles from '../../styles';
+import Profile from './profile';
+import Events from './events';
+import Visits from './visits';
 
 class PatientDetail extends Component {
     
@@ -172,20 +170,13 @@ class PatientDetail extends Component {
 	render() {
 		return (
 			<Container>
-
 				<Spinner
                     visible={this.state.loading}
                     textContent={this.state.textContent}
                     textStyle={styles.spinnerTextStyle} />
-
-				<Header style={ styles.header }>
-					<Left style={{flex:1}} >
-						<IconNativeBase type="FontAwesome" name="angle-left" style={{color: '#FFF', fontSize: 40}} onPress={this._goBack} />
-					</Left>
-					<Body style={{flex: 7}}>
-						<Title style={{color: 'white'}}> Detalhes do Paciente </Title>
-					</Body>
-				</Header>
+				<RdHeader
+					title='Detalhes do Paciente'
+					goBack={this._goBack}/>
 				<Content style={ baseStyles.container }>
 					{ this.renderSelectedTab() }
 				</Content>
