@@ -38,7 +38,13 @@ export default class Hospital extends Component {
 			errorSync: 0,
 			allPatients: [],
 			patientsFiltered: [],
-			patientQuery: null
+			patientQuery: null,
+			ICON: {
+                OLHO_CINZA_COM_CHECK: 3,
+                OLHO_AZUL: 1,
+                OLHO_CINZA_COM_EXCLAMACAO: 0,
+                CASA_AZUL: 2
+            }
 		}
 
 	}
@@ -94,6 +100,82 @@ export default class Hospital extends Component {
         });
 
 	});
+
+	getIconNumber(patient) {
+
+        let lastVisit = null;
+
+        let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc'])
+        
+        if (listOfOrderedPatientObservations.length > 0) {
+            
+            const today = moment();
+            
+            lastVisit = moment(moment(listOfOrderedPatientObservations[0].observationDate).format('YYYY-MM-DD'));
+
+            lastVisit = today.diff(lastVisit, 'days');
+        }
+
+        if(patient.observationList.length > 0 && listOfOrderedPatientObservations[0].alert) // TEVE VISITA E COM ALERTA
+        {
+            return this.state.ICON.OLHO_CINZA_COM_EXCLAMACAO;
+        }
+        else if(lastVisit == 0 && patient.exitDate == null) // VISITADO HOJE E NÃO TEVE ALTA
+        {
+            return this.state.ICON.OLHO_CINZA_COM_CHECK;
+        }
+
+        else if(lastVisit > 0 && patient.exitDate == null) // NÃO TEVE VISITA HOJE E NÃO TEVE ALTA
+        {
+            return this.state.ICON.OLHO_AZUL;
+        }
+
+        else if(patient.observationList.length == 0 && patient.exitDate == null) // NÃO TEVE VISITA E NÃO TEVE ALTA
+        {
+            return this.state.ICON.OLHO_AZUL;
+        }
+
+        else if (patient.exitDate != null) // TEVE ALTA
+        {
+            return this.state.ICON.CASA_AZUL;
+        }
+    }
+
+	countTotalPatients = (patients, hospitalName) => {
+		
+		let totalPatients = patients.reduce((totalPatients, patient) => {
+			
+			let iconNumber = this.getIconNumber(patient);
+
+			let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
+
+			if (
+
+                (listOfOrderedPatientObservations.length == 0) || 
+
+                (!listOfOrderedPatientObservations[0].endTracking && !listOfOrderedPatientObservations[0].medicalRelease)
+            ) {
+
+				if (iconNumber == this.state.ICON.OLHO_CINZA_COM_EXCLAMACAO ||
+					iconNumber == this.state.ICON.OLHO_AZUL ||
+					iconNumber == this.state.ICON.OLHO_CINZA_COM_CHECK) {
+					return totalPatients + 1;
+				}
+				else
+				{
+					return totalPatients;
+				}
+            }
+            else
+            {
+            	return totalPatients;
+            }
+
+		}, 0);
+
+		return totalPatients;
+	}
+
 
 	loadHospitals = async () => {
 		
@@ -153,7 +235,7 @@ export default class Hospital extends Component {
 
 						console.log(JSON.stringify(obj));
 
-						let data = { "hospitalizationList": obj };
+						let data = { "hospitalizationList": [] };
 
 						console.log(data);
 					
@@ -369,6 +451,14 @@ export default class Hospital extends Component {
 			return require('../../images/logo_hospital/rj/caxiasDor.png');
         }  else if(hospital.id === 8) {
 			return require('../../images/logo_hospital/rj/quintaDor.png');
+        } else if(hospital.id === 144) {
+			return require('../../images/logo_hospital/pe/saoMarcos.png');
+        } else if(hospital.id === 143) {
+			return require('../../images/logo_hospital/pe/saoJose.png');
+        } else if(hospital.id === 142) {
+			return require('../../images/logo_hospital/pe/esperancaOlinda.png');
+        } else if(hospital.id === 141) {
+			return require('../../images/logo_hospital/pe/esperancaRecife.png');
         }  
 
 		return null;
@@ -407,38 +497,6 @@ export default class Hospital extends Component {
 
 		return totalPatientsVisited;
 	}	
-
-	countTotalPatients = (patients, hospital) => {
-
-		let listPatients = this.state.allPatients;
-
-		let totalPatients = patients.reduce((totalPatients, patient) => {
-			
-			patient.hospitalName = hospital.name;
-			patient.hospitalId = hospital.id;
-
-			let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
-
-            if(
-                (listOfOrderedPatientObservations.length == 0) || 
-
-                (!listOfOrderedPatientObservations[0].endTracking && !listOfOrderedPatientObservations[0].medicalRelease)
-            )
-            {
-				listPatients.push(patient);
-            	return totalPatients + 1;
-            }
-            else
-            {
-            	return totalPatients;
-            }
-
-		}, 0);
-
-		this.setState({ allPatients: listPatients });
-
-		return totalPatients;
-	}
 
 	setLastVisit = patients => {
 		

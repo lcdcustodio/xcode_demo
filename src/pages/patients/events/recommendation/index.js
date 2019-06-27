@@ -74,12 +74,16 @@ export default class Recommendation extends React.Component {
 		let update = this.state.update;
 
 		if(!update && this.state.recommendationType === 'Selecione'){
-			this.showAlertMsg("Selecione uma recomendação.")
+			this.showAlertMsg("Selecione uma recomendação.");
 		} else {
-			if(this.saveRecommendation(patient)){
-				this.props.navigation.navigate("PatientDetail", { patient, selectedTab: 'events'});
-			}  			
-		}		
+			if (this.saveRecommendation(patient)) {
+				//const navigate = () => {
+				this.props.navigation.navigate("PatientDetail", { patient, selectedTab: 'events' });
+				//}
+				// Atraso para PatientDetail.didFocus carregar a versão já atualizada:
+				//setTimeout(navigate, 100);
+			}
+		}
 	}
 
 	toggleModalRecommendationType = () => {
@@ -183,30 +187,27 @@ export default class Recommendation extends React.Component {
 		}
 	}
 
-	showViewSpecialty =_=>{
-
-		const update = this.props.navigation.state.params.update;
-
-		if(update){
+	showViewSpecialty =_=> {
+/*		const update = this.props.navigation.state.params.update;
+		if (update) {
 			let patient = this.props.navigation.state.params.patient;
 			if( this.getRecommendationTypeLabel(patient.recommendationType) === this.state.listRecommendationType[1].label){
 				return 	<View style={ [styles.column100] }>
 							<Text sytle={styles.textDisable}>{patient.recommendationClinicalIndication.specialtyDisplayName}</Text>
 						</View>
 			}
-		} else {
-			if(this.state.recommendationType === this.state.listRecommendationType[1].label){	
-				return 	(
-					<View style={ [styles.column100] }>
-							<TextValue 	marginLeft="5" marginTop="2" marginBottom="2" press={ this.toggleModalSpecialty } color={'#0000FF'} value={ this.state.recommendation.specialtyDisplayName ? this.state.recommendation.specialtyDisplayName : 'Selecione' }  />
-					</View>
-				);
-			}
+		} else { */
+		if (this.state.recommendationType === this.state.listRecommendationType[1].label) {	
+			return 	(
+				<View style={ [styles.column100] }>
+					<TextValue 	marginLeft="5" marginTop="2" marginBottom="2" press={ this.toggleModalSpecialty } color={'#0000FF'} value={ this.state.recommendation.specialtyDisplayName ? this.state.recommendation.specialtyDisplayName : 'Selecione' }  />
+				</View>
+			);
 		}
-		
+//		}
 	}
 	
-	showRecommendationType = _ =>{
+	showRecommendationType = _ => {
 		const update = this.props.navigation.state.params.update;
 		
 		if(update){
