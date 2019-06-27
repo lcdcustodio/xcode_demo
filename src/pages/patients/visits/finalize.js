@@ -34,8 +34,9 @@ export default class Finalize extends Component {
 			accordionRecommendationWelcomeHomeIndication: false,
 			accordionRecommendationMedicineReintegration: false,
 			accordionRecommendationClinicalIndication: false,
-			morbidityComorbityList: null,
+			morbidityComorbityList: null
 		};
+
 		this.handleUpdatePatient = this.props.navigation.getParam('handleUpdatePatient');
 	}
 
@@ -704,7 +705,7 @@ export default class Finalize extends Component {
 		return (
 			<Container>
 				<RdHeader title={ patient.death ? 'Óbito' : 'Alta' } goBack={ this._goBack } style={ styles.header }/>
-				<Modal title="CID Primário" visible={this.state.modalExitCID} list={data.cid} onSelect={this.handleExitCID} close={() => {this.toggleModal('modalExitCID')} } />
+				<Modal title="CID de Saída" visible={this.state.modalExitCID} list={data.cid} onSelect={this.handleExitCID} close={() => {this.toggleModal('modalExitCID')} } />
 				<Modal title="Especialidade" visible={this.state.modalSpecialty} list={data.specialty} onSelect={ (item) => { this.handleClinicalIndicationSpecialty(item) }} close={() => {this.toggleModal('modalSpecialty')} } />
 
 				<Content padder style={ styles.body }>
