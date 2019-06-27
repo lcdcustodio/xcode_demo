@@ -836,7 +836,7 @@ export default class Hospital extends Component {
 							data={this.state.patientsFiltered}
 							keyExtractor={element => `${element.id}`}
 							renderItem={this.renderItemPatient} 
-							keyboardShouldPersistTaps="always" />
+							keyboardShouldPersistTaps="always" /> 
 					</List.Section>
 				
 				<Line size={1} />
