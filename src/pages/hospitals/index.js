@@ -141,10 +141,18 @@ export default class Hospital extends Component {
         }
     }
 
-	countTotalPatients = (patients, hospitalName) => {
+	countTotalPatients = (patients, hospital) => {
+
+		let listPatients = this.state.allPatients;
 		
 		let totalPatients = patients.reduce((totalPatients, patient) => {
 			
+			patient.hospitalName = hospital.name;
+
+			patient.hospitalId = hospital.id;
+
+			listPatients.push(patient);
+
 			let iconNumber = this.getIconNumber(patient);
 
 			let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
@@ -172,6 +180,8 @@ export default class Hospital extends Component {
             }
 
 		}, 0);
+
+		this.setState({ allPatients: listPatients });
 
 		return totalPatients;
 	}
