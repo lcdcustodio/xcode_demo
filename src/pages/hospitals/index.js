@@ -8,15 +8,16 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import moment from 'moment';
 import qs from "qs";
-import _ from 'lodash'
+import _ from 'lodash';
+import DismissKeyboard from 'dismissKeyboard';
 import { RdRootHeader } from "../../components/rededor-base";
 import api from '../../services/api';
 import Line from '../../components/Line'
 import Timer from '../../components/Timer'
 import Session from '../../Session';
 import TextValue from '../../components/TextValue';
-import baseStyles from '../../styles'
-import styles from './style'
+import baseStyles from '../../styles';
+import styles from './style';
 
 export default class Hospital extends Component {
 
@@ -174,7 +175,6 @@ export default class Hospital extends Component {
 
 		return totalPatients;
 	}
-
 
 	loadHospitals = async () => {
 		
@@ -778,7 +778,7 @@ export default class Hospital extends Component {
 
 		return (
 			<TouchableOpacity onPress={() => {
-				this.goToProfilePage(element.item) 
+				DismissKeyboard(), this.goToProfilePage(element.item) 
 			}}>
 				<List.Item title={`${element.item.patientName}`} />
 				<TextValue color={'#999'} size={13} marginLeft={4} marginTop={-6} value={element.item.hospitalName} />
