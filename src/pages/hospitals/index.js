@@ -9,7 +9,6 @@ import Icon from 'react-native-vector-icons/FontAwesome5';
 import moment from 'moment';
 import qs from "qs";
 import _ from 'lodash';
-import DismissKeyboard from 'dismissKeyboard';
 import { RdRootHeader } from "../../components/rededor-base";
 import api from '../../services/api';
 import Line from '../../components/Line'
@@ -788,7 +787,7 @@ export default class Hospital extends Component {
 
 		return (
 			<TouchableOpacity onPress={() => {
-				DismissKeyboard(), this.goToProfilePage(element.item) 
+				this.goToProfilePage(element.item) 
 			}}>
 				<List.Item title={`${element.item.patientName}`} />
 				<TextValue color={'#999'} size={13} marginLeft={4} marginTop={-6} value={element.item.hospitalName} />
@@ -832,12 +831,13 @@ export default class Hospital extends Component {
 
 				<Searchbar placeholder="Buscar paciente" onChangeText={patientQuery => { this.filterPatients(patientQuery) }} value={this.state.patientQuery} />
 				
-				<List.Section style={styles.listItemPatient}>
-					<FlatList
-						data={this.state.patientsFiltered}
-						keyExtractor={element => `${element.id}`}
-						renderItem={this.renderItemPatient} />
-				</List.Section>
+					<List.Section style={styles.listItemPatient}>
+						<FlatList
+							data={this.state.patientsFiltered}
+							keyExtractor={element => `${element.id}`}
+							renderItem={this.renderItemPatient} 
+							keyboardShouldPersistTaps="always" />
+					</List.Section>
 				
 				<Line size={1} />
 
