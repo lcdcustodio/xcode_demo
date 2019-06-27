@@ -261,11 +261,11 @@ export default class Profile extends Component {
 							<Dialog.Title>Altura (m) e Peso (Kg)</Dialog.Title>
 							
 							<Dialog.Content>
-								<TextInput mode='outlined' maxLength={4} keyboardType='number-pad' label='Altura' value={this.state.patientHeightTMP ? this.state.patientHeightTMP.toString() : this.state.patientHeightTMP} onChangeText={height => { this.handleHeight(height) }}/>
+								<TextInput mode='outlined' maxLength={4} keyboardType='numeric' label='Altura' value={this.state.patientHeightTMP ? this.state.patientHeightTMP.toString() : this.state.patientHeightTMP} onChangeText={height => { this.handleHeight(height) }}/>
 
 								<Text> {'\n'} </Text>								
 
-								<TextInput mode='outlined' maxLength={4} keyboardType='number-pad' label='Peso' value={this.state.patientWeightTMP ? this.state.patientWeightTMP.toString() : this.state.patientWeightTMP} onChangeText={weight => { this.handleWeight(weight) }} />
+								<TextInput mode='outlined' maxLength={4} keyboardType='numeric' label='Peso' value={this.state.patientWeightTMP ? this.state.patientWeightTMP.toString() : this.state.patientWeightTMP} onChangeText={weight => { this.handleWeight(weight) }} />
 							</Dialog.Content>
 
 							<Divider />
@@ -489,6 +489,15 @@ export default class Profile extends Component {
 		);
 	}
 
+	renderMainProcedure() {
+		return (
+			this.state.isEditable ?
+				<TextValue color={'#0000FF'} value={this.props.patient.mainProcedureTUSSDisplayName ? this.props.patient.mainProcedureTUSSDisplayName : 'ESCOLHER'} press={ () => { this.setState({modalSelected: 'MainProcedure', modalMainProcedure: true}) }} />
+			:
+				<TextValue value={this.props.patient.mainProcedureTUSSDisplayName ? this.props.patient.mainProcedureTUSSDisplayName : 'NÃO INFORMADO'} />
+		);
+	}
+
 	renderPrimaryCID() {
 		return (
 			this.state.isEditable ?
@@ -597,22 +606,6 @@ export default class Profile extends Component {
 
 					<ListItem>
 						<Body>
-							<Text style={{fontWeight: 'bold'}}>Atendimento{"\n"}
-								{ this.renderAtendencyType() }
-							</Text>
-						</Body>
-					</ListItem>
-
-					<ListItem>
-						<Body>
-							<Text style={{fontWeight: 'bold'}}>Tipo da Internação{"\n"}
-								{ this.renderHospitalizationType() }
-							</Text> 
-						</Body>
-					</ListItem>
-
-					<ListItem>
-						<Body>
 							<Text style={{fontWeight: 'bold'}}>Data de Internação{"\n"}<TextValue value={ this.props.patient.admissionDate ? moment(this.props.patient.admissionDate).format('DD/MM/YYYY HH:mm') : ''} /></Text>
 						</Body>
 					</ListItem>
@@ -637,11 +630,45 @@ export default class Profile extends Component {
 
 					<ListItem>
 						<Body>
-							<Text style={{fontWeight: 'bold'}}>CRM do Responsável{"\n"}
-								{ this.renderCRM() }
+							<Text style={{fontWeight: 'bold'}}>Atendimento{"\n"}
+								{ this.renderAtendencyType() }
 							</Text>
 						</Body>
 					</ListItem>
+
+					<ListItem>
+						<Body>
+							<Text style={{fontWeight: 'bold'}}>Tipo da Internação{"\n"}
+								{ this.renderHospitalizationType() }
+							</Text> 
+						</Body>
+					</ListItem>
+
+					{
+						this.props.patient.hospitalizationType === 'SURGICAL' ?
+							<ListItem>
+								<Body>
+									<Text style={{fontWeight: 'bold'}}>Procedimento Principal{"\n"}
+										{ this.renderMainProcedure() }
+									</Text>
+								</Body>
+							</ListItem>
+						:
+						null
+					}
+
+					{
+						this.props.patient.hospitalizationType === 'SURGICAL' ?
+							<ListItem>
+								<Body>
+									<Text style={{fontWeight: 'bold'}}>CRM do Responsável{"\n"}
+										{ this.renderCRM() }
+									</Text>
+								</Body>
+							</ListItem>
+						:
+						null
+					}
 
 					<ListItem>
 						<Body>
