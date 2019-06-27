@@ -675,19 +675,24 @@ export default class Finalize extends Component {
 						</View>
 					</Body>
 				</ListItem>
-				<ListItem>
-					<Body>
-						<View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
-							<Text style={{fontWeight: 'bold', height: 20, width: '80%' ,borderWidth: 0, borderColor: '#000000' }}>Especialidade {"\n"} </Text>
-						</View>
-						<View style={{flexDirection: 'row', justifyContent: 'space-around'}} >
-							<Text style={{fontWeight: 'bold', height: 20, width: '80%' ,borderWidth: 0, borderColor: '#000000', color:'#0000FF' }} onPress={ () => {this.toggleModal('modalSpecialty')} }>
-								{this.state.patient.clinicalIndication && this.state.patient.clinicalIndication.specialtyDisplayName ? this.state.patient.clinicalIndication.specialtyDisplayName : 'ESCOLHER'}
-								{"\n"} 
-							</Text>
-						</View>
-					</Body>
-				</ListItem>
+				{
+					this.state.patient.clinicalIndication && this.state.patient.clinicalIndication.indicated ?
+						<ListItem>
+							<Body>
+								<View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
+									<Text style={{fontWeight: 'bold', height: 20, width: '80%' ,borderWidth: 0, borderColor: '#000000' }}>Especialidade {"\n"} </Text>
+								</View>
+								<View style={{flexDirection: 'row', justifyContent: 'space-around'}} >
+									<Text style={{fontWeight: 'bold', height: 20, width: '80%' ,borderWidth: 0, borderColor: '#000000', color:'#0000FF' }} onPress={ () => {this.toggleModal('modalSpecialty')} }>
+										{this.state.patient.clinicalIndication && this.state.patient.clinicalIndication.specialtyDisplayName ? this.state.patient.clinicalIndication.specialtyDisplayName : 'ESCOLHER'}
+										{"\n"} 
+									</Text>
+								</View>
+							</Body>
+						</ListItem>
+					:
+					null
+				}
 			</View>
 		);
 	}
