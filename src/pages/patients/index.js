@@ -33,8 +33,6 @@ export default class Patients extends Component {
 
     didFocus = this.props.navigation.addListener('didFocus', (res) => {
 
-        this.setState({ loading: true });
-
         const hospitalId = this.props.navigation.getParam('hospitalId');
 
         AsyncStorage.getItem('hospitalList', (err, res) => {
@@ -79,11 +77,7 @@ export default class Patients extends Component {
 
                     hospital.hospitalizationList = patients;
 
-
                     this.setState({hospital: hospital});
-
-                    this.setState({ loading: false });
-
 
                     break;
 
