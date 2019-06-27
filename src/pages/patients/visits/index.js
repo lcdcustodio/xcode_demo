@@ -258,10 +258,10 @@ export default class Visitas extends React.Component {
 						: <EndTrackingButtonEnabled/>;
 				}
 			case HospitalizationStatusEnum.Closed:
-				console.warn('Visitas: finalizado não é exibido.', patient);
+				console.log('Visitas: finalizado não é exibido.', patient);
 				return null;
 		}
-		console.warn('Visitas: tipo de botão não mapeado.', patient);
+		console.log('Visitas: tipo de botão não mapeado.', patient);
 		return null;
 	}
 	
