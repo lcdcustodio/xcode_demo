@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dimensions, View, FlatList, Alert } from 'react-native';
+import { Dimensions, View, FlatList, Alert, Keyboard } from 'react-native';
 import baseStyles from '../../../styles'
 import styles from './style'
 import moment from 'moment';
@@ -29,8 +29,20 @@ export default class Visitas extends React.Component {
 				alert: false,
 				observationDate: '',
 			},
-			update: false
+			update: false,
+			keyboardSpace: 0
 		}
+		
+		Keyboard.addListener('keyboardDidShow',(frames)=>{
+            if (!frames.endCoordinates) return;
+            this.setState({
+				keyboardSpace: frames.endCoordinates.height
+			});
+		});
+		
+        Keyboard.addListener('keyboardDidHide',(frames)=>{
+            this.setState({keyboardSpace:0});
+        });
 	}
 
 	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
@@ -288,7 +300,7 @@ export default class Visitas extends React.Component {
 	renderModal() {
 		return(
 			<Portal>
-				<Dialog style={{ marginBottom: 280}} visible={this.state.modalVisible} onDismiss={ () => { this.toggleModal() } }>
+				<Dialog style={{top: this.state.keyboardSpace ? -(this.state.keyboardSpace * .47) : 0}} visible={this.state.modalVisible} onDismiss={ () => { this.toggleModal() } }>
 					<Dialog.Title>Visita</Dialog.Title>
 					<Dialog.Content>
 						<View style={{backgroundColor: 'white'}}>

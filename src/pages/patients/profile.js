@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, Alert, ScrollView, FlatList, Keyboard, Dimensions } from 'react-native';
+import { StyleSheet, View, Alert, ScrollView, FlatList, Keyboard } from 'react-native';
+import Modal from '../../components/Modal';
 import TextValue from '../../components/TextValue';
 import moment from 'moment';
 import uuidv4 from'uuid/v4';
@@ -40,8 +41,7 @@ export default class Profile extends Component {
 			patientHeightTMP: this.props.navigation.getParam('patient').patientHeight,
 			patientWeightTMP: this.props.navigation.getParam('patient').patientWeight,
 			crmTMP: this.props.navigation.getParam('patient').mainProcedureCRM,
-			keyboardSpace:0,
-			modalHeight:0
+			keyboardSpace: 0
 		}
 
 		Keyboard.addListener('keyboardDidShow',(frames)=>{
@@ -216,61 +216,13 @@ export default class Profile extends Component {
 		})
 		this.toggleModal('modalMainProcedure')
 	}
-
-	renderItemPrimary = (element) => {
-		return (
-			<Text style={styles.textListItem} onPress={() => { this.handlePrimaryCID(element) }}> {`${element.item.code} - ${element.item.name}`} </Text>
-		);
-	}
-
-	renderItemSecondary = (element) => {
-		return (
-			<Text style={styles.textListItem} onPress={() => { this.handleSecondaryCID(element) }}> {`${element.item.code} - ${element.item.name}`} </Text>                             
-        );
-	}
-
-	renderItemTuss = (element) => {
-		return (
-			<Text style={styles.textListItem} onPress={() => { this.handleMainProcedure(element) }}> {`${element.item.code} - ${element.item.name}`} </Text>
-		);
-	}
-
-	filterCID = (query) => {
-		const newCidList = this.state.cid.filter(item => {
-			return (
-				item.name.toUpperCase().includes(query.toUpperCase()) ||
-				item.normalizedName.toUpperCase().includes(query.toUpperCase()) ||
-				item.code.toUpperCase().includes(query.toUpperCase())
-			)
-		});
-
-		this.setState({
-			auxCid: newCidList,
-			cidQuery: query
-		});
-	}
-
-	filterTuss = (query) => {
-		const newTussList = this.state.tuss.filter(item => {
-			return (
-				item.name.toUpperCase().includes(query.toUpperCase()) ||
-				item.normalizedName.toUpperCase().includes(query.toUpperCase()) ||
-				item.code.toUpperCase().includes(query.toUpperCase())
-			)
-		});
-
-		this.setState({
-			auxTuss: newTussList,
-			tussQuery: query
-		});
-	}
 	
 	renderModalSelected() {
 		switch (this.state.modalSelected) {
 			case 'HeightAndWeight':
 				return (
 					<Portal>
-						<Dialog visible={this.state.modalHeightAndWeight} onDismiss={ () => { this.toggleModal('modalHeightAndWeight') } }>
+						<Dialog style={{top: this.state.keyboardSpace ? -(this.state.keyboardSpace * .47) : 0}} visible={this.state.modalHeightAndWeight} onDismiss={ () => { this.toggleModal('modalHeightAndWeight') } }>
 							<Dialog.Title>Altura (m) e Peso (Kg)</Dialog.Title>
 							
 							<Dialog.Content>
@@ -294,7 +246,7 @@ export default class Profile extends Component {
 			case 'AttendanceType':
 				return ( 
 					<Portal>
-						<Dialog style={{marginBottom: 280}} visible={this.state.modalAttendanceType} onDismiss={ () => { this.toggleModal('modalAttendanceType') } }>
+						<Dialog visible={this.state.modalAttendanceType} onDismiss={ () => { this.toggleModal('modalAttendanceType') } }>
 							<Dialog.Title>Atendimento</Dialog.Title>
 							
 							<Divider />
@@ -323,7 +275,7 @@ export default class Profile extends Component {
 			case 'HospitalizationType':
 				return ( 
 					<Portal>
-						<Dialog style={{marginBottom: 280}} visible={this.state.modalHospitalizationType} onDismiss={ () => { this.toggleModal('modalHospitalizationType') } }>
+						<Dialog visible={this.state.modalHospitalizationType} onDismiss={ () => { this.toggleModal('modalHospitalizationType') } }>
 							<Dialog.Title>Tipo</Dialog.Title>
 							
 							<Divider />
@@ -352,7 +304,7 @@ export default class Profile extends Component {
 			case 'CRM':
 				return ( 
 					<Portal>
-						<Dialog style={{marginBottom: 280}} visible={this.state.modalCRM} onDismiss={ () => { this.toggleModal('modalCRM') } }>
+						<Dialog style={{ top: this.state.keyboardSpace ? -(this.state.keyboardSpace * .47) : 0 }} visible={this.state.modalCRM} onDismiss={ () => { this.toggleModal('modalCRM') } }>
 							<Dialog.Title>CRM</Dialog.Title>
 							
 							<Dialog.Content>
@@ -370,82 +322,17 @@ export default class Profile extends Component {
 					</Portal>
 				);
 			case 'PrimaryCID':
-				return ( 
-					<Portal>
-						<Dialog style={{height: '45%', marginBottom: 280}} visible={this.state.modalPrimaryCID} onDismiss={ () => { this.toggleModal('modalPrimaryCID') } }>
-							<Dialog.ScrollArea>
-								<Dialog.Title>CID Primário</Dialog.Title>
-								<Searchbar placeholder="Filtrar" onChangeText={query => { this.filterCID(query) }} value={this.state.cidQuery} />
-
-								<ScrollView style={{marginTop: 20}} contentContainerStyle={{ paddingHorizontal: 10 }}>
-									<List.Section>
-										<FlatList
-											data={this.state.auxCid}
-											keyExtractor={element => `${element.id}`}
-											renderItem={this.renderItemPrimary} />
-									</List.Section>
-								</ScrollView>
-							</Dialog.ScrollArea>
-
-							<Divider />
-
-							<Dialog.Actions>
-								<Button onPress={ () => { this.toggleModal('modalPrimaryCID') } }>Fechar</Button>
-							</Dialog.Actions>
-						</Dialog>
-					</Portal>
+				return (
+					<Modal title="CID Primário" visible={this.state.modalPrimaryCID} list={this.state.auxCid} onSelect={ (item) => { this.handlePrimaryCID(item) }} close={() => {this.toggleModal('modalPrimaryCID')} } />
 				);
 			case 'SecondaryCID':
-				return ( 
-					<Portal>
-						<Dialog style={{height: this.state.keyboardSpace ? '52%' : '84%', top: this.state.keyboardSpace ? -(this.state.keyboardSpace * .47) : 0}} visible={this.state.modalSecondaryCID} onDismiss={ () => { this.toggleModal('modalSecondaryCID') } }>
-							<Dialog.ScrollArea>
-								<Dialog.Title>CID Secundário</Dialog.Title>
-								<Searchbar placeholder="Filtrar" onChangeText={query => { this.filterCID(query) }} value={this.state.cidQuery} />
-
-								<ScrollView style={{marginTop: 20}} contentContainerStyle={{ paddingHorizontal: 0, marginHorizontal: 0 }}>
-									<List.Section>
-										<FlatList
-											data={this.state.auxCid}
-											keyExtractor={element => `${element.id}`}
-											renderItem={this.renderItemSecondary} />
-									</List.Section>
-								</ScrollView>
-							</Dialog.ScrollArea>
-
-							<Divider />
-
-							<Dialog.Actions>
-								<Button onPress={ () => { this.toggleModal('modalSecondaryCID') } }>Fechar</Button>
-							</Dialog.Actions>
-						</Dialog>
-					</Portal>
+				return (
+					<Modal title="CID Secundário" visible={this.state.modalSecondaryCID} list={this.state.auxCid} onSelect={ (item) => { this.handleSecondaryCID(item) }} close={() => {this.toggleModal('modalSecondaryCID')} } />
 				);
+
 			case 'MainProcedure':
-				return ( 
-					<Portal>
-						<Dialog style={{height: '45%', marginBottom: 280}} visible={this.state.modalMainProcedure} onDismiss={ () => { this.toggleModal('modalMainProcedure') } }>
-							<Dialog.ScrollArea>
-								<Dialog.Title>Procedimento Principal</Dialog.Title>
-								<Searchbar placeholder="Filtrar" onChangeText={query => { this.filterTuss(query) }} value={this.state.tussQuery} />
-
-								<ScrollView style={{marginTop: 20}} contentContainerStyle={{ paddingHorizontal: 10 }}>
-									<List.Section>
-										<FlatList
-											data={this.state.auxTuss}
-											keyExtractor={element => `${element.id}`}
-											renderItem={this.renderItemTuss} />
-									</List.Section>
-								</ScrollView>
-							</Dialog.ScrollArea>
-
-							<Divider />
-
-							<Dialog.Actions>
-								<Button onPress={ () => { this.toggleModal('modalMainProcedure') } }>Fechar</Button>
-							</Dialog.Actions>
-						</Dialog>
-					</Portal>
+				return (
+					<Modal title="Procedimento Principal" visible={this.state.modalMainProcedure} list={this.state.auxTuss} onSelect={ (item) => { this.handleMainProcedure(item) }} close={() => {this.toggleModal('modalMainProcedure')} } />
 				);
 		}
 	}

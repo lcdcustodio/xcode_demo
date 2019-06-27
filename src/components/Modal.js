@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { ScrollView, FlatList } from 'react-native';
+import { ScrollView, FlatList, Keyboard, Text, StyleSheet } from 'react-native';
 import { Button, Dialog, Portal, Divider, Searchbar, List } from 'react-native-paper';
 
 export default class ModalPrimaryCID extends Component {
@@ -8,18 +8,30 @@ export default class ModalPrimaryCID extends Component {
         super(props);
 		this.state = {
 			list: this.props.list,
-			query: null
-		}
+            query: null,
+            keyboardSpace: 0
+        }
+        
+        Keyboard.addListener('keyboardDidShow',(frames)=>{
+            if (!frames.endCoordinates) return;
+            this.setState({
+				keyboardSpace: frames.endCoordinates.height
+			});
+		});
+		
+        Keyboard.addListener('keyboardDidHide',(frames)=>{
+            this.setState({keyboardSpace:0});
+        });
     }
 
     renderItem = (element) => {
         if (element.item.code && element.item.code !== null) {
             return(
-                <List.Item title={`${element.item.code} - ${element.item.name}`} onPress={() => {this.props.onSelect(element)} }/>
+                <Text style={styles.dialogListItem} onPress={() => { this.props.onSelect(element) }}> {`${element.item.code} - ${element.item.name}`} </Text>
             );
         } else {
             return (
-                <List.Item title={`${element.item.name}`} onPress={() => {this.props.onSelect(element)} }/>
+                <Text style={styles.dialogListItem} onPress={() => { this.props.onSelect(element) }}> {`${element.item.name}`} </Text>
             );
         }
     }
@@ -45,16 +57,17 @@ export default class ModalPrimaryCID extends Component {
     render() {
         return (
             <Portal>
-                <Dialog style={{ height: '70%' }} visible={ this.props.visible } onDismiss={ this.props.close }>
+                <Dialog style={{ marginLeft:5, marginRight:5, paddingLeft:0, height: this.state.keyboardSpace ? '52%' : '84%', top: this.state.keyboardSpace ? -(this.state.keyboardSpace * .47) : 0}} visible={ this.props.visible } onDismiss={ this.props.close }>
                     <Dialog.ScrollArea>
-                        <Dialog.Title>{this.props.title}</Dialog.Title>
-                        <Searchbar placeholder="Filtrar" value={ this.state.query } onChangeText={ this.filter } />
-                        <ScrollView style={{marginTop: 20}} contentContainerStyle={{ paddingHorizontal: 10 }}>
+                        <Dialog.Title style={ styles.dialogTitle }> {this.props.title} </Dialog.Title>
+                        <Searchbar style={ styles.dialogSearchbar } placeholder="Filtrar" value={ this.state.query } onChangeText={ this.filter } />
+                        <ScrollView style={ styles.dialogScrollView }>
                             <List.Section>
                                 <FlatList
                                     data={this.state.list}
                                     keyExtractor={element => `${element.id}`}
-                                    renderItem={this.renderItem} />
+                                    renderItem={this.renderItem} 
+                                    keyboardShouldPersistTaps="always" />
                             </List.Section>
                         </ScrollView>
                     </Dialog.ScrollArea>
@@ -67,3 +80,25 @@ export default class ModalPrimaryCID extends Component {
         )
     }
 }
+
+const styles = StyleSheet.create({
+    dialogTitle: {
+        marginTop: 20, 
+        marginLeft: -15, 
+        marginRight: -15
+    },
+    dialogSearchbar: {
+        marginLeft: -15, 
+        marginRight: -15
+    },
+    dialogScrollView: {
+        marginTop: 20, 
+        marginLeft: -18, 
+        marginRight: -18
+    },
+    dialogListItem: {
+        padding: 10, 
+        fontSize: 14,
+        width: '100%'
+    }
+});

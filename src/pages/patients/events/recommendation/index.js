@@ -1,11 +1,12 @@
 import React from 'react';
-import { View, StyleSheet, Alert, ScrollView, FlatList} from 'react-native';
-import { Container, Content, Header, Left, Body, Icon, Text, Title } from 'native-base';
+import { View, StyleSheet, Alert } from 'react-native';
+import { Container, Content, Text } from 'native-base';
 import { RdHeader } from '../../../../components/rededor-base';
 import TextValue from '../../../../components/TextValue'
 import moment from 'moment';
 import Uuid from 'uuid/v4';
 import data from '../../../../../data.json';
+import Modal from '../../../../components/Modal';
 
 import { Button, Dialog, Portal, RadioButton, Divider, TextInput, Searchbar, List } from 'react-native-paper';
 
@@ -230,26 +231,6 @@ export default class Recommendation extends React.Component {
 		this.toggleModalSpecialty()
 	}
 
-	filterSpecialty = (query) => {
-		const newSpecialtyList = this.state.specialty.filter(item => {
-			return (
-				item.name.toUpperCase().includes(query.toUpperCase()) ||
-				item.normalizedName.toUpperCase().includes(query.toUpperCase())
-			)
-		});
-
-		this.setState({
-			auxSpecialty: newSpecialtyList,
-			specialtyQuery: query
-		});
-	}
-
-	renderItemPrimary = (element) => {
-		return (
-			<List.Item title={`${element.item.name}`} onPress={() => { this.handleSpecialtyId(element) }} />
-		);
-	}
-
 	isaRecommendationClinicalIndication = (recommendationType) => {
 		return recommendationType === this.state.listRecommendationType[1].value;
 	}
@@ -299,31 +280,7 @@ export default class Recommendation extends React.Component {
 						</Dialog>
 					</Portal> 
 
-					<Portal>
-						<Dialog style={{height: '70%'}} visible={this.state.modalSpecialtyVisible} onDismiss={ () => {  this.toggleModalSpecialty() } }>
-							<Dialog.ScrollArea>
-								<Dialog.Title>Especialidade</Dialog.Title>
-								<Searchbar placeholder="Filtrar" onChangeText={query => { this.filterSpecialty(query) }} value={this.state.specialtyQuery} />
-
-								<ScrollView style={{marginTop: 20}} contentContainerStyle={{ paddingHorizontal: 10 }}>
-									<List.Section>
-										<FlatList
-											data={this.state.auxSpecialty}
-											keyExtractor={element => `${element.id}`}
-											renderItem={this.renderItemPrimary} />
-									</List.Section>
-								</ScrollView>
-
-							</Dialog.ScrollArea>
-
-							<Divider />
-
-{/* 							<Dialog.Actions>
-								<Button onPress={ () => { this.toggleModalSpecialty() } }>Fechar</Button>
-							</Dialog.Actions> */}
-
-						</Dialog>
-					</Portal>
+					<Modal title="Especialidade" visible={this.state.modalSpecialtyVisible} list={this.state.auxSpecialty} onSelect={ (item) => { this.handleSpecialtyId(item) }} close={() => { this.toggleModalSpecialty() }} />
 
 					<View style={styles.row}>
 						<Text style={styles.title}>Recomendação</Text>
