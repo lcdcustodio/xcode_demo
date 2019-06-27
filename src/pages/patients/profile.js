@@ -287,13 +287,15 @@ export default class Profile extends Component {
 							<Divider />
 							
 							<Dialog.Content>
-								<RadioButton.Group onValueChange={ value => { this.handleAttendanceType(value) } } value={this.props.patient.attendanceType}>
+								<RadioButton.Group 
+								  onValueChange={ value => { this.handleAttendanceType(value) } } 
+								  value={attendanceType}>
 									<View style={{flexDirection: 'row', alignItems: 'center'}}>
-										<RadioButton value="ELECTIVE" />
+										<RadioButton value="ELECTIVE" status={attendanceType === 'ELECTIVE' ? 'checked' : 'unchecked'}/>
 										<Text>Eletivo</Text>
 									</View>
 									<View style={{flexDirection: 'row', alignItems: 'center'}}>
-										<RadioButton value="EMERGENCY" />
+										<RadioButton value="EMERGENCY" status={attendanceType === 'EMERGENCY' ? 'checked' : 'unchecked'}/>
 										<Text>Emergencial</Text>
 									</View>
 								</RadioButton.Group>
@@ -318,11 +320,11 @@ export default class Profile extends Component {
 							<Dialog.Content>
 								<RadioButton.Group onValueChange={ value => { this.handleHospitalizationType(value) } } value={this.props.patient.hospitalizationType}>
 									<View style={{flexDirection: 'row', alignItems: 'center'}}>
-										<RadioButton value="CLINICAL" />
+										<RadioButton value="CLINICAL" status={attendanceType === 'CLINICAL' ? 'checked' : 'unchecked'}/>
 										<Text onPress={ () => { this.handleHospitalizationType('CLINICAL') } }>Clínico</Text>
 									</View>
 									<View style={{flexDirection: 'row', alignItems: 'center'}}>
-										<RadioButton value="SURGICAL" />
+										<RadioButton value="SURGICAL" status={attendanceType === 'SURGICAL' ? 'checked' : 'unchecked'}/>
 										<Text onPress={ () => { this.handleHospitalizationType('SURGICAL') } }>Cirúrgico</Text>
 									</View>
 								</RadioButton.Group>
@@ -379,7 +381,7 @@ export default class Profile extends Component {
 							<Dialog.Actions>
 								<Button onPress={ () => { this.toggleModal('modalPrimaryCID') } }>Fechar</Button>
 							</Dialog.Actions>
-						</Dialog>
+					</Dialog>
 					</Portal>
 				);
 			case 'SecondaryCID':
@@ -387,7 +389,7 @@ export default class Profile extends Component {
 					<Portal>
 						<Dialog style={{height: '45%', marginBottom: 280}} visible={this.state.modalSecondaryCID} onDismiss={ () => { this.toggleModal('modalSecondaryCID') } }>
 							<Dialog.ScrollArea>
-								<Dialog.Title>CID Secundário</Dialog.Title>
+							<Dialog.Title>CID Secundário</Dialog.Title>
 								<Searchbar placeholder="Filtrar" onChangeText={query => { this.filterCID(query) }} value={this.state.cidQuery} />
 
 								<ScrollView style={{marginTop: 20}} contentContainerStyle={{ paddingHorizontal: 10 }}>
@@ -436,6 +438,8 @@ export default class Profile extends Component {
 				);
 		}
 	}
+
+	
 
 	renderHeightAndWeight() {
 
