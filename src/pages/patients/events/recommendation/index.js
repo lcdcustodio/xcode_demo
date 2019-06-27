@@ -69,19 +69,15 @@ export default class Recommendation extends React.Component {
 		}
 	});
 
-	save = _ => {
+	save = async _ => {
 		let patient = this.props.navigation.state.params.patient;
 		let update = this.state.update;
 
 		if(!update && this.state.recommendationType === 'Selecione'){
 			this.showAlertMsg("Selecione uma recomendação.");
 		} else {
-			if (this.saveRecommendation(patient)) {
-				//const navigate = () => {
+			if (await this.saveRecommendation(patient)) {
 				this.props.navigation.navigate("PatientDetail", { patient, selectedTab: 'events' });
-				//}
-				// Atraso para PatientDetail.didFocus carregar a versão já atualizada:
-				//setTimeout(navigate, 100);
 			}
 		}
 	}
@@ -120,7 +116,7 @@ export default class Recommendation extends React.Component {
 
 	showAlertMsg= item =>{Alert.alert('Atenção', item,[{text: 'OK', onPress: () => {}}],{cancelable: false});}
 
-	selectedRecommendationWelcomeHomeIndication = patient =>{
+	selectedRecommendationWelcomeHomeIndication = async patient =>{
 		const indicationItem = this.state.listRecommendationType[0].label;
 		if (this.state.recommendationType === indicationItem ) {
 			if(patient.recommendationWelcomeHomeIndication && !this.state.update){
@@ -128,14 +124,14 @@ export default class Recommendation extends React.Component {
 			} else {
 				const { handleUpdatePatient } = this.props.navigation.state.params;
 				const { recommendation } = this.state;
-				handleUpdatePatient('recommendationWelcomeHomeIndication', recommendation);
+				await handleUpdatePatient('recommendationWelcomeHomeIndication', recommendation);
 				patient.recommendationWelcomeHomeIndication = recommendation;
 				return true;
 			}	
 		}
 	}
 
-	selectedRecommendationClinicalIndication = patient =>{
+	selectedRecommendationClinicalIndication = async patient =>{
 		const clinicalIndicationItem = this.state.listRecommendationType[1].label;
 		if (this.state.recommendationType === clinicalIndicationItem) {
 			if(patient.recommendationClinicalIndication && !this.state.update){
@@ -146,7 +142,7 @@ export default class Recommendation extends React.Component {
 				} else {
 					const { handleUpdatePatient } = this.props.navigation.state.params;
 					const { recommendation } = this.state;
-					handleUpdatePatient('recommendationClinicalIndication', recommendation);
+					await handleUpdatePatient('recommendationClinicalIndication', recommendation);
 					patient.recommendationClinicalIndication = recommendation;
 					return true;
 				}
@@ -155,7 +151,7 @@ export default class Recommendation extends React.Component {
 		}
 	}
 
-	selectedRecommendationMedicineReintegration = patient =>{
+	selectedRecommendationMedicineReintegration = async patient =>{
 		const reintegrationItem = this.state.listRecommendationType[2].label;
 		if (this.state.recommendationType === reintegrationItem ) {
 			if(patient.recommendationMedicineReintegration && !this.state.update){
@@ -163,15 +159,17 @@ export default class Recommendation extends React.Component {
 			} else {
 				const { handleUpdatePatient } = this.props.navigation.state.params;
 				const { recommendation } = this.state;
-				handleUpdatePatient('recommendationMedicineReintegration', recommendation);
+				await handleUpdatePatient('recommendationMedicineReintegration', recommendation);
 				patient.recommendationMedicineReintegration =  recommendation;
 				return true;
 			}
 		} 
 	}
 
-	saveRecommendation = patient => {
-		return this.selectedRecommendationMedicineReintegration(patient) || this.selectedRecommendationWelcomeHomeIndication(patient) || this.selectedRecommendationClinicalIndication(patient);
+	saveRecommendation = async patient => {
+		return await this.selectedRecommendationMedicineReintegration(patient)
+			|| await this.selectedRecommendationWelcomeHomeIndication(patient)
+			|| await this.selectedRecommendationClinicalIndication(patient);
 	}
 
 	getRecommendationTypeLabel = item => {
