@@ -34,8 +34,9 @@ export default class Finalize extends Component {
 			accordionRecommendationWelcomeHomeIndication: false,
 			accordionRecommendationMedicineReintegration: false,
 			accordionRecommendationClinicalIndication: false,
-			morbidityComorbityList: null,
+			morbidityComorbityList: null
 		};
+
 		this.handleUpdatePatient = this.props.navigation.getParam('handleUpdatePatient');
 	}
 
@@ -48,7 +49,7 @@ export default class Finalize extends Component {
 		let morbidityComorbityList = JSON.parse(morbidityComorbityStorage);
 
 		if (patientStorage) {
-			//patientStorage.patientBornDate = '2010/04/13'
+			//patientStorage.patientBornDate = '1948/04/13'
 			//patientStorage.death = true;
 			patientStorage.complementaryInfoHospitalizationAPI.isUrgentEmergHospitatization = patientStorage.attendanceType === 'EMERGENCY' ? true : false;
 			patientStorage.complementaryInfoHospitalizationAPI.isNotHemoglobin = this.getStatusHemoglobin(patientStorage.complementaryInfoHospitalizationAPI.hemoglobin);
@@ -101,18 +102,21 @@ export default class Finalize extends Component {
 			return;
 		}
 
-		this.handleUpdatePatient('diagnosticHypothesisList', [patient.exitCID]);
-		this.handleUpdatePatient('complementaryInfoHospitalizationAPI', patient.complementaryInfoHospitalizationAPI);
-		this.handleUpdatePatient('morbidityComorbityList', patient.morbidityComorbityList);
-		this.handleUpdatePatient('welcomeHomeIndication', patient.welcomeHomeIndication);
-		this.handleUpdatePatient('medicineReintegration', patient.medicineReintegration);
-		this.handleUpdatePatient('clinicalIndication', patient.clinicalIndication);
+		let showSpinner = false;
+
+		await this.handleUpdatePatient('diagnosticHypothesisList', [patient.exitCID], showSpinner);
+		await this.handleUpdatePatient('complementaryInfoHospitalizationAPI', patient.complementaryInfoHospitalizationAPI, showSpinner);
+		await this.handleUpdatePatient('morbidityComorbityList', patient.morbidityComorbityList, showSpinner);
+		await this.handleUpdatePatient('welcomeHomeIndication', patient.welcomeHomeIndication, showSpinner);
+		await this.handleUpdatePatient('medicineReintegration', patient.medicineReintegration, showSpinner);
+		await this.handleUpdatePatient('clinicalIndication', patient.clinicalIndication, showSpinner);
 
 		if (patient.observationList && patient.observationList.lenght > 0) {
 			orderedObservationList = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
 			orderedObservationList[0].medicalRelease = true;
 			orderedObservationList[0].observation = "Internação finalizada.";
 			await this.handleUpdatePatient('observationList', orderedObservationList);
+
 			Alert.alert('Finalizar', "Finalização realizada com sucesso.", [{text:'OK',onPress:() =>{ this._goBack()} } ]);
 		} else {
 			let observation = {
@@ -164,15 +168,11 @@ export default class Finalize extends Component {
 	}
 
 	handleComplementaryInfoHospitalizationAPI = (attribute, value) => {
-		this.setState({
-			patient: {
-				...this.state.patient,
-				complementaryInfoHospitalizationAPI: {
-					...this.state.patient.complementaryInfoHospitalizationAPI,
-					[attribute]: value
-				}
-			}
-		});
+		let patient = this.state.patient
+		patient.complementaryInfoHospitalizationAPI[attribute] = value
+		patient.complementaryInfoHospitalizationAPI.result = this.calculateRehospitalizationRisk(patient);
+		
+		this.setState({ patient });
 	}
 
 	handleMorbidityComorbity(morbidityComorbityItem) {
@@ -190,6 +190,8 @@ export default class Finalize extends Component {
 			patient.morbidityComorbityList.push(morbidityComorbityItem);
 		}
 
+		patient.brittlenessIndex = this.calculateBrittlenessIndex(patient);
+		patient.labelAccordionMorbidityComorbity = this.getLabelAccordionMorbidityComorbity(patient);
 		this.setState({
 			patient
 		});
@@ -301,11 +303,11 @@ export default class Finalize extends Component {
 		let totalRisk = 0;
 		let risk = null;
 
-		if (patient.complementaryInfoHospitalizationAPI.hemoglobin !== null && patient.complementaryInfoHospitalizationAPI.hemoglobin < 12) {
+		if (patient.complementaryInfoHospitalizationAPI.isNotHemoglobin && patient.complementaryInfoHospitalizationAPI.hemoglobin !== '' && patient.complementaryInfoHospitalizationAPI.hemoglobin !== null && patient.complementaryInfoHospitalizationAPI.hemoglobin < 12) {
 			totalRisk += 1;
 		}
 
-		if (patient.complementaryInfoHospitalizationAPI.serumSodium !== null && patient.complementaryInfoHospitalizationAPI.serumSodium <= 135) {
+		if (patient.complementaryInfoHospitalizationAPI.isNotSerumSodium && patient.complementaryInfoHospitalizationAPI.serumSodium !== '' && patient.complementaryInfoHospitalizationAPI.serumSodium !== null && patient.complementaryInfoHospitalizationAPI.serumSodium <= 135) {
 			totalRisk += 1;
 		}
 
@@ -401,10 +403,12 @@ export default class Finalize extends Component {
 	calculateBrittlenessIndex(patient) {
 		let brittlenessIndex = '';
 		if (patient.typePatient === SENIORS_PATIENT) {
-			if (patient.morbidityComorbityList <= 2) {
+			console.log("patient.morbidityComorbityList => ", patient.morbidityComorbityList);
+			if (patient.morbidityComorbityList.length > 0 && patient.morbidityComorbityList.length <= 2) {
 				brittlenessIndex = 'Pré-frágil'
-			} 
-			brittlenessIndex = 'Frágil'
+			} else if(patient.morbidityComorbityList.length > 2) {
+				brittlenessIndex = 'Frágil'
+			}
 		}
 
 		return brittlenessIndex;
@@ -704,7 +708,7 @@ export default class Finalize extends Component {
 		return (
 			<Container>
 				<RdHeader title={ patient.death ? 'Óbito' : 'Alta' } goBack={ this._goBack } style={ styles.header }/>
-				<Modal title="CID Primário" visible={this.state.modalExitCID} list={data.cid} onSelect={this.handleExitCID} close={() => {this.toggleModal('modalExitCID')} } />
+				<Modal title="CID de Saída" visible={this.state.modalExitCID} list={data.cid} onSelect={this.handleExitCID} close={() => {this.toggleModal('modalExitCID')} } />
 				<Modal title="Especialidade" visible={this.state.modalSpecialty} list={data.specialty} onSelect={ (item) => { this.handleClinicalIndicationSpecialty(item) }} close={() => {this.toggleModal('modalSpecialty')} } />
 
 				<Content padder style={ styles.body }>
