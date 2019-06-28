@@ -1,20 +1,10 @@
-
-import { StyleSheet, Dimensions } from "react-native";
-import styled from 'styled-components';
-
-const screenHeight = Math.round(Dimensions.get('window').height - 130 );
-
-const ErrorMessage = styled.Text`
-  textAlign: center;
-  color: #fff;
-  fontSize: 16px;
-  marginBottom: 15px;
-  marginHorizontal: 20px;
-`;
+import { StyleSheet } from "react-native";
+import baseStyles from '../../../styles'
 
 export default StyleSheet.create({
-	container:{
-		height: Math.round(Dimensions.get('window').height - 130 ),
+	container: {
+		...baseStyles.container,
+		flex: 1,
 	},
 	title: {
 		fontSize: 16,
