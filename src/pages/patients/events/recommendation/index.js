@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Alert, ScrollView } from 'react-native';
+import { View, StyleSheet, Alert, ScrollView, Keyboard } from 'react-native';
 import { Container, Content, Text } from 'native-base';
 import { RdHeader } from '../../../../components/rededor-base';
 import TextValue from '../../../../components/TextValue'
@@ -8,7 +8,7 @@ import Uuid from 'uuid/v4';
 import data from '../../../../../data.json';
 import Modal from '../../../../components/Modal';
 
-import { Button, Dialog, Portal, RadioButton, Divider, TextInput, Searchbar, List } from 'react-native-paper';
+import { Button, Dialog, Portal, RadioButton, Divider, TextInput } from 'react-native-paper';
 
 export default class Recommendation extends React.Component {
 
@@ -31,8 +31,18 @@ export default class Recommendation extends React.Component {
 				observation: ''
 			},
 			update: false,
-			specialtyQuery: null
+			specialtyQuery: null,
+			keyboardSpace: 0,
 		}
+		Keyboard.addListener('keyboardDidShow',(frames)=>{
+            if (!frames.endCoordinates) return;
+            this.setState({
+				keyboardSpace: frames.endCoordinates.height
+			});
+		});
+        Keyboard.addListener('keyboardDidHide',(frames)=>{
+            this.setState({keyboardSpace:0});
+		});
 	}
 	
 	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
@@ -250,7 +260,7 @@ export default class Recommendation extends React.Component {
 				<View style={ styles.container }>
 
 					<Portal>
-						<Dialog visible={this.state.modalRecommendationTypeVisible} onDismiss={ () => { this.toggleModalRecommendationType() } }>
+						<Dialog style={{top: this.state.keyboardSpace ? -(this.state.keyboardSpace * .47) : 0}}  visible={this.state.modalRecommendationTypeVisible} onDismiss={ () => { this.toggleModalRecommendationType() } }>
 							<Dialog.Title>Recomendação</Dialog.Title>
 							
 							<Divider />
@@ -294,7 +304,7 @@ export default class Recommendation extends React.Component {
 					<View style={styles.row}>
 						<Dialog.ScrollArea>
 							<ScrollView style={ styles.dialogScrollView } keyboardShouldPersistTaps='always'>
-								<TextInput  style={styles.textObservation} multiline={true} numberOfLines={10} label='Observação' value={this.state.recommendation.observation} onChangeText = {observation => this.addObservation(observation)} />
+								<TextInput  style={styles.textObservation} multiline={true} numberOfLines={6} label='Observação' value={this.state.recommendation.observation} onChangeText = {observation => this.addObservation(observation)} />
 							</ScrollView>
 						</Dialog.ScrollArea>
 					</View>
@@ -382,6 +392,6 @@ const styles = StyleSheet.create({
         marginTop: 20, 
         marginLeft: -18, 
 		marginRight: -18,
-		height: 120 
+		height: 160 
     }
 });
