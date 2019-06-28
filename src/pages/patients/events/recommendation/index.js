@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Alert } from 'react-native';
+import { View, StyleSheet, Alert, ScrollView } from 'react-native';
 import { Container, Content, Text } from 'native-base';
 import { RdHeader } from '../../../../components/rededor-base';
 import TextValue from '../../../../components/TextValue'
@@ -259,15 +259,15 @@ export default class Recommendation extends React.Component {
 								<RadioButton.Group onValueChange={ value => { this.addRecommendation(value) } } value={() => this.getRecommendationTypeLabel(this.props.navigation.state.params.patient.recommendationType)}>
 									<View style={styles.recommendationItem}>
 										<RadioButton value="WELCOME_HOME" />
-										<Text>{this.state.listRecommendationType[0].label}</Text>
+										<Text onPress={ _ => { this.addRecommendation(this.state.listRecommendationType[0].value)}}>{this.state.listRecommendationType[0].label}</Text>
 									</View>
 									<View style={styles.recommendationItem}>
 										<RadioButton value="INDICACAO_AMBULATORIO" />
-										<Text>{this.state.listRecommendationType[1].label}</Text>
+										<Text onPress={ _ => { this.addRecommendation(this.state.listRecommendationType[1].value)}}>{this.state.listRecommendationType[1].label}</Text>
 									</View>
 									<View style={styles.recommendationItem}>
 										<RadioButton value="RECOMENDACAO_MEDICAMENTOSA" />
-										<Text>{this.state.listRecommendationType[2].label}</Text>
+										<Text onPress={ _ => { this.addRecommendation(this.state.listRecommendationType[2].value)}}>{this.state.listRecommendationType[2].label}</Text>
 									</View>
 								</RadioButton.Group>
 							</Dialog.Content>
@@ -292,7 +292,11 @@ export default class Recommendation extends React.Component {
 					{ this.showViewSpecialty() }
 
 					<View style={styles.row}>
-						<TextInput  style={styles.textObservation} multiline={true} numberOfLines={3} label='Observação' value={this.state.recommendation.observation} onChangeText = {observation => this.addObservation(observation)} />
+						<Dialog.ScrollArea>
+							<ScrollView style={ styles.dialogScrollView } keyboardShouldPersistTaps='always'>
+								<TextInput  style={styles.textObservation} multiline={true} numberOfLines={4} label='Observação' value={this.state.recommendation.observation} onChangeText = {observation => this.addObservation(observation)} />
+							</ScrollView>
+						</Dialog.ScrollArea>
 					</View>
 
 					<View style={styles.button}>
@@ -366,11 +370,18 @@ const styles = StyleSheet.create({
 	recommendationItem: {
 		flexDirection: 'row', 
 		alignItems: 'center',
-		padding: 2
+		flexWrap: 'wrap', 
+		padding: 3,
+		fontSize: 14
 	},
 	textObservation: {
 		backgroundColor: 'white',
 		width: '100%',
-		height: 100
-	}
+	},
+	dialogScrollView: {
+        marginTop: 20, 
+        marginLeft: -18, 
+		marginRight: -18,
+		height: 120 
+    }
 });

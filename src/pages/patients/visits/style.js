@@ -103,7 +103,6 @@ export default StyleSheet.create({
 		justifyContent: 'center'
 	},
 	textObservation : {
-		height: 120, 
 		textAlign: 'center', 
 		backgroundColor: 'white'
 	},
@@ -130,5 +129,11 @@ export default StyleSheet.create({
 	},
 	keyborderView: {
 		flex: 1
-	}
+	},
+	dialogScrollView: {
+        marginTop: 20, 
+        marginLeft: -18, 
+		marginRight: -18,
+		height: 120 
+    }
 });

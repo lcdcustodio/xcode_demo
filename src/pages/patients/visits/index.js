@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dimensions, View, FlatList, Alert, Keyboard } from 'react-native';
+import { ScrollView, View, FlatList, Alert, Keyboard } from 'react-native';
 import baseStyles from '../../../styles'
 import styles from './style'
 import moment from 'moment';
@@ -316,7 +316,11 @@ export default class Visitas extends React.Component {
 								</View>	
 							</View>
 							<View>
-							<TextInput style={ styles.textObservation } multiline={true} numberOfLines={5} label='Observação' value={this.state.visit.observation} onChangeText = {observation => this.addObservation(observation)} />
+							<Dialog.ScrollArea>
+							<ScrollView style={ styles.dialogScrollView } keyboardShouldPersistTaps='always'>
+								<TextInput style={ styles.textObservation } multiline={true} numberOfLines={4} label='Observação' value={this.state.visit.observation} onChangeText = {observation => this.addObservation(observation)} />
+							</ScrollView>
+							</Dialog.ScrollArea>
 							</View>	
 						</View>
 					</Dialog.Content>

@@ -244,6 +244,7 @@ export default class Profile extends Component {
 					</Portal>
 				);
 			case 'AttendanceType':
+					const attendanceType = this.props.patient.attendanceType;
 				return ( 
 					<Portal>
 						<Dialog visible={this.state.modalAttendanceType} onDismiss={ () => { this.toggleModal('modalAttendanceType') } }>
@@ -252,14 +253,16 @@ export default class Profile extends Component {
 							<Divider />
 							
 							<Dialog.Content>
-								<RadioButton.Group onValueChange={ value => { this.handleAttendanceType(value) } } value={this.props.patient.attendanceType}>
+								<RadioButton.Group 
+								  onValueChange={ value => { this.handleAttendanceType(value) } } 
+								  value={attendanceType}>
 									<View style={{flexDirection: 'row', alignItems: 'center'}}>
-										<RadioButton value="ELECTIVE" />
-										<Text>Eletivo</Text>
+										<RadioButton value="ELECTIVE" status={attendanceType === 'ELECTIVE' ? 'checked' : 'unchecked'} Enabled/>
+										<Text onPress={ () => { this.handleAttendanceType('ELECTIVE') } }>Eletivo</Text>
 									</View>
 									<View style={{flexDirection: 'row', alignItems: 'center'}}>
-										<RadioButton value="EMERGENCY" />
-										<Text>Emergencial</Text>
+										<RadioButton value="EMERGENCY" status={attendanceType === 'EMERGENCY' ? 'checked' : 'unchecked'} Enabled/>
+										<Text onPress={ () => { this.handleAttendanceType('EMERGENCY') } }>Emergencial</Text>
 									</View>
 								</RadioButton.Group>
 							</Dialog.Content>
@@ -273,6 +276,7 @@ export default class Profile extends Component {
 					</Portal>
 				);
 			case 'HospitalizationType':
+				let hospitalizationType = this.props.patient.hospitalizationType; 
 				return ( 
 					<Portal>
 						<Dialog visible={this.state.modalHospitalizationType} onDismiss={ () => { this.toggleModal('modalHospitalizationType') } }>
@@ -281,13 +285,13 @@ export default class Profile extends Component {
 							<Divider />
 							
 							<Dialog.Content>
-								<RadioButton.Group onValueChange={ value => { this.handleHospitalizationType(value) } } value={this.props.patient.hospitalizationType}>
+								<RadioButton.Group onValueChange={ value => { this.handleHospitalizationType(value) } } value={hospitalizationType}>
 									<View style={{flexDirection: 'row', alignItems: 'center'}}>
-										<RadioButton value="CLINICAL" />
+										<RadioButton value="CLINICAL" status={hospitalizationType === 'CLINICAL' ? 'checked' : 'unchecked'} Enabled/>
 										<Text onPress={ () => { this.handleHospitalizationType('CLINICAL') } }>Clínico</Text>
 									</View>
 									<View style={{flexDirection: 'row', alignItems: 'center'}}>
-										<RadioButton value="SURGICAL" />
+										<RadioButton value="SURGICAL" status={hospitalizationType === 'SURGICAL' ? 'checked' : 'unchecked'} Enabled/>
 										<Text onPress={ () => { this.handleHospitalizationType('SURGICAL') } }>Cirúrgico</Text>
 									</View>
 								</RadioButton.Group>
@@ -336,6 +340,8 @@ export default class Profile extends Component {
 				);
 		}
 	}
+
+	
 
 	renderHeightAndWeight() {
 
