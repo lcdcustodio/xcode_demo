@@ -222,11 +222,11 @@ export default class Visitas extends React.Component {
 						<RdIf condition={this.state.isEditable}>
 							<CardItem footer bordered style={{ alignItems: 'center', justifyContent: 'center', height: 40}}>							
 								<View>
-									<Button color='#00dda2' icon="add" onPress={ _=>this.showVisit(item) }>Editar</Button>
+									<Text style={{color: '#00dda2', paddingRight: 20}} onPress={_=>this.showVisit(item)}>Editar</Text>
 								</View>
 								<View  style={{borderRightColor: '#ffffff', borderWidth: 1, height: '80%', borderBottomColor: '#ffffff', borderTopColor: '#ffffff', borderLeftColor: '#ebeff2'}}></View>
 								<View>
-									<Button color='#f73655' icon="remove" onPress={ _=>this.alertToRemove(item) }>Excluir</Button>
+									<Text style={{color: '#f73655', paddingLeft: 20}} onPress={_=>this.alertToRemove(item)}>Excluir</Text>
 								</View>
 							</CardItem>
 						</RdIf>

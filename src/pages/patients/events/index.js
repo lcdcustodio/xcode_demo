@@ -210,11 +210,11 @@ export default class Events extends Component {
 			<RdIf condition={this.state.isEditable && eventInfo.typeEnum === TimelineEventEnum.Recommendation}>
 				<CardItem footer bordered style={{ alignItems: 'center', justifyContent: 'center', height: 40}}>							
 					<View>
-						<Button color='#00dda2' icon="add" onPress={ () => this._read(eventInfo) }>Editar</Button>
+						<Text style={{color: '#00dda2', paddingRight: 20}} onPress={ () => this._read(eventInfo) }>Editar</Text>
 					</View>
 					<View  style={{borderRightColor: '#ffffff', borderWidth: 1, height: '80%', borderBottomColor: '#ffffff', borderTopColor: '#ffffff', borderLeftColor: '#ebeff2'}}></View>
 					<View>
-						<Button color='#f73655' icon="remove" onPress={ () => this._delete(eventInfo) }>Excluir</Button>
+						<Text style={{color: '#f73655', paddingLeft: 20}} onPress={ () => this._delete(eventInfo) }>Excluir</Text>
 					</View>
 				</CardItem>
 			</RdIf>
