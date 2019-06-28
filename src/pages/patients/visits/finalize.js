@@ -49,7 +49,7 @@ export default class Finalize extends Component {
 		let morbidityComorbityList = JSON.parse(morbidityComorbityStorage);
 
 		if (patientStorage) {
-			patientStorage.patientBornDate = '1948/04/13'
+			//patientStorage.patientBornDate = '1948/04/13'
 			//patientStorage.death = true;
 			patientStorage.complementaryInfoHospitalizationAPI.isUrgentEmergHospitatization = patientStorage.attendanceType === 'EMERGENCY' ? true : false;
 			patientStorage.complementaryInfoHospitalizationAPI.isNotHemoglobin = this.getStatusHemoglobin(patientStorage.complementaryInfoHospitalizationAPI.hemoglobin);
