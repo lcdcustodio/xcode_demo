@@ -36,9 +36,9 @@ class PatientDetail extends Component {
 		}
 	}
 
-	handleUpdatePatient = async (attribute, value) => {
+	handleUpdatePatient = async (attribute, value, showSpinner = true) => {
 
-		this.setState({loading: true});
+		this.setState({loading: showSpinner});
 
 		AsyncStorage.setItem('require_sync_at', JSON.stringify(moment().format('YYYY-MM-DD')));
 

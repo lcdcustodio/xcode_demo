@@ -102,18 +102,21 @@ export default class Finalize extends Component {
 			return;
 		}
 
-		this.handleUpdatePatient('diagnosticHypothesisList', [patient.exitCID]);
-		this.handleUpdatePatient('complementaryInfoHospitalizationAPI', patient.complementaryInfoHospitalizationAPI);
-		this.handleUpdatePatient('morbidityComorbityList', patient.morbidityComorbityList);
-		this.handleUpdatePatient('welcomeHomeIndication', patient.welcomeHomeIndication);
-		this.handleUpdatePatient('medicineReintegration', patient.medicineReintegration);
-		this.handleUpdatePatient('clinicalIndication', patient.clinicalIndication);
+		let showSpinner = false;
+
+		await this.handleUpdatePatient('diagnosticHypothesisList', [patient.exitCID], showSpinner);
+		await this.handleUpdatePatient('complementaryInfoHospitalizationAPI', patient.complementaryInfoHospitalizationAPI, showSpinner);
+		await this.handleUpdatePatient('morbidityComorbityList', patient.morbidityComorbityList, showSpinner);
+		await this.handleUpdatePatient('welcomeHomeIndication', patient.welcomeHomeIndication, showSpinner);
+		await this.handleUpdatePatient('medicineReintegration', patient.medicineReintegration, showSpinner);
+		await this.handleUpdatePatient('clinicalIndication', patient.clinicalIndication, showSpinner);
 
 		if (patient.observationList && patient.observationList.lenght > 0) {
 			orderedObservationList = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
 			orderedObservationList[0].medicalRelease = true;
 			orderedObservationList[0].observation = "Internação finalizada.";
 			await this.handleUpdatePatient('observationList', orderedObservationList);
+
 			Alert.alert('Finalizar', "Finalização realizada com sucesso.", [{text:'OK',onPress:() =>{ this._goBack()} } ]);
 		} else {
 			let observation = {
