@@ -164,6 +164,9 @@ class PatientDetail extends Component {
 	}
 
 	render() {
+		const profileStyle = this.isSelected(TabEnum.Profile) ? styles.ativo : styles.inativo;
+		const eventsStyle = this.isSelected(TabEnum.Events) ? styles.ativo : styles.inativo;
+		const visitsStyle = this.isSelected(TabEnum.Visits) ? styles.ativo : styles.inativo;
 		return (
 			<Container>
 				<Spinner
@@ -173,19 +176,34 @@ class PatientDetail extends Component {
 				<RdHeader
 					title='Detalhes do Paciente'
 					goBack={this._goBack}/>
-				<Content style={ baseStyles.container }>
+				<Content contentContainerStyle={{ ...baseStyles.container, flex: 1 }}>
 					{ this.renderSelectedTab() }
 				</Content>
 				<Footer>
-					<FooterTab style={{backgroundColor: '#005cd1', alignItems: 'center'}}>
-						<Left style={[this.isSelected(TabEnum.Profile) ? styles.tabAtiva : styles.tabInativa]}>
-							<Tab name={ TabEnum.Profile } displayName='Perfil' iconName='user' isSelected={this.isSelected} selectTab={this.selectTab} />
+					<FooterTab style={{ backgroundColor: '#005cd1', alignItems: 'center' }}>
+						<Left style={{ ...styles.tab, ...profileStyle }}>
+							<Tab name={ TabEnum.Profile }
+								style={ profileStyle }
+								displayName='Perfil'
+								iconName='user'
+								isSelected={ this.isSelected }
+								selectTab={ this.selectTab }/>
 						</Left>
-						<Body style={[this.isSelected(TabEnum.Events) ? styles.tabAtiva : styles.tabInativa]}>
-							<Tab name={ TabEnum.Events } displayName='Timeline' iconName='book' isSelected={this.isSelected} selectTab={this.selectTab} />
+						<Body style={{ ...styles.tab, ...eventsStyle }}>
+							<Tab name={ TabEnum.Events }
+								style={ eventsStyle }
+								displayName='Timeline'
+								iconName='book'
+								isSelected={ this.isSelected }
+								selectTab={ this.selectTab }/>
 						</Body>
-						<Right style={[this.isSelected(TabEnum.Visits) ? styles.tabAtiva : styles.tabInativa]}>
-							<Tab name={ TabEnum.Visits } displayName='Visitas' iconName='calendar' isSelected={this.isSelected} selectTab={this.selectTab} />
+						<Right style={{ ...styles.tab, ...visitsStyle }}>
+							<Tab name={ TabEnum.Visits }
+								style={ visitsStyle }
+								displayName='Visitas'
+								iconName='calendar'
+								isSelected={ this.isSelected }
+								selectTab={ this.selectTab }/>
 						</Right>
 					</FooterTab>
 				</Footer>
@@ -204,10 +222,10 @@ export default PatientDetail;
 const backgroundColor = '#005cd1';
 
 const Tab = (props) => (
-	<TouchableOpacity style={{alignItems: 'center', justifyContent: 'center'}}
+	<TouchableOpacity style={{ alignItems: 'center', justifyContent: 'center' }}
 			onPress={() => props.selectTab(props.name)}>
-		<Icon name={props.iconName} style={{color: '#FFF', fontSize: 20}} />
-		<Text style={{color: '#FFF'}}>{props.displayName}</Text>
+		<Icon name={ props.iconName } style={{ ...props.style, fontSize: 20 }} />
+		<Text style={ props.style }>{ props.displayName }</Text>
 	</TouchableOpacity>
 );
 
@@ -246,16 +264,17 @@ const styles = StyleSheet.create({
 		textAlign: "left",
 		color: "rgb(25, 118, 159)"
 	},
-	tabAtiva: {
+	tab: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 10
+	},
+	ativo: {
+		color: 'white',
         backgroundColor: '#0065e6',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 10
+	},
+	inativo: {
+		color: '#00aaff',
+        backgroundColor: backgroundColor,
     },
-    tabInativa: {
-        backgroundColor: '#005cd1',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 10
-    }
 });

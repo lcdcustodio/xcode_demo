@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, View, FlatList, Alert, Keyboard } from 'react-native';
+import { ScrollView, View, FlatList, Alert, Keyboard, StyleSheet } from 'react-native';
 import baseStyles from '../../../styles'
 import styles from './style'
 import moment from 'moment';
@@ -10,8 +10,7 @@ import { Button, Switch, Divider, Portal, Dialog, TextInput } from 'react-native
 import Icon from 'react-native-vector-icons/FontAwesome5';
 
 import { RdIf } from '../../../components/rededor-base'
-import Patient, { HospitalizationStatusEnum, StatusVisitEnum, FinalizationErrorEnum } from '../../../model/Patient';
-import { TrackingEndModeEnum } from '../../../model/Tracking';
+import Patient, { FinalizationErrorEnum } from '../../../model/Patient';
 import TabEnum from '../PatientDetailTabEnum';
 
 export default class Visitas extends React.Component {
@@ -318,7 +317,7 @@ export default class Visitas extends React.Component {
 							<View>
 							<Dialog.ScrollArea>
 							<ScrollView style={ styles.dialogScrollView } keyboardShouldPersistTaps='always'>
-								<TextInput style={ styles.textObservation } multiline={true} numberOfLines={4} label='Observação' value={this.state.visit.observation} onChangeText = {observation => this.addObservation(observation)} />
+								<TextInput style={ styles.textObservation } multiline={true} numberOfLines={10} label='Observação' value={this.state.visit.observation} onChangeText = {observation => this.addObservation(observation)} />
 							</ScrollView>
 							</Dialog.ScrollArea>
 							</View>	
@@ -342,14 +341,14 @@ export default class Visitas extends React.Component {
 			listOfOrderedObservationDate = _.orderBy(this.props.patient.observationList, ['observationDate'], ['desc'])
 		}
 		return (
-			<View style={{ ...baseStyles.container }}>	
+			<View style={ styles.container }>
 				{ this.renderModal() }
-				{ this.state.isEditable && this.showButton() }
 				<FlatList
 					data={listOfOrderedObservationDate}
 					keyExtractor={item => item.uuid}
 					extraData={this.props}
 					renderItem={this.renderItem}/>
+				{ this.state.isEditable && this.showButton() }
 			</View>
 		);
 	}
@@ -366,7 +365,7 @@ const COLORS_ENABLED = ['#035fcc', '#023066'];
 const COLORS_DISABLED = ['#808080', '#696969'];
 
 const VisitsButton = (props) => (
-	<View style={{ marginTop:12, marginBottom: 0, marginLeft: 10, marginRight: 10 }}>
+	<View style={{ marginTop: 10, marginBottom: 10, marginLeft: 10, marginRight: 10 }}>
 		<Button mode="contained" onPress={ props.onPress }> { props.children } </Button>
     </View>
 );

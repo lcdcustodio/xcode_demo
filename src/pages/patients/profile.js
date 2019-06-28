@@ -444,193 +444,188 @@ export default class Profile extends Component {
 	}
 
 	render() {
-		
 		return (
-			<View>
+			<ScrollView style={{ backgroundColor: 'white' }}>
 				
 				{ this.renderModalSelected() }
-				
-				<Content>
 
-					<ListItem itemDivider>
-						<Text>Dados Básicos</Text>
-					</ListItem> 
+				<ListItem itemDivider>
+					<Text>Dados Básicos</Text>
+				</ListItem> 
 
-					<ListItem>
-						<Body>
-							<Text style={{fontWeight: 'bold'}}>Nome{"\n"}<TextValue value={this.props.patient.patientName} /></Text>
-						</Body>
-					</ListItem>
+				<ListItem>
+					<Body>
+						<Text style={{fontWeight: 'bold'}}>Nome{"\n"}<TextValue value={this.props.patient.patientName} /></Text>
+					</Body>
+				</ListItem>
 
-					<ListItem>
-						<Body>
-							<Text style={{fontWeight: 'bold'}}>Prontuário{"\n"}<TextValue value={this.props.patient.medicalRecordsNumber} /></Text>
-						</Body>
-					</ListItem>
+				<ListItem>
+					<Body>
+						<Text style={{fontWeight: 'bold'}}>Prontuário{"\n"}<TextValue value={this.props.patient.medicalRecordsNumber} /></Text>
+					</Body>
+				</ListItem>
 
-					<ListItem>
-						<Body>
-							<Text style={{fontWeight: 'bold'}}>Convênio{"\n"}<TextValue value={this.props.patient.agreement} /></Text>
-						</Body>
-					</ListItem>
+				<ListItem>
+					<Body>
+						<Text style={{fontWeight: 'bold'}}>Convênio{"\n"}<TextValue value={this.props.patient.agreement} /></Text>
+					</Body>
+				</ListItem>
 
-					<ListItem>
-						<Body>
-							<Text style={{fontWeight: 'bold'}}>Plano{"\n"}<TextValue value={this.props.patient.plane} /></Text>
-						</Body>
-					</ListItem>
+				<ListItem>
+					<Body>
+						<Text style={{fontWeight: 'bold'}}>Plano{"\n"}<TextValue value={this.props.patient.plane} /></Text>
+					</Body>
+				</ListItem>
 
-					<ListItem>
-						<Body>
-							<Text style={{fontWeight: 'bold'}}>Nascimento{"\n"}
-								<TextValue value={this.props.patient.patientBornDate ? moment(this.props.patient.patientBornDate).format('DD/MM/YYYY') : '' } />{"\n"}
-							</Text>
-						</Body>
-						<Right>
-							<TextValue size={13} value={ this.props.patient.patientBornDate ? moment().diff(this.props.patient.patientBornDate, 'years') + ' anos': '' }/>
-			            </Right>
-					</ListItem>
+				<ListItem>
+					<Body>
+						<Text style={{fontWeight: 'bold'}}>Nascimento{"\n"}
+							<TextValue value={this.props.patient.patientBornDate ? moment(this.props.patient.patientBornDate).format('DD/MM/YYYY') : '' } />{"\n"}
+						</Text>
+					</Body>
+					<Right>
+						<TextValue size={13} value={ this.props.patient.patientBornDate ? moment().diff(this.props.patient.patientBornDate, 'years') + ' anos': '' }/>
+					</Right>
+				</ListItem>
 
-					<ListItem>
-						<Body>
-							<Text style={{fontWeight: 'bold'}}>Altura/Peso{"\n"}
-								{ this.renderHeightAndWeight() }
-							</Text>
-						</Body>
-						<Right>
-							{ this.renderIMC() }
-			            </Right>
-					</ListItem>
+				<ListItem>
+					<Body>
+						<Text style={{fontWeight: 'bold'}}>Altura/Peso{"\n"}
+							{ this.renderHeightAndWeight() }
+						</Text>
+					</Body>
+					<Right>
+						{ this.renderIMC() }
+					</Right>
+				</ListItem>
 
-					<ListItem itemDivider>
-						<Text>Dados da Internação</Text>
-					</ListItem>
+				<ListItem itemDivider>
+					<Text>Dados da Internação</Text>
+				</ListItem>
 
-					<ListItem>
-						<Body>
-							<Text style={{fontWeight: 'bold'}}>Data de Internação{"\n"}<TextValue value={ this.props.patient.admissionDate ? moment(this.props.patient.admissionDate).format('DD/MM/YYYY HH:mm') : ''} /></Text>
-						</Body>
-					</ListItem>
+				<ListItem>
+					<Body>
+						<Text style={{fontWeight: 'bold'}}>Data de Internação{"\n"}<TextValue value={ this.props.patient.admissionDate ? moment(this.props.patient.admissionDate).format('DD/MM/YYYY HH:mm') : ''} /></Text>
+					</Body>
+				</ListItem>
 
-					{
-						this.props.patient.exitDate ?
-							<ListItem>
-								<Body>
-									<Text style={{fontWeight: 'bold'}}>Data da Alta Médica{"\n"}<TextValue value={ this.props.patient.medicalExitDate ? moment(this.props.patient.medicalExitDate).format('DD/MM/YYYY HH:mm') : '' } /></Text>
-								</Body>
-							</ListItem>
-						:
-							null
-					}
-
-					{
-						this.props.patient.exitDate ?
-							<ListItem>
-								<Body>
-									<Text style={{fontWeight: 'bold'}}>Data da Alta Administrativa{"\n"}<TextValue value={ this.props.patient.exitDate ? moment(this.props.patient.exitDate).format('DD/MM/YYYY HH:mm') : '' } /></Text>
-								</Body>
-							</ListItem>
-						:
-							null
-					}
-
-					{
-						this.props.patient.exitDate ?
-							<ListItem>
-								<Body>
-									<Text style={{fontWeight: 'bold'}}>Motivo da Alta Administrativa{"\n"}<TextValue value={this.props.patient.exitDescription} /></Text>
-								</Body>
-							</ListItem>
-						:
+				{
+					this.props.patient.exitDate ?
+						<ListItem>
+							<Body>
+								<Text style={{fontWeight: 'bold'}}>Data da Alta Médica{"\n"}<TextValue value={ this.props.patient.medicalExitDate ? moment(this.props.patient.medicalExitDate).format('DD/MM/YYYY HH:mm') : '' } /></Text>
+							</Body>
+						</ListItem>
+					:
 						null
-					}
+				}
 
-					<ListItem>
-						<Body>
-							<Text style={{fontWeight: 'bold'}}>Atendimento{"\n"}
-								{ this.renderAtendencyType() }
-							</Text>
-						</Body>
-					</ListItem>
-
-					<ListItem>
-						<Body>
-							<Text style={{fontWeight: 'bold'}}>Tipo da Internação{"\n"}
-								{ this.renderHospitalizationType() }
-							</Text> 
-						</Body>
-					</ListItem>
-
-					{
-						this.props.patient.hospitalizationType === 'SURGICAL' ?
-							<ListItem>
-								<Body>
-									<Text style={{fontWeight: 'bold'}}>Procedimento Principal{"\n"}
-										{ this.renderMainProcedure() }
-									</Text>
-								</Body>
-							</ListItem>
-						:
+				{
+					this.props.patient.exitDate ?
+						<ListItem>
+							<Body>
+								<Text style={{fontWeight: 'bold'}}>Data da Alta Administrativa{"\n"}<TextValue value={ this.props.patient.exitDate ? moment(this.props.patient.exitDate).format('DD/MM/YYYY HH:mm') : '' } /></Text>
+							</Body>
+						</ListItem>
+					:
 						null
-					}
+				}
 
-					{
-						this.props.patient.hospitalizationType === 'SURGICAL' ?
-							<ListItem>
-								<Body>
-									<Text style={{fontWeight: 'bold'}}>CRM do Responsável{"\n"}
-										{ this.renderCRM() }
-									</Text>
-								</Body>
-							</ListItem>
-						:
-						null
-					}
+				{
+					this.props.patient.exitDate ?
+						<ListItem>
+							<Body>
+								<Text style={{fontWeight: 'bold'}}>Motivo da Alta Administrativa{"\n"}<TextValue value={this.props.patient.exitDescription} /></Text>
+							</Body>
+						</ListItem>
+					:
+					null
+				}
 
-					<ListItem>
-						<Body>
-							<Text style={{fontWeight: 'bold'}}>CID Primário{"\n"}
-								{ this.renderPrimaryCID() }
-							</Text>
-						</Body>
-					</ListItem>
+				<ListItem>
+					<Body>
+						<Text style={{fontWeight: 'bold'}}>Atendimento{"\n"}
+							{ this.renderAtendencyType() }
+						</Text>
+					</Body>
+				</ListItem>
 
-					<ListItem>
-						<Body>
-							<Text style={{fontWeight: 'bold'}}>CIDs Secundários{"\n"}
-								{ this.state.isEditable ? 
-										<TextValue color={'#0000FF'} value={'ADICIONAR \n'} press={ () => { this.setState({modalSelected: 'SecondaryCID', modalSecondaryCID: true}) }} />
-									:
-									<Text />
-								}
-								{ this.renderSecondaryCID() }
-							</Text>
-						</Body>
-					</ListItem>
+				<ListItem>
+					<Body>
+						<Text style={{fontWeight: 'bold'}}>Tipo da Internação{"\n"}
+							{ this.renderHospitalizationType() }
+						</Text> 
+					</Body>
+				</ListItem>
 
-					<ListItem itemDivider>
-						<Text>Internações Anteriores</Text>
-					</ListItem>
+				{
+					this.props.patient.hospitalizationType === 'SURGICAL' ?
+						<ListItem>
+							<Body>
+								<Text style={{fontWeight: 'bold'}}>Procedimento Principal{"\n"}
+									{ this.renderMainProcedure() }
+								</Text>
+							</Body>
+						</ListItem>
+					:
+					null
+				}
 
-					{this.props.patient.previousHospitalizations && this.props.patient.previousHospitalizations.map((prop) => {
-						let startDate = prop.admissionDate ? moment(prop.admissionDate).format('DD/MM/YYYY') : ''
-						let endDate = prop.exitDate ? moment(prop.exitDate).format('DD/MM/YYYY') : ''
+				{
+					this.props.patient.hospitalizationType === 'SURGICAL' ?
+						<ListItem>
+							<Body>
+								<Text style={{fontWeight: 'bold'}}>CRM do Responsável{"\n"}
+									{ this.renderCRM() }
+								</Text>
+							</Body>
+						</ListItem>
+					:
+					null
+				}
 
-						return (
-							<ListItem key={prop.id}>
-								<Body>
-									<Text style={{fontWeight: 'bold'}}>
-										{ `${startDate} à ${endDate} (${prop.hospitalizationDays}`} { `${prop.hospitalizationDays <= 1 ? 'dia' : 'dias'}` }) {"\n"} 
-										<TextValue value={ `${prop.exitCidDisplayName ? prop.exitCidDisplayName : ''}` } />
-									</Text>
-								</Body>
-							</ListItem>
-						);
-					})}
+				<ListItem>
+					<Body>
+						<Text style={{fontWeight: 'bold'}}>CID Primário{"\n"}
+							{ this.renderPrimaryCID() }
+						</Text>
+					</Body>
+				</ListItem>
 
-				</Content>
+				<ListItem>
+					<Body>
+						<Text style={{fontWeight: 'bold'}}>CIDs Secundários{"\n"}
+							{ this.state.isEditable ? 
+									<TextValue color={'#0000FF'} value={'ADICIONAR \n'} press={ () => { this.setState({modalSelected: 'SecondaryCID', modalSecondaryCID: true}) }} />
+								:
+								<Text />
+							}
+							{ this.renderSecondaryCID() }
+						</Text>
+					</Body>
+				</ListItem>
 
-			</View>
+				<ListItem itemDivider>
+					<Text>Internações Anteriores</Text>
+				</ListItem>
+
+				{this.props.patient.previousHospitalizations && this.props.patient.previousHospitalizations.map((prop) => {
+					let startDate = prop.admissionDate ? moment(prop.admissionDate).format('DD/MM/YYYY') : ''
+					let endDate = prop.exitDate ? moment(prop.exitDate).format('DD/MM/YYYY') : ''
+
+					return (
+						<ListItem key={prop.id}>
+							<Body>
+								<Text style={{fontWeight: 'bold'}}>
+									{ `${startDate} à ${endDate} (${prop.hospitalizationDays}`} { `${prop.hospitalizationDays <= 1 ? 'dia' : 'dias'}` }) {"\n"} 
+									<TextValue value={ `${prop.exitCidDisplayName ? prop.exitCidDisplayName : ''}` } />
+								</Text>
+							</Body>
+						</ListItem>
+					);
+				})}
+
+			</ScrollView>
 		);
 	}
 }
