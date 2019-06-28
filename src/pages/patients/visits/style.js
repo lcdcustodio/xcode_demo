@@ -103,7 +103,7 @@ export default StyleSheet.create({
 		justifyContent: 'center'
 	},
 	textObservation : {
-		height: 80, 
+		height: 120, 
 		textAlign: 'center', 
 		backgroundColor: 'white'
 	},

@@ -222,11 +222,11 @@ export default class Visitas extends React.Component {
 						<RdIf condition={this.state.isEditable}>
 							<CardItem footer bordered style={{ alignItems: 'center', justifyContent: 'center', height: 40}}>							
 								<View>
-									<Text style={{color: '#00dda2', paddingRight: 20}} onPress={_=>this.showVisit(item)}>Editar</Text>
+									<Button color='#00dda2' icon="add" onPress={ _=>this.showVisit(item) }>Editar</Button>
 								</View>
 								<View  style={{borderRightColor: '#ffffff', borderWidth: 1, height: '80%', borderBottomColor: '#ffffff', borderTopColor: '#ffffff', borderLeftColor: '#ebeff2'}}></View>
 								<View>
-									<Text style={{color: '#f73655', paddingLeft: 20}} onPress={_=>this.alertToRemove(item)}>Excluir</Text>
+									<Button color='#f73655' icon="remove" onPress={ _=>this.alertToRemove(item) }>Excluir</Button>
 								</View>
 							</CardItem>
 						</RdIf>
@@ -316,7 +316,7 @@ export default class Visitas extends React.Component {
 								</View>	
 							</View>
 							<View>
-							<TextInput style={ styles.textObservation } multiline={true} numberOfLines={2} label='Observação' value={this.state.visit.observation} onChangeText = {observation => this.addObservation(observation)} />
+							<TextInput style={ styles.textObservation } multiline={true} numberOfLines={5} label='Observação' value={this.state.visit.observation} onChangeText = {observation => this.addObservation(observation)} />
 							</View>	
 						</View>
 					</Dialog.Content>
