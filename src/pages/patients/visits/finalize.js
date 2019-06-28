@@ -49,7 +49,7 @@ export default class Finalize extends Component {
 		let morbidityComorbityList = JSON.parse(morbidityComorbityStorage);
 
 		if (patientStorage) {
-			//patientStorage.patientBornDate = '2010/04/13'
+			patientStorage.patientBornDate = '1948/04/13'
 			//patientStorage.death = true;
 			patientStorage.complementaryInfoHospitalizationAPI.isUrgentEmergHospitatization = patientStorage.attendanceType === 'EMERGENCY' ? true : false;
 			patientStorage.complementaryInfoHospitalizationAPI.isNotHemoglobin = this.getStatusHemoglobin(patientStorage.complementaryInfoHospitalizationAPI.hemoglobin);
@@ -168,15 +168,11 @@ export default class Finalize extends Component {
 	}
 
 	handleComplementaryInfoHospitalizationAPI = (attribute, value) => {
-		this.setState({
-			patient: {
-				...this.state.patient,
-				complementaryInfoHospitalizationAPI: {
-					...this.state.patient.complementaryInfoHospitalizationAPI,
-					[attribute]: value
-				}
-			}
-		});
+		let patient = this.state.patient
+		patient.complementaryInfoHospitalizationAPI[attribute] = value
+		patient.complementaryInfoHospitalizationAPI.result = this.calculateRehospitalizationRisk(patient);
+		
+		this.setState({ patient });
 	}
 
 	handleMorbidityComorbity(morbidityComorbityItem) {
@@ -194,6 +190,8 @@ export default class Finalize extends Component {
 			patient.morbidityComorbityList.push(morbidityComorbityItem);
 		}
 
+		patient.brittlenessIndex = this.calculateBrittlenessIndex(patient);
+		patient.labelAccordionMorbidityComorbity = this.getLabelAccordionMorbidityComorbity(patient);
 		this.setState({
 			patient
 		});
@@ -305,11 +303,11 @@ export default class Finalize extends Component {
 		let totalRisk = 0;
 		let risk = null;
 
-		if (patient.complementaryInfoHospitalizationAPI.hemoglobin !== null && patient.complementaryInfoHospitalizationAPI.hemoglobin < 12) {
+		if (patient.complementaryInfoHospitalizationAPI.isNotHemoglobin && patient.complementaryInfoHospitalizationAPI.hemoglobin !== '' && patient.complementaryInfoHospitalizationAPI.hemoglobin !== null && patient.complementaryInfoHospitalizationAPI.hemoglobin < 12) {
 			totalRisk += 1;
 		}
 
-		if (patient.complementaryInfoHospitalizationAPI.serumSodium !== null && patient.complementaryInfoHospitalizationAPI.serumSodium <= 135) {
+		if (patient.complementaryInfoHospitalizationAPI.isNotSerumSodium && patient.complementaryInfoHospitalizationAPI.serumSodium !== '' && patient.complementaryInfoHospitalizationAPI.serumSodium !== null && patient.complementaryInfoHospitalizationAPI.serumSodium <= 135) {
 			totalRisk += 1;
 		}
 
@@ -405,10 +403,12 @@ export default class Finalize extends Component {
 	calculateBrittlenessIndex(patient) {
 		let brittlenessIndex = '';
 		if (patient.typePatient === SENIORS_PATIENT) {
-			if (patient.morbidityComorbityList <= 2) {
+			console.log("patient.morbidityComorbityList => ", patient.morbidityComorbityList);
+			if (patient.morbidityComorbityList.length > 0 && patient.morbidityComorbityList.length <= 2) {
 				brittlenessIndex = 'Pré-frágil'
-			} 
-			brittlenessIndex = 'Frágil'
+			} else if(patient.morbidityComorbityList.length > 2) {
+				brittlenessIndex = 'Frágil'
+			}
 		}
 
 		return brittlenessIndex;
