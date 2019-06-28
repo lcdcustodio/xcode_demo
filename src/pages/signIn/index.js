@@ -104,6 +104,8 @@ export default class SignIn extends Component {
 
 				if (response == undefined) {
 
+					this.setState({loading: false});
+
 					Alert.alert(
 						'Erro ao carregar informações',
 						'Desculpe, recebemos um erro inesperado do servidor, por favor tente novamente! ',
