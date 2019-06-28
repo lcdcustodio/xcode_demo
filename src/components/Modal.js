@@ -61,13 +61,12 @@ export default class ModalPrimaryCID extends Component {
                     <Dialog.ScrollArea>
                         <Dialog.Title style={ styles.dialogTitle }> {this.props.title} </Dialog.Title>
                         <Searchbar style={ styles.dialogSearchbar } placeholder="Filtrar" value={ this.state.query } onChangeText={ this.filter } />
-                        <ScrollView style={ styles.dialogScrollView }>
+                        <ScrollView style={ styles.dialogScrollView } keyboardShouldPersistTaps='always'>
                             <List.Section>
                                 <FlatList
                                     data={this.state.list}
                                     keyExtractor={element => `${element.id}`}
-                                    renderItem={this.renderItem} 
-                                    keyboardShouldPersistTaps="always" />
+                                    renderItem={this.renderItem} keyboardShouldPersistTaps='always' />
                             </List.Section>
                         </ScrollView>
                     </Dialog.ScrollArea>
