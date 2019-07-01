@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Alert, StatusBar, Text, StyleSheet, ImageBackground,KeyboardAvoidingView } from 'react-native';
+import { Alert, StatusBar, Text, StyleSheet, ImageBackground, Keyboard } from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
 import AsyncStorage from '@react-native-community/async-storage';
 import qs from "qs";
@@ -19,8 +19,20 @@ export default class SignIn extends Component {
 			password: '*ru8u!uBus2A',
 			error: '',
 			textContent: '',
-			loading: false
+			loading: false,
+			keyboardSpace: 0
 		}
+
+		Keyboard.addListener('keyboardDidShow',(frames)=>{
+            if (!frames.endCoordinates) return;
+            this.setState({
+				keyboardSpace: frames.endCoordinates.height
+			});
+		});
+		
+        Keyboard.addListener('keyboardDidHide',(frames)=>{
+            this.setState({keyboardSpace:0});
+        });
 	}
 
 	componentDidMount() {
@@ -177,7 +189,7 @@ export default class SignIn extends Component {
 		return (
 			<ImageBackground source={require('../../images/doctor-background.png')} style={ styles.imgBackground }>
 				
-				<Container>
+				<Container style={{top: this.state.keyboardSpace ? -(this.state.keyboardSpace * .70) : 0}} >
 
 						<Spinner
 							visible={this.state.loading}
@@ -186,8 +198,6 @@ export default class SignIn extends Component {
 						<StatusBar hidden />
 						
 						<Logo source={require('../../images/logo-medico-consultor-branca.png')} resizeMode="contain" /> 
-						
-						<KeyboardAvoidingView style={styles.container} behavior="padding" enabled>
 							
 							<Text style={styles.titulo}>ACESSAR MÉDICO CONSULTOR</Text>
 							
@@ -218,7 +228,6 @@ export default class SignIn extends Component {
 								<ButtonText>ENTRAR</ButtonText>
 							</Button>
 
-						</KeyboardAvoidingView>
 
 				</Container>
 
