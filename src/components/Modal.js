@@ -24,14 +24,19 @@ export default class ModalPrimaryCID extends Component {
         });
     }
 
+    select = (element) => {
+        this.setState({ query: '' });
+        this.props.onSelect(element);
+    }
+
     renderItem = (element) => {
         if (element.item.code && element.item.code !== null) {
             return(
-                <Text style={styles.dialogListItem} onPress={() => { this.props.onSelect(element) }}> {`${element.item.code} - ${element.item.name}`} </Text>
+                <Text style={styles.dialogListItem} onPress={() => { this.select(element) }}> {`${element.item.code} - ${element.item.name}`} </Text>
             );
         } else {
             return (
-                <Text style={styles.dialogListItem} onPress={() => { this.props.onSelect(element) }}> {`${element.item.name}`} </Text>
+                <Text style={styles.dialogListItem} onPress={() => { this.select(element) }}> {`${element.item.name}`} </Text>
             );
         }
     }
