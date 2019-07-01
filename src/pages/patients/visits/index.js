@@ -197,6 +197,10 @@ export default class Visitas extends React.Component {
 	}
 
 	renderItem = ({ item }) => {
+		const { patient } = this.state;
+		const observations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
+		const lastObservation = observations.length ? observations[0] : null;
+		const hasMedicalRelease = (lastObservation && lastObservation.medicalRelease);
 		if(item.uuid) {
 			return (
 				<View style={{ paddingTop: 10, paddingLeft: 10, paddingRight: 10, backgroundColor: baseStyles.container.backgroundColor}}>
@@ -218,7 +222,7 @@ export default class Visitas extends React.Component {
 							</Body>
 						</CardItem>
 	
-						<RdIf condition={this.state.isEditable}>
+						<RdIf condition={this.state.isEditable && !hasMedicalRelease}>
 							<CardItem footer bordered style={{ alignItems: 'center', justifyContent: 'center', height: 40}}>							
 								<View>
 									<Text style={{color: '#00dda2', paddingRight: 20}} onPress={_=>this.showVisit(item)}>Editar</Text>
