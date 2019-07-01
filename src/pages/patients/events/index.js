@@ -5,6 +5,7 @@ import { Button} from 'react-native-paper';
 import baseStyles from '../../../styles';
 import TimelineEvent, { TimelineEventEnum, TimelineEventEvaluation, timelineEventSorter } from '../../../util/TimelineEvent'
 import moment from 'moment';
+import _ from 'lodash'
 import { RdIf } from '../../../components/rededor-base'
 import Patient, { StatusVisitEnum } from '../../../model/Patient'
 
@@ -13,10 +14,12 @@ export default class Events extends Component {
 	constructor(props) {
 		super(props);
 		const { patient } = this.props;
+		const observations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
 		this.state = {
 			patient: patient,
 			eventos: this._loadEvents(patient),
-			isEditable: this.props.isEditable
+			isEditable: this.props.isEditable,
+			hasMedicalRelease: (observations.length && observations[0].medicalRelease),
 		};
 	}
 		
@@ -36,7 +39,7 @@ export default class Events extends Component {
 					data={this.state.eventos}
 					keyExtractor={ (event) => { return event.data.uuid; } }
 					renderItem={ this._renderEvent } />
-				<RdIf condition={ this.state.isEditable }> 
+				<RdIf condition={ this.state.isEditable && !this.state.hasMedicalRelease }> 
 					<View style={{ marginTop:10, marginBottom: 10, marginLeft: 10, marginRight: 10 }}>
 						<Button mode="contained" onPress={this._create}>APONTAR</Button>
 					</View>
@@ -207,7 +210,7 @@ export default class Events extends Component {
 					}
 				</Body>
 			</CardItem>
-			<RdIf condition={this.state.isEditable && eventInfo.typeEnum === TimelineEventEnum.Recommendation}>
+			<RdIf condition={this.state.isEditable && !this.state.hasMedicalRelease && eventInfo.typeEnum === TimelineEventEnum.Recommendation}>
 				<CardItem footer bordered style={{ alignItems: 'center', justifyContent: 'center', height: 40}}>							
 					<View>
 						<Text style={{color: '#00dda2', paddingRight: 20}} onPress={ () => this._read(eventInfo) }>Editar</Text>
