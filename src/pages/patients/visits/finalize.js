@@ -517,7 +517,7 @@ export default class Finalize extends Component {
 							</View>
 
 							<View style={{flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center',}}>
-									<TextInput mode='flat' style={{backgroundColor: 'white', width: '30%', height: 40, marginBottom: 20}} 
+									<TextInput mode='flat' style={{backgroundColor: 'white', width: '40%', height: 40, marginBottom: 20}} 
 										keyboardType="numeric"
 										value={this.state.patient.complementaryInfoHospitalizationAPI.hemoglobin ? `${this.state.patient.complementaryInfoHospitalizationAPI.hemoglobin}` : ''}
 										onChangeText={text => {this.handleComplementaryInfoHospitalizationAPI('hemoglobin', text)}} />
@@ -537,7 +537,7 @@ export default class Finalize extends Component {
 							</View>
 
 							<View style={{flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
-									<TextInput mode='flat' style={{backgroundColor: 'white', width: '30%', height: 40, marginBottom: 20 }} 
+									<TextInput mode='flat' style={{backgroundColor: 'white', width: '40%', height: 40, marginBottom: 20 }} 
 										keyboardType="numeric"
 										value={this.state.patient.complementaryInfoHospitalizationAPI.serumSodium ? `${this.state.patient.complementaryInfoHospitalizationAPI.serumSodium}` : ''}
 										onChangeText={text => {this.handleComplementaryInfoHospitalizationAPI('serumSodium', text)}} />
