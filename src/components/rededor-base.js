@@ -51,6 +51,7 @@ const styles = StyleSheet.create({
     headerIcon: {
         ...baseStyles.main,
         fontSize: 40,
+        marginLeft: 5
     },
     headerSyncIcon: {
         ...baseStyles.main,

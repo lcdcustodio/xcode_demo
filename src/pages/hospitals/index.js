@@ -267,11 +267,11 @@ export default class Hospital extends Component {
 
 								Alert.alert(
 									'Erro ao carregar informações',
-									'Desculpe, recebemos um erro inesperado do servidor, por favor tente novamente! ',
+									'Desculpe, recebemos um erro inesperado do servidor, por favor, faça login e tente novamente! [REF 001]',
 									[
 										{
 											text: 'OK', onPress: () => {
-												console.log('ok');
+												this.props.navigation.navigate("SignIn");
 											}
 										},
 									],
@@ -514,7 +514,12 @@ export default class Hospital extends Component {
 
 			let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
 
-			if (listOfOrderedPatientObservations.length > 0) {
+			if(
+                (listOfOrderedPatientObservations.length > 0) && 
+
+                (!listOfOrderedPatientObservations[0].endTracking && !listOfOrderedPatientObservations[0].medicalRelease)
+            )
+            {
 
 				patient.observationList.forEach( item => {
 
@@ -539,13 +544,13 @@ export default class Hospital extends Component {
 		}
 		else
 		{
-			let visit = new Date()
+			let visit = lastVisit;
 
 			var day = (visit.getDay() < 10 ? '0' : '') + visit.getDay();
 
 			var month = ((visit.getMonth() + 1) < 10 ? '0' : '') + (visit.getMonth() + 1);
 
-			lastVisit = day + "/" + month + "/" + (visit.getYear() - 100);
+			lastVisit = day + "/" + month + "/" + (visit.getFullYear());
 		}
 		
 		return lastVisit;
@@ -690,30 +695,21 @@ export default class Hospital extends Component {
                     	{ this.renderImageOrName(item) }
                     </View>
                     
-                    <CardItem footer bordered style={{ justifyContent: 'center', height: 40, paddingTop: 0, paddingRight: 0, paddingBottom: 0, paddingLeft: 0}}>                            
+                    <CardItem footer bordered style={{ justifyContent: 'center', height: 50, paddingTop: 0, paddingRight: 0, paddingBottom: 0, paddingLeft: 0}}>                            
                         
-                        <View style={{ width: '8%'}}>
-                            <Text style={{paddingLeft: 5}}><Icon name="briefcase-medical" style={{color: '#666', fontSize: 17}} /></Text>
-                        </View>
-
-                        <View style={{ width: '25%', justifyContent: 'center'}}>
-                            <Text style={{fontSize: 14, color: '#666', fontWeight:'normal'}}> {item.lastVisit} </Text>
+                        <View style={{ width: '33%', justifyContent: 'center', alignItems: 'center'}}>
+                            <Text style={{fontSize: 14, color: '#666', fontWeight:'normal'}}> Última visita </Text>
+                            <Text style={{fontSize: 14, color: '#666', fontWeight:'bold'}}> {item.lastVisit} </Text>
                         </View>
                         
-                        <View style={{ width: '8%', justifyContent: 'center'}}>
-                            <Text style={{paddingLeft: 5}}><Icon name="bed" style={{color: '#666', fontSize: 17}} /></Text>
+                        <View style={{ width: '33%', justifyContent: 'center', alignItems: 'center'}}>
+                            <Text style={{fontSize: 14, color: '#666', fontWeight:'normal'}}> Internados </Text>
+                            <Text style={{fontSize: 14, color: '#666', fontWeight:'bold'}}> {item.totalPatients} </Text>
                         </View>
                         
-                        <View style={{ width: '25%', justifyContent: 'center'}}>
-                            <Text style={{fontSize: 14, color: '#666', fontWeight:'normal'}}> {item.totalPatients} Internados </Text>
-                        </View>
-                        
-                        <View style={{ width: '8%', justifyContent: 'center'}}>
-                            <Text style={{paddingLeft: 5}}><Icon name="chalkboard-teacher" style={{color: '#666', fontSize: 17}} /></Text>
-                        </View>
-                        
-                        <View style={{ width: '25%', justifyContent: 'center'}}>
-                            <Text style={{fontSize: 14, color: '#666', fontWeight:'normal'}}> {item.totalPatientsVisitedToday} Visitados </Text>
+                        <View style={{ width: '33%', justifyContent: 'center', alignItems: 'center'}}>
+                            <Text style={{fontSize: 14, color: '#666', fontWeight:'normal'}}> Visitados </Text>
+                            <Text style={{fontSize: 14, color: '#666', fontWeight:'bold'}}> {item.totalPatientsVisitedToday} </Text>
                         </View>
                         
                     

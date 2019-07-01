@@ -107,18 +107,9 @@ export default class Patients extends Component {
 
         let admissionDate = moment(moment(patient.admissionDate).format('YYYY-MM-DD'));
 
-        let totalHospitalizationHours = today.diff(admissionDate, 'hours');
+        let totalHospitalizationDays = today.diff(admissionDate, 'days');
 
-        if (patient.exitDate != null) {
-
-            let exitDate = moment(moment(patient.exitDate).format('YYYY-MM-DD'));
-
-            totalHospitalizationHours = exitDate.diff(admissionDate, 'hours');
-        }
-
-        totalHospitalizationHours = Math.round((totalHospitalizationHours / 24));
-
-        return totalHospitalizationHours;
+        return totalHospitalizationDays + 1;
     }
 
     getColorNumber(patient) {
@@ -184,7 +175,7 @@ export default class Patients extends Component {
     totalDaysAgo(date) {
         const today = moment()
         let dateFormatted = moment(moment(date).format('YYYY-MM-DD'))
-        return today.diff(dateFormatted, 'days') + ' Dias'
+        return today.diff(dateFormatted, 'days') + ' dias'
     }
 
     exitDateIsNotEqualToLastVisit(patient) {
@@ -277,38 +268,26 @@ export default class Patients extends Component {
                         </Right>
                     </CardItem>
                     
-                    <CardItem footer bordered style={{ justifyContent: 'center', height: 30, paddingTop: 0, paddingRight: 0, paddingBottom: 0, paddingLeft: 0}}>                            
+                    <CardItem footer bordered style={{ height: 50, paddingTop: 0, paddingRight: 0, paddingBottom: 0, paddingLeft: 0}}>                            
                         
-                        <View style={{ width: '10%'}}>
-                            <Text style={{paddingLeft: 10}}><Icon name="calendar" style={{color: '#666', fontSize: 15}} /></Text>
-                        </View>
-
-                        <View style={{ width: '15%'}}>
-                            <Text style={{fontSize: 14, color: '#666', fontWeight:'normal'}}>{item.totalDaysOfHospitalization} d</Text>
-                        </View>
-
-                        <View style={{ width: '10%'}}>
-                            <Text style={{paddingLeft: 1}}><Icon name="tag" style={{color: '#666', fontSize: 15}} /></Text>
+                        <View style={{ width: '25%', justifyContent: 'center', alignItems: 'center'}}>
+                            <Text style={{fontSize: 14, color: '#666', fontWeight:'normal'}}>Internado</Text>
+                            <Text style={{fontSize: 14, color: '#666', fontWeight:'bold'}}>{item.totalDaysOfHospitalization} {item.totalDaysOfHospitalization <= 1 ? 'dia' : 'dias'}</Text>
                         </View>
                         
-                        <View style={{ width: '10%'}}>
-                            <Text style={{fontSize: 14, color: '#666', fontWeight:'normal'}}>{item.locationSession}</Text>
-                        </View>
-
-                        <View style={{ width: '10%'}}>
-                            <Text style={{paddingLeft: 1}}><Icon name="bed" style={{color: '#666', fontSize: 15}} /></Text>
+                        <View style={{ width: '25%', justifyContent: 'center', alignItems: 'center'}}>
+                            <Text style={{fontSize: 14, color: '#666', fontWeight:'normal'}}>Setor</Text>
+                            <Text style={{fontSize: 14, color: '#666', fontWeight:'bold'}}>{item.locationSession}</Text>
                         </View>
                         
-                        <View style={{ width: '18%'}}>
-                            <Text style={{fontSize: 14, color: '#666', fontWeight:'normal'}}>{item.locationBed}</Text>
+                        <View style={{ width: '25%', justifyContent: 'center', alignItems: 'center'}}>
+                            <Text style={{fontSize: 14, color: '#666', fontWeight:'normal'}}>Leito</Text>
+                            <Text style={{fontSize: 14, color: '#666', fontWeight:'bold'}}>{item.locationBed}</Text>
                         </View>
                         
-                        <View style={{ width: '10%'}}>
-                            <Text style={{paddingLeft: 1}}><Icon name="eye" style={{color: '#666', fontSize: 15}} /></Text>
-                        </View>
-                        
-                        <View style={{ width: '17%'}}>
-                            <Text style={{fontSize: 14, color: '#666', fontWeight:'normal', paddingRight: 10}}>{item.lastVisit}</Text>
+                        <View style={{ width: '25%', justifyContent: 'center', alignItems: 'center'}}>
+                            <Text style={{fontSize: 14, color: '#666', fontWeight:'normal', paddingRight: 10}}>Última visita</Text>
+                            <Text style={{fontSize: 14, color: '#666', fontWeight:'bold', paddingRight: 10}}>{item.lastVisit}</Text>
                         </View>
                     
                     </CardItem>
