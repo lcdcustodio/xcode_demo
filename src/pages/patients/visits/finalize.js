@@ -90,18 +90,24 @@ export default class Finalize extends Component {
 		});
 	}
 
-	save = async () => {
+	saveValidate = () => {
 		const { patient } = this.state;
 		if (!patient.exitCID) {
 			Alert.alert('Atenção', "É necessário selecionar um CID de Saída.", [{text:'OK',onPress:()=>{}}],{cancelable:false});
 			return;
 		}
-
 		if (patient.recommendationClinicalIndication && !patient.specialty) {
 			Alert.alert('Atenção', "É necessário selecionar uma especialidade.", [{text:'OK',onPress:()=>{}}],{cancelable:false});
 			return;
 		}
+		Alert.alert('Atenção', 'Você tem certeza que deseja finalizar o monitoramento deste paciente?', [
+			{ text: 'Cancel', style: 'cancel' },
+			{ text: 'OK', onPress: () => this.save() },
+		], {cancelable: false});
+	}
 
+	save = async () => {
+		const { patient } = this.state;
 		let showSpinner = false;
 
 		await this.handleUpdatePatient('diagnosticHypothesisList', [patient.exitCID], showSpinner);
@@ -111,15 +117,13 @@ export default class Finalize extends Component {
 		await this.handleUpdatePatient('medicineReintegration', patient.medicineReintegration, showSpinner);
 		await this.handleUpdatePatient('clinicalIndication', patient.clinicalIndication, showSpinner);
 
+		let observationList;
 		if (patient.observationList && patient.observationList.lenght > 0) {
-			orderedObservationList = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
-			orderedObservationList[0].medicalRelease = true;
-			orderedObservationList[0].observation = "Internação finalizada.";
-			await this.handleUpdatePatient('observationList', orderedObservationList);
-
-			Alert.alert('Finalizar', "Finalização realizada com sucesso.", [{text:'OK',onPress:() =>{ this._goBack()} } ]);
+			observationList = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
+			observationList[0].medicalRelease = true;
+			observationList[0].observation = "Internação finalizada.";
 		} else {
-			let observation = {
+			observationList = [ {
 				uuid: uuidv4(),
 				observationDate: moment(),
 				alert: null,
@@ -127,12 +131,10 @@ export default class Finalize extends Component {
 				endTracking: null,
 				observation: "Internação finalizada.",
 				removedAt: null
-			}
-			let observationList = [];
-			observationList.push(observation);
-			await this.handleUpdatePatient('observationList', observationList);
-			Alert.alert('Finalizar', "Finalização realizada com sucesso.", [{text:'OK',onPress:() =>{ this._goBack()} } ]);
+			} ];
 		}
+		await this.handleUpdatePatient('observationList', observationList);
+		Alert.alert('Finalizar', "Finalização realizada com sucesso.", [{ text: 'OK', onPress: ()=>this._goBack() }]);
 	}
 
 	_goBack = () => {
@@ -759,7 +761,7 @@ export default class Finalize extends Component {
 
 					</RdIf>
 					<View style={styles.button}>
-						<Button  mode="contained" onPress={ () => this.save() }>Salvar</Button>
+						<Button  mode="contained" onPress={ () => this.saveValidate() }>Salvar</Button>
 					</View>
 				</Content>
 			</Container>
