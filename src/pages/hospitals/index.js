@@ -531,10 +531,6 @@ export default class Hospital extends Component {
 							lastVisit = visit;
 						}
 					}
-					else
-					{
-						lastVisit = new Date(item.observationDate)
-					}
 				});
 			}
 		});
