@@ -124,6 +124,6 @@ export default StyleSheet.create({
         marginTop: 20, 
         marginLeft: -18, 
 		marginRight: -18,
-		height: 120 
+		height: 160 
     }
 });
