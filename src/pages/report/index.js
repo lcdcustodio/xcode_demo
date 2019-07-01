@@ -309,7 +309,7 @@ export default class Report extends Component {
             lastVisit = today.diff(lastVisit, 'days');
         }
 
-        if(patient.observationList.length > 0 && listOfOrderedPatientObservations[0].alert) // TEVE VISITA E COM ALERTA
+        if(patient.observationList.length > 0 && listOfOrderedPatientObservations[0].alert && patient.exitDate == null) // TEVE VISITA E COM ALERTA E NÃO TEVE ALTA
         {
             return this.state.ICON.OLHO_CINZA_COM_EXCLAMACAO;
         }
@@ -486,11 +486,11 @@ export default class Report extends Component {
 
 								let days = await this.calculateDaysOfHospitalization(patient);
 
-								if (days <= 5) 
+								if (days <= 5)
 								{
 									report.attendanceType_time_until_five += 1;
 								}
-								else if (days > 5 && days <= 49) 
+								else if (days > 5 && days <= 15)
 								{
 									report.attendanceType_time_between_five_and_fortynine += 1;
 								}
@@ -734,17 +734,17 @@ export default class Report extends Component {
 					</CardItem>
 					<DataTable>
 						<DataTable.Row style={{backgroundColor:'#ffffff', minHeight: 20, height: 32}}>
-							<DataTable.Cell>Até 5 dias internado</DataTable.Cell>
+							<DataTable.Cell>Até 5 dias</DataTable.Cell>
 							<DataTable.Cell numeric>{this.state.hospital_report.attendanceType_time_until_five}</DataTable.Cell>
 						</DataTable.Row>
 				
 						<DataTable.Row style={{backgroundColor:'#ededed', minHeight: 20, height: 32}}>
-							<DataTable.Cell>Entre 5 e 49 dias internado</DataTable.Cell>
+							<DataTable.Cell>Entre 5 e 15 dias</DataTable.Cell>
 							<DataTable.Cell numeric>{this.state.hospital_report.attendanceType_time_between_five_and_fortynine}</DataTable.Cell>
 						</DataTable.Row>
 
 						<DataTable.Row style={{backgroundColor:'#ffffff', minHeight: 20, height: 32}}>
-							<DataTable.Cell>Com 50 ou mais dias internado</DataTable.Cell>
+							<DataTable.Cell>Com mais de 15 dias</DataTable.Cell>
 							<DataTable.Cell numeric>{this.state.hospital_report.attendanceType_time_other}</DataTable.Cell>
 						</DataTable.Row>
 					</DataTable>
@@ -758,7 +758,7 @@ export default class Report extends Component {
 					</CardItem>
 					<DataTable>
 						<DataTable.Row style={{backgroundColor:'#ffffff', minHeight: 20, height: 32}}>
-							<DataTable.Cell>CTI/UTI</DataTable.Cell>
+							<DataTable.Cell>CTI</DataTable.Cell>
 							<DataTable.Cell numeric>{this.state.hospital_report.locationType_room_ctiuti}</DataTable.Cell>
 						</DataTable.Row>
 				

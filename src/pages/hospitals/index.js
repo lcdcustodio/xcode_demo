@@ -115,7 +115,7 @@ export default class Hospital extends Component {
             lastVisit = today.diff(lastVisit, 'days');
         }
 
-        if(patient.observationList.length > 0 && listOfOrderedPatientObservations[0].alert) // TEVE VISITA E COM ALERTA
+        if(patient.observationList.length > 0 && listOfOrderedPatientObservations[0].alert && patient.exitDate == null) // TEVE VISITA E COM ALERTA E NÃO TEVE ALTA
         {
             return this.state.ICON.OLHO_CINZA_COM_EXCLAMACAO;
         }

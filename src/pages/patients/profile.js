@@ -312,7 +312,7 @@ export default class Profile extends Component {
 							<Dialog.Title>CRM</Dialog.Title>
 							
 							<Dialog.Content>
-								<TextInput mode='outlined' label='CRM' value={this.state.crmTMP} onChangeText={text => { this.handleCRM(text) }} />	
+								<TextInput mode='outlined' label='CRM' keyboardType='numeric' value={this.state.crmTMP} onChangeText={text => { this.handleCRM(text) }} />	
 							</Dialog.Content>
 
 							<Divider />
