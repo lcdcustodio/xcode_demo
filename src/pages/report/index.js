@@ -14,6 +14,7 @@ import _ from 'lodash'
 import { DataTable } from 'react-native-paper';
 import { RdRootHeader } from '../../components/rededor-base';
 import type { ViewStyleProp } from 'react-native/Libraries/StyleSheet/StyleSheet';
+import Patient from '../../model/Patient';
 
 export default class Report extends Component {
 
@@ -194,6 +195,14 @@ export default class Report extends Component {
 									listHospital = hospitalListOrdered;
 								}
 
+								const dateSync = moment().format('DD/MM/YYYY [às] HH:mm:ss');
+
+								this.setState({dateSync: dateSync});
+
+								AsyncStorage.setItem('dateSync', dateSync);
+
+								AsyncStorage.setItem('hospitalList', JSON.stringify(listHospital));
+
 								this.report(listHospital);
 							
 							} else {
@@ -294,51 +303,15 @@ export default class Report extends Component {
 		return hasHospitality
 	}
 
-	getIconNumber(patient) {
-
-        let lastVisit = null;
-
-        let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc'])
-        
-        if (listOfOrderedPatientObservations.length > 0) {
-            
-            const today = moment();
-            
-            lastVisit = moment(moment(listOfOrderedPatientObservations[0].observationDate).format('YYYY-MM-DD'));
-
-            lastVisit = today.diff(lastVisit, 'days');
-        }
-
-        if(patient.observationList.length > 0 && listOfOrderedPatientObservations[0].alert && patient.exitDate == null) // TEVE VISITA E COM ALERTA E NÃO TEVE ALTA
-        {
-            return this.state.ICON.OLHO_CINZA_COM_EXCLAMACAO;
-        }
-        else if(lastVisit == 0 && patient.exitDate == null) // VISITADO HOJE E NÃO TEVE ALTA
-        {
-            return this.state.ICON.OLHO_CINZA_COM_CHECK;
-        }
-
-        else if(lastVisit > 0 && patient.exitDate == null) // NÃO TEVE VISITA HOJE E NÃO TEVE ALTA
-        {
-            return this.state.ICON.OLHO_AZUL;
-        }
-
-        else if(patient.observationList.length == 0 && patient.exitDate == null) // NÃO TEVE VISITA E NÃO TEVE ALTA
-        {
-            return this.state.ICON.OLHO_AZUL;
-        }
-
-        else if (patient.exitDate != null) // TEVE ALTA
-        {
-            return this.state.ICON.CASA_AZUL;
-        }
-    }
-
 	countTotalPatients = (patients, hospitalName) => {
 		
 		let totalPatients = patients.reduce((totalPatients, patient) => {
 			
-			let iconNumber = this.getIconNumber(patient);
+			const patientClass = new Patient(patient);
+
+			let iconNumber = patientClass.getIconNumber();
+
+			console.log(iconNumber);
 
 			let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
 
@@ -422,7 +395,9 @@ export default class Report extends Component {
 				{
 					let patient = hospitalList[i].hospitalizationList[x];
 
-					let iconNumber = this.getIconNumber(patient);
+					const patientClass = new Patient(patient);
+
+					let iconNumber = patientClass.getIconNumber();
 
 					let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
 

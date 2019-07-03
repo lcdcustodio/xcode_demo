@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, View, FlatList, Alert, Keyboard } from 'react-native';
+import { ScrollView, View, FlatList, Alert, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import baseStyles from '../../../styles'
 import styles from './style'
 import moment from 'moment';
@@ -64,7 +64,7 @@ export default class Visitas extends React.Component {
 						element.observation = newVisit.observation;
 						element.alert = newVisit.alert;
 						element.uuid = newVisit.uuid;
-						element.observationDate = moment();
+						element.observationDate = moment().format();
 					}
 				});
 			} else {
@@ -93,6 +93,15 @@ export default class Visitas extends React.Component {
 		return result;
 	}
 
+	showIconEdit(show) {
+
+		if (show) {
+			return <Icon name="edit" style={{color: '#333', fontSize: 20}} />;
+		}
+
+		return;
+	}
+
 	hasObservationToday() {
 		let result = false;
 		if(this.state.patient.observationList) {
@@ -119,6 +128,11 @@ export default class Visitas extends React.Component {
 	}
 
 	showVisit = visit => {
+
+		if (!this.isToday(visit.observationDate)) {
+			return;
+		}
+
 		this.toggleModal()
 		this.setState({
 			visit,
@@ -202,39 +216,33 @@ export default class Visitas extends React.Component {
 		const lastObservation = observations.length ? observations[0] : null;
 		const hasMedicalRelease = (lastObservation && lastObservation.medicalRelease);
 		if(item.uuid) {
+
 			return (
-				<View style={{ paddingTop: 10, paddingLeft: 10, paddingRight: 10, backgroundColor: baseStyles.container.backgroundColor}}>
-					<Card>
-						<CardItem header bordered style={{ flex: 1, backgroundColor: '#cce5ff', height: 60}}>
-							<Left>
-								<Text style={{ fontSize: 16, fontWeight: 'bold'}}>Visita</Text>
-							</Left>
-							<Right>
-								<Text>{this.isToday(item.observationDate) ? 'Hoje' : 	moment(item.observationDate).format('DD/MM/YYYY')}</Text>
-							</Right>
-						</CardItem>
-						
-						<CardItem bordered>
-							<Body>
-								<Text>
-									{item.observation}
-								</Text>
-							</Body>
-						</CardItem>
-	
-						<RdIf condition={this.state.isEditable && !hasMedicalRelease}>
-							<CardItem footer bordered style={{ alignItems: 'center', justifyContent: 'center', height: 40}}>							
-								<View>
-									<Text style={{color: '#00dda2', paddingRight: 20}} onPress={_=>this.showVisit(item)}>Editar</Text>
-								</View>
-								<View  style={{borderRightColor: '#ffffff', borderWidth: 1, height: '80%', borderBottomColor: '#ffffff', borderTopColor: '#ffffff', borderLeftColor: '#ebeff2'}}></View>
-								<View>
-									<Text style={{color: '#f73655', paddingLeft: 20}} onPress={_=>this.alertToRemove(item)}>Excluir</Text>
-								</View>
+				
+				<TouchableWithoutFeedback onPress={_=>this.showVisit(item)}>
+
+					<View style={{ paddingTop: 10, paddingLeft: 10, paddingRight: 10, backgroundColor: baseStyles.container.backgroundColor}}>
+						<Card>
+							<CardItem header bordered style={{ flex: 1, backgroundColor: '#cce5ff', height: 60}}>
+								<Left>
+									<Text style={{ fontSize: 16, fontWeight: 'bold'}}>Visita {this.showIconEdit(this.isToday(item.observationDate))}</Text>
+								</Left>
+								<Right>
+									<Text>{this.isToday(item.observationDate) ? 'Hoje' : moment(item.observationDate).format('DD/MM/YYYY')}</Text>
+								</Right>
 							</CardItem>
-						</RdIf>
-					</Card>
-				</View>
+							
+							<CardItem bordered>
+								<Body>
+									<Text>
+										{item.observation}
+									</Text>
+								</Body>
+							</CardItem>
+						</Card>
+					</View>
+
+				</TouchableWithoutFeedback>
 			);
 		} else return null;
 	};
@@ -344,6 +352,9 @@ export default class Visitas extends React.Component {
 		if (this.props.patient.observationList){
 			listOfOrderedObservationDate = _.orderBy(this.props.patient.observationList, ['observationDate'], ['desc'])
 		}
+
+		console.log(listOfOrderedObservationDate);
+
 		return (
 			<View style={ styles.container }>
 				{ this.renderModal() }

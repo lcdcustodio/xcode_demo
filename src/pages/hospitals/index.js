@@ -17,6 +17,7 @@ import Session from '../../Session';
 import TextValue from '../../components/TextValue';
 import baseStyles from '../../styles';
 import styles from './style';
+import Patient from '../../model/Patient';
 
 export default class Hospital extends Component {
 
@@ -54,6 +55,8 @@ export default class Hospital extends Component {
 
         this.setState({user: Session.current.user});
 
+        this.setState({ timerTextColor: "#005cd1", timerBackgroundColor: "#fff" });
+        
 		NetInfo.fetch().then(state => {
 
 			this.setState({isConnected: state.isConnected});
@@ -65,6 +68,8 @@ export default class Hospital extends Component {
 		});
 
 		AsyncStorage.getItem('dateSync', (err, res) => {
+
+			console.log(res);
 			
 			if (res !== null) {
 
@@ -100,46 +105,6 @@ export default class Hospital extends Component {
 
 	});
 
-	getIconNumber(patient) {
-
-        let lastVisit = null;
-
-        let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc'])
-        
-        if (listOfOrderedPatientObservations.length > 0) {
-            
-            const today = moment();
-            
-            lastVisit = moment(moment(listOfOrderedPatientObservations[0].observationDate).format('YYYY-MM-DD'));
-
-            lastVisit = today.diff(lastVisit, 'days');
-        }
-
-        if(patient.observationList.length > 0 && listOfOrderedPatientObservations[0].alert && patient.exitDate == null) // TEVE VISITA E COM ALERTA E NÃO TEVE ALTA
-        {
-            return this.state.ICON.OLHO_CINZA_COM_EXCLAMACAO;
-        }
-        else if(lastVisit == 0 && patient.exitDate == null) // VISITADO HOJE E NÃO TEVE ALTA
-        {
-            return this.state.ICON.OLHO_CINZA_COM_CHECK;
-        }
-
-        else if(lastVisit > 0 && patient.exitDate == null) // NÃO TEVE VISITA HOJE E NÃO TEVE ALTA
-        {
-            return this.state.ICON.OLHO_AZUL;
-        }
-
-        else if(patient.observationList.length == 0 && patient.exitDate == null) // NÃO TEVE VISITA E NÃO TEVE ALTA
-        {
-            return this.state.ICON.OLHO_AZUL;
-        }
-
-        else if (patient.exitDate != null) // TEVE ALTA
-        {
-            return this.state.ICON.CASA_AZUL;
-        }
-    }
-
 	countTotalPatients = (patients, hospital) => {
 
 		let listPatients = this.state.allPatients;
@@ -152,7 +117,9 @@ export default class Hospital extends Component {
 
 			listPatients.push(patient);
 
-			let iconNumber = this.getIconNumber(patient);
+			const patientClass = new Patient(patient);
+
+			let iconNumber = patientClass.getIconNumber();
 
 			let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
 
@@ -530,6 +497,10 @@ export default class Hospital extends Component {
 						if(lastVisit < visit){
 							lastVisit = visit;
 						}
+					}
+					else
+					{
+						lastVisit = new Date(item.observationDate);
 					}
 				});
 			}

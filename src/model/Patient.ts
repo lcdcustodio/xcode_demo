@@ -1,6 +1,8 @@
 import JsonEntity	from '../util/JsonEntity';
 import Observation	from './Observation';
 import Tracking, { TrackingEndModeEnum } from './Tracking';
+import _ from 'lodash';
+import moment from 'moment';
 
 export default class Patient extends JsonEntity<Patient> {
 
@@ -37,6 +39,70 @@ export default class Patient extends JsonEntity<Patient> {
 		const list = this.observationList;
 		return (list.length >= 0 ? list[list.length - 1] : null);
 	}
+
+	public getIconNumber() {
+
+		const { exitDate, observationList } = this.json;
+
+		let lastVisit = null;
+
+        let listOfOrderedPatientObservations = _.orderBy(observationList, ['observationDate'], ['desc']);
+
+        const today = moment();
+
+        if (listOfOrderedPatientObservations.length > 0) {
+            
+            const today = moment();
+            
+            lastVisit = moment(moment(listOfOrderedPatientObservations[0].observationDate).format('YYYY-MM-DD'));
+
+            lastVisit = today.diff(lastVisit, 'days');
+        }
+
+        if(observationList.length > 0 && listOfOrderedPatientObservations[0].alert && exitDate == null) // TEVE VISITA E COM ALERTA E NÃO TEVE ALTA
+        {
+            return IconEyeEnum.OLHO_CINZA_COM_EXCLAMACAO;
+        }
+        else if(lastVisit == 0 && exitDate == null) // VISITADO HOJE E NÃO TEVE ALTA
+        {
+            return IconEyeEnum.OLHO_CINZA_COM_CHECK;
+        }
+
+        else if(lastVisit > 0 && exitDate == null) // NÃO TEVE VISITA HOJE E NÃO TEVE ALTA
+        {
+            return IconEyeEnum.OLHO_AZUL;
+        }
+
+        else if(observationList.length == 0 && exitDate == null) // NÃO TEVE VISITA E NÃO TEVE ALTA
+        {
+            return IconEyeEnum.OLHO_AZUL;
+        }
+
+        else if (exitDate != null) // TEVE ALTA
+        {
+            return IconEyeEnum.CASA_AZUL;
+        }
+    }
+
+    public getIcon(iconNumber) {
+        
+        if(iconNumber == IconEyeEnum.OLHO_CINZA_COM_CHECK)
+        {
+            return require('../images/ic_visibility_green_24px.png');
+        }
+        else if(iconNumber == IconEyeEnum.OLHO_AZUL)
+        {
+            return require('../images/ic_visibility_blue_24px.png');
+        }
+        else if(iconNumber == IconEyeEnum.CASA_AZUL)
+        {
+            return require('../images/ic_home_24px.png');
+        }
+        else if(iconNumber == IconEyeEnum.OLHO_CINZA_COM_EXCLAMACAO)
+        {
+            return require('../images/ic_visibility_exclamation_24px.png');
+        }
+    }
 
 	public validateFinalization(): FinalizationErrorEnum[] {
 		const { patientHeight, patientWeight, attendanceType, hospitalizationType, diagnosticHypothesisList,
@@ -151,4 +217,11 @@ export enum StatusVisitEnum {
     VisitedEndTracking,
 	VisitedDischarged,
 	Unexpected,
+}
+
+export enum IconEyeEnum {
+    OLHO_CINZA_COM_CHECK = 3,
+    OLHO_AZUL = 1,
+    OLHO_CINZA_COM_EXCLAMACAO = 0,
+    CASA_AZUL = 2,
 }

@@ -10,6 +10,7 @@ import Icon from 'react-native-vector-icons/FontAwesome5';
 import { RdHeader } from '../../components/rededor-base';
 import baseStyles from '../../styles';
 import styles from './style';
+import Patient from '../../model/Patient';
 
 export default class Patients extends Component {
     
@@ -21,13 +22,7 @@ export default class Patients extends Component {
             hospital: {},
             loading: false,
             timerTextColor: "#005cd1",
-            timerBackgroundColor: "#fff",
-            ICON: {
-                OLHO_CINZA_COM_CHECK: 3,
-                OLHO_AZUL: 1,
-                OLHO_CINZA_COM_EXCLAMACAO: 0,
-                CASA_AZUL: 2
-            }
+            timerBackgroundColor: "#fff"
         }
     }
 
@@ -60,13 +55,17 @@ export default class Patients extends Component {
                             (!listOfOrderedPatientObservations[0].endTracking && !listOfOrderedPatientObservations[0].medicalRelease)
                         )
                         {
+                            const patientClass = new Patient(patient);
+
+                            let iconNumber = patientClass.getIconNumber();
+
                             patient.totalDaysOfHospitalization = this.calculateDaysOfHospitalization(patient);
                             patient.colorNumber = this.getColorNumber(patient);
                             patient.colorName = this.getColor(patient.colorNumber);
                             patient.backgroundColor = this.getBackgroundColor(patient.colorNumber);
                             patient.lastVisit = this.getLastVisit(patient);
-                            patient.iconNumber = this.getIconNumber(patient);
-                            patient.icon = this.getIcon(patient.iconNumber);
+                            patient.iconNumber = iconNumber;
+                            patient.icon = patientClass.getIcon(iconNumber);
                             patient.orderField = this.getOrderField(patient);
                             patients.push(patient);
                         }
@@ -184,66 +183,6 @@ export default class Patients extends Component {
         let dateLastVisitFormatted = moment(moment(listOfOrderedPatientVisits[0].observationDate).format('YYYY-MM-DD'))
         let diffDays = exitDate.diff(dateLastVisitFormatted, 'days')
         return diffDays !== 0 ? true : false
-    }
-
-    getIconNumber(patient) {
-
-        let lastVisit = null;
-
-        let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc'])
-        
-        if (listOfOrderedPatientObservations.length > 0) {
-            
-            const today = moment();
-            
-            lastVisit = moment(moment(listOfOrderedPatientObservations[0].observationDate).format('YYYY-MM-DD'));
-
-            lastVisit = today.diff(lastVisit, 'days');
-        }
-
-        if(patient.observationList.length > 0 && listOfOrderedPatientObservations[0].alert && patient.exitDate == null) // TEVE VISITA E COM ALERTA E NÃO TEVE ALTA
-        {
-            return this.state.ICON.OLHO_CINZA_COM_EXCLAMACAO;
-        }
-        else if(lastVisit == 0 && patient.exitDate == null) // VISITADO HOJE E NÃO TEVE ALTA
-        {
-            return this.state.ICON.OLHO_CINZA_COM_CHECK;
-        }
-
-        else if(lastVisit > 0 && patient.exitDate == null) // NÃO TEVE VISITA HOJE E NÃO TEVE ALTA
-        {
-            return this.state.ICON.OLHO_AZUL;
-        }
-
-        else if(patient.observationList.length == 0 && patient.exitDate == null) // NÃO TEVE VISITA E NÃO TEVE ALTA
-        {
-            return this.state.ICON.OLHO_AZUL;
-        }
-
-        else if (patient.exitDate != null) // TEVE ALTA
-        {
-            return this.state.ICON.CASA_AZUL;
-        }
-    }
-
-    getIcon(iconNumber) {
-        
-        if(iconNumber == this.state.ICON.OLHO_CINZA_COM_CHECK)
-        {
-            return require('../../images/ic_visibility_green_24px.png');
-        }
-        else if(iconNumber == this.state.ICON.OLHO_AZUL)
-        {
-            return require('../../images/ic_visibility_blue_24px.png');
-        }
-        else if(iconNumber == this.state.ICON.CASA_AZUL)
-        {
-            return require('../../images/ic_home_24px.png');
-        }
-        else if(iconNumber == this.state.ICON.OLHO_CINZA_COM_EXCLAMACAO)
-        {
-            return require('../../images/ic_visibility_exclamation_24px.png');
-        }
     }
 
     getOrderField(patient) {
