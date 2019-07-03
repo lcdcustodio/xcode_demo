@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import api from '../../services/api';
 import { Container, Content, Text, Card, CardItem } from 'native-base';
-import { Alert, View, BackHandler } from "react-native";
+import { Alert, View, BackHandler, Picker } from "react-native";
 import AsyncStorage from '@react-native-community/async-storage';
 import NetInfo from "@react-native-community/netinfo";
 import Spinner from 'react-native-loading-spinner-overlay';
@@ -18,7 +18,7 @@ import Patient from '../../model/Patient';
 
 export default class Report extends Component {
 
-	constructor(props) {	
+	constructor(props) {
 
 		super(props);
 
@@ -43,23 +43,32 @@ export default class Report extends Component {
                 OLHO_AZUL: 1,
                 OLHO_CINZA_COM_EXCLAMACAO: 0,
                 CASA_AZUL: 2
-            }
+            },
+            REGIONAL_RJ: [101, 1, 2, 3, 4, 5, 6, 7, 8, 61, 9, 41, 21],
+			REGIONAL_SP: [],
+			REGIONAL_PE: [142, 141, 143, 144],
+			selectedRegionalHospital: '',
+			hospitalList: null
 		}
+
+		this.setUser();
 	}
 
 	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
 
         this.setState({errorSync: 0});
 
-        this.setState({user: Session.current.user});
+        this.setUser();
+
+        this.setState({ timerTextColor: "#005cd1", timerBackgroundColor: "#fff" });
 
 		NetInfo.fetch().then(state => {
 
 			this.setState({isConnected: state.isConnected});
 
-			if (this.state.hospitals == null) {
-				this.sincronizar();
-			}
+			this.setState({hospitals: null, filteredHospitals: null, selectedRegionalHospital: ''});
+
+			this.sincronizar();
 
 		});
 
@@ -124,6 +133,8 @@ export default class Report extends Component {
 					
 					AsyncStorage.getItem('hospitalizationList', (err, res) => {
 						
+						console.log(res);
+
 						let obj = [];
 
 						if (res != null) {
@@ -169,47 +180,12 @@ export default class Report extends Component {
 							this.setState({loading: false});
 
 							console.log(response);
-							
-							if(response.status === 200) {
 
-								AsyncStorage.setItem('hospitalizationList', JSON.stringify([]));
-								AsyncStorage.setItem('morbidityComorbityList', JSON.stringify(response.data.content.morbidityComorbityList));
-
-								let hospitalListOrdered = _.orderBy(response.data.content.hospitalList, ['name'], ['asc']);
-								
-								let user = Session.current.user;
-
-								let listHospital = []
-								
-								if (user.profile == 'CONSULTANT') {
-
-									hospitalListOrdered.forEach( hospital => {
-										if(this.isTheSameHospital(hospital, parse)){
-											listHospital.push(hospital)
-										}
-									});
-								
-								} 
-								else
-								{
-									listHospital = hospitalListOrdered;
-								}
-
-								const dateSync = moment().format('DD/MM/YYYY [às] HH:mm:ss');
-
-								this.setState({dateSync: dateSync});
-
-								AsyncStorage.setItem('dateSync', dateSync);
-
-								AsyncStorage.setItem('hospitalList', JSON.stringify(listHospital));
-
-								this.report(listHospital);
-							
-							} else {
+							if (response == undefined) {
 
 								Alert.alert(
 									'Erro ao carregar informações',
-									'Desculpe, recebemos um erro inesperado do servidor, por favor, faça login e tente novamente! ',
+									'Desculpe, recebemos um erro inesperado do servidor, por favor, faça login e tente novamente! [REF 001]',
 									[
 										{
 											text: 'OK', onPress: () => {
@@ -221,8 +197,64 @@ export default class Report extends Component {
 										cancelable: false
 									},
 								);
+							}
+							else
+							{
+							
+								if(response.status === 200) {
 
-								console.log(response);
+									AsyncStorage.setItem('hospitalizationList', JSON.stringify([]));
+									AsyncStorage.setItem('morbidityComorbityList', JSON.stringify(response.data.content.morbidityComorbityList));
+
+									let hospitalListOrdered = _.orderBy(response.data.content.hospitalList, ['name'], ['asc']);
+									
+									let user = Session.current.user;
+
+									let listHospital = []
+									
+									if (user.profile == 'CONSULTANT') {
+
+										hospitalListOrdered.forEach( hospital => {
+											if(this.isTheSameHospital(hospital, parse)){
+												listHospital.push(hospital)
+											}
+										});
+									
+									} 
+									else
+									{
+										listHospital = hospitalListOrdered;
+									}
+
+									const dateSync = moment().format('DD/MM/YYYY [às] HH:mm:ss');
+
+									this.setState({dateSync: dateSync});
+
+									AsyncStorage.setItem('dateSync', dateSync);
+
+									AsyncStorage.setItem('hospitalList', JSON.stringify(listHospital));
+
+									this.report(listHospital);
+								
+								} else {
+
+									Alert.alert(
+										'Erro ao carregar informações',
+										'Desculpe, recebemos um erro inesperado do servidor, por favor, faça login e tente novamente! ',
+										[
+											{
+												text: 'OK', onPress: () => {
+													this.props.navigation.navigate("SignIn");
+												}
+											},
+										],
+										{
+											cancelable: false
+										},
+									);
+
+									console.log(response);
+								}
 							}
 						
 						}).catch(error => {
@@ -311,8 +343,6 @@ export default class Report extends Component {
 
 			let iconNumber = patientClass.getIconNumber();
 
-			console.log(iconNumber);
-
 			let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
 
 			if (
@@ -325,7 +355,6 @@ export default class Report extends Component {
 				if (iconNumber == this.state.ICON.OLHO_CINZA_COM_EXCLAMACAO ||
 					iconNumber == this.state.ICON.OLHO_AZUL ||
 					iconNumber == this.state.ICON.OLHO_CINZA_COM_CHECK) {
-					console.log(patient.patientName, hospitalName, iconNumber);
 					return totalPatients + 1;
 				}
 				else
@@ -356,6 +385,28 @@ export default class Report extends Component {
         return totalHospitalizationHours;
     }
 
+    setRegional(hospitalId) {
+
+		if (this.state.REGIONAL_RJ.includes(hospitalId)) {
+			return 'RJ'
+		}
+
+		if (this.state.REGIONAL_SP.includes(hospitalId)) {
+			return 'SP'
+		}
+
+		if (this.state.REGIONAL_PE.includes(hospitalId)) {
+			return 'PE'
+		}
+	}
+
+	filterHospitals(regionalHospital) {
+
+		this.state.selectedRegionalHospital  = regionalHospital;
+		
+		this.report(this.state.hospitalList);
+	}
+
 	report = async (hospitalList) => {
 
 		let report = {
@@ -376,6 +427,10 @@ export default class Report extends Component {
 		};
 
 		for (var i = 0; i < hospitalList.length; i++) {
+
+			if (this.state.selectedRegionalHospital != '' && this.state.selectedRegionalHospital != 'ALL' && this.setRegional(hospitalList[i].id) != this.state.selectedRegionalHospital) {
+				continue;
+			}
 
 			let countTotalPatients = this.countTotalPatients(hospitalList[i].hospitalizationList, hospitalList[i].name);
 			
@@ -484,7 +539,7 @@ export default class Report extends Component {
 
 		this.setState({hospital_report: report});
 
-		console.log(this.state.hospital_report);
+		this.setState({hospitalList: hospitalList});
 	}
 
 	loadHospitalsStorage = async () => {
@@ -604,6 +659,28 @@ export default class Report extends Component {
 
 	}
 
+	setUser() {
+		AsyncStorage.getItem('userData', (err, res) => {
+			if(res) {
+				let parse = JSON.parse(res);
+				Session.current.user = parse;
+			}
+		});	
+	}
+
+	renderFilterHospital() {
+		if (Session.current.user && Session.current.user.profile !== 'CONSULTANT') {
+			return (
+				<Picker selectedValue={this.state.selectedRegionalHospital} mode="dropdown" onValueChange={regional => { this.filterHospitals(regional) }}> 
+					<Picker.Item label="Todas as regionais" value="ALL" />
+					<Picker.Item label="Rio de Janeiro" value="RJ" />
+					<Picker.Item label="São Paulo" value="SP" />
+					<Picker.Item label="Pernambuco" value="PE" />
+				</Picker>
+			);
+		}
+	}
+
 	render() {
 
 		return (
@@ -621,6 +698,10 @@ export default class Report extends Component {
 					sync={ () => this.sincronizar(true) }/>
 
 				{ this.renderTimer() }			
+
+				<Line size={1} />
+				
+				{ this.renderFilterHospital() }
 
 				<Line size={1} />
 

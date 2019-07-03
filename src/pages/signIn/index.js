@@ -15,8 +15,8 @@ export default class SignIn extends Component {
 		super(props);
 		this.state = { 
 			lastDateSync: '2010-01-10T18:46:19-0700',
-			email: 'consult.radix',
-			password: '*ru8u!uBus2A',
+			email: 'marcos.fonseca',
+			password: 'Abappro13$',
 			error: '',
 			textContent: '',
 			loading: false,

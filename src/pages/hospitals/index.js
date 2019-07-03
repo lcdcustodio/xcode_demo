@@ -47,9 +47,9 @@ export default class Hospital extends Component {
                 CASA_AZUL: 2
 			},
 			REGIONAL_RJ: [101, 1, 2, 3, 4, 5, 6, 7, 8, 61, 9, 41, 21],
-			REGIONAL_SP: [143, 144],
-			REGIONAL_PE: [142, 141],
-			selectedHospital: ''
+			REGIONAL_SP: [],
+			REGIONAL_PE: [142, 141, 143, 144],
+			selectedRegionalHospital: ''
 		}
 
 		this.setUser();
@@ -67,7 +67,7 @@ export default class Hospital extends Component {
 
 			this.setState({isConnected: state.isConnected});
 
-			this.setState({hospitals: null, filteredHospitals: null, selectedHospital: ''});
+			this.setState({hospitals: null, filteredHospitals: null, selectedRegionalHospital: ''});
 
 			this.sincronizar();
 
@@ -805,7 +805,7 @@ export default class Hospital extends Component {
 		});
 
 		this.setState({
-			selectedHospital: regionalHospital,
+			selectedRegionalHospital: regionalHospital,
 			filteredHospitals: hospitals
 		})
 	}
@@ -822,8 +822,8 @@ export default class Hospital extends Component {
 	renderFilterHospital() {
 		if (Session.current.user && Session.current.user.profile !== 'CONSULTANT') {
 			return (
-				<Picker selectedValue={this.state.selectedHospital} mode="dropdown" onValueChange={hospital => { this.filterHospitals(hospital) }}> 
-					<Picker.Item label="Todos" value="ALL" />
+				<Picker selectedValue={this.state.selectedRegionalHospital} mode="dropdown" onValueChange={regional => { this.filterHospitals(regional) }}> 
+					<Picker.Item label="Todas as regionais" value="ALL" />
 					<Picker.Item label="Rio de Janeiro" value="RJ" />
 					<Picker.Item label="São Paulo" value="SP" />
 					<Picker.Item label="Pernambuco" value="PE" />
