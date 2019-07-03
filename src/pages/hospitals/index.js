@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Container, Content, Text, Card, CardItem } from 'native-base';
-import { Alert, View, FlatList, TouchableOpacity, Image, BackHandler } from "react-native";
+import { Alert, View, FlatList, TouchableOpacity, Image, BackHandler, Picker } from "react-native";
 import { Searchbar, List } from 'react-native-paper';
 import AsyncStorage from '@react-native-community/async-storage';
 import NetInfo from "@react-native-community/netinfo";
@@ -28,6 +28,7 @@ export default class Hospital extends Component {
 		this.state = {
 			infos: {},
 			hospitals: null,
+			filteredHospitals: null,
 			isConnected: null,
 			dateSync: null,
 			page: 1,
@@ -44,16 +45,21 @@ export default class Hospital extends Component {
                 OLHO_AZUL: 1,
                 OLHO_CINZA_COM_EXCLAMACAO: 0,
                 CASA_AZUL: 2
-            }
+			},
+			REGIONAL_RJ: [101, 1, 2, 3, 4, 5, 6, 7, 8, 61, 9, 41, 21],
+			REGIONAL_SP: [143, 144],
+			REGIONAL_PE: [142, 141],
+			selectedHospital: ''
 		}
 
+		this.setUser();
 	}
 	
 	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
 
         this.setState({errorSync: 0});
 
-        this.setState({user: Session.current.user});
+        this.setUser();
 
         this.setState({ timerTextColor: "#005cd1", timerBackgroundColor: "#fff" });
         
@@ -61,7 +67,7 @@ export default class Hospital extends Component {
 
 			this.setState({isConnected: state.isConnected});
 
-			this.setState({hospitals: null});
+			this.setState({hospitals: null, filteredHospitals: null, selectedHospital: ''});
 
 			this.sincronizar();
 
@@ -174,7 +180,7 @@ export default class Hospital extends Component {
 
 		            if (Session.current.user == null) {
 		            	Session.current.user = parse;
-		            }
+					}
 
 		            this.state.token = parse.token;
 
@@ -395,10 +401,12 @@ export default class Hospital extends Component {
 			hospital.totalPatientsVisitedToday = this.countTotalPatientsVisited(hospital.hospitalizationList)
 			hospital.totalPatients = this.countTotalPatients(hospital.hospitalizationList, hospital)
 			hospital.lastVisit = this.setLastVisit(hospital.hospitalizationList)
+			hospital.regional = this.setRegional(hospital.id)
 		}); 
 
 		this.setState({
 			hospitals: [ ...listHospital], 
+			filteredHospitals: [ ...listHospital]
 		});
 	}
 
@@ -774,6 +782,56 @@ export default class Hospital extends Component {
 
 	}
 
+	setRegional(hospitalId) {
+		if (this.state.REGIONAL_RJ.includes(hospitalId)) {
+			return 'RJ'
+		}
+
+		if (this.state.REGIONAL_SP.includes(hospitalId)) {
+			return 'SP'
+		}
+
+		if (this.state.REGIONAL_PE.includes(hospitalId)) {
+			return 'PE'
+		}
+	}
+
+	filterHospitals(regionalHospital) {
+		let hospitals = [];
+		this.state.hospitals.map(item => {
+			if (regionalHospital === 'ALL' || regionalHospital === item.regional) {
+				hospitals.push(item)
+			}
+		});
+
+		this.setState({
+			selectedHospital: regionalHospital,
+			filteredHospitals: hospitals
+		})
+	}
+
+	setUser() {
+		AsyncStorage.getItem('userData', (err, res) => {
+			if(res) {
+				let parse = JSON.parse(res);
+				Session.current.user = parse;
+			}
+		});	
+	}
+
+	renderFilterHospital() {
+		if (Session.current.user && Session.current.user.profile !== 'CONSULTANT') {
+			return (
+				<Picker selectedValue={this.state.selectedHospital} mode="dropdown" onValueChange={hospital => { this.filterHospitals(hospital) }}> 
+					<Picker.Item label="Todos" value="ALL" />
+					<Picker.Item label="Rio de Janeiro" value="RJ" />
+					<Picker.Item label="São Paulo" value="SP" />
+					<Picker.Item label="Pernambuco" value="PE" />
+				</Picker>
+			);
+		}
+	}
+
 	render(){
 		return (
 			<Container>
@@ -804,12 +862,14 @@ export default class Hospital extends Component {
 				
 				<Line size={1} />
 
+				{ this.renderFilterHospital() }
+
 				<Content>
 					<View style={styles.container}>
 
 						<FlatList
 							contentContainerStyle={baseStyles.container}
-							data={this.state.hospitals}
+							data={this.state.filteredHospitals}
 							keyExtractor={item => item.id + '_'}
 							renderItem={this.renderItem} />
 					</View>
