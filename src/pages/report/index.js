@@ -674,7 +674,6 @@ export default class Report extends Component {
 				<Picker selectedValue={this.state.selectedRegionalHospital} mode="dropdown" onValueChange={regional => { this.filterHospitals(regional) }}> 
 					<Picker.Item label="Todas as regionais" value="ALL" />
 					<Picker.Item label="Rio de Janeiro" value="RJ" />
-					<Picker.Item label="São Paulo" value="SP" />
 					<Picker.Item label="Pernambuco" value="PE" />
 				</Picker>
 			);
