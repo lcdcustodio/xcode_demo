@@ -61,4 +61,11 @@ export default StyleSheet.create({
     marginTop: 0, 
     marginBottom: 0
   },
+  onePicker: {
+    width: 200,
+    height: 44
+  },
+  onePickerItem: {
+    height: 44
+  }
 });
