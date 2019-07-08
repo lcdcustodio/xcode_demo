@@ -557,7 +557,17 @@ export default class Hospital extends Component {
 					}
 					else
 					{
-						lastVisit = new Date(item.observationDate);
+						console.log(item.observationDate);
+
+						console.log(patient.hospitalName);
+
+						if (item.observationDate != null) {
+
+		            		lastVisit = moment(item.observationDate).format('YYYY-MM-DD');
+
+		            		lastVisit = new Date(lastVisit);
+						}
+
 					}
 				});
 			}
@@ -569,6 +579,8 @@ export default class Hospital extends Component {
 		else
 		{
 			let visit = lastVisit;
+
+			console.log(visit);
 
 			var day = (visit.getDay() < 10 ? '0' : '') + visit.getDay();
 

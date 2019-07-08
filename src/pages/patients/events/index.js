@@ -217,12 +217,25 @@ export default class Events extends Component {
 					</View>
 					<View  style={{borderRightColor: '#ffffff', borderWidth: 1, height: '80%', borderBottomColor: '#ffffff', borderTopColor: '#ffffff', borderLeftColor: '#ebeff2'}}></View>
 					<View>
-						<Text style={{color: '#f73655', paddingLeft: 20}} onPress={ () => this._delete(eventInfo) }>Excluir</Text>
+						<Text style={{color: '#f73655', paddingLeft: 20}} onPress={ () => this.alertToRemove(eventInfo) }>Excluir</Text>
 					</View>
 				</CardItem>
 			</RdIf>
 		</Card>
 		</View>
+		);
+	}
+
+	alertToRemove = eventInfo => {
+		Alert.alert(
+			'Atenção',
+			'Tem certeza que deseja excluir?',
+			[{ text: 'NÃO',onPress: () => console.log('Cancel Pressed'), style: 'cancel'  },
+			  {text: 'SIM', onPress: () => {
+				this._delete(eventInfo);
+			  }},
+			],
+			{cancelable: false},
 		);
 	}
 
