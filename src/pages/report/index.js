@@ -434,11 +434,16 @@ export default class Report extends Component {
 
 			let countTotalPatients = this.countTotalPatients(hospitalList[i].hospitalizationList, hospitalList[i].name);
 			
+			let agregationPlan = this.countTotalHospitalizationByPlan(hospitalList[i].hospitalizationList);
+			
 			let obj = {
 				name: hospitalList[i].name,
 				length: hospitalList[i].hospitalizationList.length,
-				patients: countTotalPatients
+				patients: countTotalPatients,
+				agregationPlan
 			};
+
+			this.setState({[hospitalList[i].name]: false });
 
 			report.hospital_report.push(obj);
 
@@ -455,7 +460,7 @@ export default class Report extends Component {
 					let iconNumber = patientClass.getIconNumber();
 
 					let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
-
+					
 					if (
 
 		                (listOfOrderedPatientObservations.length == 0) || 
@@ -680,6 +685,69 @@ export default class Report extends Component {
 		}
 	}
 
+	patientIsValid(patient) {
+		const patientClass = new Patient(patient);
+		let iconNumber = patientClass.getIconNumber();
+		let listOfOrderedPatientObservations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
+
+		if ( (listOfOrderedPatientObservations.length == 0) || (!listOfOrderedPatientObservations[0].endTracking && !listOfOrderedPatientObservations[0].medicalRelease) ) {
+
+			if (iconNumber == this.state.ICON.OLHO_CINZA_COM_EXCLAMACAO ||
+				iconNumber == this.state.ICON.OLHO_AZUL ||
+				iconNumber == this.state.ICON.OLHO_CINZA_COM_CHECK) {
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
+
+	hasPlan(plans, plan) {
+		let result = false;
+		plans.map(item => {
+			if (item.plan === plan) {
+				result = true;
+			}
+		});
+		return result;
+	}
+
+	updatePlan(plans, plan) {
+		plans.map(item => {
+			if (item.plan === plan) {
+				item.total += 1;
+			}
+		});
+	}
+
+	countTotalHospitalizationByPlan(patients) {
+		let total = [];
+
+		patients.map(patient => {
+			if (this.patientIsValid(patient)) {
+				if (this.hasPlan(total, patient.plane)) {
+					this.updatePlan(total, patient.plane);
+				} else {
+					let hospitlization = {
+						plan: patient.plane === "" ? 'Sem Informação' : patient.plane,
+						total: 1
+					}
+					total.push(hospitlization);
+				}
+			}
+		});
+
+		return total;
+	}
+
+	toogle(item) {
+		this.setState({
+			[item.name]: !this.state[item.name]
+		})
+	}
+
 	render() {
 
 		return (
@@ -715,15 +783,44 @@ export default class Report extends Component {
 					</CardItem>
 
 					<DataTable>
-						
-						{this.state.hospital_report.hospital_report && this.state.hospital_report.hospital_report.map((prop) => {
-							return ( 
-								<DataTable.Row key={prop.name} style={{backgroundColor:'#ffffff', minHeight: 20, height: 32}}>
-									<DataTable.Cell style={{width: '90%'}}>{prop.name}</DataTable.Cell>
-									<DataTable.Cell numeric style={{width: '10%'}}>{prop.patients}</DataTable.Cell>
-								</DataTable.Row> 
-							)
-						})}
+						{
+							this.state.hospital_report.hospital_report && this.state.hospital_report.hospital_report.map((prop, index) => {
+								let background = (index % 2) === 0 ? '#ffffff' : '#ededed';
+								return ( 
+									<DataTable.Row key={prop.name} style={{color:'blue', backgroundColor: `${background}`, minHeight: 32, paddingTop: '1.7%'}}>
+										<View style={{flexDirection: 'row', width: '100%', flexWrap: 'wrap'}}>
+											<View style={{alignItems: 'flex-start', width: '90%'}}>
+												<DataTable.Cell onPress={ () => { this.toogle(prop) }}>{prop.name}</DataTable.Cell>
+											</View>
+											<View style={{alignItems: 'flex-end', width: '10%'}}>
+												<DataTable.Cell>{prop.patients}</DataTable.Cell>
+											</View>
+											{
+												this.state[prop.name] && prop.agregationPlan.length > 0 ?
+													<View style={{alignItems: 'flex-start', marginLeft: '-5%', paddingLeft: '10%', paddingRight: '5%', marginTop: '1.8%' , width: '110%', backgroundColor: '#CCE5FF'}}>
+														{
+															prop.agregationPlan.map((item, index) => {
+																return (
+																	<View key={index} style={{flexDirection: 'row', width: '100%', minHeight: 32, borderBottomColor: 'white', borderBottomWidth: 1, marginBottom: 5 }}>
+																		<View style={{width: '90%', alignItems: 'flex-start'}}>
+																			<DataTable.Cell>{item.plan}</DataTable.Cell>
+																		</View>
+																		<View style={{width: '10%', alignItems: 'flex-end'}}>
+																			<DataTable.Cell>{item.total}</DataTable.Cell>
+																		</View>
+																	</View>
+																)
+															})
+														}
+													</View>
+												:
+													null
+											}
+										</View>
+									</DataTable.Row> 
+								)
+							})
+						}
 
 						<DataTable.Row style={{backgroundColor:'#ededed', minHeight: 20, height: 32}}>
 							<DataTable.Cell>Total</DataTable.Cell>
