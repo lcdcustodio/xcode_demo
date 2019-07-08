@@ -674,12 +674,12 @@ export default class Report extends Component {
 	}
 
 	renderFilterHospital() {
-		let height = Platform.OS === 'ios' ? 66 : 44;
-		
+		let height = Platform.OS === 'ios' ? 88 : 44;
+
 		if (Session.current.user && Session.current.user.profile !== 'CONSULTANT') {
 			return (
 				<Picker selectedValue={this.state.selectedRegionalHospital} mode="dropdown" 
-					style={{width: '100%', height: `${height}` }} itemStyle={{height: `${height}`}}
+					style={{width: '100%', height: height }} itemStyle={{height: height}}
 					onValueChange={regional => { this.filterHospitals(regional) }}> 
 					<Picker.Item label="Todas as regionais" value="ALL" />
 					<Picker.Item label="Rio de Janeiro" value="RJ" />
