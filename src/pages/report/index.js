@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import api from '../../services/api';
 import { Container, Content, Text, Card, CardItem } from 'native-base';
-import { Alert, View, BackHandler, Picker } from "react-native";
+import { Alert, View, BackHandler, Picker, Platform } from "react-native";
 import AsyncStorage from '@react-native-community/async-storage';
 import NetInfo from "@react-native-community/netinfo";
 import Spinner from 'react-native-loading-spinner-overlay';
@@ -674,10 +674,12 @@ export default class Report extends Component {
 	}
 
 	renderFilterHospital() {
+		let height = Platform.OS === 'ios' ? 66 : 44;
+		
 		if (Session.current.user && Session.current.user.profile !== 'CONSULTANT') {
 			return (
 				<Picker selectedValue={this.state.selectedRegionalHospital} mode="dropdown" 
-					style={{width: 200, height: 44}} itemStyle={{height: 44}}
+					style={{width: '100%', height: `${height}` }} itemStyle={{height: `${height}`}}
 					onValueChange={regional => { this.filterHospitals(regional) }}> 
 					<Picker.Item label="Todas as regionais" value="ALL" />
 					<Picker.Item label="Rio de Janeiro" value="RJ" />

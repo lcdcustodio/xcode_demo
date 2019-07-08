@@ -1,4 +1,5 @@
 import { StyleSheet } from "react-native";
+import { Platform } from "react-native";
 
 export default StyleSheet.create({
 	
@@ -62,10 +63,10 @@ export default StyleSheet.create({
     marginBottom: 0
   },
   onePicker: {
-    width: 200,
-    height: 44
+    width: '100%',
+    height: Platform.OS === 'ios' ? 66 : 44
   },
   onePickerItem: {
-    height: 44
+    height: Platform.OS === 'ios' ? 66 : 44
   }
 });
