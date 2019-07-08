@@ -209,7 +209,7 @@ export default class Profile extends Component {
 
 	handleMainProcedure = async (procedure) => {
 		await this.props.handleUpdatePatient('mainProcedureTUSSDisplayName', `${procedure.item.code} - ${procedure.item.name}`)
-		await this.props.handleUpdatePatient('mainProcedureTUSSId', procedure.item.code)
+		await this.props.handleUpdatePatient('mainProcedureTUSSId', procedure.item.id)
 		this.setState({
 			auxTuss: data.tuss,
 			tussQuery: null
