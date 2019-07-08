@@ -158,6 +158,65 @@ export default class Hospital extends Component {
 		return totalPatients;
 	}
 
+	parseObject(json) {
+
+		let parse = {};
+
+		for (var i = 0; i < json.length; i++) {
+
+			for (var attrname in json[i])
+			{	
+				if (parse.hasOwnProperty(json[i].id)) {
+					
+					if (attrname == 'id') continue;
+
+					if (json[i][attrname].beginDate) {
+						delete json[i][attrname].beginDate;
+					}
+
+					if (json[i][attrname].performedAt) {
+						delete json[i][attrname].performedAt;
+					}
+
+					if (json[i][attrname].observationDate) {
+						delete json[i][attrname].observationDate;
+					}
+
+					if (json[i][attrname] instanceof Array) {
+
+						for (var key = 0; key < json[i][attrname].length; key++) {
+							
+							if (json[i][attrname][key].beginDate) {
+								delete json[i][attrname][key]['beginDate'];
+							}
+
+							if (json[i][attrname][key].performedAt) {
+								delete json[i][attrname][key]['performedAt'];
+							}
+							
+							if (json[i][attrname][key].observationDate) {
+								delete json[i][attrname][key]['observationDate'];
+							}
+						}
+						
+					}
+
+					parse[json[i].id][attrname] = json[i][attrname];
+				}
+				else
+				{
+					parse[json[i].id] = json[i];
+				}
+			}
+		}
+
+		var result = Object.keys(parse).map(function(key) {
+			return parse[key];
+		});
+
+		return result;
+	}
+
 	loadHospitals = async () => {
 		
 		try {
@@ -196,16 +255,6 @@ export default class Hospital extends Component {
 
 							for (var i = 0; i < hospitalizationList.length; i++) {
 
-								if (hospitalizationList[i].value instanceof Array) {
-
-									for (var key = 0; key < hospitalizationList[i].value.length; key++) {
-										if (hospitalizationList[i].value[key].beginDate) {
-											delete hospitalizationList[i].value[key]['beginDate'];
-										}
-									}
-									
-								}
-
 								let array = {};
 								array['id'] = hospitalizationList[i].idPatient;
 								array[hospitalizationList[i].key] = hospitalizationList[i].value;
@@ -214,12 +263,10 @@ export default class Hospital extends Component {
 							}
 						}
 
-						console.log(JSON.stringify(obj));
+						let parse = this.parseObject(obj);
 
-						let data = { "hospitalizationList": [] };
-
-						console.log(data);
-					
+						let data = { "hospitalizationList": parse };
+						
 						api.post('/api/v2.0/sync', data, 
 						{
 							headers: {

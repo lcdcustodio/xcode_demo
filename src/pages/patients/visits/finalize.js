@@ -101,8 +101,8 @@ export default class Finalize extends Component {
 			return;
 		}
 		Alert.alert('Atenção', 'Você tem certeza que deseja finalizar o monitoramento deste paciente?', [
-			{ text: 'Cancel', style: 'cancel' },
-			{ text: 'OK', onPress: () => this.save() },
+			{ text: 'Não', style: 'cancel' },
+			{ text: 'Sim', onPress: () => this.save() },
 		], {cancelable: false});
 	}
 
