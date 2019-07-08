@@ -871,7 +871,10 @@ export default class Hospital extends Component {
 	renderFilterHospital() {
 		if (Session.current.user && Session.current.user.profile !== 'CONSULTANT') {
 			return (
-				<Picker selectedValue={this.state.selectedRegionalHospital} mode="dropdown" onValueChange={regional => { this.filterHospitals(regional) }}> 
+				<Picker selectedValue={this.state.selectedRegionalHospital} 
+					style={styles.onePicker} itemStyle={styles.onePickerItem}
+					mode="dropdown" onValueChange={regional => { this.filterHospitals(regional) }}> 
+
 					<Picker.Item label="Todas as regionais" value="ALL" />
 					<Picker.Item label="Rio de Janeiro" value="RJ" />
 					<Picker.Item label="Pernambuco" value="PE" />
