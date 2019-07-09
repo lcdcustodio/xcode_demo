@@ -263,11 +263,11 @@ export default class Hospital extends Component {
 							}
 						}
 
-						let parseObj = this.parseObject(obj);
+						//let parseObj = this.parseObject(obj);
 
-						console.log(parseObj);
+						//console.log(parseObj);
 
-						let data = { "hospitalizationList": parseObj };
+						let data = { "hospitalizationList": [] };
 						
 						api.post('/api/v2.0/sync', data, 
 						{
