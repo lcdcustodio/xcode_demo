@@ -7,6 +7,7 @@ import uuidv4 from'uuid/v4';
 import data from '../../../data.json';
 import { Button, Dialog, Portal, RadioButton, Divider, TextInput, Searchbar, List } from 'react-native-paper';
 import { Content, ListItem, Text, Right, Body } from 'native-base';
+import _ from 'lodash';
 
 export default class Profile extends Component {
 
@@ -125,21 +126,38 @@ export default class Profile extends Component {
 	}
 
 	handlePrimaryCID = (cid) => {
-		let diagnosticHypothesisList = []
+		diagnosticHypothesisList = [];
 		let diagnosticHypothesis = {
-			beginDate: moment(),
+			beginDate: moment().format('YYYY-MM-DDTHH:mm:ssZZ'),
+			endDate: null,
 			cidDisplayName: `${cid.item.code} - ${cid.item.name}`,
 			cidId: cid.item.id,
 			uuid: uuidv4()
 		}
-		diagnosticHypothesisList.push(diagnosticHypothesis)
 
-		this.props.handleUpdatePatient('diagnosticHypothesisList', diagnosticHypothesisList)
-		this.toggleModal('modalPrimaryCID')
-		this.setState({
-			auxCid: data.cid,
-			cidQuery: null
-		})
+		if (this.props.patient.diagnosticHypothesisList && this.props.patient.diagnosticHypothesisList.length > 0) {
+			let cidListDesc = _.orderBy(this.props.patient.diagnosticHypothesisList, ['beginDate'], ['desc']);
+			cidListDesc[0].endDate = moment().format('YYYY-MM-DDTHH:mm:ssZZ');
+			this.checkEndDate(cidListDesc);
+
+			if (!this.hasCidItem(cidListDesc, diagnosticHypothesis)) {
+				cidListDesc.push(diagnosticHypothesis);
+				this.props.handleUpdatePatient('diagnosticHypothesisList', cidListDesc);
+				this.toggleModal('modalPrimaryCID');
+				this.setState({
+					auxCid: data.cid,
+					cidQuery: null
+				});
+			}
+		} else {
+			diagnosticHypothesisList.push(diagnosticHypothesis)
+			this.props.handleUpdatePatient('diagnosticHypothesisList', diagnosticHypothesisList)
+			this.toggleModal('modalPrimaryCID')
+			this.setState({
+				auxCid: data.cid,
+				cidQuery: null
+			})
+		}
 	}
 
 	handleSecondaryCID = (cid) => {
@@ -185,6 +203,24 @@ export default class Profile extends Component {
 			})
 		}
 		this.toggleModal('modalSecondaryCID')
+	}
+
+	hasCidItem(cidList, cid) {
+		let result = false;
+		for (var i = 0; i < cidList.length; i++) {
+			if (cidList[i].cidId == cid.id) {
+				result = true;
+			}
+		}
+		return result;
+	}
+
+	checkEndDate(cidList) {
+		for (var i = 0; i < cidList.length; i++) {
+			if (cidList[i].endDate === null) {
+				cidList[i].endDate = moment().format('YYYY-MM-DDTHH:mm:ssZZ');
+			}
+		}
 	}
 
 	removeSecondaryCID = (cidToRemove) => {
@@ -411,7 +447,10 @@ export default class Profile extends Component {
 					<TextValue color={'#0000FF'} value={'ESCOLHER'} press={ () => { this.setState({modalSelected: 'PrimaryCID', modalPrimaryCID: true}) }} />
 				:
 					this.props.patient.diagnosticHypothesisList.map((prop) => {
-						return ( <TextValue color={'#0000FF'} key={prop.cidId} value={prop.cidDisplayName} press={ () => { this.setState({modalSelected: 'PrimaryCID', modalPrimaryCID: true}) }} /> )
+						console.log(prop)
+						if (prop.endDate === null) {
+							return ( <TextValue color={'#0000FF'} key={prop.cidId} value={prop.cidDisplayName} press={ () => { this.setState({modalSelected: 'PrimaryCID', modalPrimaryCID: true}) }} /> )
+						}
 					})
 			:
 			<TextValue value={this.props.patient.diagnosticHypothesisList.length > 0 ? this.props.patient.diagnosticHypothesisList[0].cidDisplayName : 'NÃO INFORMADO'} />
