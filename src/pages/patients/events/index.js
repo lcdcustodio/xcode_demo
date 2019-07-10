@@ -5,7 +5,7 @@ import { Button} from 'react-native-paper';
 import baseStyles from '../../../styles';
 import TimelineEvent, { TimelineEventEnum, TimelineEventEvaluation, timelineEventSorter } from '../../../util/TimelineEvent'
 import moment from 'moment';
-import _ from 'lodash'
+import _ from 'lodash';
 import { RdIf } from '../../../components/rededor-base'
 import Patient, { StatusVisitEnum } from '../../../model/Patient'
 
@@ -86,7 +86,7 @@ export default class Events extends Component {
 	_createExamRequest = (json) => new TimelineEvent(
 		TimelineEventEnum.ExamRequest, 
 		json, 
-		(json.performedAt ? moment(json.performedAt).toDate() : 'Não Informado' ), 
+		(json.performedAt ? moment(json.performedAt).toDate() : 'Não Realizado' ), 
 		'Exame', 
 		json.examDisplayName, 
 		(json.examHighCost ? 'Alto Custo' : null),
@@ -97,7 +97,7 @@ export default class Events extends Component {
 	_createFurtherOpinion = (json) => new TimelineEvent(
 		TimelineEventEnum.FurtherOpinion,
 		json,
-		moment(json.performedAt).toDate(),
+		(json.performedAt ? moment(json.performedAt).toDate() : 'Não Informado' ), 
 		'Parecer',
 		json.specialtyDisplayName,
 		null,
@@ -108,7 +108,7 @@ export default class Events extends Component {
 	_createMedicalProcedure = (json) => new TimelineEvent(
 		TimelineEventEnum.MedicalProcedure,
 		json,
-		(json.performedAt ? moment(json.performedAt).toDate() : 'Não Informado' ), 
+		(json.performedAt ? moment(json.performedAt).toDate() : 'Não Realizado' ), 
 		'Procedimento',
 		json.tussDisplayName,
 		null,
