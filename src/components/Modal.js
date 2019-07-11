@@ -59,6 +59,12 @@ export default class ModalPrimaryCID extends Component {
         });
     };
     
+    componentDidUpdate(prevProps) {
+        if (this.props.list[0].name !== prevProps.list[0].name) {
+            this.setState({list: this.props.list})
+        }
+    }
+
     render() {
         return (
             <Portal>
