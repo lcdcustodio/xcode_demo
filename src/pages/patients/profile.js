@@ -377,8 +377,6 @@ export default class Profile extends Component {
 		}
 	}
 
-	
-
 	renderHeightAndWeight() {
 
 			console.log(this.props.patient.patientHeight);
