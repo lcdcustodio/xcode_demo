@@ -4,6 +4,7 @@ import { StyleSheet } from "react-native";
 import { Icon } from 'native-base';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import IconFontAwesome from 'react-native-vector-icons/FontAwesome';
+import moment from 'moment';
 import baseStyles from '../styles';
 
 export const RdRootHeader = (props) => (
@@ -38,6 +39,18 @@ export const RdHeader = (props) => (
 );
 
 export const RdIf = (props) => (props.condition ? props.children : null);
+
+export function toJsonDate(value) {
+    let momentValue;
+    if (!value) {
+        momentValue = moment();
+    } else if (moment.isMoment(value)) {
+        momentValue = value;
+    } else {
+        momentValue = moment(value);
+    }
+    return momentValue.format('YYYY-MM-DDTHH:mm:ssZZ');
+}
 
 const styles = StyleSheet.create({
 	header: {

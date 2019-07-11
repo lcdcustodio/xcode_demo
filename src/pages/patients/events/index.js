@@ -6,7 +6,7 @@ import baseStyles from '../../../styles';
 import TimelineEvent, { TimelineEventEnum, TimelineEventEvaluation, timelineEventSorter } from '../../../util/TimelineEvent'
 import moment from 'moment';
 import _ from 'lodash';
-import { RdIf } from '../../../components/rededor-base'
+import { RdIf, toJsonDate } from '../../../components/rededor-base'
 import Patient, { StatusVisitEnum } from '../../../model/Patient'
 
 export default class Events extends Component {
@@ -73,7 +73,7 @@ export default class Events extends Component {
 			destination.push(new TimelineEvent(
 				TimelineEventEnum.Recommendation,
 				source,
-				(source.performedAt ? moment(source.performedAt).toDate() : 'Não Informado' ), 
+				(source.performedAt ? toJsonDate(source.performedAt) : 'Não Informado' ), 
 				'Recomendação para alta',
 				name + (source.specialtyDisplayName ? (': ' + source.specialtyDisplayName) : ''),
 				source.observation,
@@ -86,7 +86,7 @@ export default class Events extends Component {
 	_createExamRequest = (json) => new TimelineEvent(
 		TimelineEventEnum.ExamRequest, 
 		json, 
-		(json.performedAt ? moment(json.performedAt).toDate() : 'Não Realizado' ), 
+		(json.performedAt ? toJsonDate(json.performedAt) : 'Não Realizado' ), 
 		'Exame', 
 		json.examDisplayName, 
 		(json.examHighCost ? 'Alto Custo' : null),
@@ -97,7 +97,7 @@ export default class Events extends Component {
 	_createFurtherOpinion = (json) => new TimelineEvent(
 		TimelineEventEnum.FurtherOpinion,
 		json,
-		(json.performedAt ? moment(json.performedAt).toDate() : 'Não Informado' ), 
+		(json.performedAt ? toJsonDate(json.performedAt) : 'Não Informado' ), 
 		'Parecer',
 		json.specialtyDisplayName,
 		null,
@@ -108,7 +108,7 @@ export default class Events extends Component {
 	_createMedicalProcedure = (json) => new TimelineEvent(
 		TimelineEventEnum.MedicalProcedure,
 		json,
-		(json.performedAt ? moment(json.performedAt).toDate() : 'Não Realizado' ), 
+		(json.performedAt ? toJsonDate(json.performedAt) : 'Não Realizado' ), 
 		'Procedimento',
 		json.tussDisplayName,
 		null,
@@ -119,7 +119,7 @@ export default class Events extends Component {
 	_createMedicineUsage = (json) => new TimelineEvent(
 		TimelineEventEnum.MedicineUsage,
 		json,
-		(json.performedAt ? moment(json.performedAt).toDate() : 'Não Informado' ),
+		(json.performedAt ? toJsonDate(json.performedAt) : 'Não Informado' ),
 		'Medicamento',
 		json.medicineDisplayName,
 		null,

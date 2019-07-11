@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Container, Content, ListItem, Text, Right, Body } from 'native-base';
+import { Container, Content, ListItem, Text, Body } from 'native-base';
 import { Button, Card, TextInput, Switch } from 'react-native-paper';
 import AsyncStorage from '@react-native-community/async-storage';
 import { Alert, StyleSheet, View } from 'react-native';
@@ -8,12 +8,10 @@ import uuidv4 from'uuid/v4';
 import _ from 'lodash'
 
 import RecommendationCardToggle from '../../../components/RecommendationCardToggle';
-import { RdIf, RdHeader } from '../../../components/rededor-base';
-import TextValue from '../../../components/TextValue';
+import { RdIf, RdHeader, toJsonDate } from '../../../components/rededor-base';
 import FormItem from '../../../components/FormItem';
 import Modal from '../../../components/Modal';
 import data from '../../../../data.json';
-import baseStyles from '../../../styles';
 
 const PEDIATRIC_PATIENT = 'Pediátrica';
 const GENERAL_PATIENT = 'Geral';
@@ -125,7 +123,7 @@ export default class Finalize extends Component {
 		} else {
 			observationList = [ {
 				uuid: uuidv4(),
-				observationDate: moment().format('YYYY-MM-DDTHH:mm:ssZZ'),
+				observationDate: toJsonDate(),
 				alert: null,
 				medicalRelease: true,
 				endTracking: null,
@@ -441,7 +439,7 @@ export default class Finalize extends Component {
 	async setClinicalIndication(patient) {
 		if (patient.clinicalIndication) {
 			patient.clinicalIndication = {
-				performedAt: patient.exitDate ? patient.exitDate : moment(),
+				performedAt: patient.exitDate ? patient.exitDate : toJsonDate(),
 				uuid: patient.clinicalIndication.uuid ? patient.clinicalIndication.uuid : uuidv4(),
 				indicated: patient.clinicalIndication.indicated ? patient.clinicalIndication.indicated : false,
 				costEvaluation: patient.clinicalIndication.costEvaluation ? patient.clinicalIndication.costEvaluation : null,
@@ -451,7 +449,7 @@ export default class Finalize extends Component {
 			};
 		} else {
 			patient.clinicalIndication = {
-				performedAt: moment(),
+				performedAt: toJsonDate(),
 				uuid: uuidv4(),
 				indicated: false,
 				costEvaluation: null,
@@ -465,7 +463,7 @@ export default class Finalize extends Component {
 	async setMedicineReintegration(patient) {
 		if (patient.medicineReintegration) {
 			patient.medicineReintegration = {
-				performedAt: patient.exitDate ? patient.exitDate : moment(),
+				performedAt: patient.exitDate ? patient.exitDate : toJsonDate(),
 				uuid: patient.medicineReintegration.uuid ? patient.medicineReintegration.uuid : uuidv4(),
 				indicated: patient.medicineReintegration.indicated ? patient.medicineReintegration.indicated : false,
 				costEvaluation: patient.medicineReintegration.costEvaluation ? patient.medicineReintegration.costEvaluation : null,
@@ -473,7 +471,7 @@ export default class Finalize extends Component {
 			};
 		} else {
 			patient.medicineReintegration = {
-				performedAt: moment(),
+				performedAt: toJsonDate(),
 				uuid: uuidv4(),
 				indicated: false,
 				costEvaluation: null,
@@ -485,7 +483,7 @@ export default class Finalize extends Component {
 	async setWelcomeHomeIndication(patient) {
 		if (patient.welcomeHomeIndication) {
 			patient.welcomeHomeIndication = {
-				performedAt: patient.exitDate ? patient.exitDate : moment(),
+				performedAt: patient.exitDate ? patient.exitDate : toJsonDate(),
 				uuid: patient.welcomeHomeIndication.uuid ? patient.welcomeHomeIndication.uuid : uuidv4(),
 				indicated: patient.welcomeHomeIndication.indicated ? patient.welcomeHomeIndication.indicated : false,
 				costEvaluation: patient.welcomeHomeIndication.costEvaluation ? patient.welcomeHomeIndication.costEvaluation : null,
@@ -493,7 +491,7 @@ export default class Finalize extends Component {
 			};
 		} else {
 			patient.welcomeHomeIndication = {
-				performedAt: moment(),
+				performedAt: toJsonDate(),
 				uuid: uuidv4(),
 				indicated: false,
 				costEvaluation: null,

@@ -170,28 +170,6 @@ export default class Hospital extends Component {
 					
 					if (attrname == 'id') continue;
 
-					if (json[i][attrname].beginDate) {
-						//delete json[i][attrname].beginDate;
-					}
-
-					if (json[i][attrname].performedAt) {
-						delete json[i][attrname].performedAt;
-					}
-
-					if (json[i][attrname] instanceof Array) {
-
-						for (var key = 0; key < json[i][attrname].length; key++) {
-							
-							if (json[i][attrname][key].beginDate) {
-								//delete json[i][attrname][key]['beginDate'];
-							}
-
-							if (json[i][attrname][key].performedAt) {
-								delete json[i][attrname][key]['performedAt'];
-							}
-						}
-						
-					}
 
 					parse[json[i].id][attrname] = json[i][attrname];
 				}
