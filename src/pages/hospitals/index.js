@@ -179,10 +179,15 @@ export default class Hospital extends Component {
 				}
 			}
 		}
-
+		
 		var result = Object.keys(parse).map(function(key) {
-			return parse[key];
+			let aux = parse[key];
+			if (!aux.hasOwnProperty('secondaryCIDList')) {
+				aux.secondaryCIDList = null;
+			}
+			return aux;
 		});
+
 
 		return result;
 	}
