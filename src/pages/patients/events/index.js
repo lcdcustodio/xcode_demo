@@ -73,7 +73,7 @@ export default class Events extends Component {
 			destination.push(new TimelineEvent(
 				TimelineEventEnum.Recommendation,
 				source,
-				(json.performedAt ? moment(json.performedAt).toDate() : 'Não Informado' ), 
+				(source.performedAt ? moment(source.performedAt).toDate() : 'Não Informado' ), 
 				'Recomendação para alta',
 				name + (source.specialtyDisplayName ? (': ' + source.specialtyDisplayName) : ''),
 				source.observation,
