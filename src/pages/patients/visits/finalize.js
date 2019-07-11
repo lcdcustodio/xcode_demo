@@ -125,7 +125,7 @@ export default class Finalize extends Component {
 		} else {
 			observationList = [ {
 				uuid: uuidv4(),
-				observationDate: moment(),
+				observationDate: moment().format('YYYY-MM-DDTHH:mm:ssZZ'),
 				alert: null,
 				medicalRelease: true,
 				endTracking: null,

@@ -26,7 +26,7 @@ export default class Visitas extends React.Component {
 				uuid: null,
 				observation: '',
 				alert: false,
-				observationDate: '',
+				observationDate: moment().format('YYYY-MM-DDTHH:mm:ssZZ'),
 			},
 			update: false,
 			keyboardSpace: 0
@@ -64,7 +64,7 @@ export default class Visitas extends React.Component {
 						element.observation = newVisit.observation;
 						element.alert = newVisit.alert;
 						element.uuid = newVisit.uuid;
-						element.observationDate = moment().format();
+						element.observationDate = moment().format('YYYY-MM-DDTHH:mm:ssZZ');
 					}
 				});
 			} else {
@@ -170,7 +170,7 @@ export default class Visitas extends React.Component {
 				uuid: uuid(),
 				observation: '',
 				alert: false,
-				observationDate: moment().format(),
+				observationDate: moment().format('YYYY-MM-DDTHH:mm:ssZZ'),
 				}
 		})
 	}
