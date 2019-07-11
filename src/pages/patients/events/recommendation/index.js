@@ -5,6 +5,7 @@ import { RdHeader } from '../../../../components/rededor-base';
 import TextValue from '../../../../components/TextValue'
 import moment from 'moment';
 import Uuid from 'uuid/v4';
+import { toJsonDate } from '../../../../components/rededor-base';
 import data from '../../../../../data.json';
 import Modal from '../../../../components/Modal';
 
@@ -65,7 +66,7 @@ export default class Recommendation extends React.Component {
 			this.setState({
 				recommendationType: recommendationType,
 				recommendation: params.event.data,
-				performedAt: moment(), 
+				performedAt: toJsonDate(),
 				update: update
 			});
 		} else {
@@ -73,7 +74,7 @@ export default class Recommendation extends React.Component {
 				recommendationType: 'Selecione',
 				recommendation: {
 					uuid: Uuid(), 
-					performedAt: moment(), 
+					performedAt: toJsonDate(), 
 				},
 				update: update
 			});

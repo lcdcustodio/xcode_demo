@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { StyleSheet, View, Alert, ScrollView, FlatList, Keyboard } from 'react-native';
+import { toJsonDate } from '../../components/rededor-base';
 import Modal from '../../components/Modal';
 import TextValue from '../../components/TextValue';
 import moment from 'moment';
@@ -128,7 +129,7 @@ export default class Profile extends Component {
 	handlePrimaryCID = (cid) => {
 		diagnosticHypothesisList = [];
 		let diagnosticHypothesis = {
-			beginDate: moment().format('YYYY-MM-DDTHH:mm:ssZZ'),
+			beginDate: toJsonDate(),
 			endDate: null,
 			cidDisplayName: `${cid.item.code} - ${cid.item.name}`,
 			cidId: cid.item.id,
@@ -137,7 +138,7 @@ export default class Profile extends Component {
 
 		if (this.props.patient.diagnosticHypothesisList && this.props.patient.diagnosticHypothesisList.length > 0) {
 			let cidListDesc = _.orderBy(this.props.patient.diagnosticHypothesisList, ['beginDate'], ['desc']);
-			cidListDesc[0].endDate = moment().format('YYYY-MM-DDTHH:mm:ssZZ');
+			cidListDesc[0].endDate = toJsonDate();
 			this.checkEndDate(cidListDesc);
 
 			if (!this.hasCidItem(cidListDesc, diagnosticHypothesis)) {
@@ -218,7 +219,7 @@ export default class Profile extends Component {
 	checkEndDate(cidList) {
 		for (var i = 0; i < cidList.length; i++) {
 			if (cidList[i].endDate === null) {
-				cidList[i].endDate = moment().format('YYYY-MM-DDTHH:mm:ssZZ');
+				cidList[i].endDate = toJsonDate();
 			}
 		}
 	}

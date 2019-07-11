@@ -1,5 +1,6 @@
 import React from 'react';
 import { ScrollView, View, FlatList, Alert, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import { toJsonDate } from '../../../components/rededor-base';
 import baseStyles from '../../../styles'
 import styles from './style'
 import moment from 'moment';
@@ -26,7 +27,7 @@ export default class Visitas extends React.Component {
 				uuid: null,
 				observation: '',
 				alert: false,
-				observationDate: moment().format('YYYY-MM-DDTHH:mm:ssZZ'),
+				observationDate: toJsonDate(),
 			},
 			update: false,
 			keyboardSpace: 0
@@ -64,7 +65,7 @@ export default class Visitas extends React.Component {
 						element.observation = newVisit.observation;
 						element.alert = newVisit.alert;
 						element.uuid = newVisit.uuid;
-						element.observationDate = moment().format('YYYY-MM-DDTHH:mm:ssZZ');
+						element.observationDate = toJsonDate();
 					}
 				});
 			} else {
@@ -170,7 +171,7 @@ export default class Visitas extends React.Component {
 				uuid: uuid(),
 				observation: '',
 				alert: false,
-				observationDate: moment().format('YYYY-MM-DDTHH:mm:ssZZ'),
+				observationDate: toJsonDate(),
 				}
 		})
 	}
