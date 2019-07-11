@@ -5,7 +5,7 @@ import { Button} from 'react-native-paper';
 import baseStyles from '../../../styles';
 import TimelineEvent, { TimelineEventEnum, TimelineEventEvaluation, timelineEventSorter } from '../../../util/TimelineEvent'
 import moment from 'moment';
-import _ from 'lodash'
+import _ from 'lodash';
 import { RdIf } from '../../../components/rededor-base'
 import Patient, { StatusVisitEnum } from '../../../model/Patient'
 
@@ -57,12 +57,15 @@ export default class Events extends Component {
 		this._pushEvents(events, patient.furtherOpinionList, this._createFurtherOpinion);
 		this._pushEvents(events, patient.medicalProceduresList, this._createMedicalProcedure);
 		this._pushEvents(events, patient.medicineUsageList, this._createMedicineUsage);
-		events.sort(timelineEventSorter);
+		events = _.orderBy(events, ['time'], ['desc']);
+
 		return events;
 	}
 
 	_pushEvents = (destination, source, formatter) => {
-		source.forEach((jsonItem) => { destination.push(formatter(jsonItem)) });
+		source.forEach((jsonItem) => { 
+			destination.push(formatter(jsonItem)) 
+		});
 	}
 
 	_pushRecommendation = (destination, source, name) => {
@@ -70,7 +73,7 @@ export default class Events extends Component {
 			destination.push(new TimelineEvent(
 				TimelineEventEnum.Recommendation,
 				source,
-				moment(source.performedAt).toDate(),
+				(json.performedAt ? moment(json.performedAt).toDate() : 'Não Informado' ), 
 				'Recomendação para alta',
 				name + (source.specialtyDisplayName ? (': ' + source.specialtyDisplayName) : ''),
 				source.observation,
@@ -81,11 +84,11 @@ export default class Events extends Component {
 	}
 
 	_createExamRequest = (json) => new TimelineEvent(
-		TimelineEventEnum.ExamRequest,
-		json,
-		moment(json.performedAt).toDate(),
-		'Exame',
-		json.examDisplayName,
+		TimelineEventEnum.ExamRequest, 
+		json, 
+		(json.performedAt ? moment(json.performedAt).toDate() : 'Não Realizado' ), 
+		'Exame', 
+		json.examDisplayName, 
 		(json.examHighCost ? 'Alto Custo' : null),
 		this._createEvaluation(json.costEvaluation),
 		this._createEvaluation(json.qualityEvaluation),
@@ -94,7 +97,7 @@ export default class Events extends Component {
 	_createFurtherOpinion = (json) => new TimelineEvent(
 		TimelineEventEnum.FurtherOpinion,
 		json,
-		moment(json.performedAt).toDate(),
+		(json.performedAt ? moment(json.performedAt).toDate() : 'Não Informado' ), 
 		'Parecer',
 		json.specialtyDisplayName,
 		null,
@@ -105,7 +108,7 @@ export default class Events extends Component {
 	_createMedicalProcedure = (json) => new TimelineEvent(
 		TimelineEventEnum.MedicalProcedure,
 		json,
-		moment(json.performedAt).toDate(),
+		(json.performedAt ? moment(json.performedAt).toDate() : 'Não Realizado' ), 
 		'Procedimento',
 		json.tussDisplayName,
 		null,
@@ -116,7 +119,7 @@ export default class Events extends Component {
 	_createMedicineUsage = (json) => new TimelineEvent(
 		TimelineEventEnum.MedicineUsage,
 		json,
-		moment(json.performedAt).toDate(),
+		(json.performedAt ? moment(json.performedAt).toDate() : 'Não Informado' ),
 		'Medicamento',
 		json.medicineDisplayName,
 		null,
@@ -195,7 +198,11 @@ export default class Events extends Component {
 					<Text style={{ fontSize: 16, fontWeight: 'bold'}}>{eventInfo.type}</Text>
 				</Left>
 				<Right>
-					<Text>{moment(eventInfo.time).format('DD/MM/YYYY')}</Text>
+					<Text>
+					{
+						eventInfo.time !== 'Não Informado' ? moment(eventInfo.time).format('DD/MM/YYYY') : eventInfo.time
+					}
+					</Text>
 				</Right>
 			</CardItem>
 			<CardItem bordered>

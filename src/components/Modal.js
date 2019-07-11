@@ -25,7 +25,7 @@ export default class ModalPrimaryCID extends Component {
     }
 
     select = (element) => {
-        this.setState({ query: '' });
+        this.setState({ query: '', list: this.props.list});
         this.props.onSelect(element);
     }
 
