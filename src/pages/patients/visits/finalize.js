@@ -22,7 +22,10 @@ export default class Finalize extends Component {
 	constructor(props) {
 		super(props);
 		this.state = { 
-			patient: null,
+			patient: {
+				complementaryInfoHospitalizationAPI: {},
+				previousHospitalizations: []
+			},
 			cid: data.cid,
 			specialty: data.specialty,
 			modalExitCID: false,
@@ -701,7 +704,6 @@ export default class Finalize extends Component {
 	render() {
 		const { patient } = this.state;
 
-		if (!patient) return null;
 		return (
 			<Container>
 				<RdHeader title={ patient.death ? 'Óbito' : 'Alta' } goBack={ this._goBack } style={ styles.header }/>
@@ -711,14 +713,14 @@ export default class Finalize extends Component {
 				<Content padder style={ styles.body }>
 					<Card elevation={10} style={ styles.card }>
 						<Card.Content>
-							<FormItem label='CID de Entrada' value={patient.diagnosticHypothesisList[0].cidDisplayName}/>
+							<FormItem label='CID de Entrada' value={patient.diagnosticHypothesisList ? patient.diagnosticHypothesisList[0].cidDisplayName : ''}/>
 							<FormItem label='CID de Saída' value={this.state.patient.exitCID ? this.state.patient.exitCID.cidDisplayName : 'ESCOLHER'} onPress={ () => {this.toggleModal('modalExitCID')} }/>
 						</Card.Content>
 					</Card>
 
 					<RdIf condition={!patient.death}>
 						<RecommendationCardToggle 
-							number='1' title='Risco de Reinternação' subtitle={patient.complementaryInfoHospitalizationAPI.result}
+							number='1' title='Risco de Reinternação' subtitle={patient.complementaryInfoHospitalizationAPI ? patient.complementaryInfoHospitalizationAPI.result : ''}
 							visible={this.state.accordionComplementaryInfoHospitalizationAPI} 
 							onPress={ () => {this.toggleAccordion('accordionComplementaryInfoHospitalizationAPI')} }> 
 								{this.renderAccordionComplementaryInfoHospitalizationAPI()}
