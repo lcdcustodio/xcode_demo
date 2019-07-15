@@ -13,10 +13,12 @@ import _ from 'lodash';
 export default class Profile extends Component {
 
 	constructor(props) {
-		super(props);	
+		super(props);
+		const patient = this.props.navigation.getParam('patient');
+		const observations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
 		this.state = {
-			patient: this.props.navigation.getParam('patient'),
-			isEditable: this.props.isEditable,
+			patient: patient,
+			isEditable: this.props.isEditable && !(observations.length && observations[0].medicalRelease),
 			cid: data.cid,
 			auxCid: data.cid,
 			tuss: data.tuss,
@@ -59,8 +61,10 @@ export default class Profile extends Component {
 	}
 
 	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
+		const patient = this.props.navigation.getParam('patient');
+		const observations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
 		this.setState({
-			isEditable: this.props.isEditable,
+			isEditable: this.props.isEditable && !(observations.length && observations[0].medicalRelease),
 			patient: this.props.navigation.getParam('patient')
 		});
 	});
