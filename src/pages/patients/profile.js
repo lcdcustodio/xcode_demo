@@ -126,6 +126,11 @@ export default class Profile extends Component {
 		this.toggleModal('modalCRM');
 	}
 
+	closeCRM = () => {
+		this.setState({ crmTMP: this.state.patient.mainProcedureCRM });
+		this.toggleModal('modalCRM');
+	}
+
 	handlePrimaryCID = (cid) => {
 		diagnosticHypothesisList = [];
 		let diagnosticHypothesis = {
@@ -355,7 +360,7 @@ export default class Profile extends Component {
 							<Divider />
 
 							<Dialog.Actions>
-								<Button onPress={ () => { this.toggleModal('modalCRM') } }>Fechar</Button>
+								<Button onPress={ () => { this.closeCRM() } }>Fechar</Button>
 								<Button onPress={ () => { this.saveCRM() } }>Salvar</Button>
 							</Dialog.Actions>
 
