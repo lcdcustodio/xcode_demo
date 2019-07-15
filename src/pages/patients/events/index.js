@@ -86,7 +86,7 @@ export default class Events extends Component {
 	_createExamRequest = (json) => new TimelineEvent(
 		TimelineEventEnum.ExamRequest, 
 		json, 
-		(json.performedAt ? toJsonDate(json.performedAt) : 'Não Realizado' ), 
+		(json.performedAt ? toJsonDate(json.performedAt) : 'Pendente' ), 
 		'Exame', 
 		json.examDisplayName, 
 		(json.examHighCost ? 'Alto Custo' : null),
@@ -97,7 +97,7 @@ export default class Events extends Component {
 	_createFurtherOpinion = (json) => new TimelineEvent(
 		TimelineEventEnum.FurtherOpinion,
 		json,
-		(json.performedAt ? toJsonDate(json.performedAt) : 'Não Informado' ), 
+		(json.performedAt ? toJsonDate(json.performedAt) : 'Pendente' ), 
 		'Parecer',
 		json.specialtyDisplayName,
 		null,
@@ -108,7 +108,7 @@ export default class Events extends Component {
 	_createMedicalProcedure = (json) => new TimelineEvent(
 		TimelineEventEnum.MedicalProcedure,
 		json,
-		(json.performedAt ? toJsonDate(json.performedAt) : 'Não Realizado' ), 
+		(json.performedAt ? toJsonDate(json.performedAt) : 'Pendente' ), 
 		'Procedimento',
 		json.tussDisplayName,
 		null,
@@ -119,7 +119,7 @@ export default class Events extends Component {
 	_createMedicineUsage = (json) => new TimelineEvent(
 		TimelineEventEnum.MedicineUsage,
 		json,
-		(json.performedAt ? toJsonDate(json.performedAt) : 'Não Informado' ),
+		(json.performedAt ? toJsonDate(json.performedAt) : 'Pendente' ),
 		'Medicamento',
 		json.medicineDisplayName,
 		null,
