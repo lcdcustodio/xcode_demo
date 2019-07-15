@@ -158,6 +158,16 @@ export default class Hospital extends Component {
 		return totalPatients;
 	}
 
+	getPatient(id) {
+		let patient = null;
+		this.state.allPatients.map((item) => {
+			if(item.id === id) {
+				patient = item;
+			}
+		});
+		return patient;
+	}
+
 	parseObject(json) {
 
 		let parse = {};
@@ -176,6 +186,7 @@ export default class Hospital extends Component {
 				else
 				{
 					parse[json[i].id] = json[i];
+					parse.patient = this.getPatient(json[i].id);
 				}
 			}
 		}
@@ -185,6 +196,19 @@ export default class Hospital extends Component {
 			if (!aux.hasOwnProperty('secondaryCIDList')) {
 				aux.secondaryCIDList = null;
 			}
+
+			if (!aux.hasOwnProperty('recommendationClinicalIndication')) {
+				aux.recommendationClinicalIndication = parse.patient.recommendationClinicalIndication;
+			}
+
+			if (!aux.hasOwnProperty('recommendationMedicineReintegration')) {
+				aux.recommendationMedicineReintegration = parse.patient.recommendationMedicineReintegration;
+			}
+
+			if (!aux.hasOwnProperty('recommendationWelcomeHomeIndication')) {
+				aux.recommendationWelcomeHomeIndication = parse.patient.recommendationWelcomeHomeIndication;
+			}
+
 			return aux;
 		});
 
