@@ -94,7 +94,7 @@ export default class Finalize extends Component {
 			Alert.alert('Atenção', "É necessário selecionar um CID de Saída.", [{text:'OK',onPress:()=>{}}],{cancelable:false});
 			return;
 		}
-		if (patient.recommendationClinicalIndication && !patient.specialty) {
+		if (patient.clinicalIndication && patient.clinicalIndication.indicated === true && !patient.clinicalIndication.specialtyId) {
 			Alert.alert('Atenção', "É necessário selecionar uma especialidade.", [{text:'OK',onPress:()=>{}}],{cancelable:false});
 			return;
 		}
