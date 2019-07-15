@@ -674,7 +674,7 @@ export default class Report extends Component {
 	}
 
 	renderFilterHospital() {
-		let height = Platform.OS === 'ios' ? 88 : 44;
+		let height = Platform.OS === 'ios' ? 132 : 44;
 
 		if (Session.current.user && Session.current.user.profile !== 'CONSULTANT') {
 			return (
