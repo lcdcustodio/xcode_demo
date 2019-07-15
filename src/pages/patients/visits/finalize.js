@@ -94,7 +94,7 @@ export default class Finalize extends Component {
 			Alert.alert('Atenção', "É necessário selecionar um CID de Saída.", [{text:'OK',onPress:()=>{}}],{cancelable:false});
 			return;
 		}
-		if (patient.recommendationClinicalIndication && !patient.specialty) {
+		if (patient.clinicalIndication && patient.clinicalIndication.indicated === true && !patient.clinicalIndication.specialtyId) {
 			Alert.alert('Atenção', "É necessário selecionar uma especialidade.", [{text:'OK',onPress:()=>{}}],{cancelable:false});
 			return;
 		}
@@ -348,7 +348,6 @@ export default class Finalize extends Component {
 
 		if (patient.complementaryInfoHospitalizationAPI.hospitalizationsInTwelveMonths !== null && 
 			(patient.complementaryInfoHospitalizationAPI.hospitalizationsInTwelveMonths >= 2 && patient.complementaryInfoHospitalizationAPI.hospitalizationsInTwelveMonths <= 5) ) {
-				console.log("entrou no 2 a 5 internacoes");
 			return 2
 		} 
 
@@ -403,7 +402,6 @@ export default class Finalize extends Component {
 	calculateBrittlenessIndex(patient) {
 		let brittlenessIndex = '';
 		if (patient.typePatient === SENIORS_PATIENT) {
-			console.log("patient.morbidityComorbityList => ", patient.morbidityComorbityList);
 			if (patient.morbidityComorbityList.length > 0 && patient.morbidityComorbityList.length <= 2) {
 				brittlenessIndex = 'Pré-frágil'
 			} else if(patient.morbidityComorbityList.length > 2) {
@@ -501,7 +499,6 @@ export default class Finalize extends Component {
 	}
 
 	renderAccordionComplementaryInfoHospitalizationAPI() {
-		console.log("paciente nulo? ", this.state.patient)
 		return (
 			<View style={{marginLeft: '-22%'}}>
 				<ListItem>

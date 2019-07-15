@@ -160,6 +160,7 @@ export default class Visitas extends React.Component {
 	}
 
 	toggleModal = _ => {
+
 	    this.setState({modalVisible: !this.state.modalVisible})
 	}
 
@@ -216,17 +217,19 @@ export default class Visitas extends React.Component {
 		const observations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
 		const lastObservation = observations.length ? observations[0] : null;
 		const hasMedicalRelease = (lastObservation && lastObservation.medicalRelease);
+		const isEdit = this.state.isEditable && !hasMedicalRelease;
+		const onPress =  isEdit ? (_=>this.showVisit(item)) : null;
 		if(item.uuid) {
 
 			return (
 				
-				<TouchableWithoutFeedback onPress={_=>this.showVisit(item)}>
+				<TouchableWithoutFeedback onPress={onPress}>
 
 					<View style={{ paddingTop: 10, paddingLeft: 10, paddingRight: 10, backgroundColor: baseStyles.container.backgroundColor}}>
 						<Card>
 							<CardItem header bordered style={{ flex: 1, backgroundColor: '#cce5ff', height: 60}}>
 								<Left>
-									<Text style={{ fontSize: 16, fontWeight: 'bold'}}>Visita {this.showIconEdit(this.isToday(item.observationDate))}</Text>
+									<Text style={{ fontSize: 16, fontWeight: 'bold'}}>Visita {isEdit && this.showIconEdit(this.isToday(item.observationDate))}</Text>
 								</Left>
 								<Right>
 									<Text>{this.isToday(item.observationDate) ? 'Hoje' : moment(item.observationDate).format('DD/MM/YYYY')}</Text>

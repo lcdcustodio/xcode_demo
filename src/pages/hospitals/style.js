@@ -64,9 +64,9 @@ export default StyleSheet.create({
   },
   onePicker: {
     width: '100%',
-    height: Platform.OS === 'ios' ? 88 : 44
+    height: Platform.OS === 'ios' ? 132 : 44
   },
   onePickerItem: {
-    height: Platform.OS === 'ios' ? 88 : 44
+    height: Platform.OS === 'ios' ? 132 : 44
   }
 });

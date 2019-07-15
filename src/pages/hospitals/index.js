@@ -193,6 +193,11 @@ export default class Hospital extends Component {
 		
 		var result = Object.keys(parse).map(function(key) {
 			let aux = parse[key];
+
+			if (!aux.hasOwnProperty('diagnosticHypothesisList')) {
+				aux.diagnosticHypothesisList = null;
+			}
+
 			if (!aux.hasOwnProperty('secondaryCIDList')) {
 				aux.secondaryCIDList = null;
 			}
@@ -207,6 +212,10 @@ export default class Hospital extends Component {
 
 			if (!aux.hasOwnProperty('recommendationWelcomeHomeIndication')) {
 				aux.recommendationWelcomeHomeIndication = parse.patient.recommendationWelcomeHomeIndication;
+			}
+
+			if (aux.hasOwnProperty('patientHeight')) {
+				aux.patientHeight = aux.patientHeight.toString().replace(',', '.');
 			}
 
 			return aux;
