@@ -40,7 +40,7 @@ export default class Profile extends Component {
 				{key: 1, value: 'CLINICAL', label: 'CLÍNICO'},
 				{key: 2, value: 'SURGICAL', label: 'CIRÚRGICO'}
 			],
-			patientHeightTMP: this.props.navigation.getParam('patient').patientHeight,
+			patientHeightTMP: Number(this.props.navigation.getParam('patient').patientHeight ? this.props.navigation.getParam('patient').patientHeight.toString().replace(',', '.') : '').toFixed(2),
 			patientWeightTMP: this.props.navigation.getParam('patient').patientWeight,
 			crmTMP: this.props.navigation.getParam('patient').mainProcedureCRM,
 			keyboardSpace: 0
@@ -260,6 +260,8 @@ export default class Profile extends Component {
 	}
 	
 	renderModalSelected() {
+		console.log("altura -> ", this.state.patientHeightTMP)
+
 		switch (this.state.modalSelected) {
 			case 'HeightAndWeight':
 				return (
@@ -268,7 +270,7 @@ export default class Profile extends Component {
 							<Dialog.Title>Altura (m) e Peso (Kg)</Dialog.Title>
 							
 							<Dialog.Content>
-								<TextInput mode='outlined' maxLength={4} keyboardType='numeric' label='Altura' value={this.state.patientHeightTMP ? this.state.patientHeightTMP.toString() : this.state.patientHeightTMP} onChangeText={height => { this.handleHeight(height) }}/>
+								<TextInput mode='outlined' maxLength={4} keyboardType='numeric' label='Altura' value={ (this.state.patientHeightTMP && this.state.patientHeightTMP != 0.00) ? this.state.patientHeightTMP.toString().replace('.', ',') : ''} onChangeText={height => { this.handleHeight(height) }}/>
 
 								<Text> {'\n'} </Text>								
 
@@ -384,16 +386,15 @@ export default class Profile extends Component {
 	}
 
 	renderHeightAndWeight() {
-
-			console.log(this.props.patient.patientHeight);
-			console.log(this.props.patient.patientWeight);
+		let patientHeight = Number(this.props.patient.patientHeight ? this.props.patient.patientHeight.toString().replace(',', '.') : '').toFixed(2);
+		patientHeight = patientHeight.toString().replace('.', ',');
 			
 		return (
 
 			this.state.isEditable ?
-				<TextValue color={'#0000FF'} value={ this.props.patient.patientHeight && this.props.patient.patientWeight ? `${this.props.patient.patientHeight}m / ${this.props.patient.patientWeight}kg` : 'INFORMAR' } press={ () => { this.setState({modalSelected: 'HeightAndWeight', modalHeightAndWeight: true}) }}/>
+				<TextValue color={'#0000FF'} value={ patientHeight && this.props.patient.patientWeight ? `${patientHeight}m / ${this.props.patient.patientWeight}kg` : 'INFORMAR' } press={ () => { this.setState({modalSelected: 'HeightAndWeight', modalHeightAndWeight: true}) }}/>
 			:
-				<TextValue value={ this.props.patient.patientHeight && this.props.patient.patientWeight ? `${this.props.patient.patientHeight}m / ${this.props.patient.patientWeight}kg` : 'NÃO INFORMADO' } />
+				<TextValue value={ patientHeight && this.props.patient.patientWeight ? `${patientHeight}m / ${this.props.patient.patientWeight}kg` : 'NÃO INFORMADO' } />
 		);
 	}
 
