@@ -15,6 +15,7 @@ import { DataTable } from 'react-native-paper';
 import { RdRootHeader } from '../../components/rededor-base';
 import type { ViewStyleProp } from 'react-native/Libraries/StyleSheet/StyleSheet';
 import Patient from '../../model/Patient';
+import RNPickerSelect, { inputIOS } from 'react-native-picker-select';
 
 export default class Report extends Component {
 
@@ -48,7 +49,17 @@ export default class Report extends Component {
 			REGIONAL_SP: [],
 			REGIONAL_PE: [142, 141, 143, 144],
 			selectedRegionalHospital: '',
-			hospitalList: null
+			hospitalList: null,
+			regions: [
+				{
+				  label: 'Rio de Janeiro',
+				  value: 'RJ',
+				},
+				{
+				  label: 'Pernambuco',
+				  value: 'PE',
+				},
+			]
 		}
 
 		this.setUser();
@@ -674,17 +685,26 @@ export default class Report extends Component {
 	}
 
 	renderFilterHospital() {
-		let height = Platform.OS === 'ios' ? 132 : 44;
+		const pickerStyle = {
+			inputIOS: {
+				paddingTop: 15,
+				paddingHorizontal: 10,
+				paddingBottom: 15,
+			},
+			underline: { borderTopWidth: 0 }
+		};
 
 		if (Session.current.user && Session.current.user.profile !== 'CONSULTANT') {
 			return (
-				<Picker selectedValue={this.state.selectedRegionalHospital} mode="dropdown" 
-					style={{width: '100%', height: height }} itemStyle={{height: height}}
-					onValueChange={regional => { this.filterHospitals(regional) }}> 
-					<Picker.Item label="Todas as regionais" value="ALL" />
-					<Picker.Item label="Rio de Janeiro" value="RJ" />
-					<Picker.Item label="Pernambuco" value="PE" />
-				</Picker>
+				<RNPickerSelect
+					items={this.state.regions}
+					doneText="OK"
+					InputAccessoryView={() => null}
+					placeholder={{label: 'Todas as Regionais', value: 'ALL'}}
+					onValueChange={regional => { this.filterHospitals(regional) }}
+					value={this.state.selectedRegionalHospital}
+					style={pickerStyle}
+				/>
 			);
 		}
 	}
