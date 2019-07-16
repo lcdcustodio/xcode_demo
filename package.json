@@ -26,6 +26,7 @@
     "react-native-linear-gradient": "^2.5.4",
     "react-native-loading-spinner-overlay": "^1.0.1",
     "react-native-paper": "^2.16.0",
+    "react-native-picker-select": "^6.3.0",
     "react-native-screens": "^1.0.0-alpha.22",
     "react-native-text-input-mask": "^1.0.1",
     "react-native-ui-kitten": "^4.0.1",
