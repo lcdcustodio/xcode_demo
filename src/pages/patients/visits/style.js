@@ -123,7 +123,6 @@ export default StyleSheet.create({
 	dialogScrollView: {
         marginTop: 20, 
         marginLeft: -18, 
-		marginRight: -18,
-		height: 160 
+		marginRight: -18
     }
 });
