@@ -70,15 +70,6 @@ export default class SignIn extends Component {
 		
 		});
     }
-	
-	getBaseDataSync = async () => {
-		return await api.get('/api/basedata/baseDataSync?lastDateSync=' + this.state.lastDateSync).then(res => {
-			return res.data.content.data
-		}).catch(err => {
-			this.setState({loading: false});
-			console.log("SignIn.getBaseDataSync => Error => ", err)
-		});
-	}
 
 	handleEmailChange = (email) => {
 		this.setState({ error: '' }, () => false);
@@ -107,12 +98,15 @@ export default class SignIn extends Component {
 
 			const data = qs.stringify(params, { encode: false });
 
+			console.log(data);
+			console.log(JSON.stringify(params));
+
 			api.post('/api/login',
 				data
 			)
 			.then(response => {
 
-				console.log(response);
+				console.log(JSON.stringify(response));
 
 				if (response == undefined) {
 
@@ -123,9 +117,7 @@ export default class SignIn extends Component {
 						'Desculpe, recebemos um erro inesperado do servidor, por favor tente novamente! ',
 						[
 							{
-								text: 'OK', onPress: () => {
-									console.log('ok');
-								}
+								text: 'OK', onPress: () => {}
 							},
 						],
 						{
@@ -138,23 +130,15 @@ export default class SignIn extends Component {
 					AsyncStorage.removeItem('hospitalList');
 
 					let content = response.data.content;
-
-					console.log(content);
 					
 					Session.current.user = new User(content.name, content.profile);
 					
 					if(response && response.data.success) {
 
-						//this.setState({ textContent: 'Sincronizando...' });
-
 						AsyncStorage.multiSet([
 						    ["auth", JSON.stringify(params)],
 						    ["userData", JSON.stringify(content)]
 						], async() => {
-
-							//let baseDataSync = await this.getBaseDataSync();
-
-							//console.log(JSON.stringify(baseDataSync));
 
 							this.setState({loading: false});
 
@@ -168,14 +152,10 @@ export default class SignIn extends Component {
 			        }	
 		        }	
 
-		        console.log(response);
-
 			}).catch(error => {
 				
 				this.setState({loading: false});
-				
-				console.log(error);
-				
+								
 				if(error.response.status == 401) {
 					this.setState({ error: 'Usuário e senha não coincidem' }, () => false);
 				} else if(error.response.status == 500) {
