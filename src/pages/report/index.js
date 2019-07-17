@@ -138,14 +138,10 @@ export default class Report extends Component {
 		            	Session.current.user = parse;
 		            }
 
-					console.log(Session.current.user);
-
 		            this.state.token = parse.token;
 					
 					AsyncStorage.getItem('hospitalizationList', (err, res) => {
 						
-						console.log(res);
-
 						let obj = [];
 
 						if (res != null) {
@@ -173,8 +169,6 @@ export default class Report extends Component {
 						}
 
 						let data = { "hospitalizationList": [] };
-
-						console.log(data);
 					
 						api.post('/api/v2.0/sync', data, 
 						{
@@ -189,8 +183,6 @@ export default class Report extends Component {
 							this.setRequireSyncTimer(null);
 
 							this.setState({loading: false});
-
-							console.log(response);
 
 							if (response == undefined) {
 
@@ -263,8 +255,6 @@ export default class Report extends Component {
 											cancelable: false
 										},
 									);
-
-									console.log(response);
 								}
 							}
 						
@@ -277,8 +267,6 @@ export default class Report extends Component {
 							if (this.state.errorSync <= 3) {
 
 								AsyncStorage.getItem('auth', (err, auth) => {
-
-									console.log(auth);
 							            
 						            data = JSON.parse(auth);
 
@@ -296,8 +284,6 @@ export default class Report extends Component {
 												this.sincronizar(true);
 											});
 										}
-
-										console.log(response);
 									});
 						        });
 							}
@@ -318,20 +304,13 @@ export default class Report extends Component {
 									},
 								);
 							}
-
-							console.log(error);
-
 						});
-
 					});
 				}
 			});
 
         } catch(error) {
-
         	this.setState({loading: false});
-
-            console.log(error);
         }        		
 	};
 
@@ -594,8 +573,6 @@ export default class Report extends Component {
 
 		const { isConnected } = this.state;
 
-		console.log('isConnected', isConnected);
-
 		if (fromServer) {
 
 			if (isConnected) 
@@ -609,9 +586,7 @@ export default class Report extends Component {
 					'Desculpe, não identificamos uma conexão estável com a internet!',
 					[
 						{
-							text: 'OK', onPress: () => {
-								console.log('OK Pressed');
-							}
+							text: 'OK', onPress: () => {}
 						},
 					],
 					{
@@ -644,8 +619,6 @@ export default class Report extends Component {
 	}
 
 	setRequireSyncTimer(timer){
-
-		console.log(timer);
 
 		let today =  moment().format('YYYY-MM-DD');
 

@@ -87,7 +87,7 @@ export default class SignIn extends Component {
 			this.setState({ error: 'Por favor, preencha todos os campos' }, () => false);
 		} else {
 			
-			this.setState({ textContent: 'Aguarde...' });
+			this.setState({ textContent: 'Aguarde' });
 
 			this.setState({loading: true});
 			
@@ -97,9 +97,6 @@ export default class SignIn extends Component {
 			};
 
 			const data = qs.stringify(params, { encode: false });
-
-			console.log(data);
-			console.log(JSON.stringify(params));
 
 			api.post('/api/login',
 				data

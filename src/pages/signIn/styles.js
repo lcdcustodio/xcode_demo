@@ -14,7 +14,6 @@ const Logo = styled.Image`
 const Input = styled.TextInput`
   width: 300px;
   height: 52px;
-  opacity: 0.6px;
   borderRadius: 5px;
   backgroundColor: "rgba(255, 255, 255, 0.3)";
   fontSize: 16px;

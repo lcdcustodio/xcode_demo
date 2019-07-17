@@ -64,7 +64,6 @@ export default class SignIn extends Component {
 			return res.data.content.data
 		}).catch(err => {
 			this.setState({loading: false});
-			console.log("SignIn.getBaseDataSync => Error => ", err)
 		});
 	}
 
@@ -105,18 +104,12 @@ export default class SignIn extends Component {
 
 			const react = this;
 
-			console.log(react);
-
 			xhr.onload = function () {
 
 				let response = JSON.parse(xhr.response);
 
 				content = response.content;
 
-				console.log(response);
-				
-				console.log(content);
-				
 				if(content && response.success) {
 					
 					Session.current.user = new User(content.name, content.profile);
@@ -141,9 +134,7 @@ export default class SignIn extends Component {
 		    };
 
 			xhr.onerror = function () {
-				
-				console.log(xhr._response);
-				
+								
 				react.setState({loading: false});
 				
 				if(xhr.status == 401) 
@@ -161,8 +152,6 @@ export default class SignIn extends Component {
 			};
 
 			xhr.send(formdata);
-
-			console.log(xhr);
 		} 
 	};
 

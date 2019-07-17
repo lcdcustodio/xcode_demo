@@ -85,8 +85,6 @@ export default class Hospital extends Component {
 		});
 
 		AsyncStorage.getItem('dateSync', (err, res) => {
-
-			console.log(res);
 			
 			if (res !== null) {
 
@@ -263,9 +261,7 @@ export default class Hospital extends Component {
 		            this.state.token = parse.token;
 
 		            AsyncStorage.getItem('hospitalizationList', (err, res) => {
-						
-						console.log(res);
-						
+												
 						let obj = [];
 
 						if (res != null) {
@@ -284,8 +280,6 @@ export default class Hospital extends Component {
 
 						let parseObj = this.parseObject(obj);
 
-						console.log(JSON.stringify(parseObj));
-
 						let data = { "hospitalizationList": parseObj };
 						
 						api.post('/api/v2.0/sync', data, 
@@ -301,8 +295,6 @@ export default class Hospital extends Component {
 							this.setRequireSyncTimer(null);
 
 							this.setState({loading: false});
-
-							console.log(response);
 
 							if (response == undefined) {
 
@@ -379,8 +371,6 @@ export default class Hospital extends Component {
 									);
 
 									this.props.navigation.navigate("SignIn");
-
-									console.log(response);
 								}
 							}
 						
@@ -392,8 +382,6 @@ export default class Hospital extends Component {
 							if (this.state.errorSync <= 3) {
 
 								AsyncStorage.getItem('auth', (err, auth) => {
-
-									console.log(auth);
 							            
 						            data = JSON.parse(auth);
 
@@ -411,8 +399,6 @@ export default class Hospital extends Component {
 												this.sincronizar(true);
 											});
 										}
-
-										console.log(response);
 									});
 						        });
 							}
@@ -433,9 +419,6 @@ export default class Hospital extends Component {
 									},
 								);
 							}
-
-							console.log(error);
-
 						});
 
 					});
@@ -443,10 +426,7 @@ export default class Hospital extends Component {
 			});
 
         } catch(error) {
-
         	this.setState({loading: false});
-
-            console.log(error);
         }        		
 	};
 
@@ -575,10 +555,6 @@ export default class Hospital extends Component {
 					}
 					else
 					{
-						console.log(item.observationDate);
-
-						console.log(patient.hospitalName);
-
 						if (item.observationDate != null) {
 
 		            		lastVisit = moment(item.observationDate).format('YYYY-MM-DD');
@@ -597,8 +573,6 @@ export default class Hospital extends Component {
 		else
 		{
 			let visit = lastVisit;
-
-			console.log(visit);
 
 			var day = (visit.getDay() < 10 ? '0' : '') + visit.getDay();
 
@@ -648,8 +622,6 @@ export default class Hospital extends Component {
 
 		const { isConnected } = this.state;
 
-		console.log('isConnected', isConnected);
-
 		if (fromServer) {
 
 			if (isConnected) 
@@ -663,9 +635,7 @@ export default class Hospital extends Component {
 					'Desculpe, não identificamos uma conexão estável com a internet!',
 					[
 						{
-							text: 'OK', onPress: () => {
-								console.log('OK Pressed');
-							}
+							text: 'OK', onPress: () => {}
 						},
 					],
 					{
@@ -721,7 +691,7 @@ export default class Hospital extends Component {
 						'Não há pacientes neste hospital',
 						[
 							{
-								text: 'OK', onPress: () => console.log('OK Pressed')
+								text: 'OK', onPress: () => {}
 							},
 						],
 						{
@@ -776,8 +746,6 @@ export default class Hospital extends Component {
 
 	setRequireSyncTimer(timer){
 
-		console.log(timer);
-
 		let today =  moment().format('YYYY-MM-DD');
 
 		if (timer == null) 
@@ -815,8 +783,6 @@ export default class Hospital extends Component {
 					item.patientName.toUpperCase().includes(patientQuery.toUpperCase())
 				)
 			});
-
-			console.log(patientsFilteredNew);
 	
 			this.setState({
 				patientsFiltered: _.uniqBy(patientsFilteredNew, 'id'),
@@ -832,8 +798,6 @@ export default class Hospital extends Component {
 	}
 
 	renderItemPatient = (element) => {
-
-		console.log(element.item.id, element.item.patientName);
 
 		return (
 			<TouchableOpacity onPress={() => {
@@ -851,12 +815,7 @@ export default class Hospital extends Component {
 			patientQuery: null,
 			patientsFiltered: []
 		});
-		
-		console.log(patient.hospitalId);
-		console.log(patient.id);
-		console.log(patient);
-		console.log(this.state.isEditable);
-
+	
 		this.props.navigation.navigate("PatientDetail", { hospitalId: patient.hospitalId, patientId: patient.id, patient: patient, isEditable: this.state.isEditable});
 
 	}

@@ -242,9 +242,7 @@ export default class Profile extends Component {
 				{text: 'OK', onPress: () => 
 					{
 						let newCidList = this.props.patient.secondaryCIDList.filter(item => item.cidId !== cidToRemove.cidId);
-						
-						console.log(newCidList);
-
+					
 						this.props.handleUpdatePatient("secondaryCIDList", newCidList)
 					},
 				}
@@ -264,8 +262,6 @@ export default class Profile extends Component {
 	}
 	
 	renderModalSelected() {
-		console.log("altura -> ", this.state.patientHeightTMP)
-
 		switch (this.state.modalSelected) {
 			case 'HeightAndWeight':
 				return (
@@ -456,7 +452,6 @@ export default class Profile extends Component {
 					<TextValue color={'#0000FF'} value={'ESCOLHER'} press={ () => { this.setState({modalSelected: 'PrimaryCID', modalPrimaryCID: true}) }} />
 				:
 					this.props.patient.diagnosticHypothesisList.map((prop) => {
-						console.log(prop)
 						if (prop.endDate === null) {
 							return ( <TextValue color={'#0000FF'} key={prop.cidId} value={prop.cidDisplayName} press={ () => { this.setState({modalSelected: 'PrimaryCID', modalPrimaryCID: true}) }} /> )
 						}

@@ -83,9 +83,6 @@ class PatientDetail extends Component {
 			});
 
 			await AsyncStorage.setItem('hospitalizationList', JSON.stringify(hospitalizationList), () => {
-
-				console.log(hospitalizationList);
-
 				this.setState({loading: false});
 			});
 
@@ -132,8 +129,6 @@ class PatientDetail extends Component {
                     
                         if (patient.id == patientId) {
 
-                        	console.log(patient);
-
 							this.setState({patient: patient});
 							
 							AsyncStorage.setItem(`${patientId}`, JSON.stringify(patient));
@@ -141,8 +136,6 @@ class PatientDetail extends Component {
                     }
 
                     this.setState({hospital: hospital});
-
-            		console.log('SETOU', hospital);
                 }
             }
         });
@@ -212,7 +205,6 @@ class PatientDetail extends Component {
 	}
 
 	_goBack = () => {
-		console.log(this.state.patient.id, this.state.patient, this.state.hospital);
 		this.props.navigation.navigate('Patients',  {hospitalId: this.state.hospital.id});
 	}
 }
