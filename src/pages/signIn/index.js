@@ -15,8 +15,8 @@ export default class SignIn extends Component {
 		super(props);
 		this.state = { 
 			lastDateSync: '2010-01-10T18:46:19-0700',
-			email: 'consult.radix',
-			password: '*ru8u!uBus2A',
+			email: '',
+			password: '',
 			error: '',
 			textContent: '',
 			loading: false,
@@ -202,23 +202,25 @@ export default class SignIn extends Component {
 							<Text style={styles.titulo}>ACESSAR MÉDICO CONSULTOR</Text>
 							
 							<Input
+								style={styles.input}
 								placeholder="Usuário"
 								value={this.state.email}
 								onChangeText={this.handleEmailChange}
 								autoCapitalize="none"
 								autoCorrect={false}
-	              				placeholderTextColor="#FFFFFF"
+	              				placeholderTextColor="#E0FFFF"
 								textAlign="auto"
 							/>
 							
 							<Input
+								style={styles.input}
 								placeholder="Senha"
 								value={this.state.password}
 								onChangeText={this.handlePasswordChange}
 								autoCapitalize="none"
 								autoCorrect={false}
 								secureTextEntry
-								placeholderTextColor="#FFFFFF"
+								placeholderTextColor="#E0FFFF"
 								textAlign="auto"
 							/>
 							
@@ -255,4 +257,8 @@ const styles = StyleSheet.create({
 	spinnerTextStyle: {
 	    color: '#FFF'
 	},
+	input: {
+		fontSize: 18, 
+		lineHeight: 20
+	}
 });
