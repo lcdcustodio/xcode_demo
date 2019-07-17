@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Container, Content, Text, Card, CardItem } from 'native-base';
-import { Alert, View, FlatList, TouchableOpacity, Image, BackHandler, Picker } from "react-native";
+import { Alert, View, FlatList, TouchableOpacity, Image, BackHandler, Picker, Platform, StyleSheet } from "react-native";
 import { Searchbar, List } from 'react-native-paper';
 import AsyncStorage from '@react-native-community/async-storage';
 import NetInfo from "@react-native-community/netinfo";
@@ -18,6 +18,7 @@ import TextValue from '../../components/TextValue';
 import baseStyles from '../../styles';
 import styles from './style';
 import Patient from '../../model/Patient';
+import RNPickerSelect, { inputIOS } from 'react-native-picker-select';
 
 export default class Hospital extends Component {
 
@@ -49,7 +50,17 @@ export default class Hospital extends Component {
 			REGIONAL_RJ: [101, 1, 2, 3, 4, 5, 6, 7, 8, 61, 9, 41, 21],
 			REGIONAL_SP: [],
 			REGIONAL_PE: [142, 141, 143, 144],
-			selectedRegionalHospital: ''
+			selectedRegionalHospital: '',
+			regions: [
+				{
+				  label: 'Rio de Janeiro',
+				  value: 'RJ',
+				},
+				{
+				  label: 'Pernambuco',
+				  value: 'PE',
+				},
+			]
 		}
 
 		this.setUser();
@@ -888,16 +899,26 @@ export default class Hospital extends Component {
 	}
 
 	renderFilterHospital() {
+		const pickerStyle = {
+			inputIOS: {
+				paddingTop: 15,
+				paddingHorizontal: 10,
+				paddingBottom: 15,
+			},
+			underline: { borderTopWidth: 0 }
+		};
+
 		if (Session.current.user && Session.current.user.profile !== 'CONSULTANT') {
 			return (
-				<Picker selectedValue={this.state.selectedRegionalHospital} 
-					style={styles.onePicker} itemStyle={styles.onePickerItem}
-					mode="dropdown" onValueChange={regional => { this.filterHospitals(regional) }}> 
-
-					<Picker.Item label="Todas as regionais" value="ALL" />
-					<Picker.Item label="Rio de Janeiro" value="RJ" />
-					<Picker.Item label="Pernambuco" value="PE" />
-				</Picker>
+				<RNPickerSelect
+					items={this.state.regions}
+					doneText="OK"
+					InputAccessoryView={() => null}
+					placeholder={{label: 'Todas as Regionais', value: 'ALL'}}
+					onValueChange={regional => { this.filterHospitals(regional) }}
+					value={this.state.selectedRegionalHospital}
+					style={pickerStyle}
+				/>
 			);
 		}
 	}
@@ -947,4 +968,4 @@ export default class Hospital extends Component {
 			</Container>
 		);
 	}
-}
+}	

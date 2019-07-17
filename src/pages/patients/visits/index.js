@@ -212,7 +212,7 @@ export default class Visitas extends React.Component {
 		return diffDays === 0 ? true : false
 	}
 
-	renderItem = ({ item }) => {
+	renderItem = ({ item, index }) => {
 		const { patient } = this.state;
 		const observations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
 		const lastObservation = observations.length ? observations[0] : null;
@@ -221,33 +221,34 @@ export default class Visitas extends React.Component {
 		const onPress =  isEdit ? (_=>this.showVisit(item)) : null;
 		if(item.uuid) {
 
-			return (
-				
-				<TouchableWithoutFeedback onPress={onPress}>
-
-					<View style={{ paddingTop: 10, paddingLeft: 10, paddingRight: 10, backgroundColor: baseStyles.container.backgroundColor}}>
-						<Card>
-							<CardItem header bordered style={{ flex: 1, backgroundColor: '#cce5ff', height: 60}}>
-								<Left>
-									<Text style={{ fontSize: 16, fontWeight: 'bold'}}>Visita {isEdit && this.showIconEdit(this.isToday(item.observationDate))}</Text>
-								</Left>
-								<Right>
-									<Text>{this.isToday(item.observationDate) ? 'Hoje' : moment(item.observationDate).format('DD/MM/YYYY')}</Text>
-								</Right>
-							</CardItem>
-							
-							<CardItem bordered>
-								<Body>
-									<Text>
-										{item.observation}
-									</Text>
-								</Body>
-							</CardItem>
-						</Card>
-					</View>
-
-				</TouchableWithoutFeedback>
-			);
+			if (index <= 29) {
+				return (	
+					<TouchableWithoutFeedback onPress={onPress}>
+	
+						<View style={{ paddingTop: 10, paddingLeft: 10, paddingRight: 10, backgroundColor: baseStyles.container.backgroundColor}}>
+							<Card>
+								<CardItem header bordered style={{ flex: 1, backgroundColor: '#cce5ff', height: 60}}>
+									<Left>
+										<Text style={{ fontSize: 16, fontWeight: 'bold'}}>Visita {isEdit && this.showIconEdit(this.isToday(item.observationDate))}</Text>
+									</Left>
+									<Right>
+										<Text>{this.isToday(item.observationDate) ? 'Hoje' : moment(item.observationDate).format('DD/MM/YYYY')}</Text>
+									</Right>
+								</CardItem>
+								
+								<CardItem bordered>
+									<Body>
+										<Text>
+											{item.observation}
+										</Text>
+									</Body>
+								</CardItem>
+							</Card>
+						</View>
+	
+					</TouchableWithoutFeedback>
+				);
+			}
 		} else return null;
 	};
 	
@@ -333,7 +334,9 @@ export default class Visitas extends React.Component {
 							<View>
 							<Dialog.ScrollArea>
 							<ScrollView style={ styles.dialogScrollView } keyboardShouldPersistTaps='always'>
-								<TextInput style={ styles.textObservation } multiline={true} numberOfLines={6} label='Observação' value={this.state.visit.observation} onChangeText = {observation => this.addObservation(observation)} />
+								<View style={{height: 160}}>
+									<TextInput style={ styles.textObservation } multiline={true} numberOfLines={5} placeholder='Observação' value={this.state.visit.observation} onChangeText = {observation => this.addObservation(observation)} />
+								</View>
 							</ScrollView>
 							</Dialog.ScrollArea>
 							</View>	

@@ -305,7 +305,9 @@ export default class Recommendation extends React.Component {
 					<View style={styles.row}>
 						<Dialog.ScrollArea>
 							<ScrollView style={ styles.dialogScrollView } keyboardShouldPersistTaps='always'>
-								<TextInput  style={styles.textObservation} multiline={true} numberOfLines={6} label='Observação' value={this.state.recommendation.observation} onChangeText = {observation => this.addObservation(observation)} />
+								<View style={{height: 160}}>
+									<TextInput  style={styles.textObservation} multiline={true} numberOfLines={5} placeholder='Observação' value={this.state.recommendation.observation} onChangeText = {observation => this.addObservation(observation)} />
+								</View>
 							</ScrollView>
 						</Dialog.ScrollArea>
 					</View>
@@ -392,7 +394,6 @@ const styles = StyleSheet.create({
 	dialogScrollView: {
         marginTop: 20, 
         marginLeft: -18, 
-		marginRight: -18,
-		height: 160 
+		marginRight: -18
     }
 });
