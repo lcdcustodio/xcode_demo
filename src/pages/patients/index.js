@@ -102,7 +102,10 @@ export default class Patients extends Component {
 
     calculateDaysOfHospitalization(patient) {
 
-        const today = moment();
+        let today = moment();
+        if (patient.medicalExitDate) {
+            today = moment(patient.medicalExitDate);
+        }
 
         let admissionDate = moment(moment(patient.admissionDate).format('YYYY-MM-DD'));
 
