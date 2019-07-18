@@ -86,6 +86,8 @@ export default class Hospital extends Component {
 
 		AsyncStorage.getItem('dateSync', (err, res) => {
 			
+			res = JSON.parse(res);
+
 			if (res !== null) {
 
 				let today =  moment().format('DD/MM/YYYY');
@@ -348,7 +350,7 @@ export default class Hospital extends Component {
 
 										this.setState({dateSync: dateSync});
 
-										AsyncStorage.setItem('dateSync', dateSync);
+										AsyncStorage.setItem('dateSync', JSON.stringify(dateSync));
 
 										AsyncStorage.setItem('hospitalList', JSON.stringify(listHospital));						
 									});
@@ -771,7 +773,6 @@ export default class Hospital extends Component {
 
 	renderTimer(){
 		return <Timer dateSync={this.state.dateSync} timerTextColor={this.state.timerTextColor} timerBackgroundColor={this.state.timerBackgroundColor}/>;
-
 	}
 
 	filterPatients = (patientQuery) => {

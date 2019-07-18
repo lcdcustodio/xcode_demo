@@ -85,6 +85,8 @@ export default class Report extends Component {
 
 		AsyncStorage.getItem('dateSync', (err, res) => {
 			
+			res = JSON.parse(res);
+
 			if (res !== null) {
 
 				let today =  moment().format('DD/MM/YYYY');
@@ -113,6 +115,63 @@ export default class Report extends Component {
         });
 
 	});
+
+	parseObject(json) {
+
+		let parse = {};
+
+		for (var i = 0; i < json.length; i++) {
+
+			for (var attrname in json[i])
+			{	
+				if (parse.hasOwnProperty(json[i].id)) {
+					
+					if (attrname == 'id') continue;
+
+
+					parse[json[i].id][attrname] = json[i][attrname];
+				}
+				else
+				{
+					parse[json[i].id] = json[i];
+					parse.patient = this.getPatient(json[i].id);
+				}
+			}
+		}
+		
+		var result = Object.keys(parse).map(function(key) {
+			let aux = parse[key];
+
+			if (!aux.hasOwnProperty('diagnosticHypothesisList')) {
+				aux.diagnosticHypothesisList = null;
+			}
+
+			if (!aux.hasOwnProperty('secondaryCIDList')) {
+				aux.secondaryCIDList = null;
+			}
+
+			if (!aux.hasOwnProperty('recommendationClinicalIndication')) {
+				aux.recommendationClinicalIndication = parse.patient.recommendationClinicalIndication;
+			}
+
+			if (!aux.hasOwnProperty('recommendationMedicineReintegration')) {
+				aux.recommendationMedicineReintegration = parse.patient.recommendationMedicineReintegration;
+			}
+
+			if (!aux.hasOwnProperty('recommendationWelcomeHomeIndication')) {
+				aux.recommendationWelcomeHomeIndication = parse.patient.recommendationWelcomeHomeIndication;
+			}
+
+			if (aux.hasOwnProperty('patientHeight')) {
+				aux.patientHeight = aux.patientHeight.toString().replace(',', '.');
+			}
+
+			return aux;
+		});
+
+
+		return result;
+	}
 
 	loadHospitals = async () => {
 		
@@ -168,7 +227,9 @@ export default class Report extends Component {
 							}
 						}
 
-						let data = { "hospitalizationList": [] };
+						let parseObj = this.parseObject(obj);
+
+						let data = { "hospitalizationList": parseObj };
 					
 						api.post('/api/v2.0/sync', data, 
 						{
@@ -233,7 +294,7 @@ export default class Report extends Component {
 
 									this.setState({dateSync: dateSync});
 
-									AsyncStorage.setItem('dateSync', dateSync);
+									AsyncStorage.setItem('dateSync', JSON.stringify(dateSync));
 
 									AsyncStorage.setItem('hospitalList', JSON.stringify(listHospital));
 
@@ -645,7 +706,6 @@ export default class Report extends Component {
 
 	renderTimer(){
 		return <Timer dateSync={this.state.dateSync} timerTextColor={this.state.timerTextColor} timerBackgroundColor={this.state.timerBackgroundColor}/>;
-
 	}
 
 	setUser() {
