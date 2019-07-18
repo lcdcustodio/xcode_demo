@@ -51,7 +51,6 @@ export default class Sidebar extends Component {
 
 								if (item.screenToNavigate == 'SignIn') {
 									AsyncStorage.removeItem('hospitalList');
-									console.log('saiu');
 								}
 
 								this.props.navigation.closeDrawer(); this.props.navigation.navigate(item.screenToNavigate); 
@@ -71,7 +70,7 @@ export default class Sidebar extends Component {
 					</View>
 					<View style={styles.boxButton}>
 						<Image source={require('../images/logo-rededor.png')} style={styles.sideMenuLogoIcon} />
-						<Text style={{ fontSize: 15, bottom: 20, textAlign: 'right', color: '#FFF', fontWeight: "bold"}}> Versão 1.3.5 </Text>
+						<Text style={{ fontSize: 15, bottom: 20, textAlign: 'right', color: '#FFF', fontWeight: "bold"}}> Versão 1.0.0 </Text>
 					</View>
 				</View>
 			</LinearGradient>

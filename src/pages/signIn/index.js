@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Alert, StatusBar, Text, StyleSheet, ImageBackground, Keyboard } from 'react-native';
+import { StatusBar, Text, StyleSheet, ImageBackground, Keyboard } from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
 import AsyncStorage from '@react-native-community/async-storage';
 import qs from "qs";
@@ -87,6 +87,10 @@ export default class SignIn extends Component {
 			this.setState({ error: 'Por favor, preencha todos os campos' }, () => false);
 		} else {
 			
+			this.setState({ textContent: 'Aguarde...' });
+
+			this.setState({loading: true});
+			
 			const params = {
 				username: this.state.email,
 				password: this.state.password
@@ -99,55 +103,52 @@ export default class SignIn extends Component {
 			)
 			.then(response => {
 
-				if (response == undefined) {
+				if(response && response.data && response.data.success) {
 
-					Alert.alert(
-						'Erro ao carregar informações',
-						'Desculpe, recebemos um erro inesperado do servidor, por favor tente novamente! ',
-						[
-							{
-								text: 'OK', onPress: () => {}
-							},
-						],
-						{
-							cancelable: false
-						},
-					);
-				}
-				else
-				{
-					if(response && response.data && response.data.success) {
+					AsyncStorage.removeItem('hospitalList');
 
-						AsyncStorage.removeItem('hospitalList');
-
-						let content = response.data.content;
-						
-						Session.current.user = new User(content.name, content.profile);
-
-						AsyncStorage.multiSet([
-						    ["auth", JSON.stringify(params)],
-						    ["userData", JSON.stringify(content)]
-						], async() => {
-
-							this.props.navigation.navigate("Hospitals");
+					let content = response.data.content;
 					
-				        });	
-			        }
-			        else
-			        {
-						this.setState({ error: 'O servidor de aplicação retornou um resultado inesperado, por favor, tente novamente.' }, () => false);
-			        }	
+					Session.current.user = new User(content.name, content.profile);
+
+					AsyncStorage.multiSet([
+					    ["auth", JSON.stringify(params)],
+					    ["userData", JSON.stringify(content)]
+					], async() => {
+
+						this.setState({loading: false});
+
+						this.setState({ error: '' }, () => false);
+
+						this.props.navigation.navigate("Hospitals");
+				
+			        });	
+		        }	
+		        else
+		        {	    	
+					this.setState({loading: false});
+
+					this.setState({ error: 'O servidor de aplicação retornou um resultado inesperado, por favor, tente novamente' }, () => false);
 		        }	
 
 			}).catch(error => {
-												
-				if(error.response.status == 401) {
-					this.setState({ error: 'Usuário e senha não coincidem' }, () => false);
-				} else if(error.response.status == 500) {
-					this.setState({ error: 'O servidor de aplicação retornou um erro, por favor, tente novamente.' }, () => false);
-				} else {
-					this.setState({ error: 'Falha na comunicação com o servidor de aplicação, por favor, tente novamente.' }, () => false);
-				}
+				
+				this.setState({loading: false});
+
+				if (error && error.response && error.response.error) {
+
+					if(error.response.status == 401) {
+						this.setState({ error: 'Usuário e senha não coincidem' }, () => false);
+					} else if(error.response.status == 500) {
+						this.setState({ error: 'Falha na comunicação com o servidor de aplicação' }, () => false);
+					} else {
+						this.setState({ error: error.message }, () => false);
+					}
+				}	
+				else
+				{
+					this.setState({ error: error.message }, () => false);
+				}		
 			});
 		} 
 	};
