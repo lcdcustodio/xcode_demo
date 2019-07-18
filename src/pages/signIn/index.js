@@ -87,10 +87,6 @@ export default class SignIn extends Component {
 			this.setState({ error: 'Por favor, preencha todos os campos' }, () => false);
 		} else {
 			
-			this.setState({ textContent: 'Aguarde' });
-
-			this.setState({loading: true});
-			
 			const params = {
 				username: this.state.email,
 				password: this.state.password
@@ -103,11 +99,7 @@ export default class SignIn extends Component {
 			)
 			.then(response => {
 
-				console.log(JSON.stringify(response));
-
 				if (response == undefined) {
-
-					this.setState({loading: false});
 
 					Alert.alert(
 						'Erro ao carregar informações',
@@ -124,39 +116,37 @@ export default class SignIn extends Component {
 				}
 				else
 				{
-					AsyncStorage.removeItem('hospitalList');
+					if(response && response.data && response.data.success) {
 
-					let content = response.data.content;
-					
-					Session.current.user = new User(content.name, content.profile);
-					
-					if(response && response.data.success) {
+						AsyncStorage.removeItem('hospitalList');
+
+						let content = response.data.content;
+						
+						Session.current.user = new User(content.name, content.profile);
 
 						AsyncStorage.multiSet([
 						    ["auth", JSON.stringify(params)],
 						    ["userData", JSON.stringify(content)]
 						], async() => {
 
-							this.setState({loading: false});
-
 							this.props.navigation.navigate("Hospitals");
 					
 				        });	
-			        }	
+			        }
 			        else
-			        {		    	
-						this.setState({loading: false});
+			        {
+						this.setState({ error: 'O servidor de aplicação retornou um resultado inesperado, por favor, tente novamente.' }, () => false);
 			        }	
 		        }	
 
 			}).catch(error => {
-				
-				this.setState({loading: false});
-								
+												
 				if(error.response.status == 401) {
 					this.setState({ error: 'Usuário e senha não coincidem' }, () => false);
 				} else if(error.response.status == 500) {
-					this.setState({ error: 'Falha na comunicação com o servidor de aplicação' }, () => false);
+					this.setState({ error: 'O servidor de aplicação retornou um erro, por favor, tente novamente.' }, () => false);
+				} else {
+					this.setState({ error: 'Falha na comunicação com o servidor de aplicação, por favor, tente novamente.' }, () => false);
 				}
 			});
 		} 
