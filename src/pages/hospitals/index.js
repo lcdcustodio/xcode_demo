@@ -588,8 +588,6 @@ export default class Hospital extends Component {
 
 	loadHospitalsStorage = async () => {
 
-		this.setState({loading: true});
-
 		AsyncStorage.getItem('hospitalList', (err, res) => {
 
 			if (res == null) {
@@ -615,8 +613,6 @@ export default class Hospital extends Component {
 
 				this.getInformationHospital(hospitalList);
 			}
-
-			this.setState({loading: false});
 		});
 	}
 

@@ -600,8 +600,6 @@ export default class Report extends Component {
 
 	loadHospitalsStorage = async () => {
 
-		this.setState({loading: true});
-
 		AsyncStorage.getItem('hospitalList', (err, res) => {
 
 			if (res == null) {
@@ -625,8 +623,6 @@ export default class Report extends Component {
 			{
 				this.report(JSON.parse(res));
 			}
-
-			this.setState({loading: false});
 		});
 	}
 
