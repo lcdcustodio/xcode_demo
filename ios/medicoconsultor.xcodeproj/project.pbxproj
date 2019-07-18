@@ -1681,7 +1681,7 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = NO;
@@ -1704,10 +1704,10 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = br.com.rededor.app.react.medicoconsultor;
+				PRODUCT_BUNDLE_IDENTIFIER = br.com.rededor.medicoconsultor;
 				PRODUCT_NAME = medicoconsultor;
 				PROVISIONING_PROFILE = "05eb3101-90c2-480c-b9be-a0aebafaa536";
-				PROVISIONING_PROFILE_SPECIFIER = TIPRODUTO;
+				PROVISIONING_PROFILE_SPECIFIER = "Medico Consultor RDSL";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
@@ -1717,7 +1717,7 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 9VK9AM7XGC;
@@ -1739,10 +1739,10 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = br.com.rededor.app.react.medicoconsultor;
+				PRODUCT_BUNDLE_IDENTIFIER = br.com.rededor.medicoconsultor;
 				PRODUCT_NAME = medicoconsultor;
 				PROVISIONING_PROFILE = "05eb3101-90c2-480c-b9be-a0aebafaa536";
-				PROVISIONING_PROFILE_SPECIFIER = TIPRODUTO;
+				PROVISIONING_PROFILE_SPECIFIER = "Medico Consultor RDSL";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;
