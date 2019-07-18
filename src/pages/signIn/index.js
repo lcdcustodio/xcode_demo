@@ -176,7 +176,7 @@ export default class SignIn extends Component {
 								onChangeText={this.handleEmailChange}
 								autoCapitalize="none"
 								autoCorrect={false}
-	              				placeholderTextColor="#E0FFFF"
+	              				placeholderTextColor="#FFFFFF"
 								textAlign="auto"
 							/>
 							
@@ -188,7 +188,7 @@ export default class SignIn extends Component {
 								autoCapitalize="none"
 								autoCorrect={false}
 								secureTextEntry
-								placeholderTextColor="#E0FFFF"
+								placeholderTextColor="#FFFFFF"
 								textAlign="auto"
 							/>
 							

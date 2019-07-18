@@ -32,7 +32,7 @@ class PatientDetail extends Component {
             timerTextColor: "#005cd1",
             timerBackgroundColor: "#fff",
 			selectedTab: TabEnum.Profile,
-			isEditable: Session.current.user._profile != 'ADMIN'
+			isEditable: Session.current.user.profile == 'CONSULTANT'
 		}
 	}
 
