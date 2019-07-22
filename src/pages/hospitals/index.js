@@ -65,6 +65,32 @@ export default class Hospital extends Component {
 
 		this.setUser();
 	}
+
+	handleFirstConnectivityChange(connectionInfo) {
+
+		if(connectionInfo.type == 'none')
+		{
+			this.setState({ loading: true });
+
+			Alert.alert(
+				'Erro de conexão',
+				'Conexão com internet perdida, por favor, tente novamente',
+				[
+					{
+						text: 'OK', onPress: () => {}
+					},
+				],
+				{
+					cancelable: false
+				},
+			);
+		}
+
+		NetInfo.removeEventListener(
+			'connectionChange',
+			this.handleFirstConnectivityChange,
+		); 
+	}
 	
 	didFocus = this.props.navigation.addListener('didFocus', (payload) => {
 
@@ -74,7 +100,11 @@ export default class Hospital extends Component {
 
         this.setState({ timerTextColor: "#005cd1", timerBackgroundColor: "#fff" });
         
+        NetInfo.addEventListener('connectionChange', this.handleFirstConnectivityChange);
+
 		NetInfo.fetch().then(state => {
+
+			console.log(state.isConnected);
 
 			this.setState({isConnected: state.isConnected});
 
@@ -226,7 +256,9 @@ export default class Hospital extends Component {
 			}
 
 			if (aux.hasOwnProperty('patientHeight')) {
-				aux.patientHeight = aux.patientHeight.toString().replace(',', '.');
+				if (aux.patientHeight != null) {
+					aux.patientHeight = aux.patientHeight.toString().replace(',', '.');
+				}
 			}
 
 			return aux;
@@ -260,7 +292,7 @@ export default class Hospital extends Component {
 		            	Session.current.user = parse;
 					}
 
-		            this.state.token = parse.token;
+		            this.state.token = Session.current.user.token;
 
 		            AsyncStorage.getItem('hospitalizationList', (err, res) => {
 												
@@ -294,9 +326,9 @@ export default class Hospital extends Component {
 
 						}).then(response => {
 
-							this.setRequireSyncTimer(null);
-
 							this.setState({loading: false});
+
+							this.setRequireSyncTimer(null);
 
 							if (response == undefined) {
 
@@ -377,50 +409,23 @@ export default class Hospital extends Component {
 							}
 						
 						}).catch(error => {
+
 							this.setState({loading: false});
 
-							this.setState({errorSync: (this.state.errorSync + 1) });
-
-							if (this.state.errorSync <= 3) {
-
-								AsyncStorage.getItem('auth', (err, auth) => {
-							            
-						            data = JSON.parse(auth);
-
-						            data = qs.stringify(data, { encode: false });
-
-									api.post('/api/login',
-										data
-									)
-									.then(response => {
-
-										let content = response.data.content;
-																		
-										if(response.data.success) {
-											AsyncStorage.setItem('userData', JSON.stringify(content), () => {
-												this.sincronizar(true);
-											});
-										}
-									});
-						        });
-							}
-							else
-							{
-								Alert.alert(
-									'Erro ao carregar informações',
-									'Desculpe, recebemos um erro inesperado do servidor, por favor, faça login e tente novamente! ',
-									[
-										{
-											text: 'OK', onPress: () => {
-												this.props.navigation.navigate("SignIn");
-											}
-										},
-									],
+							Alert.alert(
+								'Erro ao carregar informações',
+								'Desculpe, recebemos um erro inesperado do servidor, por favor, faça login e tente novamente! ',
+								[
 									{
-										cancelable: false
+										text: 'OK', onPress: () => {
+											this.props.navigation.navigate("SignIn");
+										}
 									},
-								);
-							}
+								],
+								{
+									cancelable: false
+								},
+							);
 						});
 
 					});

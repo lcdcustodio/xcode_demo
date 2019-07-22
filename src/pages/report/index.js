@@ -163,7 +163,9 @@ export default class Report extends Component {
 			}
 
 			if (aux.hasOwnProperty('patientHeight')) {
-				aux.patientHeight = aux.patientHeight.toString().replace(',', '.');
+				if (aux.patientHeight != null) {
+					aux.patientHeight = aux.patientHeight.toString().replace(',', '.');
+				}
 			}
 
 			return aux;
@@ -241,9 +243,9 @@ export default class Report extends Component {
 
 						}).then(response => {
 
-							this.setRequireSyncTimer(null);
-
 							this.setState({loading: false});
+
+							this.setRequireSyncTimer(null);
 
 							if (response == undefined) {
 
@@ -323,48 +325,20 @@ export default class Report extends Component {
 
 							this.setState({loading: false});
 
-							this.setState({errorSync: (this.state.errorSync + 1) });
-
-							if (this.state.errorSync <= 3) {
-
-								AsyncStorage.getItem('auth', (err, auth) => {
-							            
-						            data = JSON.parse(auth);
-
-						            data = qs.stringify(data, { encode: false });
-
-									api.post('/api/login',
-										data
-									)
-									.then(response => {
-
-										let content = response.data.content;
-																		
-										if(response.data.success) {
-											AsyncStorage.setItem('userData', JSON.stringify(content), () => {
-												this.sincronizar(true);
-											});
-										}
-									});
-						        });
-							}
-							else
-							{
-								Alert.alert(
-									'Erro ao carregar informações',
-									'Desculpe, recebemos um erro inesperado do servidor, por favor, faça login e tente novamente! ',
-									[
-										{
-											text: 'OK', onPress: () => {
-												this.props.navigation.navigate("SignIn");
-											}
-										},
-									],
+							Alert.alert(
+								'Erro ao carregar informações',
+								'Desculpe, recebemos um erro inesperado do servidor, por favor, faça login e tente novamente! ',
+								[
 									{
-										cancelable: false
+										text: 'OK', onPress: () => {
+											this.props.navigation.navigate("SignIn");
+										}
 									},
-								);
-							}
+								],
+								{
+									cancelable: false
+								},
+							);
 						});
 					});
 				}
