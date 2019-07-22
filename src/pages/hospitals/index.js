@@ -70,20 +70,11 @@ export default class Hospital extends Component {
 
 		if(connectionInfo.type == 'none')
 		{
-			this.setState({ loading: true });
-
-			Alert.alert(
-				'Erro de conexão',
-				'Conexão com internet perdida, por favor, tente novamente',
-				[
-					{
-						text: 'OK', onPress: () => {}
-					},
-				],
-				{
-					cancelable: false
-				},
-			);
+			this.setState({isConnected: false });
+		}
+		else
+		{
+			this.setState({isConnected: true });
 		}
 
 		NetInfo.removeEventListener(
@@ -103,8 +94,6 @@ export default class Hospital extends Component {
         NetInfo.addEventListener('connectionChange', this.handleFirstConnectivityChange);
 
 		NetInfo.fetch().then(state => {
-
-			console.log(state.isConnected);
 
 			this.setState({isConnected: state.isConnected});
 
@@ -271,6 +260,26 @@ export default class Hospital extends Component {
 	loadHospitals = async () => {
 		
 		try {
+
+			console.log(this.state.isConnected);
+			
+			if (!this.state.isConnected) {
+				
+				Alert.alert(
+					'Sua conexão paece estar inativa',
+					'Por favor verifique sua conexão e tente novamente',
+					[
+						{
+							text: 'OK', onPress: () => {}
+						},
+					],
+					{
+						cancelable: false
+					},
+				);
+
+				return false;
+			}
 
 			this.setState({ textContent: 'Carregando informações...' });
 
