@@ -73,6 +73,8 @@ export default class Report extends Component {
 
         this.setState({ timerTextColor: "#005cd1", timerBackgroundColor: "#fff" });
 
+        NetInfo.addEventListener('connectionChange', this.handleFirstConnectivityChange);
+
 		NetInfo.fetch().then(state => {
 
 			this.setState({isConnected: state.isConnected});
@@ -175,9 +177,46 @@ export default class Report extends Component {
 		return result;
 	}
 
+	handleFirstConnectivityChange(connectionInfo) {
+
+		if(connectionInfo.type == 'none')
+		{
+			this.setState({isConnected: false });
+		}
+		else
+		{
+			this.setState({isConnected: true });
+		}
+
+		NetInfo.removeEventListener(
+			'connectionChange',
+			this.handleFirstConnectivityChange,
+		); 
+	}
+
 	loadHospitals = async () => {
 		
 		try {
+
+			console.log(this.state.isConnected);
+			
+			if (!this.state.isConnected) {
+				
+				Alert.alert(
+					'Sua conexão parece estar inativa',
+					'Por favor verifique sua conexão e tente novamente',
+					[
+						{
+							text: 'OK', onPress: () => {}
+						},
+					],
+					{
+						cancelable: false
+					},
+				);
+
+				return false;
+			}
 
 			this.setState({ textContent: 'Carregando informações...' });
 
@@ -187,7 +226,9 @@ export default class Report extends Component {
 
 				if (res == null) 
 				{
-					this.setState({loading: false});
+					setTimeout(function() {
+					    this.setState({loading: false});
+					}, 100);
 
 					this.props.navigation.navigate("SignIn");
 				}
@@ -243,9 +284,9 @@ export default class Report extends Component {
 
 						}).then(response => {
 
-							this.setState({loading: false});
-
-							this.setRequireSyncTimer(null);
+							setTimeout(function() {
+							    this.setState({loading: false});
+							}, 100);
 
 							if (response == undefined) {
 
@@ -267,7 +308,9 @@ export default class Report extends Component {
 							else
 							{
 							
-								if(response.status === 200) {
+								if(response && response.status === 200) {
+
+									this.setRequireSyncTimer(null);
 
 									AsyncStorage.setItem('hospitalizationList', JSON.stringify([]));
 									AsyncStorage.setItem('morbidityComorbityList', JSON.stringify(response.data.content.morbidityComorbityList));
@@ -304,26 +347,36 @@ export default class Report extends Component {
 								
 								} else {
 
-									Alert.alert(
-										'Erro ao carregar informações',
-										'Desculpe, recebemos um erro inesperado do servidor, por favor, faça login e tente novamente! ',
-										[
+									setTimeout(() => {
+
+										Alert.alert(
+											'Erro ao carregar informações',
+											'Desculpe, recebemos um erro inesperado do servidor, por favor, faça login e tente novamente! ',
+											[
+												{
+													text: 'OK', onPress: () => {
+														this.props.navigation.navigate("SignIn");
+													}
+												},
+											],
 											{
-												text: 'OK', onPress: () => {
-													this.props.navigation.navigate("SignIn");
-												}
+												cancelable: false
 											},
-										],
-										{
-											cancelable: false
-										},
-									);
+										);
+
+									}, 200);
+
+									this.props.navigation.navigate("SignIn");
 								}
 							}
 						
 						}).catch(error => {
 
-							this.setState({loading: false});
+							setTimeout(function() {
+							    this.setState({loading: false});
+							}, 100);
+
+							setTimeout(() => {
 
 							Alert.alert(
 								'Erro ao carregar informações',
@@ -339,13 +392,37 @@ export default class Report extends Component {
 									cancelable: false
 								},
 							);
+
+							}, 200);
 						});
 					});
 				}
 			});
 
         } catch(error) {
-        	this.setState({loading: false});
+        	
+        	setTimeout(function() {
+			    this.setState({loading: false});
+			}, 100);
+
+			setTimeout(() => {
+
+			Alert.alert(
+				'Erro ao carregar informações',
+				error,
+				[
+					{
+						text: 'OK', onPress: () => {
+							this.props.navigation.navigate("SignIn");
+						}
+					},
+				],
+				{
+					cancelable: false
+				},
+			);
+
+			}, 200);
         }        		
 	};
 

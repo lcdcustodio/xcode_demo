@@ -266,7 +266,7 @@ export default class Hospital extends Component {
 			if (!this.state.isConnected) {
 				
 				Alert.alert(
-					'Sua conexão paece estar inativa',
+					'Sua conexão parece estar inativa',
 					'Por favor verifique sua conexão e tente novamente',
 					[
 						{
@@ -287,9 +287,13 @@ export default class Hospital extends Component {
 
 			AsyncStorage.getItem('userData', (err, res) => {
 
+				console.log(err, res);
+
 				if (res == null) 
 				{
-					this.setState({loading: false});
+					setTimeout(function() {
+					    this.setState({loading: false});
+					}, 100);
 
 					this.props.navigation.navigate("SignIn");
 				}
@@ -335,30 +339,38 @@ export default class Hospital extends Component {
 
 						}).then(response => {
 
-							this.setState({loading: false});
-
-							this.setRequireSyncTimer(null);
+							setTimeout(function() {
+							    setTimeout(function() {
+										    this.setState({loading: false});
+										}, 100);
+							}, 100);
 
 							if (response == undefined) {
 
-								Alert.alert(
-									'Erro ao carregar informações',
-									'Desculpe, recebemos um erro inesperado do servidor, por favor, faça login e tente novamente! [REF 001]',
-									[
+								setTimeout(() => {
+
+									Alert.alert(
+										'Erro ao carregar informações',
+										'Desculpe, recebemos um erro inesperado do servidor, por favor, faça login e tente novamente! [REF 001]',
+										[
+											{
+												text: 'OK', onPress: () => {
+													this.props.navigation.navigate("SignIn");
+												}
+											},
+										],
 										{
-											text: 'OK', onPress: () => {
-												this.props.navigation.navigate("SignIn");
-											}
+											cancelable: false
 										},
-									],
-									{
-										cancelable: false
-									},
-								);
+									);
+
+								}, 200);
 							}
 							else
 							{
-								if(response.status === 200) {
+								if(response && response.status === 200) {
+
+									this.setRequireSyncTimer(null);
 
 									AsyncStorage.setItem('hospitalizationList', JSON.stringify([]));
 									AsyncStorage.setItem('morbidityComorbityList', JSON.stringify(response.data.content.morbidityComorbityList));
@@ -385,7 +397,9 @@ export default class Hospital extends Component {
 
 									this.getInformationHospital(listHospital).then(response => {
 
-										this.setState({loading: false});
+										setTimeout(function() {
+										    this.setState({loading: false});
+										}, 100);
 										
 										const dateSync = moment().format('DD/MM/YYYY [às] HH:mm:ss');
 
@@ -398,20 +412,24 @@ export default class Hospital extends Component {
 								
 								} else {
 
-									Alert.alert(
-										'Erro ao carregar informações',
-										'Desculpe, recebemos um erro inesperado do servidor, por favor, faça login e tente novamente! ',
-										[
+									setTimeout(() => {
+
+										Alert.alert(
+											'Erro ao carregar informações',
+											'Desculpe, recebemos um erro inesperado do servidor, por favor, faça login e tente novamente! ',
+											[
+												{
+													text: 'OK', onPress: () => {
+														this.props.navigation.navigate("SignIn");
+													}
+												},
+											],
 											{
-												text: 'OK', onPress: () => {
-													this.props.navigation.navigate("SignIn");
-												}
+												cancelable: false
 											},
-										],
-										{
-											cancelable: false
-										},
-									);
+										);
+
+									}, 200);
 
 									this.props.navigation.navigate("SignIn");
 								}
@@ -419,7 +437,11 @@ export default class Hospital extends Component {
 						
 						}).catch(error => {
 
-							this.setState({loading: false});
+							setTimeout(function() {
+							    this.setState({loading: false});
+							}, 100);
+
+							setTimeout(() => {
 
 							Alert.alert(
 								'Erro ao carregar informações',
@@ -435,6 +457,8 @@ export default class Hospital extends Component {
 									cancelable: false
 								},
 							);
+
+							}, 200);
 						});
 
 					});
@@ -442,8 +466,30 @@ export default class Hospital extends Component {
 			});
 
         } catch(error) {
-        	this.setState({loading: false});
-        }        		
+        	
+        	setTimeout(function() {
+			    this.setState({loading: false});
+			}, 100);
+
+			setTimeout(() => {
+
+			Alert.alert(
+				'Erro ao carregar informações',
+				error,
+				[
+					{
+						text: 'OK', onPress: () => {
+							this.props.navigation.navigate("SignIn");
+						}
+					},
+				],
+				{
+					cancelable: false
+				},
+			);
+
+			}, 200);
+        }     		
 	};
 
 	isTheSameHospital = (hospital, userData) =>  {
