@@ -12,8 +12,10 @@ import {Container, Logo, Input, ErrorMessage, Button, ButtonText} from './styles
 export default class SignIn extends Component {
 	
 	constructor(props) {
+
 		super(props);
-		this.state = { 
+		
+		this.state = {
 			lastDateSync: '2010-01-10T18:46:19-0700',
 			email: '',
 			password: '',
@@ -125,22 +127,24 @@ export default class SignIn extends Component {
 			        });	
 		        }	
 		        else
-		        {	    	
+		        {	    			        	
 					this.setState({loading: false});
 
-					this.setState({ error: 'O servidor de aplicação retornou um resultado inesperado, por favor, tente novamente' }, () => false);
+					this.setState({ error: response }, () => false);
 		        }	
 
 			}).catch(error => {
 				
 				this.setState({loading: false});
 
-				if (error && error.response && error.response.error) {
+				if (error && error.response) {
 
 					if(error.response.status == 401) {
 						this.setState({ error: 'Usuário e senha não coincidem' }, () => false);
 					} else if(error.response.status == 500) {
 						this.setState({ error: 'Falha na comunicação com o servidor de aplicação' }, () => false);
+					} else if(error.response.status == 502) {
+						this.setState({ error: 'O servidor retornou um resultado inesperado, por favor, tente novamente' }, () => false);
 					} else {
 						this.setState({ error: error.message }, () => false);
 					}
