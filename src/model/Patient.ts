@@ -48,9 +48,14 @@ export default class Patient extends JsonEntity<Patient> {
 
         let listOfOrderedPatientObservations = _.orderBy(observationList, ['observationDate'], ['desc']);
 
+
         const today = moment();
 
         if (listOfOrderedPatientObservations.length > 0) {
+
+	        if(listOfOrderedPatientObservations[0].observationDate == null){
+	        	return IconEyeEnum.OLHO_AZUL;
+	        }
             
             const today = moment();
             

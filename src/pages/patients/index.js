@@ -81,7 +81,7 @@ export default class Patients extends Component {
                     break;
 
                 }
-            }            
+            }         
         });
 
         BackHandler.removeEventListener ('hardwareBackPress', () => {});

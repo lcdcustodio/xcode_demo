@@ -212,6 +212,15 @@ export default class Visitas extends React.Component {
 		return diffDays === 0 ? true : false
 	}
 
+	getParamnDate(date) {
+
+		if (date == null) {
+			return '';
+		}
+
+		return moment(date).format('DD/MM/YYYY');
+	}
+
 	renderItem = ({ item, index }) => {
 		const { patient } = this.state;
 		const observations = _.orderBy(patient.observationList, ['observationDate'], ['desc']);
@@ -232,7 +241,7 @@ export default class Visitas extends React.Component {
 										<Text style={{ fontSize: 16, fontWeight: 'bold'}}>Visita {isEdit && this.showIconEdit(this.isToday(item.observationDate))}</Text>
 									</Left>
 									<Right>
-										<Text>{this.isToday(item.observationDate) ? 'Hoje' : moment(item.observationDate).format('DD/MM/YYYY')}</Text>
+										<Text>{this.isToday(item.observationDate) ? 'Hoje' : this.getParamnDate(item.observationDate)}</Text>
 									</Right>
 								</CardItem>
 								
