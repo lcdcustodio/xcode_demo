@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StatusBar, Text, StyleSheet, ImageBackground, Keyboard } from 'react-native';
+import { Alert, StatusBar, Text, StyleSheet, ImageBackground, Keyboard } from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
 import AsyncStorage from '@react-native-community/async-storage';
 import qs from "qs";
@@ -92,6 +92,29 @@ export default class SignIn extends Component {
 			this.setState({ textContent: 'Aguarde...' });
 
 			this.setState({loading: true});
+
+			let timer = setTimeout(() => {
+
+				if (this.state.loading) {
+
+					this.setState({ loading: false });
+
+					Alert.alert(
+						'Servidor lento ou indisponível',
+						'O servidor não retornou um resultado dentro do período de 2 minutos, por favor tente novamente ou entre em contato com o suporte',
+						[
+							{
+								text: 'OK', onPress: () => {}
+							},
+						],
+						{
+							cancelable: false
+						},
+					);
+					
+				}
+
+		    }, 120000);
 			
 			const params = {
 				username: this.state.email,
@@ -104,6 +127,8 @@ export default class SignIn extends Component {
 				data
 			)
 			.then(response => {
+
+				clearTimeout(timer);
 
 				if(response && response.data && response.data.success) {
 
@@ -134,6 +159,8 @@ export default class SignIn extends Component {
 		        }	
 
 			}).catch(error => {
+
+				clearTimeout(timer);
 				
 				this.setState({loading: false});
 

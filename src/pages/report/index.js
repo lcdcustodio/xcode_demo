@@ -205,7 +205,7 @@ export default class Report extends Component {
 
 			this.setState({loading: true});
 
-			setTimeout(() => {
+			let timer = setTimeout(() => {
 
 				if (this.state.loading) {
 
@@ -288,6 +288,8 @@ export default class Report extends Component {
 
 						}).then(response => {
 
+							clearTimeout(timer);
+
 							this.setState({loading: false});
 
 							if(response && response.status === 200) {
@@ -346,6 +348,8 @@ export default class Report extends Component {
 							}
 											
 						}).catch(error => {
+
+							clearTimeout(timer);
 
 							this.setState({loading: false});
 
