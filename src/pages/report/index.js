@@ -205,6 +205,29 @@ export default class Report extends Component {
 
 			this.setState({loading: true});
 
+			setTimeout(() => {
+
+				if (this.state.loading) {
+
+					this.setState({ loading: false });
+
+					Alert.alert(
+						'Servidor lento ou indisponível',
+						'O servidor não retornou um resultado dentro do período de 2 minutos, por favor tente novamente ou entre em contato com o suporte',
+						[
+							{
+								text: 'OK', onPress: () => {}
+							},
+						],
+						{
+							cancelable: false
+						},
+					);
+					
+				}
+
+		    }, 120000);
+
 			AsyncStorage.getItem('userData', (err, res) => {
 
 				if (res == null) 
