@@ -2,7 +2,7 @@ app_identifier("br.com.rededor.medicoconsultor") # The bundle identifier of your
 apple_id("appleid.enterprise@rededor.com.br") # Your Apple email address
 
 itc_team_id("119629549") # App Store Connect Team ID
-team_id("9VK9AM7XGC") # Developer Portal Team ID
+#team_id("9VK9AM7XGC") # Developer Portal Team ID
 
 # For more information about the Appfile, see:
 #     https://docs.fastlane.tools/advanced/#appfile
