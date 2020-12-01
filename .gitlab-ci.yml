@@ -22,6 +22,7 @@ build:
     - pwd
     - ls
     - ruby -v
+    - gem install bundler
 #    - bundle install
 #    - fastlane gym --workspace "ios/medicoconsultor.xcworkspace" --scheme "medicoconsultor" --clean
 #    - bundle exec fastlane build
