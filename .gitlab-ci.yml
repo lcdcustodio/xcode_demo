@@ -6,9 +6,9 @@ stages:
 #  - cd ios
 
 variables:
-  LC_ALL: "en_US.UTF-8"
-  LANG: "en_US.UTF-8"
-  GIT_STRATEGY: clone
+#  LC_ALL: "en_US.UTF-8"
+#  LANG: "en_US.UTF-8"
+#  GIT_STRATEGY: clone
   IOS_FOLDER: ios
 
 build:
