@@ -12,6 +12,7 @@
 
 output_directory("./ios/build")
 export_method("enterprise")
-workspace("ios/medicoconsultor.xcworkspace")
+#workspace("ios/medicoconsultor.xcworkspace")
+workspace("medicoconsultor.xcworkspace")
 scheme("medicoconsultor")
 
