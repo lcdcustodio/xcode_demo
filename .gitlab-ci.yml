@@ -21,7 +21,8 @@ build:
     - cd $IOS_FOLDER    
     - pwd
     - ls
-    - bundle install
+    - ruby -v
+#    - bundle install
 #    - fastlane gym --workspace "ios/medicoconsultor.xcworkspace" --scheme "medicoconsultor" --clean
 #    - bundle exec fastlane build
 
