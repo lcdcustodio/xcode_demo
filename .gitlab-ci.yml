@@ -11,6 +11,7 @@ build:
   script:
     - ls
     - pwd
-    - bundle install
+#    - bundle install
+    - BUNDLE_GEMFILE="ios/Gemfile" bundle install
 #    - bundle exec fastlane build
 
