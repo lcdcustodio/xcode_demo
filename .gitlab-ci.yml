@@ -11,5 +11,5 @@ build:
   script:
 #    - bundle install
 #    - bundle exec fastlane build
-#    - ls
+    - ls
     - pwd
