@@ -1,0 +1,11 @@
+stages:
+  - build
+
+
+build:
+  stage: build
+  script:
+#    - bundle install
+#    - bundle exec fastlane build
+    - ls
+    - pwd
