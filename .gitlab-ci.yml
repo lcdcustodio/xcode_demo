@@ -9,7 +9,10 @@ variables:
 build:
   stage: build
   script:
-#    - bundle install
-#    - bundle exec fastlane build
     - ls
     - pwd
+    - cd ios
+    - pwd
+#    - bundle install
+#    - bundle exec fastlane build
+
