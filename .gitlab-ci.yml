@@ -11,8 +11,6 @@ build:
   script:
     - ls
     - pwd
-    - cd ios
-    - pwd
 #    - bundle install
 #    - bundle exec fastlane build
 
