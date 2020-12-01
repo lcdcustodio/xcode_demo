@@ -18,8 +18,11 @@ default_platform(:ios)
 platform :ios do
   desc "Archive IPA"
   lane :beta do
-    increment_build_number(xcodeproj: "ios/medicoconsultor.xcodeproj")
-    build_app(workspace: "ios/medicoconsultor.xcworkspace", scheme: "medicoconsultor")
+#    increment_build_number(xcodeproj: "ios/medicoconsultor.xcodeproj")
+#    build_app(workspace: "ios/medicoconsultor.xcworkspace", scheme: "medicoconsultor")
+    increment_build_number(xcodeproj: "medicoconsultor.xcodeproj")
+    build_app(workspace: "medicoconsultor.xcworkspace", scheme: "medicoconsultor")
+    
     gym    
 #    gym --export_method enterprise
   end
