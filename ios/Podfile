@@ -1,0 +1,33 @@
+# Uncomment the next line to define a global platform for your project
+# platform :ios, '9.0'
+
+target 'medicoconsultor' do
+  # Comment the next line if you don't want to use dynamic frameworks
+  use_frameworks!
+
+  # Pods for medicoconsultor
+
+  target 'medicoconsultor-tvOSTests' do
+    inherit! :search_paths
+    # Pods for testing
+  end
+
+  target 'medicoconsultorTests' do
+    inherit! :search_paths
+    # Pods for testing
+  end
+
+end
+
+target 'medicoconsultor-tvOS' do
+  # Comment the next line if you don't want to use dynamic frameworks
+  use_frameworks!
+
+  # Pods for medicoconsultor-tvOS
+
+  #target 'medicoconsultor-tvOSTests' do
+  #  inherit! :search_paths
+    # Pods for testing
+  #end
+
+end
