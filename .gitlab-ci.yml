@@ -1,9 +1,9 @@
 stages:
   - build
 
-before_script:
-  - echo Hello World
-  - cd ios
+#before_script:
+#  - echo Hello World
+#  - cd ios
 
 variables:
   LC_ALL: "en_US.UTF-8"
