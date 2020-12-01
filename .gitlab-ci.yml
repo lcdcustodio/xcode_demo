@@ -1,6 +1,10 @@
 stages:
   - build
 
+before_script:
+  - echo Hello World
+  - cd ios
+
 variables:
   LC_ALL: "en_US.UTF-8"
   LANG: "en_US.UTF-8"
@@ -13,6 +17,6 @@ build:
     - pwd
 #    - bundle install
     - BUNDLE_GEMFILE="ios/Gemfile" bundle install
-    - cd ./ios
+#    - cd ./ios
 #    - bundle exec fastlane build
 
