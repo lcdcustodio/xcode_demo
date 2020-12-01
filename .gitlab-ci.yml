@@ -17,7 +17,8 @@ build:
     - ls
     - pwd
     - BUNDLE_GEMFILE="ios/Gemfile" bundle install
-    - cd $IOS_FOLDER
+#    - cd $IOS_FOLDER
+    - echo $IOS_FOLDER    
 #    - fastlane gym --workspace "ios/medicoconsultor.xcworkspace" --scheme "medicoconsultor" --clean
 #    - bundle exec fastlane build
 
